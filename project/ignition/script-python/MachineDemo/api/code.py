@@ -78,6 +78,14 @@ CONFIG = [
 
 _PLAN = None
 
+# Quality is judged stale after this many milliseconds with no fresh write.
+# The contract calls for ">5s"; the simulator ticks every 500ms, so 5000ms is
+# ten missed ticks - long enough that ordinary poll jitter or a slow gateway
+# never trips it, short enough that a presenter watching the page sees the
+# banner inside about a second of the sim actually stopping (the 250ms poll
+# plus this margin).
+STALE_AFTER_MS = 5000
+
 
 def _plan():
 	"""(paths, offsets), built once and cached.
@@ -150,6 +158,117 @@ def _ci(v, default):
 		return default
 
 
+def _readQ(paths):
+	"""Read many tags at once, exactly like plant.read(), but keep the
+	QualifiedValue instead of collapsing it straight to a value-or-None.
+
+	plant.read() is not ours to change, and adding a second readBlocking
+	call beside it would make every poll pay for two round trips instead of
+	one just to see what plant.read() already saw and threw away. So this is
+	a sibling of plant.read() living in api, not an edit to plant.py: same
+	call shape, same "bad quality reads back None" behaviour for the values,
+	but it also hands back the QualifiedValue list so the caller can look at
+	quality and timestamp.
+	"""
+	full = [P.tag(p) for p in paths]
+	try:
+		qvs = system.tag.readBlocking(full)
+	except:
+		import traceback
+		LOG.warn("read failed: %s" % traceback.format_exc())
+		return [None] * len(paths), [None] * len(paths)
+	vals = []
+	for q in qvs:
+		try:
+			vals.append(q.value if q.quality.isGood() else None)
+		except:
+			vals.append(None)
+	return vals, list(qvs)
+
+
+def _quality(paths, qvs):
+	"""The `quality` block for ?cmd=state - additive, alongside the frozen
+	shape below, never inside it.
+
+	Every tag in this demo is a standard/memory tag with no OPC device behind
+	it (the simulator writes them directly), so `bad` - built from each
+	QualifiedValue's own quality.isGood() - is the check for a tag that was
+	deleted, renamed, or never created: it will almost never fire from the
+	simulator merely being stopped, because writeBlocking leaves a memory
+	tag's quality Good forever, changing only its timestamp.
+
+	That is exactly the dangerous case docs/CONTRACT.md describes: a frozen
+	arm position that still reads Good. So `stale` is judged separately, off
+	the AGE of the NEWEST timestamp across every tag in this same read -
+	directly measuring "the simulator, as a whole, has not written for more
+	than 5s", the contract's own wording, rather than "one particular tag
+	has not changed".
+
+	A single representative tag was tried first and measured wrong: Robot/
+	CycleCount only advances once per ~12s pick-and-place cycle, and a
+	memory tag's timestamp does not move on a write that repeats the same
+	value (measured on this gateway, 02/09/2026 - CycleCount alone flagged a
+	healthy, moving robot "stale" for several seconds out of every cycle).
+	Taking the max across the whole snapshot fixes that for free: something
+	in an 8-node, ~90-tag cell (a joint angle, a photo-eye, a case count) is
+	all but certain to have moved within the last tick whenever the
+	simulator is genuinely running, and only truly freezes when the whole
+	tree does.
+	"""
+	bad = []
+	worst_name = u"Good"
+	worst_rank = 2   # 0 Bad, 1 Uncertain, 2 Good - lower is worse
+	newest = None
+	for path, qv in zip(paths, qvs):
+		if qv is None:
+			bad.append(path)
+			if worst_rank > 0:
+				worst_rank = 0
+				worst_name = u"Bad_Failure"
+			continue
+		try:
+			q = qv.quality
+			good = q.isGood()
+		except:
+			bad.append(path)
+			if worst_rank > 0:
+				worst_rank = 0
+				worst_name = u"Bad_Failure"
+			continue
+		if not good:
+			bad.append(path)
+		rank = 2
+		try:
+			if q.isBad():
+				rank = 0
+			elif q.isUncertain():
+				rank = 1
+		except:
+			rank = 0
+		if rank < worst_rank:
+			worst_rank = rank
+			worst_name = unicode(q)
+		try:
+			if qv.timestamp is not None:
+				t = qv.timestamp.getTime()
+				if newest is None or t > newest:
+					newest = t
+		except:
+			pass
+
+	stale = True
+	if newest is not None:
+		age = JSystem.currentTimeMillis() - newest
+		stale = age > STALE_AFTER_MS
+
+	return {
+		"ok": (not bad) and (not stale),
+		"bad": bad,
+		"stale": stale,
+		"worst": worst_name,
+	}
+
+
 def state():
 	"""The whole cell in one dict, in the shape the 3D page is written against.
 
@@ -158,7 +277,7 @@ def state():
 	scene graph and a null there stops the animation rather than logging.
 	"""
 	paths, o = _plan()
-	v = P.read(paths)
+	v, qvs = _readQ(paths)
 
 	line = v[o["line"]:o["line"] + len(LINE)]
 	rb = v[o["robot"]:o["robot"] + len(ROBOT)]
@@ -236,6 +355,9 @@ def state():
 		# above, not a hole in the response.
 		"config": dict((key, _ci(val, default))
 		               for (path, key, default), val in zip(CONFIG, cf)),
+		# Additive: whether this snapshot is trustworthy - see _quality()'s
+		# docstring for how "stale" is judged across the whole read.
+		"quality": _quality(paths, qvs),
 	}
 
 

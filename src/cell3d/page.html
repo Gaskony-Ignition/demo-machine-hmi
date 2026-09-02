@@ -9,6 +9,12 @@
      the page has to render identically on a machine with no internet, which
      is the normal condition for the panel this is designed for. */
   :root {
+    /* Defaults match the gateway's dark-cool theme, today's session default -
+       applyTheme() overwrites every one of these (colour-scheme included) as
+       an inline style on :root before the scene is built, from ?theme= or the
+       Perspective session's own theme name when this page is embedded. These
+       ten are the only source of truth for the page's colour; nothing below
+       this block should ever hard-code one of them again. */
     color-scheme: dark;
     --bg: #171b20;
     --panel: rgba(29,35,42,.92);
@@ -28,7 +34,16 @@
     color: var(--ink);
     -webkit-tap-highlight-color: transparent;
   }
-  canvas { display: block; touch-action: none; }
+  canvas {
+    display: block; touch-action: none;
+    filter: grayscale(0) brightness(1) saturate(1);
+    transition: filter .5s ease;
+  }
+  /* Bad/stale quality: the model itself goes flat and dark rather than
+     showing a bright, saturated picture of a machine that has stopped
+     reporting. This is orthogonal to the fetch-failed fallback below - that
+     case never sets this class (see qualityBad's guard in updateHUD). */
+  body.quality-bad canvas { filter: grayscale(.85) brightness(.55) saturate(.4); }
 
   .hud { position: fixed; z-index: 5; }
   /* ?hud=0: the overlay cards and the camera row disappear (an embedded
@@ -89,6 +104,26 @@
   @keyframes pulse { 0%,100% { border-color:#8c2830 } 50% { border-color:#f0565e } }
   @media (prefers-reduced-motion: reduce) { #faultbanner { animation: none } }
 
+  /* Same mechanics as #faultbanner (fixed, centred, a .show class flipping
+     display, a pulsing border) - amber rather than red, because "the data
+     might be lying to you" is a different, calmer-but-more-fundamental alarm
+     than "the machine has a fault". A real fault reported on FROZEN data is
+     itself untrustworthy, so this sits above the fault banner and pushes it
+     down (body.quality-bad #faultbanner, below) rather than the two
+     overlapping. */
+  #qualitybanner {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 9; display: none; align-items: center; gap: 11px;
+    background: rgba(61,48,15,.95); border: 1px solid #8c6b20; border-radius: 9px;
+    padding: 10px 18px; color: #ffdf9e; font-size: 14px; font-weight: 600;
+    box-shadow: 0 6px 26px rgba(0,0,0,.5);
+    animation: qpulse 1.6s ease-in-out infinite;
+  }
+  #qualitybanner.show { display: flex; }
+  @keyframes qpulse { 0%,100% { border-color:#8c6b20 } 50% { border-color:#eebf5e } }
+  @media (prefers-reduced-motion: reduce) { #qualitybanner { animation: none } }
+  body.quality-bad #faultbanner { top: 64px; }
+
   /* ---- bottom-right: pallet build ---- */
   #pallets { bottom: 12px; right: 12px; width: 252px; }
   .pal { padding: 7px 0; }
@@ -128,11 +163,12 @@
   /* ---- link state ---- */
   #link {
     position: fixed; z-index: 6; bottom: 12px; left: 50%; transform: translateX(-50%);
-    font-size: 11.5px; color: var(--dim); background: rgba(29,35,42,.9);
+    font-size: 11.5px; color: var(--dim); background: var(--panel);
     border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px;
     display: flex; align-items: center; gap: 8px;
   }
   #link.stale { color: var(--warn); border-color: #6e5520; }
+  #link.qbad  { color: var(--warn); border-color: #6e5520; }
 
   /* A 10in panel is 1024x600, and at that width the camera row and the link
      pill both want the bottom of the screen. Lift the pill above the row --
@@ -156,6 +192,7 @@
 
 <div id="boot">Loading cell model…</div>
 
+<div id="qualitybanner"><span>&#9679;</span><span id="qualitytext"></span></div>
 <div id="faultbanner"><span>&#9888;</span><span id="faulttext"></span></div>
 
 <div class="hud card" id="state">
@@ -208,7 +245,8 @@
   // URL params. ?camera= picks the starting preset by slug; ?hud=0 hides the
   // overlay cards and the camera row (an embedded Perspective panel wants the
   // model, not the chrome) while leaving the 3D-anchored labels and the fault
-  // pulse on the model itself untouched. Unknown values fall back silently.
+  // pulse on the model itself untouched. ?theme= picks the colour set (below).
+  // Unknown values fall back silently.
   // ----------------------------------------------------------------------
   var urlParams = new URLSearchParams(window.location.search);
   var CAMERA_SLUGS = {
@@ -222,6 +260,74 @@
   // that one class is exactly "the overlay cards and the camera buttons" -
   // nothing else moves.
   document.documentElement.classList.toggle("hud-off", !hudOn);
+
+  // ----------------------------------------------------------------------
+  // ?theme= - the Perspective session's theme name (Cell3D's view binds it
+  // to {session.props.theme}; an embedder can override it). Six named sets
+  // tuned for Ignition's stock themes; anything else is one of this estate's
+  // ten custom gateway themes, and degrades by PREFIX - "light..." gets the
+  // light set, everything else the dark set - rather than breaking. Applied
+  // as inline styles on :root, which is the only thing that outranks the
+  // static :root block above without touching it.
+  // ----------------------------------------------------------------------
+  var THEME_DARK = {
+    bg: "#171b20", panel: "rgba(29,35,42,.92)", line: "#2c343d",
+    ink: "#dde4e9", dim: "#8b98a3", run: "#46d07c", fault: "#f0565e",
+    warn: "#eebf5e", info: "#6cc4e8", scheme: "dark"
+  };
+  var THEME_LIGHT = {
+    bg: "#eef1f4", panel: "rgba(255,255,255,.92)", line: "#c7cfd6",
+    ink: "#1c232a", dim: "#5b6b78", run: "#1f8a4c", fault: "#c93341",
+    warn: "#9c6b00", info: "#0f7aa8", scheme: "light"
+  };
+  var THEME_SETS = {
+    "dark": THEME_DARK,
+    "dark-cool": {
+      bg: "#141a22", panel: "rgba(23,31,41,.92)", line: "#263140",
+      ink: "#dbe6ee", dim: "#8796a5", run: "#3ecf8e", fault: "#f15b6c",
+      warn: "#e8b95c", info: "#5cc8f0", scheme: "dark"
+    },
+    "dark-warm": {
+      bg: "#201a16", panel: "rgba(39,32,26,.92)", line: "#3a2e24",
+      ink: "#efe6dd", dim: "#a89584", run: "#5ecf7a", fault: "#f2725c",
+      warn: "#f0b24e", info: "#e8935c", scheme: "dark"
+    },
+    "light": THEME_LIGHT,
+    "light-cool": {
+      bg: "#eaf1f6", panel: "rgba(255,255,255,.94)", line: "#c1d2dc",
+      ink: "#152530", dim: "#4f6672", run: "#1a8f60", fault: "#c9394a",
+      warn: "#93600b", info: "#0d76aa", scheme: "light"
+    },
+    "light-warm": {
+      bg: "#f6f1e9", panel: "rgba(255,255,255,.94)", line: "#ddd0bd",
+      ink: "#2b2118", dim: "#75695a", run: "#3f7a2f", fault: "#b8422f",
+      warn: "#8a5a00", info: "#8a5210", scheme: "light"
+    }
+  };
+  function resolveTheme(name) {
+    var key = (name || "dark-cool").toLowerCase();
+    if (THEME_SETS[key]) return THEME_SETS[key];
+    return key.indexOf("light") === 0 ? THEME_LIGHT : THEME_DARK;
+  }
+  var THEME = resolveTheme(urlParams.get("theme"));
+  (function applyTheme(t) {
+    var root = document.documentElement.style;
+    root.setProperty("--bg", t.bg);
+    root.setProperty("--panel", t.panel);
+    root.setProperty("--line", t.line);
+    root.setProperty("--ink", t.ink);
+    root.setProperty("--dim", t.dim);
+    root.setProperty("--run", t.run);
+    root.setProperty("--fault", t.fault);
+    root.setProperty("--warn", t.warn);
+    root.setProperty("--info", t.info);
+    // Sets the actual color-scheme property (not a custom property) so it
+    // beats the static :root rule the same way the vars above do - without
+    // this, Chrome's auto-dark-mode repaints canvas/SVG content on a light
+    // theme even though every one of the vars above reads correctly; see
+    // knowledge/reference-chrome-auto-dark-svg.md.
+    root.setProperty("color-scheme", t.scheme);
+  })(THEME);
 
   // ----------------------------------------------------------------------
   // Cell geometry. Read once from [MachineDemo]Config/* through ?cmd=state,
@@ -279,8 +385,13 @@
   document.body.appendChild(renderer.domElement);
 
   var scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x171b20);
-  scene.fog = new THREE.Fog(0x171b20, 14, 30);
+  // The wall behind the machine follows the theme's background - a light
+  // theme's HUD cards floating over the old dark fog looked like a bug, not
+  // a choice. The machine's own materials (steel, floor, cases) do not
+  // follow the theme: they are the physical colours of the equipment, not
+  // page chrome.
+  scene.background = new THREE.Color(THEME.bg);
+  scene.fog = new THREE.Fog(THEME.bg, 14, 30);
 
   var camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 200);
 
@@ -896,6 +1007,8 @@
     pallets: document.getElementById("pallets-b"),
     banner: document.getElementById("faultbanner"),
     bannerText: document.getElementById("faulttext"),
+    qbanner: document.getElementById("qualitybanner"),
+    qbannerText: document.getElementById("qualitytext"),
     link: document.getElementById("link"),
     linkLed: document.getElementById("l-link"),
     linkText: document.getElementById("linktext")
@@ -983,14 +1096,49 @@
       els.banner.classList.remove("show");
     }
 
-    if (linkOK) {
-      els.link.className = "";
-      els.linkLed.className = "led on";
-      els.linkText.textContent = "live from [MachineDemo] tags";
+    // ------------------------------------------------------------------
+    // Tag quality: bad/stale tags on a payload the fetch actually got back.
+    // This is deliberately a DIFFERENT state from the link being down below
+    // - the tag server answered fine (?cmd=state always answers "ok":true),
+    // it is just reporting values nobody trusts. s.quality only exists on a
+    // real payload from the route - fallbackState() never sets it - so this
+    // can never fire while the page is showing fabricated fallback motion.
+    // Clears itself the next tick quality.ok goes back to true, same as the
+    // fault banner above.
+    // ------------------------------------------------------------------
+    var q = s.quality;
+    var qualityBad = !!(q && q.ok === false);
+    document.body.classList.toggle("quality-bad", qualityBad);
+    if (qualityBad) {
+      var qmsgs = [];
+      if (q.stale) qmsgs.push("no fresh data for over 5s");
+      if (q.bad && q.bad.length) {
+        qmsgs.push(q.bad.length + " tag" + (q.bad.length > 1 ? "s" : "") +
+          " bad quality (" + q.worst + ")");
+      }
+      els.qbanner.classList.add("show");
+      els.qbannerText.textContent = "MACHINE DATA NOT LIVE" +
+        (qmsgs.length ? " — " + qmsgs.join(", ") : "");
     } else {
+      els.qbanner.classList.remove("show");
+    }
+
+    if (!linkOK) {
+      // Fetch itself failing: the page is on fabricated fallback motion.
       els.link.className = "stale";
       els.linkLed.className = "led wrn";
       els.linkText.textContent = "no tag data — showing local motion";
+    } else if (qualityBad) {
+      // Fetch is fine; what it returned is not live. Different wording, same
+      // amber tone as the fault banner's, because both mean "do not trust
+      // the picture" even though the causes are unrelated.
+      els.link.className = "qbad";
+      els.linkLed.className = "led wrn";
+      els.linkText.textContent = "tag data not live — see banner";
+    } else {
+      els.link.className = "";
+      els.linkLed.className = "led on";
+      els.linkText.textContent = "live from [MachineDemo] tags";
     }
   }
 

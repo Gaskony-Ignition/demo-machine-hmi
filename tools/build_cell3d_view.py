@@ -3,21 +3,27 @@
 Perspective view.
 
 The view is a header plus an ia.display.iframe pointed at the WebDev-served
-3D page. This generator adds three view params so the same view can be
+3D page. This generator adds four view params so the same view can be
 dropped into any screen as an Embedded View, aimed at a chosen camera, with
 its own title bar switched off:
 
-    camera  string   default "overview"   which 3D camera the page starts on
-    hud     boolean  default true          overlay cards + camera buttons
-    header  boolean  default true          this view's OWN header row
+    camera  string   default "overview"          which 3D camera the page starts on
+    hud     boolean  default true                 overlay cards + camera buttons
+    header  boolean  default true                 this view's OWN header row
+    theme   string   default {session.props.theme} which colour set the page renders in
 
 The iframe's props.src is bound to an expression that appends
-?camera=<camera>&hud=<1|0> to the same relative WebDev path used before -
-never an absolute URL, so the view keeps working on any host/port. With no
-params overridden (the plain page route uses this view with defaults) the
-rendered src is exactly what it always was, plus the two params the page
-already treats as its defaults - see docs/CONTRACT.md's page-URL-params
-section, which package B implements on the page side.
+?camera=<camera>&hud=<1|0>&theme=<theme> to the same relative WebDev path
+used before - never an absolute URL, so the view keeps working on any
+host/port. With no params overridden (the plain page route uses this view
+with defaults) the rendered src is exactly what it always was, plus the
+params the page already treats as its defaults - see docs/CONTRACT.md's
+page-URL-params section, which the T+Q package implements on the page side.
+
+`theme`'s DEFAULT is bound to {session.props.theme} rather than a literal
+string, so an embed with nothing overridden follows the Perspective session's
+own theme; passing a literal string in an Embedded View's param override still
+wins, same as camera/hud/header.
 
 Cell2D's builder (tools/build_cell2d_view.py) finds this view's "Header" node
 by name and deep-copies it wholesale, including whatever propConfig sits on
@@ -161,6 +167,16 @@ header = {
                     "fontSize": "12.5px",
                     "minHeight": "38px",
                     "padding": "0 16px",
+                    # This is the only button in the project that fixes
+                    # minHeight rather than growing to fit its content, and
+                    # ia.input.button renders as display:flex with
+                    # align-items:normal - its inner content wrapper (a fixed
+                    # 25px) then sits at the TOP of the 38px box instead of
+                    # centred, riding the label 5.5px high. Every other
+                    # button has min-height 0 and centres by construction, so
+                    # only this one needs the explicit override. Measured on
+                    # /cell3d at 1366x768, 02/09/2026.
+                    "alignItems": "center",
                 },
             },
             "events": {
@@ -213,7 +229,8 @@ bind(
     cell_iframe,
     "props.src",
     '"' + WEBDEV_PATH + '?camera=" + {view.params.camera}'
-    ' + "&hud=" + if({view.params.hud}, "1", "0")',
+    ' + "&hud=" + if({view.params.hud}, "1", "0")'
+    ' + "&theme=" + {view.params.theme}',
 )
 
 view = {
@@ -222,6 +239,11 @@ view = {
         "camera": "overview",
         "hud": True,
         "header": True,
+        # Static fallback only - never what actually resolves when nothing
+        # overrides the param. The binding below is what makes this follow
+        # the session by default; this literal only matters if that binding
+        # itself somehow fails to evaluate.
+        "theme": "dark-cool",
     },
     # A view's declared params are just default values unless each one is ALSO
     # marked paramDirection "input" here - the Designer does this invisibly
@@ -235,6 +257,17 @@ view = {
         "params.camera": {"paramDirection": "input", "persistent": True},
         "params.hud": {"paramDirection": "input", "persistent": True},
         "params.header": {"paramDirection": "input", "persistent": True},
+        # theme carries a BINDING as well as paramDirection: input. The
+        # binding is what makes an unembedded/no-override view follow
+        # {session.props.theme} - a param with only a static default would
+        # sit on "dark-cool" forever even as the session theme changed. An
+        # Embedded View's own param override still wins over this binding,
+        # same as it wins over camera/hud/header's static defaults.
+        "params.theme": {
+            "paramDirection": "input",
+            "persistent": True,
+            "binding": expr_binding("{session.props.theme}"),
+        },
     },
     "props": {"defaultSize": {"width": 1366, "height": 768}},
     "root": {

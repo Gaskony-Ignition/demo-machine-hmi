@@ -1,13 +1,27 @@
 """
 MachineDemo.setup - stand the whole cell up on a gateway, from the project.
 
-Importing the project is the entire install. The three things the cell needs
-that a project export cannot carry - its tag provider, its database connection
-and its alarm journal - are gateway CONFIG resources, and 8.3's system.config
-creates all three from here, live, with no file to place, no config scan and no
-restart.
+Importing the project is the entire install. The things the cell needs that a
+project export cannot carry - its tag provider, and on a gateway that can have
+one, a database connection and an alarm journal - are gateway CONFIG
+resources, and 8.3's system.config creates them from here, live, with no file
+to place, no config scan and no restart.
 
-All three are the demo's OWN, named for it and shared with nothing. A demo that
+This demo argues for Ignition Edge Panel on a machine builder's small,
+single-panel machines, and Edge Panel has NO database connectivity at all - it
+is not merely discouraged, the module that provides it (SQL Bridge) is absent
+from the Edge build. So setup asks the gateway what it can actually do
+(_hasDatabaseModule, below) before it tries anything database-shaped:
+
+  - a gateway WITH SQL Bridge gets exactly what this demo always gave it - its
+    own SQLite connection and a DATASOURCE alarm journal writing into it.
+  - a gateway WITHOUT it (Edge Panel) gets no connection attempt at all, and
+    the alarm journal is configured as a LOCAL profile instead - Edge's own
+    internal alarm history, no datasource, no database anywhere. Alarms are
+    still journalled and the Alarms screen still has history to show; only
+    the *mechanism* changes.
+
+Both are the demo's OWN, named for it and shared with nothing. A demo that
 borrows the gateway's general purpose connection has its alarm history
 interleaved with every other project's, in a table whose retention belongs to
 somebody else.
@@ -152,6 +166,83 @@ JOURNAL_CONFIG = {
 		"pruning": {"age": 1, "ageUnits": "YEAR", "enabled": False},
 	},
 }
+
+# The no-database journal. Same dataFilters/eventData/events/pruning as
+# JOURNAL_CONFIG above - same alarms, same priority floor, same retention -
+# minus the two things only a database can back: "advanced" (the table
+# names) and "datasource". Confirmed against a live gateway, 03/09/2026: a
+# real system.config.create with exactly this shape for typeId "alarm-journal"
+# is accepted and reads back byte-for-byte unchanged - no extra fields get
+# filled in, none of these get dropped.
+JOURNAL_CONFIG_LOCAL = {
+	"profile": {"type": "LOCAL"},
+	"settings": {
+		"dataFilters": {"pathFilterName": "", "pathOrSourceFilterName": "",
+		                "sourceFilterName": ""},
+		"eventData": {"dynamicAssociatedData": True, "dynamicConfig": True,
+		              "staticAssociatedData": True, "staticConfig": False},
+		"events": {"minPriority": "Diagnostic",
+		           "storeFromEnabledChange": False,
+		           "storeShelvedEvents": True},
+		"pruning": {"age": 1, "ageUnits": "YEAR", "enabled": False},
+	},
+}
+
+
+# Test-only override for _hasDatabaseModule(), below. None (the shipped
+# value) means "ask the gateway for real". True/False forces the answer so
+# the no-database branch can be driven and its consequences proven
+# deterministically on a gateway that DOES have SQL Bridge - which is the
+# only kind of gateway this was ever tested against. Never leave this at
+# anything but None outside of a scratch diagnostic session; nothing in this
+# module sets it.
+_FORCE_NO_DB = None
+
+
+def _hasDatabaseModule():
+	"""Can this gateway create a database connection at all?
+
+	The positive, structural answer, not a license flag and not a guess:
+	whether ('ignition', 'database-connection') is among the resource types
+	system.config.getResourceTypes() knows about. That type - and
+	'database-driver' and 'database-translator' alongside it - is registered
+	by the SQL Bridge gateway module (com.inductiveautomation...sqlbridge),
+	which also backs every system.db.* call. Ignition Edge Panel does not
+	ship SQL Bridge at all: it is not disabled by license, the module is
+	simply absent from the Edge build, so the type is never registered there
+	and this answers False with nothing to catch.
+
+	Measured on THIS (STANDARD) gateway, 03/09/2026: getResourceTypes()
+	returns 57 (module, type) pairs, including ('ignition',
+	'database-connection'), ('ignition', 'database-driver') and ('ignition',
+	'database-translator'); the installed-module list
+	(ModuleManager.getModuleInfoAsJson()) independently confirms SQL Bridge
+	itself is ACTIVE. ('ignition', 'alarm-journal') is ALSO in that list
+	regardless - it is registered by the gateway core, not SQL Bridge,
+	because its LOCAL flavour (JOURNAL_CONFIG_LOCAL, above) needs no database
+	and was proven live on this same gateway: system.config.create with
+	profile.type "LOCAL" was accepted and read back unchanged, with no
+	datasource anywhere in it.
+
+	This project has never run against a real Edge Panel gateway - proving
+	Edge itself lacks SQL Bridge is out of scope here, and is the documented,
+	reasoned answer rather than a measured one. _FORCE_NO_DB is what lets the
+	no-database branch be exercised and its results proven anyway, on this
+	standard gateway, without guessing at what setup would do on one.
+	"""
+	if _FORCE_NO_DB is not None:
+		return not _FORCE_NO_DB
+	from java.lang import Throwable as JThrowable
+	try:
+		return ("ignition", "database-connection") in system.config.getResourceTypes()
+	except (JThrowable, Exception):
+		# getResourceTypes() itself is not documented anywhere we have handy,
+		# so if some future gateway build does not carry it, do not risk a
+		# write from inside what must stay a read-only check - default to
+		# "no database" rather than assume a capability nothing confirmed.
+		LOG.warn("could not determine database capability - "
+		         "assuming none (see _hasDatabaseModule)")
+		return False
 
 
 # One tag from each end of the tree and several from the middle. Reading all of
@@ -557,13 +648,22 @@ def _alarmsCheck():
 
 
 def _databaseCheck():
-	"""The connection exists AND answers.
+	"""The connection exists AND answers - or this edition cannot have one.
 
-	Two questions, because they fail apart. The resource can be there while the
-	pool has not started - a connection created seconds ago is registered
-	before it has opened the file - and a query is the only thing that tells
-	the difference.
+	Three questions, in order, because they fail apart. First: can this
+	gateway have a database connection at all (_hasDatabaseModule) - on an
+	edition that cannot, this row reports green and "not applicable" rather
+	than red "missing", because there is nothing to be missing. Only on a
+	gateway that CAN have one do the other two apply: the resource can be
+	there while the pool has not started - a connection created seconds ago
+	is registered before it has opened the file - and a query is the only
+	thing that tells the difference.
 	"""
+	if not _hasDatabaseModule():
+		return True, (u"not applicable on this edition - no SQL Bridge "
+		              u"module, so no database connection is possible here. "
+		              u"The alarm journal below uses Edge's own local "
+		              u"profile instead.")
 	if _resource("database-connection", DB) is None:
 		have = _names("database-connection")
 		return False, (u"connection '%s' does not exist. This gateway has: %s"
@@ -578,11 +678,20 @@ def _databaseCheck():
 
 
 def _databaseFix():
-	"""Make the demo's own SQLite connection.
+	"""Make the demo's own SQLite connection - or skip it cleanly.
 
-	Nothing to fill in: no host, no port, no credential. The driver creates the
-	file on first use if it is not there.
+	Nothing to fill in on a gateway that can have one: no host, no port, no
+	credential. The driver creates the file on first use if it is not there.
+
+	On a gateway with no SQL Bridge module, there is nothing this CAN create -
+	system.config would refuse a database-connection resource type it never
+	registered - so this is a clean, reported no-op rather than an attempt
+	that fails. _databaseCheck already reports that row green, so run() never
+	calls this in that case; it stays safe to call directly all the same.
 	"""
+	if not _hasDatabaseModule():
+		return (u"skipped - this edition has no SQL Bridge module, so no "
+		        u"database connection is possible; nothing to create")
 	if _resource("database-connection", DB) is None:
 		have = _names("database-driver")
 		if "SQLite" not in have:
@@ -615,12 +724,16 @@ def _databaseFix():
 
 
 def _journalCheck():
-	"""The profile exists and writes to THIS demo's connection.
+	"""The profile exists and is the right FLAVOUR for this edition.
 
-	Pointing at the wrong datasource is the failure worth naming. A journal
-	profile writing somewhere else does not error: the alarm page just shows a
-	history that is somebody else's, or none at all, and nothing anywhere says
-	why.
+	Two different questions depending on what the gateway can do. With a
+	database: does the profile write to THIS demo's connection - pointing at
+	the wrong datasource is the failure worth naming, because a journal
+	profile writing somewhere else does not error, the alarm page just shows
+	a history that is somebody else's, or none at all, and nothing anywhere
+	says why. Without one: is the profile the LOCAL flavour Edge provides -
+	a profile left over from a database this edition no longer has (or never
+	had) journals nothing, silently, the same way.
 	"""
 	res = _resource("alarm-journal", JOURNAL)
 	if res is None:
@@ -630,7 +743,27 @@ def _journalCheck():
 		               % (JOURNAL, u", ".join(have) if have else u"(none)"))
 	from java.lang import Throwable as JThrowable
 	try:
-		ds = _config(res)["settings"]["datasource"]
+		cfg = _config(res)
+		flavour = cfg["profile"]["type"]
+	except (JThrowable, Exception):
+		flavour = None
+
+	if not _hasDatabaseModule():
+		if flavour != u"LOCAL":
+			return False, (u"profile '%s' is a '%s' journal, not the LOCAL "
+			               u"one this edition needs - no database is "
+			               u"available to a 'DATASOURCE' profile here"
+			               % (JOURNAL, flavour))
+		return True, (u"profile '%s' is Edge's own LOCAL journal - no "
+		              u"database, alarms still journalled internally"
+		              % JOURNAL)
+
+	if flavour != u"DATASOURCE":
+		return False, (u"profile '%s' is a '%s' journal, not 'DATASOURCE' - "
+		               u"this gateway can have a database and should be "
+		               u"using it" % (JOURNAL, flavour))
+	try:
+		ds = cfg["settings"]["datasource"]
 	except (JThrowable, Exception):
 		ds = None
 	if ds != DB:
@@ -641,6 +774,21 @@ def _journalCheck():
 
 
 def _journalFix():
+	"""Upsert the alarm journal profile in the flavour this edition needs.
+
+	Same resource name either way (JOURNAL == the provider name) - only the
+	config differs, and _upsert doesn't care that a DATASOURCE profile is
+	being replaced by a LOCAL one or vice versa, it just needs the current
+	signature to replace against.
+	"""
+	if not _hasDatabaseModule():
+		what = _upsert("alarm-journal", JOURNAL, JOURNAL_CONFIG_LOCAL,
+		               "Machine HMI Demo's own alarm journal - this edition "
+		               "has no database, so this is Edge's own LOCAL "
+		               "profile: alarms are still journalled, internally, "
+		               "with no datasource anywhere")
+		return u"alarm journal profile '%s' %s as a LOCAL (no-database) " \
+		       u"journal" % (JOURNAL, what)
 	what = _upsert("alarm-journal", JOURNAL, JOURNAL_CONFIG,
 	               "Machine HMI Demo's own alarm journal - writes the standard "
 	               "alarm_events / alarm_event_data tables into this demo's "
@@ -738,12 +886,17 @@ def _items():
 		 "This demo's own connection, named %s - SQLite, so it is a file "
 		 "beside the gateway with no server to reach, no credential and no "
 		 "config scan. It exists so the alarm journal below has somewhere of "
-		 "its own to write." % DB),
+		 "its own to write. On an edition with no SQL Bridge module (Edge "
+		 "Panel - the reason this demo exists) this row is not applicable: "
+		 "no connection is attempted, and it still reports green." % DB),
 		("journal", "Alarm journal", _journalCheck, _journalFix,
-		 "A journal profile named %s writing %s into %s and sharing it with "
-		 "nothing. Filtering a shared journal by source only looks like "
-		 "isolation - the rows still interleave with every other project's, "
-		 "and the retention belongs to someone else."
+		 "A journal profile named %s, sharing its history with nothing. On "
+		 "this gateway it writes %s into %s; filtering a shared journal by "
+		 "source only looks like isolation - the rows still interleave with "
+		 "every other project's, and the retention belongs to someone else. "
+		 "On an edition with no database (Edge Panel) this is instead a "
+		 "LOCAL profile - Edge's own internal journal, alarms still kept, "
+		 "no datasource anywhere."
 		 % (JOURNAL, JOURNAL_TABLE, DB)),
 		("simulation", "Cell simulation", _simCheck, _simFix,
 		 "The palletiser actually running a pattern - pick, traverse, place, "
@@ -838,4 +991,3 @@ def run():
 	LOG.info("setup run: %d changed, %d failed, ok=%s"
 	         % (len(done), len(failed), state["ok"]))
 	return state
-

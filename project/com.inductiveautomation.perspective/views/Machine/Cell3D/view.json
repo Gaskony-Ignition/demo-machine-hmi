@@ -3,7 +3,8 @@
   "params": {
     "camera": "overview",
     "hud": true,
-    "header": true
+    "header": true,
+    "theme": "dark-cool"
   },
   "propConfig": {
     "params.camera": {
@@ -17,6 +18,16 @@
     "params.header": {
       "paramDirection": "input",
       "persistent": true
+    },
+    "params.theme": {
+      "paramDirection": "input",
+      "persistent": true,
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "{session.props.theme}"
+        }
+      }
     }
   },
   "props": {
@@ -174,7 +185,8 @@
                     "fontWeight": "bold",
                     "fontSize": "12.5px",
                     "minHeight": "38px",
-                    "padding": "0 16px"
+                    "padding": "0 16px",
+                    "alignItems": "center"
                   }
                 },
                 "events": {
@@ -226,7 +238,7 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "\"/system/webdev/Machine_HMI_Demo/cell3d?camera=\" + {view.params.camera} + \"&hud=\" + if({view.params.hud}, \"1\", \"0\")"
+                "expression": "\"/system/webdev/Machine_HMI_Demo/cell3d?camera=\" + {view.params.camera} + \"&hud=\" + if({view.params.hud}, \"1\", \"0\") + \"&theme=\" + {view.params.theme}"
               }
             }
           }

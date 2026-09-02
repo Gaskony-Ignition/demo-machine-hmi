@@ -157,6 +157,48 @@ that writes the tree — they are separate rows because a tree that wrote its
 values while dropping its UDT, its geometry or its alarms looks perfect from
 every screen and reports nothing.
 
+### `database` and `journal` are edition-aware, not unconditional
+
+This demo argues for Ignition Edge Panel on a machine builder's small,
+single-panel machines, and Edge Panel has **no database connectivity at all**
+— not a licence restriction, the SQL Bridge gateway module that provides it
+is simply absent from the Edge build. `MachineDemo.setup._hasDatabaseModule()`
+asks the gateway directly rather than guessing: is `('ignition',
+'database-connection')` among the resource types `system.config
+.getResourceTypes()` returns. That type (and `database-driver`,
+`database-translator` beside it) is registered by SQL Bridge; on a gateway
+without it, the type is never registered and the check answers `False` with
+nothing to catch. Verified live against `ignition-module-testing` (a
+STANDARD gateway) 03/09/2026: 57 resource types are registered including
+`database-connection`, and `ModuleManager.getModuleInfoAsJson()` independently
+confirms SQL Bridge is `ACTIVE`.
+
+- **With a database** (standard Ignition or Maker): unchanged from before —
+  setup creates its own `MachineDemoDB` SQLite connection and a `DATASOURCE`
+  alarm-journal profile named `MachineDemo` writing into it. `database`
+  reports the connection exists and answers `SELECT 1`; `journal` reports the
+  profile is `DATASOURCE` and points at `MachineDemoDB`.
+- **Without one** (Edge Panel): no connection is attempted — `database`
+  reports green, `"not applicable on this edition"`, not red `"missing"`, and
+  `fix("database")` is a reported no-op rather than an attempt that would
+  fail. The `MachineDemo` alarm-journal profile is instead created with
+  `profile.type: "LOCAL"` — Edge's own internal journal, confirmed live by
+  creating one on the module-testing gateway: `system.config.create` accepts
+  it with the same `dataFilters`/`eventData`/`events`/`pruning` shape as the
+  `DATASOURCE` profile, minus `advanced` (table names) and `datasource`
+  (there is nothing to point at), and the persisted config round-trips
+  byte-for-byte. Alarms are still journalled; only the storage mechanism
+  changes.
+
+Both branches keep the row count at eight — nothing is added or removed, only
+what `database`/`journal` report and what their `fix` does. This project has
+never run against a real Edge Panel gateway; the no-database branch is proven
+by forcing `_hasDatabaseModule()` to answer `False` on the standard
+module-testing gateway (a module-level `_FORCE_NO_DB` override, `None` in
+every shipped build) and confirming the rows, the `fix` messages and a
+restore back to `DATASOURCE` all behave as described above — not by measuring
+a real Edge gateway.
+
 ## WebDev routes — project `Machine_HMI_Demo`
 
 Base: `http://192.168.153.128:8088/system/webdev/Machine_HMI_Demo/<name>`

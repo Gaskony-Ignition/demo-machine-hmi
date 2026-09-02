@@ -16,12 +16,14 @@ with the screens an operator and a fitter would actually stand in front of — a
 line overview, manual control with permissives and hold-to-run jog, an alarm
 page, and a 3D view of the machine driven by the same tags as everything else.
 
-Every screen runs on **Ignition Edge Panel** as well as the standard platform, and
-the demo brings its own database with it: **a SQLite file beside the gateway**,
-made by the same one button. There is no database server to stand up, no
-credential and no config scan. Because the connection and the alarm journal are
-this demo's own rather than borrowed, its alarm history sits in its own file with
-its own retention, and removing the demo is deleting a file.
+Every screen runs on **Ignition Edge Panel** as well as the standard platform.
+On a gateway that can have a database, the demo brings its own with it: **a
+SQLite file beside the gateway**, made by the same one button, with no server
+to stand up, no credential and no config scan. Edge Panel has **no database
+connectivity at all** — not merely discouraged, the module that provides it is
+not part of the Edge build — so on Edge that same button configures Edge's own
+internal alarm journal instead: alarms are still journalled either way, and
+removing the demo is still deleting nothing but its own resources.
 
 ---
 
@@ -60,12 +62,27 @@ information**.*
 ## Install
 
 Import `build/Machine_HMI_Demo-<version>.zip` in the Designer, then open the
-**Setup** page and press one button. That creates the demo's own gateway
-resources — the `MachineDemo` tag provider, the `MachineDemoDB` SQLite connection
-and the `MachineDemo` alarm journal that writes into it — then writes 97 tags and
-11 alarms and starts the simulator. All of it through `system.config` and
-`system.tag.configure`, so there is no config scan, no restart and no credential:
-SQLite is a file under the gateway's data directory, and the connection has no
+**Setup** page and press one button. Setup writes 112 tags and 11 alarms into
+its own `MachineDemo` tag provider and starts the simulator the same way on
+every edition. What it does about a database depends on what the gateway can
+actually do:
+
+- **Standard Ignition (or Maker)** — setup also creates the demo's own
+  `MachineDemoDB` SQLite connection and a `MachineDemo` alarm journal that
+  writes into it, exactly as before.
+- **Ignition Edge Panel** — has **no database connectivity at all**: not
+  merely discouraged, the SQL Bridge module that provides it is simply not
+  part of the Edge build, and this gateway's own customer spec says "no
+  database connections". Setup detects this (there is no `database-connection`
+  resource type registered — see `_hasDatabaseModule` in
+  `MachineDemo.setup`) and does not attempt one. Instead the `MachineDemo`
+  alarm journal is configured as Edge's own **LOCAL** profile: alarms are
+  still journalled and the Alarms screen still has history to show, with no
+  datasource anywhere.
+
+All of it through `system.config` and `system.tag.configure`, so there is no
+config scan, no restart and no credential: SQLite (where it is used at all)
+is a file under the gateway's data directory, and the connection has no
 username and no password to hold.
 
 Headless equivalent — from the Designer's Script Console (Tools → Script Console),
@@ -82,6 +99,29 @@ write, is refused with 405 over HTTP on purpose (see *Driving it in a meeting*).
 
 `?cmd=setup` is safe to repeat: every step is an upsert, and on a gateway that
 already has everything it creates nothing and reports the same counts.
+
+### What `?cmd=check` reports on each edition
+
+The eight rows (`tagProvider`, `tags`, `udt`, `config`, `alarms`, `database`,
+`journal`, `simulation`) are the same on both editions, but two of them read
+differently:
+
+| Row | With a database (standard / Maker) | Ignition Edge Panel |
+| --- | --- | --- |
+| `database` | green — `MachineDemoDB` exists and answers `SELECT 1` | green — **"not applicable on this edition"**; no connection is attempted |
+| `journal` | green — `MachineDemo` is a `DATASOURCE` profile writing into `MachineDemoDB` | green — `MachineDemo` is Edge's own `LOCAL` profile; alarms are kept, no datasource anywhere |
+
+Neither row goes red for being on Edge. A row only goes red if the
+edition-appropriate configuration is actually missing or wrong — a stray
+`DATASOURCE` journal left on an Edge gateway (or a `LOCAL` one on a gateway
+that does have a database) reports red until `fix` runs again.
+
+This has been proven two ways. The with-database branch runs for real, against
+the `ignition-module-testing` gateway (standard Ignition). Ignition Edge Panel
+has not been touched — the no-database branch is instead proven by forcing
+`MachineDemo.setup`'s capability check to answer "no database" on that same
+standard gateway and confirming the resulting rows, fixes and `check()` output
+match the table above, then reverting it to its real, live-detected answer.
 
 ## Driving it in a meeting
 
