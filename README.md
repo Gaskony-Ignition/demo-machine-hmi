@@ -138,6 +138,7 @@ These are checked, not assumed — each was tested against the running gateway:
 | The machine refuses independently of the screen | With the guard circuit open the jog button was disabled, the bit never set, and the axis did not move (476 → 476 mm) — belt and braces, the way a real cell behaves. |
 | The alarm strip cannot silently show nothing | Checked in BOTH states: with a jam standing it read `Palletiser / Infeed / Carton Jam - Active, Unacknowledged`; cleared, it returned to a neutral zero-active state rather than a stuck placeholder. |
 | It works on the panels it targets | HUD checked for overlap and overflow at 1024×600, 1280×800 and 1920×1080. |
+| It survives a gateway restart unattended | The gateway was restarted out from under the demo mid-session (not by this project). It came back with all 97 tags and 11 alarms present, `?cmd=check` green on all four items, the simulator resumed on its own at 13.6 cases/min, the pallets kept their progress, and the 3D page reconnected to live tags with no intervention. Nothing has to be re-run after a restart. |
 | The zip actually imports | `tools/package.sh` gates on archive integrity, a file count against the tree, and a resource-manifest pass (valid JSON, `lastModification` present, `files[]` matching the directory) — the three ways a project imports "successfully" with a resource the gateway silently never scans. |
 
 ## Known conditions
