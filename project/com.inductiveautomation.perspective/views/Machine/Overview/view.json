@@ -199,7 +199,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if(coalesce({[MachineDemo]Line/Running}, false), \"#46d07c\", \"#8b98a3\")"
+                        "expression": "if(coalesce({[MachineDemo]Line/Running}, false), \"#8b98a3\", \"#eebf5e\")"
                       }
                     }
                   }
@@ -839,7 +839,7 @@
                                   "text": "\u25b6",
                                   "style": {
                                     "fontSize": "12px",
-                                    "color": "#46d07c",
+                                    "color": "#74808a",
                                     "lineHeight": "24px"
                                   }
                                 },
@@ -944,7 +944,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z1/Running}, \"#46d07c\", \"#3a434b\"))"
+                                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z1/Running}, \"#8b98a3\", \"#74808a\"))"
                                       }
                                     }
                                   }
@@ -1208,7 +1208,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#2e1a1d\", if({[MachineDemo]Zones/Z1/Running}, \"#1c2b22\", \"#20262d\"))"
+                                    "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#2e1a1d\", \"#20262d\")"
                                   }
                                 }
                               },
@@ -1216,7 +1216,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#c2444c\", if({[MachineDemo]Zones/Z1/Running}, \"#2c7a4a\", \"#39434c\"))"
+                                    "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", \"#39434c\")"
                                   }
                                 }
                               }
@@ -1326,7 +1326,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z2/Running}, \"#46d07c\", \"#3a434b\"))"
+                                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z2/Running}, \"#8b98a3\", \"#74808a\"))"
                                       }
                                     }
                                   }
@@ -1590,7 +1590,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#2e1a1d\", if({[MachineDemo]Zones/Z2/Running}, \"#1c2b22\", \"#20262d\"))"
+                                    "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#2e1a1d\", \"#20262d\")"
                                   }
                                 }
                               },
@@ -1598,7 +1598,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#c2444c\", if({[MachineDemo]Zones/Z2/Running}, \"#2c7a4a\", \"#39434c\"))"
+                                    "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", \"#39434c\")"
                                   }
                                 }
                               }
@@ -1708,7 +1708,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z3/Running}, \"#46d07c\", \"#3a434b\"))"
+                                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z3/Running}, \"#8b98a3\", \"#74808a\"))"
                                       }
                                     }
                                   }
@@ -1808,7 +1808,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#2e1a1d\", if({[MachineDemo]Zones/Z3/Running}, \"#1c2b22\", \"#20262d\"))"
+                                    "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#2e1a1d\", \"#20262d\")"
                                   }
                                 }
                               },
@@ -1816,7 +1816,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#c2444c\", if({[MachineDemo]Zones/Z3/Running}, \"#2c7a4a\", \"#39434c\"))"
+                                    "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", \"#39434c\")"
                                   }
                                 }
                               }
@@ -1926,7 +1926,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z4/Running}, \"#46d07c\", \"#3a434b\"))"
+                                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z4/Running}, \"#8b98a3\", \"#74808a\"))"
                                       }
                                     }
                                   }
@@ -2026,7 +2026,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#2e1a1d\", if({[MachineDemo]Zones/Z4/Running}, \"#1c2b22\", \"#20262d\"))"
+                                    "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#2e1a1d\", \"#20262d\")"
                                   }
                                 }
                               },
@@ -2034,7 +2034,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#c2444c\", if({[MachineDemo]Zones/Z4/Running}, \"#2c7a4a\", \"#39434c\"))"
+                                    "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", \"#39434c\")"
                                   }
                                 }
                               }
@@ -2235,7 +2235,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z5/Running}, \"#46d07c\", \"#3a434b\"))"
+                                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z5/Running}, \"#8b98a3\", \"#74808a\"))"
                                       }
                                     }
                                   }
@@ -2382,7 +2382,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#2e1a1d\", if({[MachineDemo]Zones/Z5/Running}, \"#1c2b22\", \"#20262d\"))"
+                                    "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#2e1a1d\", \"#20262d\")"
                                   }
                                 }
                               },
@@ -2390,7 +2390,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#c2444c\", if({[MachineDemo]Zones/Z5/Running}, \"#2c7a4a\", \"#39434c\"))"
+                                    "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", \"#39434c\")"
                                   }
                                 }
                               }
@@ -2481,7 +2481,7 @@
                                   "text": "\u25b6",
                                   "style": {
                                     "fontSize": "12px",
-                                    "color": "#46d07c",
+                                    "color": "#74808a",
                                     "lineHeight": "24px"
                                   }
                                 },
@@ -4326,7 +4326,7 @@
                               "text": "\u25b6",
                               "style": {
                                 "fontSize": "13px",
-                                "color": "#46d07c"
+                                "color": "#74808a"
                               }
                             },
                             "position": {
@@ -4571,14 +4571,14 @@
                         "letterSpacing": "0.5px",
                         "borderRadius": "6px",
                         "border": "1px solid #2c343d",
-                        "backgroundColor": "#1c3b2a",
-                        "color": "#bff0d2",
+                        "backgroundColor": "#232a31",
+                        "color": "#b7c2ca",
                         "padding": "0 10px",
                         "whiteSpace": "normal",
                         "lineHeight": "1.2",
                         "textAlign": "center",
                         "height": "44px",
-                        "borderColor": "#2c7a4a"
+                        "borderColor": "#3b4650"
                       }
                     },
                     "position": {
@@ -4793,7 +4793,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z1/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z1/Running}, \"#8b98a3\", \"#74808a\"))"
                               }
                             }
                           }
@@ -4833,14 +4833,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#3a1d21",
-                            "color": "#ffb3b6",
+                            "backgroundColor": "#262e36",
+                            "color": "#e59aa0",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#7a2a2f"
+                            "borderColor": "#4a3338"
                           }
                         },
                         "position": {
@@ -4873,14 +4873,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#1c3b2a",
-                            "color": "#bff0d2",
+                            "backgroundColor": "#232a31",
+                            "color": "#b7c2ca",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#2c7a4a"
+                            "borderColor": "#3b4650"
                           }
                         },
                         "position": {
@@ -4904,11 +4904,19 @@
                   }
                 ],
                 "propConfig": {
+                  "props.style.backgroundColor": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                      }
+                    }
+                  },
                   "props.style.borderColor": {
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#7a2a2f\", if({[MachineDemo]Zones/Z1/Running}, \"#2c5a3d\", \"#2c343d\"))"
+                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", \"#2c343d\")"
                       }
                     }
                   }
@@ -5067,7 +5075,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z2/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z2/Running}, \"#8b98a3\", \"#74808a\"))"
                               }
                             }
                           }
@@ -5107,14 +5115,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#3a1d21",
-                            "color": "#ffb3b6",
+                            "backgroundColor": "#262e36",
+                            "color": "#e59aa0",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#7a2a2f"
+                            "borderColor": "#4a3338"
                           }
                         },
                         "position": {
@@ -5147,14 +5155,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#1c3b2a",
-                            "color": "#bff0d2",
+                            "backgroundColor": "#232a31",
+                            "color": "#b7c2ca",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#2c7a4a"
+                            "borderColor": "#3b4650"
                           }
                         },
                         "position": {
@@ -5178,11 +5186,19 @@
                   }
                 ],
                 "propConfig": {
+                  "props.style.backgroundColor": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                      }
+                    }
+                  },
                   "props.style.borderColor": {
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#7a2a2f\", if({[MachineDemo]Zones/Z2/Running}, \"#2c5a3d\", \"#2c343d\"))"
+                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", \"#2c343d\")"
                       }
                     }
                   }
@@ -5341,7 +5357,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z3/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z3/Running}, \"#8b98a3\", \"#74808a\"))"
                               }
                             }
                           }
@@ -5381,14 +5397,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#3a1d21",
-                            "color": "#ffb3b6",
+                            "backgroundColor": "#262e36",
+                            "color": "#e59aa0",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#7a2a2f"
+                            "borderColor": "#4a3338"
                           }
                         },
                         "position": {
@@ -5421,14 +5437,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#1c3b2a",
-                            "color": "#bff0d2",
+                            "backgroundColor": "#232a31",
+                            "color": "#b7c2ca",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#2c7a4a"
+                            "borderColor": "#3b4650"
                           }
                         },
                         "position": {
@@ -5452,11 +5468,19 @@
                   }
                 ],
                 "propConfig": {
+                  "props.style.backgroundColor": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                      }
+                    }
+                  },
                   "props.style.borderColor": {
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#7a2a2f\", if({[MachineDemo]Zones/Z3/Running}, \"#2c5a3d\", \"#2c343d\"))"
+                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", \"#2c343d\")"
                       }
                     }
                   }
@@ -5615,7 +5639,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z4/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z4/Running}, \"#8b98a3\", \"#74808a\"))"
                               }
                             }
                           }
@@ -5655,14 +5679,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#3a1d21",
-                            "color": "#ffb3b6",
+                            "backgroundColor": "#262e36",
+                            "color": "#e59aa0",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#7a2a2f"
+                            "borderColor": "#4a3338"
                           }
                         },
                         "position": {
@@ -5695,14 +5719,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#1c3b2a",
-                            "color": "#bff0d2",
+                            "backgroundColor": "#232a31",
+                            "color": "#b7c2ca",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#2c7a4a"
+                            "borderColor": "#3b4650"
                           }
                         },
                         "position": {
@@ -5726,11 +5750,19 @@
                   }
                 ],
                 "propConfig": {
+                  "props.style.backgroundColor": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                      }
+                    }
+                  },
                   "props.style.borderColor": {
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#7a2a2f\", if({[MachineDemo]Zones/Z4/Running}, \"#2c5a3d\", \"#2c343d\"))"
+                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", \"#2c343d\")"
                       }
                     }
                   }
@@ -5889,7 +5921,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z5/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z5/Running}, \"#8b98a3\", \"#74808a\"))"
                               }
                             }
                           }
@@ -5929,14 +5961,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#3a1d21",
-                            "color": "#ffb3b6",
+                            "backgroundColor": "#262e36",
+                            "color": "#e59aa0",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#7a2a2f"
+                            "borderColor": "#4a3338"
                           }
                         },
                         "position": {
@@ -5969,14 +6001,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#1c3b2a",
-                            "color": "#bff0d2",
+                            "backgroundColor": "#232a31",
+                            "color": "#b7c2ca",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#2c7a4a"
+                            "borderColor": "#3b4650"
                           }
                         },
                         "position": {
@@ -6000,11 +6032,19 @@
                   }
                 ],
                 "propConfig": {
+                  "props.style.backgroundColor": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                      }
+                    }
+                  },
                   "props.style.borderColor": {
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#7a2a2f\", if({[MachineDemo]Zones/Z5/Running}, \"#2c5a3d\", \"#2c343d\"))"
+                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", \"#2c343d\")"
                       }
                     }
                   }
@@ -6163,7 +6203,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z6/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z6/Running}, \"#8b98a3\", \"#74808a\"))"
                               }
                             }
                           }
@@ -6203,14 +6243,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#3a1d21",
-                            "color": "#ffb3b6",
+                            "backgroundColor": "#262e36",
+                            "color": "#e59aa0",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#7a2a2f"
+                            "borderColor": "#4a3338"
                           }
                         },
                         "position": {
@@ -6243,14 +6283,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#1c3b2a",
-                            "color": "#bff0d2",
+                            "backgroundColor": "#232a31",
+                            "color": "#b7c2ca",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#2c7a4a"
+                            "borderColor": "#3b4650"
                           }
                         },
                         "position": {
@@ -6274,11 +6314,19 @@
                   }
                 ],
                 "propConfig": {
+                  "props.style.backgroundColor": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                      }
+                    }
+                  },
                   "props.style.borderColor": {
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"#7a2a2f\", if({[MachineDemo]Zones/Z6/Running}, \"#2c5a3d\", \"#2c343d\"))"
+                        "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"#f0565e\", \"#2c343d\")"
                       }
                     }
                   }
@@ -6437,7 +6485,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z7/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z7/Running}, \"#8b98a3\", \"#74808a\"))"
                               }
                             }
                           }
@@ -6477,14 +6525,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#3a1d21",
-                            "color": "#ffb3b6",
+                            "backgroundColor": "#262e36",
+                            "color": "#e59aa0",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#7a2a2f"
+                            "borderColor": "#4a3338"
                           }
                         },
                         "position": {
@@ -6517,14 +6565,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#1c3b2a",
-                            "color": "#bff0d2",
+                            "backgroundColor": "#232a31",
+                            "color": "#b7c2ca",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#2c7a4a"
+                            "borderColor": "#3b4650"
                           }
                         },
                         "position": {
@@ -6548,11 +6596,19 @@
                   }
                 ],
                 "propConfig": {
+                  "props.style.backgroundColor": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                      }
+                    }
+                  },
                   "props.style.borderColor": {
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"#7a2a2f\", if({[MachineDemo]Zones/Z7/Running}, \"#2c5a3d\", \"#2c343d\"))"
+                        "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"#f0565e\", \"#2c343d\")"
                       }
                     }
                   }
@@ -6711,7 +6767,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z8/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z8/Running}, \"#8b98a3\", \"#74808a\"))"
                               }
                             }
                           }
@@ -6751,14 +6807,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#3a1d21",
-                            "color": "#ffb3b6",
+                            "backgroundColor": "#262e36",
+                            "color": "#e59aa0",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#7a2a2f"
+                            "borderColor": "#4a3338"
                           }
                         },
                         "position": {
@@ -6791,14 +6847,14 @@
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
                             "border": "1px solid #2c343d",
-                            "backgroundColor": "#1c3b2a",
-                            "color": "#bff0d2",
+                            "backgroundColor": "#232a31",
+                            "color": "#b7c2ca",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#2c7a4a"
+                            "borderColor": "#3b4650"
                           }
                         },
                         "position": {
@@ -6822,11 +6878,19 @@
                   }
                 ],
                 "propConfig": {
+                  "props.style.backgroundColor": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                      }
+                    }
+                  },
                   "props.style.borderColor": {
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"#7a2a2f\", if({[MachineDemo]Zones/Z8/Running}, \"#2c5a3d\", \"#2c343d\"))"
+                        "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"#f0565e\", \"#2c343d\")"
                       }
                     }
                   }
@@ -7028,7 +7092,7 @@
         "transforms": [
           {
             "type": "script",
-            "code": "\tfrom java.lang import Throwable\n\tout = {\"text\": \"No active alarms on this machine\", \"sub\": \"0 standing - 0 unacknowledged\", \"colour\": \"#8b98a3\", \"bg\": \"#1d232a\", \"border\": \"#2c343d\", \"time\": \"\", \"n\": 0, \"active\": 0}\n\ttry:\n\t\trows = MachineDemo.plant.liveAlarms()\n\texcept Throwable:\n\t\treturn out\n\tif not rows:\n\t\treturn out\n\torder = {\"Diagnostic\": 0, \"Low\": 1, \"Medium\": 2, \"High\": 3, \"Critical\": 4}\n\tbest = None\n\tbestscore = -1\n\tbestpri = 0\n\tunacked = 0\n\tactive = 0\n\tfor a in rows:\n\t\tif not a.get(\"acked\"):\n\t\t\tunacked = unacked + 1\n\t\tpri = order.get(str(a.get(\"priority\") or \"Low\"), 1)\n\t\tif a.get(\"active\"):\n\t\t\tactive = active + 1\n\t\t\tscore = 100 + pri * 2\n\t\telse:\n\t\t\tscore = pri * 2\n\t\tif not a.get(\"acked\"):\n\t\t\tscore = score + 1\n\t\tif score > bestscore:\n\t\t\tbestscore = score\n\t\t\tbestpri = pri\n\t\t\tbest = a\n\tif best is None:\n\t\treturn out\n\tlbl = str(best.get(\"label\") or \"\")\n\tnm = str(best.get(\"name\") or \"Alarm\")\n\tif not lbl:\n\t\tlbl = nm\n\tst = str(best.get(\"state\") or \"\")\n\tcolour = \"#6cc4e8\"\n\tbg = \"#1d232a\"\n\tborder = \"#2c343d\"\n\tif bestpri >= 3:\n\t\tcolour = \"#ff8d92\"\n\t\tbg = \"#2e1a1d\"\n\t\tborder = \"#c2444c\"\n\telif bestpri == 2:\n\t\tcolour = \"#eebf5e\"\n\t\tbg = \"#2b2418\"\n\t\tborder = \"#7d6427\"\n\tif not best.get(\"active\"):\n\t\tbg = \"#1d232a\"\n\t\tborder = \"#2c343d\"\n\tout[\"text\"] = lbl + \"  -  \" + st\n\tout[\"sub\"] = \"%d standing - %d active - %d unacknowledged\" % (len(rows), active, unacked)\n\tout[\"colour\"] = colour\n\tout[\"bg\"] = bg\n\tout[\"border\"] = border\n\tout[\"time\"] = str(best.get(\"time\") or \"\")\n\tout[\"n\"] = len(rows)\n\tout[\"active\"] = active\n\treturn out\n"
+            "code": "\tfrom java.lang import Throwable\n\tout = {\"text\": \"No active alarms on this machine\", \"sub\": \"0 standing - 0 unacknowledged\", \"colour\": \"#8b98a3\", \"bg\": \"#1d232a\", \"border\": \"#2c343d\", \"time\": \"\", \"n\": 0, \"active\": 0}\n\ttry:\n\t\trows = MachineDemo.plant.liveAlarms()\n\texcept Throwable:\n\t\treturn out\n\tif not rows:\n\t\treturn out\n\torder = {\"Diagnostic\": 0, \"Low\": 1, \"Medium\": 2, \"High\": 3, \"Critical\": 4}\n\tbest = None\n\tbestscore = -1\n\tbestpri = 0\n\tunacked = 0\n\tactive = 0\n\tfor a in rows:\n\t\tif not a.get(\"acked\"):\n\t\t\tunacked = unacked + 1\n\t\tpri = order.get(str(a.get(\"priority\") or \"Low\"), 1)\n\t\tif a.get(\"active\"):\n\t\t\tactive = active + 1\n\t\t\tscore = 100 + pri * 2\n\t\telse:\n\t\t\tscore = pri * 2\n\t\tif not a.get(\"acked\"):\n\t\t\tscore = score + 1\n\t\tif score > bestscore:\n\t\t\tbestscore = score\n\t\t\tbestpri = pri\n\t\t\tbest = a\n\tif best is None:\n\t\treturn out\n\tlbl = str(best.get(\"label\") or \"\")\n\tnm = str(best.get(\"name\") or \"Alarm\")\n\tif not lbl:\n\t\tlbl = nm\n\tst = str(best.get(\"state\") or \"\")\n\tcolour = \"#6cc4e8\"\n\tbg = \"#1d232a\"\n\tborder = \"#2c343d\"\n\tif bestpri >= 3:\n\t\tcolour = \"#ff8d92\"\n\t\tbg = \"#2e1a1d\"\n\t\tborder = \"#c2444c\"\n\telif bestpri == 2:\n\t\tcolour = \"#eebf5e\"\n\t\tbg = \"#2b2418\"\n\t\tborder = \"#7d6427\"\n\tif not best.get(\"active\"):\n\t\t# Cleared is not the same as wrong. The background was already being\n\t\t# neutralised here but the TEXT stayed red, so a page with zero active\n\t\t# alarms still read as an emergency. A cleared alarm that nobody has\n\t\t# acknowledged is amber - it wants attention, not action - and one that\n\t\t# has been acknowledged is just history.\n\t\tbg = \"#1d232a\"\n\t\tborder = \"#2c343d\"\n\t\tif best.get(\"acked\"):\n\t\t\tcolour = \"#8b98a3\"\n\t\telse:\n\t\t\tcolour = \"#eebf5e\"\n\tout[\"text\"] = lbl + \"  -  \" + st\n\tout[\"sub\"] = \"%d standing - %d active - %d unacknowledged\" % (len(rows), active, unacked)\n\tout[\"colour\"] = colour\n\tout[\"bg\"] = bg\n\tout[\"border\"] = border\n\tout[\"time\"] = str(best.get(\"time\") or \"\")\n\tout[\"n\"] = len(rows)\n\tout[\"active\"] = active\n\treturn out\n"
           }
         ]
       }

@@ -93,18 +93,26 @@ if [[ "$ON_DISK" -ne "$IN_ZIP" ]]; then
   exit 1
 fi
 
-# Prove the zip is rooted correctly rather than trusting the -r flag: the first
-# entry must be a resource directory, never the project name.
-FIRST="$(unzip -Z1 "$TMPZIP" | head -1)"
+# List the archive ONCE into a variable and check that.
+#
+# Do not pipe `unzip -Z1` into `grep -q` under `set -o pipefail`: grep -q exits
+# the instant it matches, unzip is killed by SIGPIPE, and the PIPELINE reports
+# non-zero even though the match succeeded. Wrapped in `if !`, that turns a
+# PASSING check into a failure, intermittently, depending on whether unzip had
+# finished writing. It cost a "the vendored 3D library is missing" failure on a
+# file that was present in the tree, on the gateway and in git.
+LISTING="$(unzip -Z1 "$TMPZIP")"
+
+FIRST="$(printf '%s\n' "$LISTING" | head -1)"
 if [[ "$FIRST" == "$NAME/"* ]]; then
   echo "package: zip is rooted at $NAME/ and would import empty" >&2
   exit 1
 fi
-if unzip -Z1 "$TMPZIP" | grep -q 'global-props'; then
+if printf '%s\n' "$LISTING" | grep -q 'global-props'; then
   echo "package: global-props leaked into the zip" >&2
   exit 1
 fi
-if ! unzip -Z1 "$TMPZIP" | grep -q 'webdev/resources/lib/three.min.js'; then
+if ! printf '%s\n' "$LISTING" | grep -q 'webdev/resources/lib/three.min.js'; then
   echo "package: the vendored 3D library is missing - the 3D page would not render offline" >&2
   exit 1
 fi

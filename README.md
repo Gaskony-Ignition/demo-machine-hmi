@@ -16,8 +16,12 @@ with the screens an operator and a fitter would actually stand in front of — a
 line overview, manual control with permissives and hold-to-run jog, an alarm
 page, and a 3D view of the machine driven by the same tags as everything else.
 
-Every screen runs on **Ignition Edge Panel** as well as the standard platform,
-with no database connection.
+Every screen runs on **Ignition Edge Panel** as well as the standard platform, and
+the demo brings its own database with it: **a SQLite file beside the gateway**,
+made by the same one button. There is no database server to stand up, no
+credential and no config scan. Because the connection and the alarm journal are
+this demo's own rather than borrowed, its alarm history sits in its own file with
+its own retention, and removing the demo is deleting a file.
 
 ---
 
@@ -50,15 +54,19 @@ information**.*
 | --- | --- |
 | **3D model rendering** | A palletising cell — robot, infeed, two pallet stations, guarding — animated from live tags. Camera presets, orbit and pinch-zoom for a touch panel, faults highlighted on the geometry itself. |
 | **Access control by security zone** | The same Manual screen is fully live for maintenance and visibly read-only for an operator, with the reason stated on screen rather than silently disabled. |
-| **Alarming** | Alarm status and journal tables scoped to this demo's own tag provider, with acknowledge and shelve. |
+| **Alarming** | Alarm status and journal tables on the demo's own tag provider, its own SQLite connection and its own journal profile — acknowledge and shelve included. The alarm page shows this machine only, and the history lives in the demo's own file with its own retention. |
 | **Operator control** | Hold-to-run jog, a permissive list that answers "why won't it move?", service routines, and per-zone start/stop. |
 
 ## Install
 
 Import `build/Machine_HMI_Demo-<version>.zip` in the Designer, then open the
-**Setup** page and press one button. That creates the `MachineDemo` tag provider,
-94 tags, 11 alarms and starts the simulator — through `system.config` and
-`system.tag.configure`, so there is no config scan, no restart and no credential.
+**Setup** page and press one button. That creates the demo's own gateway
+resources — the `MachineDemo` tag provider, the `MachineDemoDB` SQLite connection
+and the `MachineDemo` alarm journal that writes into it — then writes 97 tags and
+11 alarms and starts the simulator. All of it through `system.config` and
+`system.tag.configure`, so there is no config scan, no restart and no credential:
+SQLite is a file under the gateway's data directory, and the connection has no
+username and no password to hold.
 
 Headless equivalent:
 
@@ -124,6 +132,34 @@ node /Home-Claude/ignition-claude-toolkit/plugins/ignition/skills/scan/tool/scan
 Pull the gateway's copy back over `project/` before editing — the gateway is the
 source of truth and a local mirror is stale by default.
 
+## What "its own resources" does and does not mean
+
+The demo creates four named things and owns all of them: the `MachineDemo` tag
+provider, the `MachineDemoDB` SQLite connection, the `MachineDemo` alarm journal
+that writes into it, and the tables inside that file. Removing the demo is
+deleting the project and those three gateway resources — nothing else is touched,
+and no shared database server is involved.
+
+**One honest limitation, measured rather than assumed.** A journal profile is not
+a per-project filter. Ignition writes *every* alarm event on the gateway into
+*every* enabled journal profile unless a source filter list is configured, and no
+filter-list resource type exists on 8.3.8 to configure one with. So on a gateway
+that is also running other projects, this demo's file will accumulate their alarms
+too — measured here at 1,511 rows of which 6 were the demo's own, the rest from
+two other projects on the same test rig.
+
+That does not undo the change and it is not visible to anyone using the demo:
+
+- The **Alarms page filters by source** (`prov:MachineDemo:/tag:*`), so what is
+  displayed is this machine and nothing else.
+- On a gateway running only this demo — which is the customer case, and the case
+  the importable zip is built for — there are no other alarms to collect.
+- What was actually fixed is ownership: its own file, its own retention, no
+  dependency on a shared database server, and a clean removal.
+
+If true isolation is ever needed on a shared gateway, the fix is a source filter
+list on the journal profile's `dataFilters.sourceFilterName`, not a second table.
+
 ## Verified behaviours
 
 These are checked, not assumed — each was tested against the running gateway:
@@ -139,6 +175,7 @@ These are checked, not assumed — each was tested against the running gateway:
 | The alarm strip cannot silently show nothing | Checked in BOTH states: with a jam standing it read `Palletiser / Infeed / Carton Jam - Active, Unacknowledged`; cleared, it returned to a neutral zero-active state rather than a stuck placeholder. |
 | It works on the panels it targets | HUD checked for overlap and overflow at 1024×600, 1280×800 and 1920×1080. |
 | It survives a gateway restart unattended | The gateway was restarted out from under the demo mid-session (not by this project). It came back with all 97 tags and 11 alarms present, `?cmd=check` green on all four items, the simulator resumed on its own at 13.6 cases/min, the pallets kept their progress, and the 3D page reconnected to live tags with no intervention. Nothing has to be re-run after a restart. |
+| Colour is spent only on the abnormal | Measured from the rendered page, not the code. In the normal state the Overview carries no large saturated areas: running zones read grey with a small green LED, and the per-zone STOP buttons are neutral with red text rather than red fills. Inject a fault and the faulted zone is the only saturated thing on screen. The alarm strip distinguishes three states — active is red `#ff8d92`, cleared-but-unacknowledged is amber `#eebf5e`, acknowledged is grey — so a page with zero active alarms never reads as an emergency. |
 | The zip actually imports | `tools/package.sh` gates on archive integrity, a file count against the tree, and a resource-manifest pass (valid JSON, `lastModification` present, `files[]` matching the directory) — the three ways a project imports "successfully" with a resource the gateway silently never scans. |
 
 ## Licensing

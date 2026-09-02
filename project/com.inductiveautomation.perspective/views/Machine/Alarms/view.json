@@ -1013,7 +1013,7 @@
                       "name": "Journal"
                     },
                     "props": {
-                      "name": "Alarms",
+                      "name": "MachineDemo",
                       "refreshRate": 15000,
                       "dateFormat": "DD/MM/YYYY HH:mm:ss",
                       "pager": {

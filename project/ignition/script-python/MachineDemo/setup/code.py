@@ -1,10 +1,16 @@
 """
 MachineDemo.setup - stand the whole cell up on a gateway, from the project.
 
-Importing the project is the entire install. The one thing the cell needs that
-a project export cannot carry - the tag provider - is a gateway CONFIG
-resource, and 8.3's system.config creates it from here, live, with no file to
-place, no config scan and no restart.
+Importing the project is the entire install. The three things the cell needs
+that a project export cannot carry - its tag provider, its database connection
+and its alarm journal - are gateway CONFIG resources, and 8.3's system.config
+creates all three from here, live, with no file to place, no config scan and no
+restart.
+
+All three are the demo's OWN, named for it and shared with nothing. A demo that
+borrows the gateway's general purpose connection has its alarm history
+interleaved with every other project's, in a table whose retention belongs to
+somebody else.
 
     MachineDemo.setup.check()          # report on every item, change nothing
     MachineDemo.setup.run()            # create whatever is missing
@@ -49,6 +55,100 @@ TAG_PROVIDER_CONFIG = {
 	},
 }
 
+# ---------------------------------------------------------------------------
+# The demo's OWN database connection and OWN alarm journal.
+#
+# Every demo owns its resources. Pointing the journal at a gateway's general
+# purpose connection and filtering the alarm screens by source only LOOKS like
+# isolation: the rows still interleave with every other project's in one
+# alarm_events table, and the retention belongs to somebody else. A cleanup on
+# the gateway this was built on found 169,320 rows in one shared table and had
+# to audit them per provider before it could safely delete any of them.
+#
+# Owning it costs nothing here because the connection is SQLite - a FILE beside
+# the gateway. There is no server to reach, no credential to hold and no config
+# scan to remember, so the demo still answers the customer's "and no database
+# connections" with a yes rather than an apology.
+
+DB = "MachineDemoDB"
+DB_FILE = "machine-hmi-demo.db"
+
+# journal_mode=WAL is not a tuning knob: the journal writes while a Perspective
+# session reads the same file for the alarm table, and rollback-journal SQLite
+# blocks the reader for the length of every write. busy_timeout then covers the
+# one case WAL does not - two writers - by waiting rather than failing.
+#
+# `${data}` is expanded by Ignition, not by us, and resolves to the gateway's
+# data directory on every platform, so the same string is right on Windows, on
+# Linux and inside the container image.
+DB_URL = ("jdbc:sqlite:${data}/%s?journal_mode=WAL&busy_timeout=30000"
+          % DB_FILE)
+
+# Ignition's own defaults for a new connection, with one change: poolMaxActive
+# 8 -> 4. Eight pooled connections onto one SQLite file is eight threads
+# contending for one write lock, and a demo has no business inventing a pool.
+# There is no `password` key because there is no password - `username` is empty
+# and the file is opened, not logged into - so the encrypt()-then-
+# createEmbeddedSecretConfig() dance does not apply and must not be faked.
+DB_CONFIG = {
+	"connectURL": DB_URL,
+	"connectionProps": "",
+	"connectionResetParams": "",
+	"defaultTransactionLevel": "DEFAULT",
+	"driver": "SQLite",
+	"evictionRate": -1,
+	"evictionTests": 3,
+	"evictionTime": 1800000,
+	"failoverMode": "STANDARD",
+	"failoverProfile": "",
+	"includeSchemaInTableName": False,
+	"poolInitSize": 0,
+	"poolMaxActive": 4,
+	"poolMaxIdle": 8,
+	"poolMaxWait": 5000,
+	"poolMinIdle": 0,
+	"slowQueryLogThreshold": 60000,
+	"testOnBorrow": True,
+	"testOnReturn": False,
+	"testWhileIdle": False,
+	"translator": "SQLITE",
+	"username": "",
+	"validationQuery": "SELECT 1",
+	"validationSleepTime": 10000,
+}
+
+# Ignition's own default table names, in a connection that holds nothing else.
+# That is the whole point: alone in this file, alarm_events is this demo's
+# alarm history and nobody else's, and it can be deleted by deleting a file.
+JOURNAL = PROVIDER
+JOURNAL_TABLE = "alarm_events"
+JOURNAL_DATA_TABLE = "alarm_event_data"
+
+# minPriority Diagnostic, not Low: the demo's injectable faults are the show,
+# and a journal that silently drops the quiet ones is a screen full of nothing
+# with no error anywhere. storeShelvedEvents so that shelving on the Alarms
+# page still leaves a record of what was shelved.
+JOURNAL_CONFIG = {
+	"profile": {"queryOnly": False, "type": "DATASOURCE"},
+	"settings": {
+		"advanced": {
+			"dataTableName": JOURNAL_DATA_TABLE,
+			"tableName": JOURNAL_TABLE,
+			"useStoreAndForward": True,
+		},
+		"dataFilters": {"pathFilterName": "", "pathOrSourceFilterName": "",
+		                "sourceFilterName": ""},
+		"datasource": DB,
+		"eventData": {"dynamicAssociatedData": True, "dynamicConfig": True,
+		              "staticAssociatedData": True, "staticConfig": False},
+		"events": {"minPriority": "Diagnostic",
+		           "storeFromEnabledChange": False,
+		           "storeShelvedEvents": True},
+		"pruning": {"age": 1, "ageUnits": "YEAR", "enabled": False},
+	},
+}
+
+
 # One tag from each end of the tree and several from the middle. Reading all of
 # them is how "the tags are there" is told apart from "the first folder wrote
 # and then it failed", which is what a half-configured provider looks like and
@@ -81,6 +181,31 @@ def _resource(typeId, name):
 		                                 name=name)
 	except (JThrowable, Exception):
 		return None
+
+
+def _config(res):
+	"""A resource's config as a plain dict.
+
+	getConfig() hands back live wrapper objects; the round trip through JSON is
+	what makes them ordinary Python to read and compare.
+	"""
+	return system.util.jsonDecode(system.util.jsonEncode(res.getConfig()))
+
+
+def _names(typeId):
+	"""Every config resource of a type on this gateway, by name.
+
+	Used only to turn "it did not answer" into a sentence naming what this
+	gateway does have, which is almost always the answer and is invisible from
+	inside the project otherwise.
+	"""
+	from java.lang import Throwable as JThrowable
+	try:
+		return sorted([unicode(r.getName()) for r in
+		               system.config.getResources(moduleId="ignition",
+		                                          typeId=typeId)])
+	except (JThrowable, Exception):
+		return []
 
 
 def _upsert(typeId, name, config, description):
@@ -209,6 +334,104 @@ def _alarmsCheck():
 
 
 # ---------------------------------------------------------------------------
+# the demo's own database connection
+# ---------------------------------------------------------------------------
+
+
+def _databaseCheck():
+	"""The connection exists AND answers.
+
+	Two questions, because they fail apart. The resource can be there while the
+	pool has not started - a connection created seconds ago is registered
+	before it has opened the file - and a query is the only thing that tells
+	the difference.
+	"""
+	if _resource("database-connection", DB) is None:
+		have = _names("database-connection")
+		return False, (u"connection '%s' does not exist. This gateway has: %s"
+		               % (DB, u", ".join(have) if have else u"(none)"))
+	from java.lang import Throwable as JThrowable
+	try:
+		system.db.runScalarQuery("SELECT 1", DB)
+	except (JThrowable, Exception):
+		return False, (u"connection '%s' exists but did not answer 'SELECT 1'"
+		               % DB)
+	return True, u"'%s' answering - SQLite at %s" % (DB, DB_URL)
+
+
+def _databaseFix():
+	"""Make the demo's own SQLite connection.
+
+	Nothing to fill in: no host, no port, no credential. The driver creates the
+	file on first use if it is not there.
+	"""
+	if _resource("database-connection", DB) is None:
+		have = _names("database-driver")
+		if "SQLite" not in have:
+			raise Exception(
+				u"this gateway has no 'SQLite' JDBC driver (it has: %s). "
+				u"SQLite ships with Ignition, so a gateway without it has had "
+				u"it removed." % (u", ".join(have) if have else u"none"))
+	what = _upsert("database-connection", DB, DB_CONFIG,
+	               "Machine HMI Demo's own database - a SQLite file beside "
+	               "the gateway, holding this demo's alarm journal and "
+	               "nothing else")
+
+	# Creating the RESOURCE and having a live pooled CONNECTION are not the
+	# same moment, and the gap is long enough that the row underneath this one
+	# would otherwise say "created" and "did not answer" about the same
+	# connection in the same second.
+	from java.lang import Thread as JThread
+	for _attempt in range(15):
+		ok, _detail = _databaseCheck()
+		if ok:
+			return u"connection '%s' %s at %s" % (DB, what, DB_URL)
+		JThread.sleep(1000)
+	return (u"connection '%s' %s but is not answering yet - check the row "
+	        u"below in a moment" % (DB, what))
+
+
+# ---------------------------------------------------------------------------
+# the demo's own alarm journal
+# ---------------------------------------------------------------------------
+
+
+def _journalCheck():
+	"""The profile exists and writes to THIS demo's connection.
+
+	Pointing at the wrong datasource is the failure worth naming. A journal
+	profile writing somewhere else does not error: the alarm page just shows a
+	history that is somebody else's, or none at all, and nothing anywhere says
+	why.
+	"""
+	res = _resource("alarm-journal", JOURNAL)
+	if res is None:
+		have = _names("alarm-journal")
+		return False, (u"alarm journal profile '%s' does not exist. This "
+		               u"gateway has: %s"
+		               % (JOURNAL, u", ".join(have) if have else u"(none)"))
+	from java.lang import Throwable as JThrowable
+	try:
+		ds = _config(res)["settings"]["datasource"]
+	except (JThrowable, Exception):
+		ds = None
+	if ds != DB:
+		return False, (u"profile '%s' writes to '%s', not this demo's '%s'"
+		               % (JOURNAL, ds, DB))
+	return True, u"profile '%s' writes %s on '%s'" % (JOURNAL, JOURNAL_TABLE,
+	                                                  DB)
+
+
+def _journalFix():
+	what = _upsert("alarm-journal", JOURNAL, JOURNAL_CONFIG,
+	               "Machine HMI Demo's own alarm journal - writes the standard "
+	               "alarm_events / alarm_event_data tables into this demo's "
+	               "own connection, sharing them with nothing")
+	return u"alarm journal profile '%s' %s, pointed at '%s'" % (JOURNAL, what,
+	                                                            DB)
+
+
+# ---------------------------------------------------------------------------
 # the simulation
 # ---------------------------------------------------------------------------
 
@@ -277,6 +500,17 @@ def _items():
 		 "They travel with the tags; this row is separate because a tree that "
 		 "wrote its values and dropped its alarms looks perfect and raises "
 		 "nothing." % c["alarms"]),
+		("database", "Database connection", _databaseCheck, _databaseFix,
+		 "This demo's own connection, named %s - SQLite, so it is a file "
+		 "beside the gateway with no server to reach, no credential and no "
+		 "config scan. It exists so the alarm journal below has somewhere of "
+		 "its own to write." % DB),
+		("journal", "Alarm journal", _journalCheck, _journalFix,
+		 "A journal profile named %s writing %s into %s and sharing it with "
+		 "nothing. Filtering a shared journal by source only looks like "
+		 "isolation - the rows still interleave with every other project's, "
+		 "and the retention belongs to someone else."
+		 % (JOURNAL, JOURNAL_TABLE, DB)),
 		("simulation", "Cell simulation", _simCheck, _simFix,
 		 "The palletiser actually running a pattern - pick, traverse, place, "
 		 "retract - at real machine speed. It is what makes every screen and "
@@ -288,7 +522,8 @@ def items():
 	return _items()
 
 
-FIXABLE = ["tagProvider", "tags", "alarms", "simulation"]
+FIXABLE = ["tagProvider", "tags", "alarms", "database", "journal",
+           "simulation"]
 
 
 def check():
