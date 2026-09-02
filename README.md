@@ -141,9 +141,23 @@ These are checked, not assumed — each was tested against the running gateway:
 | It survives a gateway restart unattended | The gateway was restarted out from under the demo mid-session (not by this project). It came back with all 97 tags and 11 alarms present, `?cmd=check` green on all four items, the simulator resumed on its own at 13.6 cases/min, the pallets kept their progress, and the 3D page reconnected to live tags with no intervention. Nothing has to be re-run after a restart. |
 | The zip actually imports | `tools/package.sh` gates on archive integrity, a file count against the tree, and a resource-manifest pass (valid JSON, `lastModification` present, `files[]` matching the directory) — the three ways a project imports "successfully" with a resource the gateway silently never scans. |
 
-## Known conditions
+## Licensing
 
-- The module-testing gateway runs **unlicensed in trial mode**. Perspective and
-  WebDev return HTTP 402 once the two hours expire while `/StatusPing` still
-  says `RUNNING`, so check a real page — not the health endpoint — before
-  demonstrating, and reset the trial if needed.
+**This is built to run unlicensed, on the two-hour trial, by design.** Nothing here
+needs a licence and none of it is worth licensing a gateway for — it is a
+demonstration, and the trial resets.
+
+The one practical thing to know is how an expiry presents, because it does not look
+like an outage: Perspective and WebDev start returning **HTTP 402 while
+`/StatusPing` still reports `RUNNING`**. A health check will tell you the gateway is
+fine when no page will load. So check an actual page before demonstrating, not the
+health endpoint.
+
+Resetting the trial does **not** require a restart:
+
+```bash
+node <workspace>/launchpad/tools/reset_trial.js --gateway <name>
+```
+
+A gateway restart also resets it, and the demo survives one unattended — see the
+table above.
