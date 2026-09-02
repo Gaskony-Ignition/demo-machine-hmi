@@ -7,8 +7,8 @@
       "Low": 0,
       "Diagnostic": 0,
       "total": 0,
-      "unacked": 0,
-      "shelved": 0
+      "active": 0,
+      "unacked": 0
     }
   },
   "params": {},
@@ -69,6 +69,7 @@
               "style": {
                 "gap": "1px",
                 "overflow": "hidden",
+                "paddingRight": "10px",
                 "minWidth": "0px",
                 "minHeight": "0px"
               }
@@ -76,7 +77,7 @@
             "position": {
               "grow": 1,
               "shrink": 1,
-              "basis": "180px"
+              "basis": "0px"
             },
             "children": [
               {
@@ -85,7 +86,7 @@
                   "name": "T"
                 },
                 "props": {
-                  "text": "Palletising Line 1 \u2014 Alarms",
+                  "text": "Alarms \u2014 this machine",
                   "style": {
                     "fontSize": "19px",
                     "fontWeight": 700,
@@ -94,7 +95,8 @@
                     "lineHeight": "24px",
                     "whiteSpace": "nowrap",
                     "overflow": "hidden",
-                    "textOverflow": "ellipsis"
+                    "textOverflow": "ellipsis",
+                    "display": "block"
                   }
                 },
                 "position": {
@@ -116,7 +118,8 @@
                     "lineHeight": "16px",
                     "whiteSpace": "nowrap",
                     "overflow": "hidden",
-                    "textOverflow": "ellipsis"
+                    "textOverflow": "ellipsis",
+                    "display": "block"
                   }
                 },
                 "position": {
@@ -129,7 +132,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "\"Alarms on tag provider MachineDemo only \u00b7 source filter prov:MachineDemo:/tag:* \u00b7 \" + dateFormat(now(1000), \"HH:mm:ss\")"
+                        "expression": "\"This machine only \u00b7 provider MachineDemo \u00b7 \" + dateFormat(now(1000), \"HH:mm:ss\")"
                       }
                     }
                   }
@@ -146,6 +149,7 @@
               "direction": "row",
               "style": {
                 "gap": "7px",
+                "flexShrink": 0,
                 "minWidth": "0px",
                 "minHeight": "0px"
               },
@@ -153,14 +157,14 @@
             },
             "position": {
               "grow": 0,
-              "shrink": 1,
+              "shrink": 0,
               "basis": "auto"
             },
             "children": [
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "Crit"
+                  "name": "Active"
                 },
                 "props": {
                   "text": "",
@@ -173,7 +177,8 @@
                     "borderRadius": "5px",
                     "border": "1px solid currentColor",
                     "whiteSpace": "nowrap",
-                    "textAlign": "center"
+                    "textAlign": "center",
+                    "backgroundColor": "rgba(255,255,255,0.06)"
                   }
                 },
                 "position": {
@@ -186,7 +191,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "\"CRITICAL \" + toStr(coalesce({view.custom.counts.Critical}, 0))"
+                        "expression": "\"ACTIVE \" + toStr(coalesce({view.custom.counts.active}, 0))"
                       }
                     }
                   },
@@ -194,136 +199,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if(coalesce({view.custom.counts.Critical}, 0) > 0, \"#f0565e\", \"#74808a\")"
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "type": "ia.display.label",
-                "meta": {
-                  "name": "High"
-                },
-                "props": {
-                  "text": "",
-                  "style": {
-                    "fontSize": "11.5px",
-                    "fontWeight": 700,
-                    "letterSpacing": "0.7px",
-                    "padding": "0 10px",
-                    "lineHeight": "24px",
-                    "borderRadius": "5px",
-                    "border": "1px solid currentColor",
-                    "whiteSpace": "nowrap",
-                    "textAlign": "center"
-                  }
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "propConfig": {
-                  "props.text": {
-                    "binding": {
-                      "type": "expr",
-                      "config": {
-                        "expression": "\"HIGH \" + toStr(coalesce({view.custom.counts.High}, 0))"
-                      }
-                    }
-                  },
-                  "props.style.color": {
-                    "binding": {
-                      "type": "expr",
-                      "config": {
-                        "expression": "if(coalesce({view.custom.counts.High}, 0) > 0, \"#f0565e\", \"#74808a\")"
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "type": "ia.display.label",
-                "meta": {
-                  "name": "Med"
-                },
-                "props": {
-                  "text": "",
-                  "style": {
-                    "fontSize": "11.5px",
-                    "fontWeight": 700,
-                    "letterSpacing": "0.7px",
-                    "padding": "0 10px",
-                    "lineHeight": "24px",
-                    "borderRadius": "5px",
-                    "border": "1px solid currentColor",
-                    "whiteSpace": "nowrap",
-                    "textAlign": "center"
-                  }
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "propConfig": {
-                  "props.text": {
-                    "binding": {
-                      "type": "expr",
-                      "config": {
-                        "expression": "\"MEDIUM \" + toStr(coalesce({view.custom.counts.Medium}, 0))"
-                      }
-                    }
-                  },
-                  "props.style.color": {
-                    "binding": {
-                      "type": "expr",
-                      "config": {
-                        "expression": "if(coalesce({view.custom.counts.Medium}, 0) > 0, \"#eebf5e\", \"#74808a\")"
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "type": "ia.display.label",
-                "meta": {
-                  "name": "Low"
-                },
-                "props": {
-                  "text": "",
-                  "style": {
-                    "fontSize": "11.5px",
-                    "fontWeight": 700,
-                    "letterSpacing": "0.7px",
-                    "padding": "0 10px",
-                    "lineHeight": "24px",
-                    "borderRadius": "5px",
-                    "border": "1px solid currentColor",
-                    "whiteSpace": "nowrap",
-                    "textAlign": "center"
-                  }
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "propConfig": {
-                  "props.text": {
-                    "binding": {
-                      "type": "expr",
-                      "config": {
-                        "expression": "\"LOW \" + toStr(coalesce({view.custom.counts.Low}, 0))"
-                      }
-                    }
-                  },
-                  "props.style.color": {
-                    "binding": {
-                      "type": "expr",
-                      "config": {
-                        "expression": "if(coalesce({view.custom.counts.Low}, 0) > 0, \"#6cc4e8\", \"#74808a\")"
+                        "expression": "if(coalesce({view.custom.counts.active}, 0) > 0, \"#f0565e\", \"#74808a\")"
                       }
                     }
                   }
@@ -372,6 +248,49 @@
                     }
                   }
                 }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Mix"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "11.5px",
+                    "fontWeight": 700,
+                    "letterSpacing": "0.7px",
+                    "padding": "0 10px",
+                    "lineHeight": "24px",
+                    "borderRadius": "5px",
+                    "border": "1px solid currentColor",
+                    "whiteSpace": "nowrap",
+                    "textAlign": "center"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"C \" + toStr(coalesce({view.custom.counts.Critical}, 0)) + \"  H \" + toStr(coalesce({view.custom.counts.High}, 0)) + \"  M \" + toStr(coalesce({view.custom.counts.Medium}, 0)) + \"  L \" + toStr(coalesce({view.custom.counts.Low}, 0))"
+                      }
+                    }
+                  },
+                  "props.style.color": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"#b7c2ca\""
+                      }
+                    }
+                  }
+                }
               }
             ]
           },
@@ -385,7 +304,8 @@
               "style": {
                 "gap": "5px",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "flexShrink": 0
               },
               "alignItems": "center"
             },
@@ -403,10 +323,10 @@
                 "props": {
                   "text": "OVERVIEW",
                   "style": {
-                    "fontSize": "11px",
+                    "fontSize": "10.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "1px",
-                    "padding": "0 11px",
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
                     "lineHeight": "26px",
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
@@ -441,10 +361,10 @@
                 "props": {
                   "text": "3D CELL",
                   "style": {
-                    "fontSize": "11px",
+                    "fontSize": "10.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "1px",
-                    "padding": "0 11px",
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
                     "lineHeight": "26px",
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
@@ -479,10 +399,10 @@
                 "props": {
                   "text": "MANUAL",
                   "style": {
-                    "fontSize": "11px",
+                    "fontSize": "10.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "1px",
-                    "padding": "0 11px",
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
                     "lineHeight": "26px",
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
@@ -517,10 +437,10 @@
                 "props": {
                   "text": "ALARMS",
                   "style": {
-                    "fontSize": "11px",
+                    "fontSize": "10.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "1px",
-                    "padding": "0 11px",
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
                     "lineHeight": "26px",
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
@@ -555,10 +475,10 @@
                 "props": {
                   "text": "SETUP",
                   "style": {
-                    "fontSize": "11px",
+                    "fontSize": "10.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "1px",
-                    "padding": "0 11px",
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
                     "lineHeight": "26px",
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
@@ -740,7 +660,7 @@
                       "name": "H"
                     },
                     "props": {
-                      "text": "Active alarms \u2014 acknowledge and shelve here",
+                      "text": "Standing alarms \u2014 active, or cleared but not yet acknowledged",
                       "style": {
                         "fontSize": "11px",
                         "fontWeight": 700,
@@ -753,7 +673,8 @@
                         "whiteSpace": "nowrap",
                         "overflow": "hidden",
                         "textOverflow": "ellipsis",
-                        "flexShrink": 0
+                        "flexShrink": 0,
+                        "display": "block"
                       }
                     },
                     "position": {
@@ -768,7 +689,7 @@
                       "name": "Hint"
                     },
                     "props": {
-                      "text": "select a row, then use the toolbar",
+                      "text": "source filter prov:MachineDemo:/tag:* \u00b7 select a row, then use the toolbar",
                       "style": {
                         "fontSize": "11px",
                         "color": "#74808a",
@@ -1032,7 +953,8 @@
                         "whiteSpace": "nowrap",
                         "overflow": "hidden",
                         "textOverflow": "ellipsis",
-                        "flexShrink": 0
+                        "flexShrink": 0,
+                        "display": "block"
                       }
                     },
                     "position": {
@@ -1367,7 +1289,7 @@
         "transforms": [
           {
             "type": "script",
-            "code": "\tfrom java.lang import Throwable\n\tout = {\"Critical\": 0, \"High\": 0, \"Medium\": 0, \"Low\": 0, \"Diagnostic\": 0, \"total\": 0, \"unacked\": 0, \"shelved\": 0}\n\ttry:\n\t\tevts = system.alarm.queryStatus(\n\t\t\tstate=[\"ActiveUnacked\", \"ActiveAcked\", \"ClearUnacked\"], provider=[\"MachineDemo\"])\n\texcept Throwable:\n\t\treturn out\n\tfor e in evts:\n\t\ttry:\n\t\t\tpri = str(e.getPriority())\n\t\texcept Throwable:\n\t\t\tpri = \"Low\"\n\t\tif pri not in out:\n\t\t\tpri = \"Low\"\n\t\tout[pri] = out[pri] + 1\n\t\tout[\"total\"] = out[\"total\"] + 1\n\t\ttry:\n\t\t\tif not e.isAcked():\n\t\t\t\tout[\"unacked\"] = out[\"unacked\"] + 1\n\t\texcept Throwable:\n\t\t\tpass\n\treturn out\n"
+            "code": "\tfrom java.lang import Throwable\n\tout = {\"Critical\": 0, \"High\": 0, \"Medium\": 0, \"Low\": 0, \"Diagnostic\": 0, \"total\": 0, \"active\": 0, \"unacked\": 0}\n\ttry:\n\t\trows = MachineDemo.plant.liveAlarms()\n\texcept Throwable:\n\t\treturn out\n\tfor a in rows:\n\t\tpri = str(a.get(\"priority\") or \"Low\")\n\t\tif pri not in out:\n\t\t\tpri = \"Low\"\n\t\tout[pri] = out[pri] + 1\n\t\tout[\"total\"] = out[\"total\"] + 1\n\t\tif a.get(\"active\"):\n\t\t\tout[\"active\"] = out[\"active\"] + 1\n\t\tif not a.get(\"acked\"):\n\t\t\tout[\"unacked\"] = out[\"unacked\"] + 1\n\treturn out\n"
           }
         ]
       }

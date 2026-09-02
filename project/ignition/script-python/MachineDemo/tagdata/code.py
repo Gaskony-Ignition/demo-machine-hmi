@@ -158,6 +158,15 @@ def _robot():
 		_float("Lift_mm", 620.0, "mm", 0.0, 1200.0, "#,##0"),
 		_bool("GripperClosed", False),
 		_float("Vacuum_kPa", 0.0, "kPa", -80.0, 0.0, "#,##0.0"),
+		# Hold-to-run jog on the lift axis. Momentary bits: the HMI sets one
+		# while a finger is on the button and the SIMULATOR owns the motion,
+		# the same split a real machine has between the panel and the PLC. A
+		# screen that moved the axis itself would keep moving it after the
+		# interlock dropped, which is the whole reason machines are not built
+		# that way.
+		_bool("JogUp", False),
+		_bool("JogDown", False),
+		_float("LiftTarget_mm", 620.0, "mm", 0.0, 1200.0, "#,##0"),
 		_bool("MotorsOn", True),
 		_bool("Homed", True),
 		_bool("Ready", True),

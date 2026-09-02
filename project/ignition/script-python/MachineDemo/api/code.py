@@ -30,10 +30,13 @@ LOG = system.util.getLogger("MachineDemo.api")
 LINE = ["Line/Running", "Line/Mode", "Line/CasesPerMin", "Line/CycleTime_s",
         "Line/CasesTotal", "Line/ShiftTarget"]
 
+# APPEND ONLY. The offsets below are positional, and the 3D page reads this
+# shape - so a new tag goes on the end and nothing existing ever moves.
 ROBOT = ["Robot/State", "Robot/J1_deg", "Robot/J2_deg", "Robot/J3_deg",
          "Robot/J4_deg", "Robot/Lift_mm", "Robot/GripperClosed",
          "Robot/Vacuum_kPa", "Robot/CycleCount", "Robot/Fault",
-         "Robot/FaultText"]
+         "Robot/FaultText",
+         "Robot/JogUp", "Robot/JogDown", "Robot/LiftTarget_mm"]
 
 STATION = ["Present", "CasesPlaced", "Layer", "Complete", "PatternName"]
 
@@ -167,6 +170,10 @@ def state():
 			"grip": _b(rb[6]), "vac": _f(rb[7]),
 			"cycles": _i4(rb[8]),
 			"fault": _b(rb[9]), "faultText": _s(rb[10]),
+			# Added after the shape was frozen: additions only, so the page
+			# and the screens written against the original keys are untouched.
+			"jogUp": _b(rb[11]), "jogDown": _b(rb[12]),
+			"liftTarget": _f(rb[13]),
 		},
 		"pallets": pallets,
 		"conv": {
@@ -233,6 +240,11 @@ def reset():
 	pressed reset would be teaching the wrong thing.
 	"""
 	mapping = dict(("Faults/%s" % n, False) for n in P.FAULTS)
+	# Momentary bits are cleared by a reset like everything else - a reset that
+	# left a jog bit set would move the axis the moment the interlocks came
+	# back.
+	mapping["Robot/JogUp"] = False
+	mapping["Robot/JogDown"] = False
 	mapping["Line/SimEnabled"] = True
 	mapping["Line/Mode"] = "Auto"
 	mapping["Robot/Fault"] = False
@@ -269,6 +281,33 @@ def setMode(value):
 		raise ValueError("mode must be Auto or Manual, not '%s'" % value)
 	P.write({"Line/Mode": m, "Line/SimEnabled": m == "Auto"})
 	return {"mode": m}
+
+
+def setJog(name, on=True):
+	"""Set or clear ONE momentary jog bit, and nothing else.
+
+	It writes the tag and returns immediately - no settle delay, no motion of
+	its own. That is the point: the bit is the whole of the command, the
+	simulator owns the axis, and a caller that wants to know what moved reads
+	?cmd=state like any other client. A route that moved the axis itself would
+	prove nothing about the tags.
+	"""
+	key = (name or "").strip().lower()
+	if key not in ("up", "down"):
+		raise ValueError("jog direction must be up or down, not '%s'" % name)
+	tag = "Robot/Jog%s" % ("Up" if key == "up" else "Down")
+	P.write({tag: bool(on)})
+	return {"tag": tag, "on": bool(on)}
+
+
+def setGuards(closed):
+	"""Open or close the guard circuit directly, as a guard switch would.
+
+	Safety/GuardsClosed is an INPUT to the simulator, not something it owns, so
+	this is a real interlock test and not a flag the next tick overwrites.
+	"""
+	P.write({"Safety/GuardsClosed": bool(closed)})
+	return {"guardsClosed": bool(closed)}
 
 
 def status():

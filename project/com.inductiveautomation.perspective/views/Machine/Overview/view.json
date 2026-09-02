@@ -7,7 +7,8 @@
       "bg": "#1d232a",
       "border": "#2c343d",
       "time": "",
-      "n": 0
+      "n": 0,
+      "active": 0
     }
   },
   "params": {},
@@ -68,6 +69,7 @@
               "style": {
                 "gap": "1px",
                 "overflow": "hidden",
+                "paddingRight": "10px",
                 "minWidth": "0px",
                 "minHeight": "0px"
               }
@@ -75,7 +77,7 @@
             "position": {
               "grow": 1,
               "shrink": 1,
-              "basis": "180px"
+              "basis": "0px"
             },
             "children": [
               {
@@ -93,7 +95,8 @@
                     "lineHeight": "24px",
                     "whiteSpace": "nowrap",
                     "overflow": "hidden",
-                    "textOverflow": "ellipsis"
+                    "textOverflow": "ellipsis",
+                    "display": "block"
                   }
                 },
                 "position": {
@@ -115,7 +118,8 @@
                     "lineHeight": "16px",
                     "whiteSpace": "nowrap",
                     "overflow": "hidden",
-                    "textOverflow": "ellipsis"
+                    "textOverflow": "ellipsis",
+                    "display": "block"
                   }
                 },
                 "position": {
@@ -145,6 +149,7 @@
               "direction": "row",
               "style": {
                 "gap": "7px",
+                "flexShrink": 0,
                 "minWidth": "0px",
                 "minHeight": "0px"
               },
@@ -152,7 +157,7 @@
             },
             "position": {
               "grow": 0,
-              "shrink": 1,
+              "shrink": 0,
               "basis": "auto"
             },
             "children": [
@@ -246,92 +251,6 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "Cpm"
-                },
-                "props": {
-                  "text": "",
-                  "style": {
-                    "fontSize": "11.5px",
-                    "fontWeight": 700,
-                    "letterSpacing": "0.7px",
-                    "padding": "0 10px",
-                    "lineHeight": "24px",
-                    "borderRadius": "5px",
-                    "border": "1px solid currentColor",
-                    "whiteSpace": "nowrap",
-                    "textAlign": "center"
-                  }
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "propConfig": {
-                  "props.text": {
-                    "binding": {
-                      "type": "expr",
-                      "config": {
-                        "expression": "numberFormat(coalesce({[MachineDemo]Line/CasesPerMin}, 0), \"0.0\") + \" CASES/MIN\""
-                      }
-                    }
-                  },
-                  "props.style.color": {
-                    "binding": {
-                      "type": "expr",
-                      "config": {
-                        "expression": "\"#b7c2ca\""
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "type": "ia.display.label",
-                "meta": {
-                  "name": "Shift"
-                },
-                "props": {
-                  "text": "",
-                  "style": {
-                    "fontSize": "11.5px",
-                    "fontWeight": 700,
-                    "letterSpacing": "0.7px",
-                    "padding": "0 10px",
-                    "lineHeight": "24px",
-                    "borderRadius": "5px",
-                    "border": "1px solid currentColor",
-                    "whiteSpace": "nowrap",
-                    "textAlign": "center"
-                  }
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "propConfig": {
-                  "props.text": {
-                    "binding": {
-                      "type": "expr",
-                      "config": {
-                        "expression": "\"SHIFT \" + toStr(coalesce({[MachineDemo]Line/CasesTotal}, 0)) + \" / \" + toStr(coalesce({[MachineDemo]Line/ShiftTarget}, 0))"
-                      }
-                    }
-                  },
-                  "props.style.color": {
-                    "binding": {
-                      "type": "expr",
-                      "config": {
-                        "expression": "\"#8b98a3\""
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "type": "ia.display.label",
-                "meta": {
                   "name": "Alm"
                 },
                 "props": {
@@ -358,7 +277,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "\"\" + toStr(coalesce({view.custom.alm.n}, 0)) + if(coalesce({view.custom.alm.n}, 0) = 1, \" ALARM\", \" ALARMS\")"
+                        "expression": "toStr(coalesce({view.custom.alm.active}, 0)) + \" ACTIVE / \" + toStr(coalesce({view.custom.alm.n}, 0)) + \" STANDING\""
                       }
                     }
                   },
@@ -366,7 +285,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if(coalesce({view.custom.alm.n}, 0) > 0, \"#f0565e\", \"#8b98a3\")"
+                        "expression": "if(coalesce({view.custom.alm.active}, 0) > 0, \"#f0565e\", if(coalesce({view.custom.alm.n}, 0) > 0, \"#eebf5e\", \"#8b98a3\"))"
                       }
                     }
                   }
@@ -384,7 +303,8 @@
               "style": {
                 "gap": "5px",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "flexShrink": 0
               },
               "alignItems": "center"
             },
@@ -402,10 +322,10 @@
                 "props": {
                   "text": "OVERVIEW",
                   "style": {
-                    "fontSize": "11px",
+                    "fontSize": "10.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "1px",
-                    "padding": "0 11px",
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
                     "lineHeight": "26px",
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
@@ -440,10 +360,10 @@
                 "props": {
                   "text": "3D CELL",
                   "style": {
-                    "fontSize": "11px",
+                    "fontSize": "10.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "1px",
-                    "padding": "0 11px",
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
                     "lineHeight": "26px",
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
@@ -478,10 +398,10 @@
                 "props": {
                   "text": "MANUAL",
                   "style": {
-                    "fontSize": "11px",
+                    "fontSize": "10.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "1px",
-                    "padding": "0 11px",
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
                     "lineHeight": "26px",
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
@@ -516,10 +436,10 @@
                 "props": {
                   "text": "ALARMS",
                   "style": {
-                    "fontSize": "11px",
+                    "fontSize": "10.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "1px",
-                    "padding": "0 11px",
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
                     "lineHeight": "26px",
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
@@ -554,10 +474,10 @@
                 "props": {
                   "text": "SETUP",
                   "style": {
-                    "fontSize": "11px",
+                    "fontSize": "10.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "1px",
-                    "padding": "0 11px",
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
                     "lineHeight": "26px",
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
@@ -771,7 +691,8 @@
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
-                            "flexShrink": 0
+                            "flexShrink": 0,
+                            "display": "block"
                           }
                         },
                         "position": {
@@ -969,7 +890,8 @@
                                     "color": "#d5dde3",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
-                                    "textOverflow": "ellipsis"
+                                    "textOverflow": "ellipsis",
+                                    "display": "block"
                                   }
                                 },
                                 "position": {
@@ -1005,9 +927,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.22916666666666666,
+                                  "y": 0.21875,
                                   "width": 0.9,
-                                  "height": 0.125
+                                  "height": 0.15625
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1045,9 +967,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.75,
+                                  "y": 0.7916666666666666,
                                   "width": 0.38571428571428573,
-                                  "height": 0.08333333333333333
+                                  "height": 0.07291666666666667
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1078,9 +1000,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.6354166666666666,
+                                  "y": 0.6979166666666666,
                                   "width": 0.38571428571428573,
-                                  "height": 0.08333333333333333
+                                  "height": 0.07291666666666667
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1111,9 +1033,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.5208333333333334,
+                                  "y": 0.6041666666666666,
                                   "width": 0.38571428571428573,
-                                  "height": 0.08333333333333333
+                                  "height": 0.07291666666666667
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1144,9 +1066,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.40625,
+                                  "y": 0.5104166666666666,
                                   "width": 0.38571428571428573,
-                                  "height": 0.08333333333333333
+                                  "height": 0.07291666666666667
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1177,9 +1099,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.2916666666666667,
+                                  "y": 0.4166666666666667,
                                   "width": 0.38571428571428573,
-                                  "height": 0.08333333333333333
+                                  "height": 0.07291666666666667
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1209,7 +1131,7 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.875,
+                                  "y": 0.8854166666666666,
                                   "width": 0.42857142857142855,
                                   "height": 0.10416666666666667
                                 }
@@ -1274,7 +1196,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "\"of 60 \u00b7 \" + coalesce({[MachineDemo]Pallet/Station1/PatternName}, \"pattern\")"
+                                        "expression": "\"of 60 cases\""
                                       }
                                     }
                                   }
@@ -1350,7 +1272,8 @@
                                     "color": "#d5dde3",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
-                                    "textOverflow": "ellipsis"
+                                    "textOverflow": "ellipsis",
+                                    "display": "block"
                                   }
                                 },
                                 "position": {
@@ -1386,9 +1309,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.22916666666666666,
+                                  "y": 0.21875,
                                   "width": 0.9,
-                                  "height": 0.125
+                                  "height": 0.15625
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1426,9 +1349,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.75,
+                                  "y": 0.7916666666666666,
                                   "width": 0.38571428571428573,
-                                  "height": 0.08333333333333333
+                                  "height": 0.07291666666666667
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1459,9 +1382,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.6354166666666666,
+                                  "y": 0.6979166666666666,
                                   "width": 0.38571428571428573,
-                                  "height": 0.08333333333333333
+                                  "height": 0.07291666666666667
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1492,9 +1415,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.5208333333333334,
+                                  "y": 0.6041666666666666,
                                   "width": 0.38571428571428573,
-                                  "height": 0.08333333333333333
+                                  "height": 0.07291666666666667
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1525,9 +1448,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.40625,
+                                  "y": 0.5104166666666666,
                                   "width": 0.38571428571428573,
-                                  "height": 0.08333333333333333
+                                  "height": 0.07291666666666667
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1558,9 +1481,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.2916666666666667,
+                                  "y": 0.4166666666666667,
                                   "width": 0.38571428571428573,
-                                  "height": 0.08333333333333333
+                                  "height": 0.07291666666666667
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1590,7 +1513,7 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.875,
+                                  "y": 0.8854166666666666,
                                   "width": 0.42857142857142855,
                                   "height": 0.10416666666666667
                                 }
@@ -1655,7 +1578,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "\"of 60 \u00b7 \" + coalesce({[MachineDemo]Pallet/Station2/PatternName}, \"pattern\")"
+                                        "expression": "\"of 60 cases\""
                                       }
                                     }
                                   }
@@ -1731,7 +1654,8 @@
                                     "color": "#d5dde3",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
-                                    "textOverflow": "ellipsis"
+                                    "textOverflow": "ellipsis",
+                                    "display": "block"
                                   }
                                 },
                                 "position": {
@@ -1767,9 +1691,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.22916666666666666,
+                                  "y": 0.21875,
                                   "width": 0.9,
-                                  "height": 0.125
+                                  "height": 0.15625
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1948,7 +1872,8 @@
                                     "color": "#d5dde3",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
-                                    "textOverflow": "ellipsis"
+                                    "textOverflow": "ellipsis",
+                                    "display": "block"
                                   }
                                 },
                                 "position": {
@@ -1984,9 +1909,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.22916666666666666,
+                                  "y": 0.21875,
                                   "width": 0.9,
-                                  "height": 0.125
+                                  "height": 0.15625
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -2975,7 +2900,8 @@
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
-                            "flexShrink": 0
+                            "flexShrink": 0,
+                            "display": "block"
                           }
                         },
                         "position": {
@@ -4443,6 +4369,179 @@
               {
                 "type": "ia.container.flex",
                 "meta": {
+                  "name": "Rate"
+                },
+                "props": {
+                  "direction": "row",
+                  "style": {
+                    "gap": "10px",
+                    "backgroundColor": "#1d232a",
+                    "border": "1px solid #2c343d",
+                    "borderRadius": "6px",
+                    "padding": "4px 10px",
+                    "minWidth": "0px",
+                    "minHeight": "0px"
+                  },
+                  "alignItems": "center"
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "44px"
+                },
+                "children": [
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "A"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "1px",
+                        "minWidth": "0px",
+                        "minHeight": "0px"
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1,
+                      "basis": "0px"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "K"
+                        },
+                        "props": {
+                          "text": "CASES / MIN",
+                          "style": {
+                            "fontSize": "9px",
+                            "color": "#74808a",
+                            "letterSpacing": "1px"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "12px"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "V"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
+                            "fontSize": "21px",
+                            "fontWeight": 700,
+                            "color": "#dde4e9",
+                            "lineHeight": "24px",
+                            "fontVariantNumeric": "tabular-nums"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "24px"
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "numberFormat(coalesce({[MachineDemo]Line/CasesPerMin}, 0), \"0.0\")"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "B"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "1px",
+                        "minWidth": "0px",
+                        "minHeight": "0px"
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1,
+                      "basis": "0px"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "K"
+                        },
+                        "props": {
+                          "text": "SHIFT",
+                          "style": {
+                            "fontSize": "9px",
+                            "color": "#74808a",
+                            "letterSpacing": "1px",
+                            "textAlign": "right"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "12px"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "V"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
+                            "fontSize": "21px",
+                            "fontWeight": 700,
+                            "color": "#7ee2d2",
+                            "lineHeight": "24px",
+                            "textAlign": "right",
+                            "whiteSpace": "nowrap",
+                            "fontVariantNumeric": "tabular-nums"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "24px"
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "toStr(coalesce({[MachineDemo]Line/CasesTotal}, 0)) + \" / \" + toStr(coalesce({[MachineDemo]Line/ShiftTarget}, 0))"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
                   "name": "LineBtns"
                 },
                 "props": {
@@ -4456,7 +4555,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "46px"
+                  "basis": "44px"
                 },
                 "children": [
                   {
@@ -4478,7 +4577,7 @@
                         "whiteSpace": "normal",
                         "lineHeight": "1.2",
                         "textAlign": "center",
-                        "height": "46px",
+                        "height": "44px",
                         "borderColor": "#2c7a4a"
                       }
                     },
@@ -4518,7 +4617,7 @@
                         "whiteSpace": "normal",
                         "lineHeight": "1.2",
                         "textAlign": "center",
-                        "height": "46px",
+                        "height": "44px",
                         "borderColor": "#7a2a2f"
                       }
                     },
@@ -4552,8 +4651,8 @@
                     "backgroundColor": "#1d232a",
                     "border": "1px solid #2c343d",
                     "borderRadius": "6px",
-                    "padding": "6px 8px",
-                    "gap": "5px",
+                    "padding": "5px 8px",
+                    "gap": "4px",
                     "minWidth": "0px",
                     "minHeight": "0px"
                   }
@@ -4561,7 +4660,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "66px"
+                  "basis": "63px"
                 },
                 "children": [
                   {
@@ -4631,7 +4730,8 @@
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
-                            "cursor": "pointer"
+                            "cursor": "pointer",
+                            "display": "block"
                           }
                         },
                         "position": {
@@ -4825,8 +4925,8 @@
                     "backgroundColor": "#1d232a",
                     "border": "1px solid #2c343d",
                     "borderRadius": "6px",
-                    "padding": "6px 8px",
-                    "gap": "5px",
+                    "padding": "5px 8px",
+                    "gap": "4px",
                     "minWidth": "0px",
                     "minHeight": "0px"
                   }
@@ -4834,7 +4934,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "66px"
+                  "basis": "63px"
                 },
                 "children": [
                   {
@@ -4904,7 +5004,8 @@
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
-                            "cursor": "pointer"
+                            "cursor": "pointer",
+                            "display": "block"
                           }
                         },
                         "position": {
@@ -5098,8 +5199,8 @@
                     "backgroundColor": "#1d232a",
                     "border": "1px solid #2c343d",
                     "borderRadius": "6px",
-                    "padding": "6px 8px",
-                    "gap": "5px",
+                    "padding": "5px 8px",
+                    "gap": "4px",
                     "minWidth": "0px",
                     "minHeight": "0px"
                   }
@@ -5107,7 +5208,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "66px"
+                  "basis": "63px"
                 },
                 "children": [
                   {
@@ -5177,7 +5278,8 @@
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
-                            "cursor": "pointer"
+                            "cursor": "pointer",
+                            "display": "block"
                           }
                         },
                         "position": {
@@ -5371,8 +5473,8 @@
                     "backgroundColor": "#1d232a",
                     "border": "1px solid #2c343d",
                     "borderRadius": "6px",
-                    "padding": "6px 8px",
-                    "gap": "5px",
+                    "padding": "5px 8px",
+                    "gap": "4px",
                     "minWidth": "0px",
                     "minHeight": "0px"
                   }
@@ -5380,7 +5482,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "66px"
+                  "basis": "63px"
                 },
                 "children": [
                   {
@@ -5450,7 +5552,8 @@
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
-                            "cursor": "pointer"
+                            "cursor": "pointer",
+                            "display": "block"
                           }
                         },
                         "position": {
@@ -5644,8 +5747,8 @@
                     "backgroundColor": "#1d232a",
                     "border": "1px solid #2c343d",
                     "borderRadius": "6px",
-                    "padding": "6px 8px",
-                    "gap": "5px",
+                    "padding": "5px 8px",
+                    "gap": "4px",
                     "minWidth": "0px",
                     "minHeight": "0px"
                   }
@@ -5653,7 +5756,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "66px"
+                  "basis": "63px"
                 },
                 "children": [
                   {
@@ -5723,7 +5826,8 @@
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
-                            "cursor": "pointer"
+                            "cursor": "pointer",
+                            "display": "block"
                           }
                         },
                         "position": {
@@ -5917,8 +6021,8 @@
                     "backgroundColor": "#1d232a",
                     "border": "1px solid #2c343d",
                     "borderRadius": "6px",
-                    "padding": "6px 8px",
-                    "gap": "5px",
+                    "padding": "5px 8px",
+                    "gap": "4px",
                     "minWidth": "0px",
                     "minHeight": "0px"
                   }
@@ -5926,7 +6030,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "66px"
+                  "basis": "63px"
                 },
                 "children": [
                   {
@@ -5996,7 +6100,8 @@
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
-                            "cursor": "pointer"
+                            "cursor": "pointer",
+                            "display": "block"
                           }
                         },
                         "position": {
@@ -6190,8 +6295,8 @@
                     "backgroundColor": "#1d232a",
                     "border": "1px solid #2c343d",
                     "borderRadius": "6px",
-                    "padding": "6px 8px",
-                    "gap": "5px",
+                    "padding": "5px 8px",
+                    "gap": "4px",
                     "minWidth": "0px",
                     "minHeight": "0px"
                   }
@@ -6199,7 +6304,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "66px"
+                  "basis": "63px"
                 },
                 "children": [
                   {
@@ -6269,7 +6374,8 @@
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
-                            "cursor": "pointer"
+                            "cursor": "pointer",
+                            "display": "block"
                           }
                         },
                         "position": {
@@ -6463,8 +6569,8 @@
                     "backgroundColor": "#1d232a",
                     "border": "1px solid #2c343d",
                     "borderRadius": "6px",
-                    "padding": "6px 8px",
-                    "gap": "5px",
+                    "padding": "5px 8px",
+                    "gap": "4px",
                     "minWidth": "0px",
                     "minHeight": "0px"
                   }
@@ -6472,7 +6578,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "66px"
+                  "basis": "63px"
                 },
                 "children": [
                   {
@@ -6542,7 +6648,8 @@
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
-                            "cursor": "pointer"
+                            "cursor": "pointer",
+                            "display": "block"
                           }
                         },
                         "position": {
@@ -6795,7 +6902,8 @@
                 "fontWeight": 600,
                 "whiteSpace": "nowrap",
                 "overflow": "hidden",
-                "textOverflow": "ellipsis"
+                "textOverflow": "ellipsis",
+                "display": "block"
               }
             },
             "position": {
@@ -6808,7 +6916,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "coalesce({view.custom.alm.text}, \"Loading alarms\u2026\")"
+                    "expression": "coalesce({view.custom.alm.text}, \"No active alarms on this machine\")"
                   }
                 }
               },
@@ -6920,7 +7028,7 @@
         "transforms": [
           {
             "type": "script",
-            "code": "\tfrom java.lang import Throwable\n\tout = {\"text\": \"No alarms needing attention\", \"sub\": \"0 standing - 0 unacknowledged\", \"colour\": \"#8b98a3\", \"bg\": \"#1d232a\", \"border\": \"#2c343d\", \"time\": \"\", \"n\": 0}\n\ttry:\n\t\tevts = system.alarm.queryStatus(\n\t\t\tstate=[\"ActiveUnacked\", \"ActiveAcked\", \"ClearUnacked\"], provider=[\"MachineDemo\"])\n\texcept Throwable:\n\t\treturn out\n\torder = {\"Diagnostic\": 0, \"Low\": 1, \"Medium\": 2, \"High\": 3, \"Critical\": 4}\n\tbest = None\n\tbestp = -1\n\tunacked = 0\n\ttotal = 0\n\tfor e in evts:\n\t\ttotal = total + 1\n\t\ttry:\n\t\t\tacked = e.isAcked()\n\t\texcept Throwable:\n\t\t\tacked = True\n\t\tif not acked:\n\t\t\tunacked = unacked + 1\n\t\ttry:\n\t\t\tpri = str(e.getPriority())\n\t\texcept Throwable:\n\t\t\tpri = \"Low\"\n\t\tp = order.get(pri, 1)\n\t\tif p > bestp:\n\t\t\tbestp = p\n\t\t\tbest = e\n\tif best is None:\n\t\treturn out\n\ttry:\n\t\tdp = str(best.getDisplayPath())\n\texcept Throwable:\n\t\tdp = \"\"\n\ttry:\n\t\tnm = str(best.getName())\n\texcept Throwable:\n\t\tnm = \"Alarm\"\n\tif not dp:\n\t\tdp = nm\n\ttry:\n\t\tts = best.getActiveData().getTimestamp()\n\t\ttm = system.date.format(ts, \"HH:mm:ss\")\n\texcept Throwable:\n\t\ttm = \"\"\n\tcolour = \"#6cc4e8\"\n\tbg = \"#1d232a\"\n\tborder = \"#2c343d\"\n\tif bestp >= 3:\n\t\tcolour = \"#ff8d92\"\n\t\tbg = \"#2e1a1d\"\n\t\tborder = \"#c2444c\"\n\telif bestp == 2:\n\t\tcolour = \"#eebf5e\"\n\t\tbg = \"#2b2418\"\n\t\tborder = \"#7d6427\"\n\tout[\"text\"] = dp + \" - \" + nm\n\tout[\"sub\"] = \"%d standing - %d unacknowledged\" % (total, unacked)\n\tout[\"colour\"] = colour\n\tout[\"bg\"] = bg\n\tout[\"border\"] = border\n\tout[\"time\"] = tm\n\tout[\"n\"] = total\n\treturn out\n"
+            "code": "\tfrom java.lang import Throwable\n\tout = {\"text\": \"No active alarms on this machine\", \"sub\": \"0 standing - 0 unacknowledged\", \"colour\": \"#8b98a3\", \"bg\": \"#1d232a\", \"border\": \"#2c343d\", \"time\": \"\", \"n\": 0, \"active\": 0}\n\ttry:\n\t\trows = MachineDemo.plant.liveAlarms()\n\texcept Throwable:\n\t\treturn out\n\tif not rows:\n\t\treturn out\n\torder = {\"Diagnostic\": 0, \"Low\": 1, \"Medium\": 2, \"High\": 3, \"Critical\": 4}\n\tbest = None\n\tbestscore = -1\n\tbestpri = 0\n\tunacked = 0\n\tactive = 0\n\tfor a in rows:\n\t\tif not a.get(\"acked\"):\n\t\t\tunacked = unacked + 1\n\t\tpri = order.get(str(a.get(\"priority\") or \"Low\"), 1)\n\t\tif a.get(\"active\"):\n\t\t\tactive = active + 1\n\t\t\tscore = 100 + pri * 2\n\t\telse:\n\t\t\tscore = pri * 2\n\t\tif not a.get(\"acked\"):\n\t\t\tscore = score + 1\n\t\tif score > bestscore:\n\t\t\tbestscore = score\n\t\t\tbestpri = pri\n\t\t\tbest = a\n\tif best is None:\n\t\treturn out\n\tlbl = str(best.get(\"label\") or \"\")\n\tnm = str(best.get(\"name\") or \"Alarm\")\n\tif not lbl:\n\t\tlbl = nm\n\tst = str(best.get(\"state\") or \"\")\n\tcolour = \"#6cc4e8\"\n\tbg = \"#1d232a\"\n\tborder = \"#2c343d\"\n\tif bestpri >= 3:\n\t\tcolour = \"#ff8d92\"\n\t\tbg = \"#2e1a1d\"\n\t\tborder = \"#c2444c\"\n\telif bestpri == 2:\n\t\tcolour = \"#eebf5e\"\n\t\tbg = \"#2b2418\"\n\t\tborder = \"#7d6427\"\n\tif not best.get(\"active\"):\n\t\tbg = \"#1d232a\"\n\t\tborder = \"#2c343d\"\n\tout[\"text\"] = lbl + \"  -  \" + st\n\tout[\"sub\"] = \"%d standing - %d active - %d unacknowledged\" % (len(rows), active, unacked)\n\tout[\"colour\"] = colour\n\tout[\"bg\"] = bg\n\tout[\"border\"] = border\n\tout[\"time\"] = str(best.get(\"time\") or \"\")\n\tout[\"n\"] = len(rows)\n\tout[\"active\"] = active\n\treturn out\n"
           }
         ]
       }

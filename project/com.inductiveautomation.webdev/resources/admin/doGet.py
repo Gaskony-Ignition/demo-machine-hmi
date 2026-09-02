@@ -13,6 +13,8 @@ def doGet(request, session):
 	    ?cmd=faults                 the injectable faults, and what each does
 	    ?cmd=fault&name=ConveyorJam inject one
 	    ?cmd=clear&name=ConveyorJam clear one
+	    ?cmd=jog&name=down&on=1     hold a momentary jog bit (up | down)
+	    ?cmd=guards&closed=0        open or close the guard circuit
 	    ?cmd=reset                  every fault cleared, back to steady state
 	    ?cmd=speed&value=3          machine time as a multiple of real time
 	    ?cmd=mode&value=Manual      Auto or Manual
@@ -85,6 +87,20 @@ def doGet(request, session):
 			                 'mode': MachineDemo.api.setMode(
 			                     params.get('value', 'Auto'))}}
 
+		if cmd == 'jog':
+			# ?cmd=jog&name=up|down&on=1|0 - writes the momentary bit only.
+			on = params.get('on', '1')
+			on = unicode(on).lower() not in ('0', 'false', 'off', 'no')
+			return {'json': {'ok': True,
+			                 'jog': MachineDemo.api.setJog(
+			                     params.get('name', ''), on)}}
+
+		if cmd == 'guards':
+			closed = params.get('closed', '1')
+			closed = unicode(closed).lower() not in ('0', 'false', 'off', 'no')
+			return {'json': {'ok': True,
+			                 'guards': MachineDemo.api.setGuards(closed)}}
+
 		if cmd == 'alarms':
 			return {'json': {'ok': True,
 			                 'counts': MachineDemo.plant.alarmCounts(),
@@ -124,7 +140,7 @@ def doGet(request, session):
 		                 'commands': ['state', 'status', 'setup', 'check',
 		                              'fix', 'faults', 'fault', 'clear',
 		                              'reset', 'speed', 'mode', 'alarms',
-		                              'version']}}
+		                              'jog', 'guards', 'version']}}
 
 	except:
 		return {'json': {'ok': False, 'error': traceback.format_exc()}}

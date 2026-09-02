@@ -54,6 +54,7 @@ TAG_PROVIDER_CONFIG = {
 # and then it failed", which is what a half-configured provider looks like and
 # reports no error anywhere.
 PROBE_TAGS = ["Line/SimEnabled", "Safety/GuardsClosed", "Robot/J1_deg",
+              "Robot/LiftTarget_mm", "Robot/JogUp",
               "Pallet/Station2/CasesPlaced", "Conveyor/PE_Clear",
               "Zones/Z8/Name", "Faults/RobotAxisFault"]
 
@@ -245,7 +246,8 @@ def _simCheck():
 
 def _simFix():
 	mapping = {"Line/SimEnabled": True, "Line/SimSpeed": 1.0,
-	           "Line/Mode": "Auto"}
+	           "Line/Mode": "Auto", "Safety/GuardsClosed": True,
+	           "Robot/JogUp": False, "Robot/JogDown": False}
 	for n in P.FAULTS:
 		mapping["Faults/%s" % n] = False
 	P.write(mapping)

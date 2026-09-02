@@ -190,6 +190,22 @@ PHASES = [
 	("Retract", 1.9, "Placing"),     # straight up, clear of the stack
 ]
 
+# Hold-to-run jog on the lift axis. 120 mm/s of MACHINE time: fast enough to
+# cross the column in ten seconds, slow enough that a finger on a button can
+# stop it where it means to.
+JOG_RATE_MM_S = 120.0
+
+# The axis follows its command with a short lag, so the Manual screen's
+# commanded and actual readouts are two different numbers during a move -
+# which is what makes showing both of them worth the space.
+JOG_LAG_S = 0.25
+
+# A momentary bit that stays set is the failure a customer WILL ask about: a
+# browser tab closes mid-jog and the axis runs to the limit on its own. Counted
+# in REAL seconds, not machine seconds - a tab closing is a wall-clock event,
+# and counting machine time would make the watchdog four times twitchier at 4x.
+JOG_WATCHDOG_S = 30.0
+
 HOLD_VACUUM_KPA = -66.0
 LOW_VACUUM_KPA = -17.0
 
@@ -222,6 +238,9 @@ _S = None
 
 
 def _blank():
+	# The lift the arm actually holds at HOME, solved rather than typed, so the
+	# jog axis starts from where the column really is.
+	homeLift = _solve(HOME[1], HOME[2])[2]
 	return {
 		"t": JSystem.currentTimeMillis(),
 		"ticks": 0,
@@ -247,6 +266,10 @@ def _blank():
 		"cycleCount": 0,
 		"zclock": 0.0,
 		"named": False,
+		"jogLift": homeLift,
+		"jogTarget": homeLift,
+		"jogHeld": 0.0,
+		"guardWasHeld": False,
 		"st": dict((n, {"present": True, "cases": 0, "complete": False,
 		                "disch": 0.0}) for n in P.STATIONS),
 	}
@@ -266,6 +289,8 @@ def _state():
 	try:
 		want = {"casesTotal": "Line/CasesTotal",
 		        "cycleCount": "Robot/CycleCount",
+		        "lift": "Robot/Lift_mm",
+		        "liftTarget": "Robot/LiftTarget_mm",
 		        "barcode": "Conveyor/LastBarcode"}
 		for n in P.STATIONS:
 			want["p%d" % n] = "Pallet/Station%d/Present" % n
@@ -274,6 +299,9 @@ def _state():
 		v = P.readDict(want)
 		s["casesTotal"] = int(v.get("casesTotal") or 0)
 		s["cycleCount"] = int(v.get("cycleCount") or 0)
+		if v.get("lift") is not None:
+			s["jogLift"] = float(v.get("lift"))
+			s["jogTarget"] = float(v.get("liftTarget") or v.get("lift"))
 		bc = v.get("barcode") or ""
 		if bc.startswith("T") and bc[1:].isdigit():
 			s["barcode"] = int(bc[1:])
@@ -442,10 +470,15 @@ def _tick():
 		# reloaded. Cap it: integrating a ten second gap teleports the arm.
 		dtr = 2.0
 
+	# Everything the tick needs to read, in ONE round trip: the controls, the
+	# five faults, the two jog bits and the guard circuit.
 	ctl = P.readDict({
 		"enabled": "Line/SimEnabled",
 		"speed": "Line/SimSpeed",
 		"mode": "Line/Mode",
+		"jogUp": "Robot/JogUp",
+		"jogDown": "Robot/JogDown",
+		"guards": "Safety/GuardsClosed",
 	})
 	f = dict(zip(P.FAULTS, P.read(["Faults/%s" % n for n in P.FAULTS])))
 	for k in f:
@@ -454,23 +487,33 @@ def _tick():
 	if ctl.get("enabled") is None:
 		# The provider is not there yet. Setup has not been run.
 		return
-	if not ctl.get("enabled"):
-		_writeStopped(s, f)
-		return
 
 	speed = _clamp(float(ctl.get("speed") or 1.0), 0.1, 20.0)
 	dt = dtr * speed
 	s["ticks"] += 1
 	s["zclock"] += dt
 
-	held = f["GuardOpen"]
+	# The guard circuit is an INPUT, not something this module owns. It goes
+	# false when the GuardOpen fault is injected, and it also goes false when
+	# anyone writes it false - a test, an operator screen, a Designer session.
+	# Either way the cell is held. Driving it purely from the injected fault
+	# would mean a gateway that reported guards open and kept running.
+	held = f["GuardOpen"] or (ctl.get("guards") is False)
 	robotFault = f["RobotAxisFault"] or f["VacuumLow"]
 	blocked = held or robotFault
+
+	if not ctl.get("enabled"):
+		# Manual, or the simulation switched off. The auto cycle stops; the
+		# lift axis does NOT, because manual jog is the whole point of the mode
+		# and an operator jogging an axis is not the cell running a pattern.
+		_jog(s, dt, dtr, ctl, blocked, False, None)
+		_writeStopped(s, f, blocked, robotFault, held)
+		return
 
 	state = _motion(s, dt, f, blocked, robotFault, held)
 	_material(s, dt, f, held)
 	_stations(s, dt, f)
-	_write(s, dt, f, ctl, state, blocked, robotFault, held)
+	_write(s, dt, dtr, f, ctl, state, blocked, robotFault, held)
 
 
 def _motion(s, dt, f, blocked, robotFault, held):
@@ -701,6 +744,70 @@ def _grip(s, state, f):
 	return True, HOLD_VACUUM_KPA + random.uniform(-1.8, 1.8)
 
 
+def _jog(s, dt, dtr, ctl, blocked, autoRunning, solvedLift):
+	"""Hold-to-run jog on the lift axis. Returns (Lift_mm, LiftTarget_mm).
+
+	The HMI sets a momentary bit; the motion happens HERE. That split is the
+	point of the exercise - a screen that moved the axis itself would carry on
+	moving it after the interlock dropped, after the operator let go, and after
+	the browser tab closed.
+
+	Four independent reasons not to move, and each one is checked here even
+	though the screen already greys the button out. The panel disabling a
+	button and the controller refusing the motion are not the same safeguard,
+	and a machine builder will ask which one you have.
+	"""
+	up = bool(ctl.get("jogUp"))
+	down = bool(ctl.get("jogDown"))
+
+	# The watchdog runs FIRST and runs in every mode, including auto: a bit
+	# stuck on is worth clearing whether or not anything would have moved.
+	if up or down:
+		s["jogHeld"] += dtr
+	else:
+		s["jogHeld"] = 0.0
+	if s["jogHeld"] > JOG_WATCHDOG_S:
+		P.write({"Robot/JogUp": False, "Robot/JogDown": False})
+		LOG.warn("jog watchdog: a jog bit was held for more than %.0f s and "
+		         "has been cleared - the session that set it is gone"
+		         % JOG_WATCHDOG_S)
+		s["jogHeld"] = 0.0
+		up = down = False
+
+	if autoRunning:
+		# The auto cycle owns the axis. The jog bits are ignored, and the
+		# manual position tracks the cycle so that a drop into manual starts
+		# from where the column actually is rather than where it was last
+		# jogged to, minutes ago.
+		s["jogLift"] = solvedLift
+		s["jogTarget"] = solvedLift
+		return solvedLift, solvedLift
+
+	if up and down:
+		# A real controller treats both directions commanded at once as a
+		# fault condition, not a race to be resolved. Neither bit is cleared:
+		# it is the panel's mistake to fix, and clearing it would hide it.
+		direction = 0
+	elif blocked:
+		direction = 0
+	elif up:
+		direction = 1
+	elif down:
+		direction = -1
+	else:
+		direction = 0
+
+	target = s["jogTarget"]
+	if direction:
+		target = _clamp(target + direction * JOG_RATE_MM_S * dt,
+		                0.0, LIFT_MAX_MM)
+	lift = s["jogLift"]
+	lift = lift + (target - lift) * min(1.0, dt / JOG_LAG_S)
+	s["jogTarget"] = target
+	s["jogLift"] = lift
+	return lift, target
+
+
 def _zoneRow(state, running, fault):
 	if fault:
 		return "Fault"
@@ -709,26 +816,59 @@ def _zoneRow(state, running, fault):
 	return "Running" if running else "Idle"
 
 
-def _writeStopped(s, f):
-	"""SimEnabled is off. Say so honestly instead of leaving stale values."""
+def _writeStopped(s, f, blocked, robotFault, held):
+	"""The auto cycle is off - Manual, or SimEnabled false.
+
+	It says so honestly rather than leaving stale values, and it still
+	publishes the lift axis, the motor contactor and the fault, because in
+	Manual all three are live: the operator is jogging, and the interlocks that
+	stop them jogging have to read correctly on the same screen.
+	"""
+	state = "Fault" if robotFault else ("Held" if held else "Idle")
 	paths = ["Line/Running", "Line/CasesPerMin", "Robot/State",
+	         "Robot/Lift_mm", "Robot/LiftTarget_mm",
+	         "Robot/MotorsOn", "Robot/Ready", "Robot/Fault",
 	         "Conveyor/C1_Run", "Conveyor/C2_Run", "Conveyor/C3_Run",
 	         "Conveyor/C1_Speed_mpm", "Conveyor/C2_Speed_mpm",
 	         "Conveyor/C3_Speed_mpm"]
-	vals = [False, 0.0, "Idle", False, False, False, 0.0, 0.0, 0.0]
+	vals = [False, 0.0, state,
+	        round(s["jogLift"], 0), round(s["jogTarget"], 0),
+	        (not blocked), False, bool(robotFault),
+	        False, False, False, 0.0, 0.0, 0.0]
+	paths, vals = _guardWrite(s, f, held, paths, vals)
 	for zid in P.ZONE_IDS:
 		paths += ["Zones/%s/State" % zid, "Zones/%s/Running" % zid]
 		vals += ["Idle", False]
 	P.writePaths(paths, vals)
 
 
-def _write(s, dt, f, ctl, state, blocked, robotFault, held):
+def _guardWrite(s, f, held, paths, vals):
+	"""Drive Safety/GuardsClosed only when this module has something to say.
+
+	It is a field input - a guard switch - so the simulator forces it FALSE
+	while the GuardOpen fault stands, and forces it back TRUE once on the
+	transition out. In between it leaves the tag alone, which is what lets a
+	test (or an operator screen) write it false and have that mean something
+	instead of being overwritten 500 ms later.
+	"""
+	if f["GuardOpen"]:
+		s["guardWasHeld"] = True
+		paths.append("Safety/GuardsClosed")
+		vals.append(False)
+	elif s.get("guardWasHeld"):
+		s["guardWasHeld"] = False
+		paths.append("Safety/GuardsClosed")
+		vals.append(True)
+	return paths, vals
+
+
+def _write(s, dt, dtr, f, ctl, state, blocked, robotFault, held):
 	"""Everything the cell is, written in one round trip."""
 	# Task space in, joints out. The interpolation above moved the WRIST; this
 	# is the only place joint angles exist, so the angles the 3D page receives
 	# are by construction a pose the arm can actually hold.
 	j1, radius, wristY, j4 = s["pose"]
-	j2, j3, lift = _solve(radius, wristY)
+	j2, j3, solvedLift = _solve(radius, wristY)
 	grip, vac = _grip(s, state, f)
 	eyes = _eyes(s, f)
 
@@ -759,7 +899,8 @@ def _write(s, dt, f, ctl, state, blocked, robotFault, held):
 		"Robot/Vacuum_kPa", "Robot/MotorsOn", "Robot/Homed", "Robot/Ready",
 		"Robot/Healthy", "Robot/CycleCount", "Robot/CycleTime_s",
 		"Robot/Fault", "Robot/FaultText",
-		"Safety/EStopOK", "Safety/GuardsClosed", "Safety/AirPressureOK",
+		"Robot/LiftTarget_mm",
+		"Safety/EStopOK", "Safety/AirPressureOK",
 		"Safety/InterfacesOK", "Safety/AirPressure_kPa",
 		"Conveyor/C1_Run", "Conveyor/C2_Run", "Conveyor/C3_Run",
 		"Conveyor/C1_Speed_mpm", "Conveyor/C2_Speed_mpm",
@@ -773,6 +914,12 @@ def _write(s, dt, f, ctl, state, blocked, robotFault, held):
 	# Safety/ already answers it.
 	running = (not blocked) and (not s["idle"])
 
+	# Who owns the lift. While the cycle runs it is the cycle's, and the jog
+	# bits are ignored; the moment the cell goes idle - starved, both pallets
+	# full, held - the operator can jog it, which is exactly when they would
+	# want to.
+	lift, liftTarget = _jog(s, dt, dtr, ctl, blocked, running, solvedLift)
+
 	vals = [
 		bool(running), round(s["cpm"], 1), round(s["cycleTime"], 2),
 		int(s["casesTotal"]),
@@ -783,7 +930,8 @@ def _write(s, dt, f, ctl, state, blocked, robotFault, held):
 		(not robotFault) and airOK, int(s["cycleCount"]),
 		round(s["cycleTime"], 2),
 		bool(robotFault), faultText,
-		True, (not held), bool(airOK), (not f["WrapperFilmFeed"]),
+		round(liftTarget, 0),
+		True, bool(airOK), (not f["WrapperFilmFeed"]),
 		round(air, 0),
 		bool(s.get("c1")), bool(s.get("c2")), bool(c3),
 		round(18.0 + random.uniform(-0.4, 0.4), 1) if s.get("c1") else 0.0,
@@ -793,6 +941,8 @@ def _write(s, dt, f, ctl, state, blocked, robotFault, held):
 		bool(s["st"][s["active"]]["present"] and not _discharging(s, s["active"])),
 		s["lastBarcode"], bool(s["scanOK"]),
 	]
+
+	paths, vals = _guardWrite(s, f, held, paths, vals)
 
 	for key in ("PE_Infeed", "PE_Carton", "PE_Length1", "PE_Length2",
 	            "PE_InPos1", "PE_InPos2", "PE_Clear"):
