@@ -77,7 +77,14 @@ The Setup page doubles as a presenter console, and every control has a URL:
 ?cmd=reset                      # back to steady state
 ?cmd=speed&value=2              # simulation speed
 ?cmd=state                      # the live snapshot the 3D page polls
+?cmd=mode&value=Auto            # hand the cell back to the auto cycle
 ```
+
+**After demonstrating manual control, hand the cell back before `reset`.** Taking
+a cell to manual leaves it there, and `?cmd=reset` clears faults but will not
+restart a cell the operator still owns — so the line sits stopped at 0 cases/min
+and the 3D view goes still. The sequence that returns everything to a running
+demo is `?cmd=mode&value=Auto` and then `?cmd=reset`.
 
 ## How the 3D page works
 
