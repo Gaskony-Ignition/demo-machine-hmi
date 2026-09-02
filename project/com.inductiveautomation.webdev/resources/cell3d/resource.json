@@ -4,14 +4,12 @@
   "restricted": false,
   "overridable": true,
   "files": [
-    "config.json",
-    "doGet.py",
-    "page.html"
+    "config.json"
   ],
   "attributes": {
     "lastModification": {
       "actor": "external",
-      "timestamp": "2026-09-01T23:37:23Z"
+      "timestamp": "2026-09-02T12:12:43Z"
     }
   }
 }

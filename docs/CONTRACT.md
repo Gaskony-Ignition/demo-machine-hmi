@@ -82,6 +82,40 @@ Base: `http://192.168.153.128:8088/system/webdev/Machine_HMI_Demo/<name>`
 | `cell3d` | (no query) | the 3D palletising cell page, served as HTML |
 | `lib` | `?f=three` | vendored three.js (proves it works with no internet) |
 
+### `cell3d` is a Text Resource, and that is deliberate
+
+It began as a `doGet.py` that read a `page.html` sitting beside it. That worked
+and the Designer could not see it — Web Dev lists resources, and a loose file
+inside a resource folder is not one, so anyone opening `cell3d` in the Designer
+found the Python and no way to reach the page.
+
+A **text-resource** appears in Web Dev, opens in the Designer's editor with
+HTML, CSS and JavaScript all syntax-highlighted, and is served directly at the
+same URL with no Python in the way. Its on-disk form is:
+
+```json
+{ "resource-type": "text-resource", "content-type": "text/html", "text": "…" }
+```
+
+— the whole page as one JSON string, with `files: ["config.json"]` and nothing
+else in the directory.
+
+That is unreadable in git, so **`src/cell3d/page.html` is the source of truth**
+and the resource is generated:
+
+```
+python3 tools/webdev_page.py build      # src/cell3d/page.html -> the resource
+python3 tools/webdev_page.py extract    # the resource -> src/cell3d/page.html
+```
+
+**Run `extract` after editing in the Designer, before committing.** The two
+directions are not automatic, and the next `build` overwrites whatever was typed
+in the Designer. This is the one cost of the split, and it buys the thing the
+demo is trying to prove: that a customer can maintain the 3D page in the
+Designer without a web toolchain.
+
+`admin` and `lib` remain python-resources — they are code, not pages.
+
 ### `?cmd=state` response shape — FROZEN, the 3D page depends on it
 
 ```json
