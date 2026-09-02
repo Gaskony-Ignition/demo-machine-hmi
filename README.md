@@ -116,3 +116,23 @@ node /Home-Claude/ignition-claude-toolkit/plugins/ignition/skills/scan/tool/scan
 
 Pull the gateway's copy back over `project/` before editing — the gateway is the
 source of truth and a local mirror is stale by default.
+
+## Verified behaviours
+
+These are checked, not assumed — each was tested against the running gateway:
+
+| Claim | How it was verified |
+| --- | --- |
+| The 3D library is served from the project, not a CDN | Fetched off the gateway and md5-compared to the file on disk: identical, 669,884 bytes. |
+| The 3D page survives losing its tag feed | Blocked the `admin` route in a live session: the page reported *"no tag data — showing local motion"*, the model kept moving (lift 277 mm → 774 mm), and it returned to *"live from [MachineDemo] tags"* by itself when the route was restored. |
+| The robot never solves an impossible pose | Sampled `?cmd=state` across full cycles and computed forward kinematics: wrist never below 0.95 m, reach never above 2.38 m against a 2.50 m arm. |
+| The arm travels over the stack, not through it | 48 mid-swing samples; tightest clearance over the taller pallet 0.349 m. |
+| It works on the panels it targets | HUD checked for overlap and overflow at 1024×600, 1280×800 and 1920×1080. |
+| The zip actually imports | `tools/package.sh` gates on archive integrity, a file count against the tree, and a resource-manifest pass (valid JSON, `lastModification` present, `files[]` matching the directory) — the three ways a project imports "successfully" with a resource the gateway silently never scans. |
+
+## Known conditions
+
+- The module-testing gateway runs **unlicensed in trial mode**. Perspective and
+  WebDev return HTTP 402 once the two hours expire while `/StatusPing` still
+  says `RUNNING`, so check a real page — not the health endpoint — before
+  demonstrating, and reset the trial if needed.
