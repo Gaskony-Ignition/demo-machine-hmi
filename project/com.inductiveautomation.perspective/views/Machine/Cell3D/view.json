@@ -1,0 +1,185 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1366,
+      "height": 768
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "Page"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "height": "100%",
+        "overflow": "hidden",
+        "minHeight": "0",
+        "backgroundColor": "#171b20"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Header"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "center",
+          "style": {
+            "backgroundColor": "#1d232a",
+            "borderBottom": "1px solid #2c343d",
+            "padding": "9px 16px",
+            "gap": "14px"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Title"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "gap": "1px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "t1"
+                },
+                "props": {
+                  "text": "Zone 2 \u00b7 Robot Cell 2 \u2014 Live 3D",
+                  "style": {
+                    "fontSize": "16px",
+                    "color": "#f2f6f8",
+                    "fontWeight": "bold"
+                  }
+                },
+                "position": {
+                  "shrink": 0
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "t2"
+                },
+                "props": {
+                  "text": "Model driven by the same [MachineDemo] tags as every other screen",
+                  "style": {
+                    "fontSize": "11.5px",
+                    "color": "#8b98a3",
+                    "fontWeight": "normal"
+                  }
+                },
+                "position": {
+                  "shrink": 0
+                }
+              }
+            ]
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "RobotState"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "fontSize": "11px",
+                "fontWeight": "bold",
+                "letterSpacing": ".06em",
+                "textTransform": "uppercase",
+                "borderRadius": "4px",
+                "padding": "3px 9px",
+                "backgroundColor": "#14313e",
+                "color": "#6cc4e8",
+                "border": "1px solid #1e546c"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "tag",
+                  "config": {
+                    "mode": "direct",
+                    "tagPath": "[MachineDemo]Robot/State"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.input.button",
+            "meta": {
+              "name": "BackToOverview"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "text": "Overview",
+              "style": {
+                "backgroundColor": "#262e36",
+                "color": "#cdd6dd",
+                "border": "1px solid #38424c",
+                "borderRadius": "7px",
+                "fontWeight": "bold",
+                "fontSize": "12.5px",
+                "minHeight": "38px",
+                "padding": "0 16px"
+              }
+            },
+            "events": {
+              "component": {
+                "onActionPerformed": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tsystem.perspective.navigate(page='/')\n"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "ia.display.iframe",
+        "meta": {
+          "name": "Cell3D"
+        },
+        "position": {
+          "grow": 1,
+          "basis": "0px"
+        },
+        "props": {
+          "src": "/system/webdev/Machine_HMI_Demo/cell3d",
+          "style": {
+            "height": "100%",
+            "width": "100%",
+            "border": "none",
+            "minHeight": "0"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+/* Machine HMI Demo - machine-level operator control.
+   color-scheme is declared so Chrome's auto dark mode cannot repaint SVG fills. */
+:root {
+	color-scheme: dark;
+	--mc-bg: #171b20;
+	--mc-panel: #1d232a;
+	--mc-line: #2c343d;
+	--mc-ink: #dde4e9;
+	--mc-ink-dim: #8b98a3;
+	--mc-run: #46d07c;
+	--mc-fault: #f0565e;
+	--mc-warn: #eebf5e;
+	--mc-info: #6cc4e8;
+}

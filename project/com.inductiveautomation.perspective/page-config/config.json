@@ -1,0 +1,10 @@
+{
+  "pages": {
+    "/": { "title": "Line Overview", "viewPath": "Machine/Overview" },
+    "/cell3d": { "title": "3D Cell", "viewPath": "Machine/Cell3D" },
+    "/manual": { "title": "Manual Control", "viewPath": "Machine/Manual" },
+    "/alarms": { "title": "Alarms", "viewPath": "Machine/Alarms" },
+    "/setup": { "title": "Setup", "viewPath": "Machine/Setup" }
+  },
+  "sharedDocks": {}
+}

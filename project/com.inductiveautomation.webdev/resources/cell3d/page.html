@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Palletising Cell — live 3D</title>
+<style>
+  /* Everything here is deliberately self-contained. No web fonts, no CDN:
+     the page has to render identically on a machine with no internet, which
+     is the normal condition for the panel this is designed for. */
+  :root {
+    color-scheme: dark;
+    --bg: #171b20;
+    --panel: rgba(29,35,42,.92);
+    --line: #2c343d;
+    --ink: #dde4e9;
+    --dim: #8b98a3;
+    --run: #46d07c;
+    --fault: #f0565e;
+    --warn: #eebf5e;
+    --info: #6cc4e8;
+    --mono: "DejaVu Sans Mono", "Liberation Mono", Consolas, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; background: var(--bg); }
+  body {
+    font-family: "Noto Sans", "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+  canvas { display: block; touch-action: none; }
+
+  .hud { position: fixed; z-index: 5; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    backdrop-filter: blur(6px);
+  }
+  .card-h {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--dim); padding: 8px 12px 6px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-b { padding: 9px 12px 11px; }
+
+  /* ---- top-left: line state ---- */
+  #state { top: 12px; left: 12px; width: 252px; }
+  .row { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; font-size: 12.5px; }
+  .row .k { color: var(--dim); flex: 1; }
+  .row .v { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 14px; color: var(--ink); }
+  .row .v.acc { color: #7ee2d2; }
+  .big { font-size: 19px !important; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 4px; padding: 3px 9px; border: 1px solid;
+  }
+  .pill.run   { background: #10331e; color: var(--run);   border-color: #1d5c35; }
+  .pill.idle  { background: #23292f; color: var(--dim);   border-color: #38424c; }
+  .pill.flt   { background: #3d1518; color: #ff8d92;      border-color: #7a2a2f; }
+  .pill.mode  { background: #14313e; color: var(--info);  border-color: #1e546c; }
+
+  /* ---- top-right: safety + faults ---- */
+  #safety { top: 12px; right: 12px; width: 232px; }
+  .sig { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: #b7c2ca; padding: 3.5px 0; }
+  .led { width: 10px; height: 10px; border-radius: 50%; flex: none; background: #3a434b; }
+  .led.on  { background: var(--run);   box-shadow: 0 0 6px rgba(70,208,124,.75); }
+  .led.bad { background: var(--fault); box-shadow: 0 0 7px rgba(240,86,94,.85); }
+  .led.wrn { background: var(--warn);  box-shadow: 0 0 6px rgba(238,191,94,.7); }
+
+  #faultbanner {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 8; display: none; align-items: center; gap: 11px;
+    background: rgba(61,21,24,.95); border: 1px solid #8c2830; border-radius: 9px;
+    padding: 10px 18px; color: #ffc2c5; font-size: 14px; font-weight: 600;
+    box-shadow: 0 6px 26px rgba(0,0,0,.5);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  #faultbanner.show { display: flex; }
+  @keyframes pulse { 0%,100% { border-color:#8c2830 } 50% { border-color:#f0565e } }
+  @media (prefers-reduced-motion: reduce) { #faultbanner { animation: none } }
+
+  /* ---- bottom-right: pallet build ---- */
+  #pallets { bottom: 12px; right: 12px; width: 252px; }
+  .pal { padding: 7px 0; }
+  .pal + .pal { border-top: 1px solid var(--line); }
+  .pal-h { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; margin-bottom: 6px; }
+  .pal-h b { font-weight: 700; }
+  .pal-h .n { margin-left: auto; font-family: var(--mono); font-variant-numeric: tabular-nums; color: #7ee2d2; font-size: 14px; }
+  .bar { height: 7px; border-radius: 4px; background: #12161a; border: 1px solid var(--line); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: linear-gradient(90deg,#2c7a4a,#46d07c); transition: width .35s ease; }
+  .layers { display: flex; gap: 3px; margin-top: 6px; }
+  .layers span { flex: 1; height: 5px; border-radius: 2px; background: #262e36; }
+  .layers span.done { background: var(--run); }
+  .layers span.part { background: var(--warn); }
+
+  /* ---- bottom-left: camera presets ---- */
+  #cams { bottom: 12px; left: 12px; display: flex; gap: 8px; flex-wrap: wrap; max-width: 60vw; }
+  .cam {
+    font: inherit; font-size: 12.5px; font-weight: 700; color: #cdd6dd;
+    background: rgba(38,46,54,.92); border: 1px solid #38424c; border-radius: 8px;
+    padding: 11px 15px; cursor: pointer; min-height: 42px;
+  }
+  .cam:hover { background: rgba(48,58,68,.95); }
+  .cam.active { background: #14313e; border-color: #1e546c; color: #9fdcf5; }
+  .cam:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+
+  /* ---- anchored 3D labels ---- */
+  .tag3d {
+    position: fixed; z-index: 4; transform: translate(-50%,-50%);
+    background: rgba(23,27,32,.86); border: 1px solid var(--line); border-radius: 6px;
+    padding: 4px 9px; font-size: 11.5px; color: #c8d2d9; white-space: nowrap;
+    pointer-events: none; font-variant-numeric: tabular-nums;
+  }
+  .tag3d b { font-family: var(--mono); color: #7ee2d2; font-weight: 400; }
+  .tag3d.bad { border-color: #7a2a2f; background: rgba(45,18,21,.9); color: #ffc2c5; }
+  .tag3d.bad b { color: #ff8d92; }
+
+  /* ---- link state ---- */
+  #link {
+    position: fixed; z-index: 6; bottom: 12px; left: 50%; transform: translateX(-50%);
+    font-size: 11.5px; color: var(--dim); background: rgba(29,35,42,.9);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #link.stale { color: var(--warn); border-color: #6e5520; }
+
+  /* A 10in panel is 1024x600, and at that width the camera row and the link
+     pill both want the bottom of the screen. Lift the pill above the row --
+     measured, not guessed: the buttons occupy the bottom 56 px. */
+  @media (max-width: 1120px) {
+    #link { bottom: 66px; }
+    .cam { padding: 10px 12px; font-size: 12px; }
+    #state, #pallets { width: 216px; }
+    #safety { width: 200px; }
+  }
+
+  #boot {
+    position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
+    background: var(--bg); color: var(--dim); font-size: 14px; flex-direction: column; gap: 12px;
+  }
+  #boot.err { color: #ff8d92; }
+  #boot code { font-family: var(--mono); font-size: 12px; color: var(--dim); max-width: 70ch; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="boot">Loading cell model…</div>
+
+<div id="faultbanner"><span>&#9888;</span><span id="faulttext"></span></div>
+
+<div class="hud card" id="state">
+  <div class="card-h">Palletising cell <span id="statepill" class="pill idle" style="margin-left:auto">—</span></div>
+  <div class="card-b">
+    <div class="row"><span class="k">Robot</span><span class="v" id="v-robot">—</span></div>
+    <div class="row"><span class="k">Cases placed</span><span class="v acc big" id="v-cases">—</span></div>
+    <div class="row"><span class="k">Rate</span><span class="v" id="v-cpm">—</span></div>
+    <div class="row"><span class="k">Cycle</span><span class="v" id="v-cycle">—</span></div>
+    <div class="row"><span class="k">Lift</span><span class="v" id="v-lift">—</span></div>
+    <div class="row"><span class="k">Vacuum</span><span class="v" id="v-vac">—</span></div>
+  </div>
+</div>
+
+<div class="hud card" id="safety">
+  <div class="card-h">Safety &amp; interlocks</div>
+  <div class="card-b" id="safety-b">
+    <div class="sig"><span class="led" id="l-estop"></span>Emergency stops</div>
+    <div class="sig"><span class="led" id="l-guards"></span>Guards closed</div>
+    <div class="sig"><span class="led" id="l-air"></span>Air supply</div>
+    <div class="sig"><span class="led" id="l-int"></span>Interfaces</div>
+  </div>
+</div>
+
+<div class="hud card" id="pallets">
+  <div class="card-h">Pallet build</div>
+  <div class="card-b" id="pallets-b"></div>
+</div>
+
+<div class="hud" id="cams"></div>
+<div id="link"><span class="led" id="l-link"></span><span id="linktext">connecting…</span></div>
+
+<script src="lib?f=three"></script>
+<script>
+(function () {
+  "use strict";
+
+  var boot = document.getElementById("boot");
+  function die(msg, detail) {
+    boot.className = "err";
+    boot.innerHTML = "<div>" + msg + "</div><code>" + (detail || "") + "</code>";
+  }
+  if (!window.THREE) {
+    die("3D library did not load.",
+        "Expected it at &hellip;/system/webdev/Machine_HMI_Demo/lib?f=three — check the WebDev resource is deployed and scanned.");
+    return;
+  }
+
+  // ----------------------------------------------------------------------
+  // Cell dimensions. Everything downstream derives from these, in metres,
+  // so changing a pallet size or a case size moves the pattern, the stack
+  // height and the robot's place positions together.
+  // ----------------------------------------------------------------------
+  var M = {
+    caseW: 0.30, caseD: 0.25, caseH: 0.22,   // 300 x 250 x 220 mm
+    palletW: 1.20, palletD: 1.00, palletH: 0.14,
+    perLayer: 12, layers: 5,
+    convY: 0.90, convLen: 3.30, convW: 0.62,
+    // Both stations and the conveyor pick point sit inside the arm's 2.5 m
+    // reach (upper 1.35 + forearm 1.15), so the model never shows the robot
+    // grasping at something it could not physically touch.
+    st1: { x: -1.45, z: -1.65 },
+    st2: { x: -1.45, z:  1.65 }
+  };
+  M.perPallet = M.perLayer * M.layers;
+
+  var COL = {
+    steel: 0x8d99a3, steelDark: 0x59636d, floor: 0x272e35,
+    grid: 0x39434c, fence: 0x6d7982, glass: 0x6cc4e8,
+    caseA: 0xc08a4a, caseB: 0xa9773d, pallet: 0x8a6a3a,
+    run: 0x46d07c, fault: 0xf0565e, warn: 0xeebf5e, info: 0x6cc4e8
+  };
+
+  // ----------------------------------------------------------------------
+  // Renderer, scene, camera
+  // ----------------------------------------------------------------------
+  var renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.body.appendChild(renderer.domElement);
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x171b20);
+  scene.fog = new THREE.Fog(0x171b20, 14, 30);
+
+  var camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 200);
+
+  scene.add(new THREE.HemisphereLight(0xbcd2e2, 0x2c343c, 1.15));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.28));
+  var key = new THREE.DirectionalLight(0xffffff, 1.35);
+  key.position.set(5.5, 8.5, 4.5);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.camera.near = 1; key.shadow.camera.far = 30;
+  key.shadow.camera.left = -9; key.shadow.camera.right = 9;
+  key.shadow.camera.top = 9;   key.shadow.camera.bottom = -9;
+  key.shadow.bias = -0.0012;
+  scene.add(key);
+  var fill = new THREE.DirectionalLight(0x8fb4d0, 0.35);
+  fill.position.set(-6, 4, -5);
+  scene.add(fill);
+
+  // ----------------------------------------------------------------------
+  // Helpers
+  // ----------------------------------------------------------------------
+  function mat(color, opts) {
+    opts = opts || {};
+    return new THREE.MeshStandardMaterial({
+      color: color,
+      metalness: opts.metalness !== undefined ? opts.metalness : 0.55,
+      roughness: opts.roughness !== undefined ? opts.roughness : 0.55,
+      transparent: !!opts.opacity,
+      opacity: opts.opacity !== undefined ? opts.opacity : 1
+    });
+  }
+  function box(w, h, d, material, x, y, z) {
+    var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+    m.position.set(x || 0, y || 0, z || 0);
+    m.castShadow = true; m.receiveShadow = true;
+    return m;
+  }
+  function cyl(rt, rb, h, material, seg) {
+    var m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg || 20), material);
+    m.castShadow = true; m.receiveShadow = true;
+    return m;
+  }
+
+  // ----------------------------------------------------------------------
+  // Floor and cell fence
+  // ----------------------------------------------------------------------
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(30, 24),
+    new THREE.MeshStandardMaterial({ color: COL.floor, roughness: 0.95, metalness: 0.05 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  var grid = new THREE.GridHelper(30, 30, COL.grid, COL.grid);
+  grid.position.y = 0.004;
+  grid.material.opacity = 0.5; grid.material.transparent = true;
+  scene.add(grid);
+
+  // Safety fence: posts plus mesh panels. It is what makes the model read as
+  // a machine cell at a glance rather than as loose equipment on a floor.
+  var fence = new THREE.Group();
+  var fenceMat = mat(COL.fence, { roughness: 0.7 });
+  var panelMat = new THREE.MeshStandardMaterial({
+    color: 0x9fb6c8, transparent: true, opacity: 0.09,
+    roughness: 0.35, metalness: 0.1, side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  function fenceRun(x1, z1, x2, z2) {
+    var dx = x2 - x1, dz = z2 - z1;
+    var len = Math.sqrt(dx * dx + dz * dz);
+    var g = new THREE.Group();
+    g.position.set(x1, 0, z1);
+    g.rotation.y = -Math.atan2(dz, dx);
+    var panel = box(len, 1.85, 0.03, panelMat, len / 2, 1.0, 0);
+    panel.castShadow = false;
+    g.add(panel);
+    var n = Math.max(2, Math.round(len / 1.5));
+    for (var i = 0; i <= n; i++) {
+      var p = cyl(0.035, 0.035, 2.0, fenceMat, 10);
+      p.position.set(len * i / n, 1.0, 0);
+      g.add(p);
+    }
+    var rail = box(len, 0.05, 0.05, fenceMat, len / 2, 1.95, 0);
+    g.add(rail);
+    return g;
+  }
+  // A tight cell, sized to the equipment inside it. The east side is left open
+  // where the infeed conveyor passes through, which is what the guarding on a
+  // real cell does.
+  var FX0 = -3.1, FX1 = 2.6, FZ0 = -2.75, FZ1 = 2.75;
+  fence.add(fenceRun(FX0, FZ0, FX1, FZ0));
+  fence.add(fenceRun(FX0, FZ1, FX0, FZ0));
+  fence.add(fenceRun(FX1, FZ0, FX1, FZ1));
+  fence.add(fenceRun(FX0, FZ1, 1.15, FZ1));
+  fence.add(fenceRun(2.15, FZ1, FX1, FZ1));
+  scene.add(fence);
+
+  // ----------------------------------------------------------------------
+  // Infeed conveyor, its cartons and its photo-eyes
+  // ----------------------------------------------------------------------
+  var infeed = new THREE.Group();
+  var conveyor = new THREE.Group();
+  infeed.add(conveyor);
+  var frameMat = mat(COL.steelDark, { roughness: 0.6 });
+  var rollerMat = mat(COL.steel, { metalness: 0.85, roughness: 0.35 });
+
+  var convX0 = 2.05, convX1 = convX0 + M.convLen;
+  var convMid = (convX0 + convX1) / 2;
+  conveyor.add(box(M.convLen, 0.10, 0.06, frameMat, convMid, M.convY - 0.06, -M.convW / 2));
+  conveyor.add(box(M.convLen, 0.10, 0.06, frameMat, convMid, M.convY - 0.06,  M.convW / 2));
+  var legXs = [convX0 + 0.35, convMid, convX1 - 0.35];
+  for (var i = 0; i < legXs.length; i++) {
+    for (var s = -1; s <= 1; s += 2) {
+      conveyor.add(box(0.07, M.convY - 0.12, 0.07, frameMat, legXs[i], (M.convY - 0.12) / 2, s * M.convW / 2));
+    }
+  }
+  var rollers = [];
+  for (var rx = convX0 + 0.09; rx < convX1; rx += 0.135) {
+    var r = cyl(0.045, 0.045, M.convW - 0.02, rollerMat, 12);
+    r.rotation.x = Math.PI / 2;
+    r.position.set(rx, M.convY, 0);
+    r.castShadow = false;
+    conveyor.add(r);
+    rollers.push(r);
+  }
+  infeed.rotation.y = -Math.PI / 2;
+  infeed.position.set(1.62, 0, -(convX0 + 0.35));
+  scene.add(infeed);
+
+  // Photo-eyes. Each is an emitter, a receiver and a beam whose colour is the
+  // live tag: a fitter can see WHICH eye is blocked and where to walk.
+  var peDefs = [
+    { key: "infeed",  x: convX1 - 0.35, label: "PE Infeed"  },
+    { key: "len1",    x: convX1 - 1.70, label: "PE Length 1" },
+    { key: "len2",    x: convX1 - 2.30, label: "PE Length 2" },
+    { key: "carton",  x: convX1 - 3.10, label: "PE Carton"  },
+    { key: "inpos1",  x: convX0 + 0.60, label: "PE In-Pos 1" },
+    { key: "inpos2",  x: convX0 + 0.25, label: "PE In-Pos 2" }
+  ];
+  var photoEyes = [];
+  peDefs.forEach(function (d) {
+    var g = new THREE.Group();
+    var post = box(0.05, 0.34, 0.05, frameMat, d.x, M.convY + 0.17, -M.convW / 2 - 0.10);
+    var post2 = box(0.05, 0.34, 0.05, frameMat, d.x, M.convY + 0.17, M.convW / 2 + 0.10);
+    g.add(post); g.add(post2);
+    var beamMat = new THREE.MeshBasicMaterial({ color: COL.run, transparent: true, opacity: 0.85 });
+    var beam = cyl(0.008, 0.008, M.convW + 0.20, beamMat, 6);
+    beam.rotation.x = Math.PI / 2;
+    beam.position.set(d.x, M.convY + 0.20, 0);
+    beam.castShadow = false;
+    g.add(beam);
+    infeed.add(g);
+    photoEyes.push({ key: d.key, label: d.label, beam: beam, mat: beamMat, x: d.x });
+  });
+
+  // Cartons riding the infeed.
+  var caseMatA = mat(COL.caseA, { metalness: 0.05, roughness: 0.85 });
+  var caseMatB = mat(COL.caseB, { metalness: 0.05, roughness: 0.85 });
+  function makeCase(alt) {
+    var g = new THREE.Group();
+    var body = box(M.caseW, M.caseH, M.caseD, alt ? caseMatB : caseMatA, 0, 0, 0);
+    g.add(body);
+    // A seam line so a stack of cases does not read as one solid block.
+    var seam = box(M.caseW + 0.004, 0.006, M.caseD * 0.02, mat(0x6b4a22, { metalness: 0, roughness: 1 }), 0, 0, M.caseD / 2);
+    seam.castShadow = false;
+    g.add(seam);
+    return g;
+  }
+  var infeedCases = [];
+  for (var c = 0; c < 6; c++) {
+    var cs = makeCase(c % 2 === 1);
+    cs.position.set(convX0 + 0.6 + c * 0.72, M.convY + M.caseH / 2 + 0.045, 0);
+    infeed.add(cs);
+    infeedCases.push(cs);
+  }
+
+  // ----------------------------------------------------------------------
+  // Pallet stations. Cases are pre-built and shown/hidden as the count moves,
+  // so a growing stack costs no allocation at run time.
+  // ----------------------------------------------------------------------
+  function layerLayout(layerIndex) {
+    // Alternating 4x3 / 3x4 grids on the same pallet: a real interlocked
+    // pattern, and visibly different layer to layer on the model.
+    var rot = layerIndex % 2 === 1;
+    var cw = rot ? M.caseD : M.caseW;
+    var cd = rot ? M.caseW : M.caseD;
+    var cols = rot ? 4 : 4;
+    var rows = 3;
+    var spanX = cols * cw, spanZ = rows * cd;
+    var out = [];
+    for (var r = 0; r < rows; r++) {
+      for (var q = 0; q < cols; q++) {
+        var inset = 0.94;
+        out.push({
+          x: (-spanX / 2 + cw * (q + 0.5)) * inset,
+          z: (-spanZ / 2 + cd * (r + 0.5)) * inset,
+          rot: rot ? Math.PI / 2 : 0
+        });
+      }
+    }
+    return out;
+  }
+
+  function makePalletStation(pos, name) {
+    var g = new THREE.Group();
+    g.position.set(pos.x, 0, pos.z);
+
+    var palletMat = mat(COL.pallet, { metalness: 0.02, roughness: 0.95 });
+    var deck = new THREE.Group();
+    for (var b = -1; b <= 1; b++) {
+      deck.add(box(M.palletW, 0.045, 0.10, palletMat, 0, M.palletH - 0.02, b * (M.palletD / 2 - 0.05)));
+    }
+    for (var k = 0; k < 5; k++) {
+      deck.add(box(0.09, 0.035, M.palletD, palletMat, -M.palletW / 2 + 0.045 + k * (M.palletW - 0.09) / 4, M.palletH + 0.02, 0));
+    }
+    for (var f = -1; f <= 1; f += 1) {
+      for (var h = -1; h <= 1; h += 2) {
+        deck.add(box(0.10, M.palletH - 0.04, 0.10, palletMat, h * (M.palletW / 2 - 0.05), (M.palletH - 0.04) / 2, f * (M.palletD / 2 - 0.05)));
+      }
+    }
+    g.add(deck);
+
+    // Station frame: a low guide rail, so an empty station still looks like
+    // a station rather than a bare pallet on the floor.
+    var railMat = mat(COL.steelDark, { roughness: 0.6 });
+    g.add(box(M.palletW + 0.30, 0.06, 0.06, railMat, 0, 0.10, -(M.palletD / 2 + 0.16)));
+    g.add(box(0.06, 0.06, M.palletD + 0.30, railMat, -(M.palletW / 2 + 0.16), 0.10, 0));
+
+    var cases = [];
+    for (var L = 0; L < M.layers; L++) {
+      var lay = layerLayout(L);
+      for (var n = 0; n < lay.length; n++) {
+        var cm = makeCase((L + n) % 2 === 1);
+        cm.position.set(lay[n].x, M.palletH + M.caseH * (L + 0.5) + 0.02, lay[n].z);
+        cm.rotation.y = lay[n].rot;
+        cm.visible = false;
+        g.add(cm);
+        cases.push(cm);
+      }
+    }
+    scene.add(g);
+    return { group: g, cases: cases, name: name, pos: pos };
+  }
+  var stations = [makePalletStation(M.st1, "Station 1"), makePalletStation(M.st2, "Station 2")];
+
+  // ----------------------------------------------------------------------
+  // The robot. Joint convention is the one frozen in the build contract:
+  //   j1 base about Y, lift raises the carriage, j2 shoulder about Z,
+  //   j3 elbow about Z, j4 wrist about Y.
+  // Each joint is its own Group so the tag value sets exactly one rotation.
+  // ----------------------------------------------------------------------
+  var robot = new THREE.Group();
+  var armMat = mat(0xe8a33d, { metalness: 0.35, roughness: 0.5 });   // machine yellow
+  var armDark = mat(0x30383f, { metalness: 0.6, roughness: 0.45 });
+
+  var pedestal = cyl(0.42, 0.50, 0.30, armDark, 28);
+  pedestal.position.y = 0.15;
+  robot.add(pedestal);
+
+  var baseYaw = new THREE.Group();           // j1
+  baseYaw.position.y = 0.30;
+  robot.add(baseYaw);
+
+  var columnMat = mat(0x4d5761, { metalness: 0.55, roughness: 0.5 });
+  var column = box(0.30, 2.35, 0.30, columnMat, 0, 1.175, 0);
+  baseYaw.add(column);
+  var colCapMat = mat(COL.steel, { metalness: 0.8, roughness: 0.3 });
+  for (var cg = -1; cg <= 1; cg += 2) {
+    var guide = cyl(0.022, 0.022, 2.25, colCapMat, 10);
+    guide.position.set(cg * 0.18, 1.175, 0.09);
+    baseYaw.add(guide);
+  }
+
+  var carriage = new THREE.Group();          // lift
+  baseYaw.add(carriage);
+  carriage.add(box(0.46, 0.34, 0.46, armMat, 0, 0, 0));
+
+  var shoulder = new THREE.Group();          // j2
+  shoulder.position.set(0.0, 0.0, 0.0);
+  carriage.add(shoulder);
+
+  var UPPER = 1.35, FORE = 1.15;
+  var upperArm = box(UPPER, 0.24, 0.26, armMat, UPPER / 2, 0, 0);
+  shoulder.add(upperArm);
+  var shoulderHub = cyl(0.15, 0.15, 0.30, armDark, 18);
+  shoulderHub.rotation.x = Math.PI / 2;
+  shoulder.add(shoulderHub);
+
+  var elbow = new THREE.Group();             // j3
+  elbow.position.set(UPPER, 0, 0);
+  shoulder.add(elbow);
+  var elbowHub = cyl(0.12, 0.12, 0.28, armDark, 18);
+  elbowHub.rotation.x = Math.PI / 2;
+  elbow.add(elbowHub);
+  var foreArm = box(FORE, 0.19, 0.21, armMat, FORE / 2, 0, 0);
+  elbow.add(foreArm);
+
+  var wrist = new THREE.Group();             // j4
+  wrist.position.set(FORE, 0, 0);
+  elbow.add(wrist);
+  wrist.add(cyl(0.10, 0.10, 0.16, armDark, 16));
+
+  // Vacuum gripper head: a plate of suction cups, which is what a case
+  // palletiser actually carries.
+  var gripper = new THREE.Group();
+  gripper.position.y = -0.14;
+  wrist.add(gripper);
+  var plateMat = mat(0x39424b, { metalness: 0.7, roughness: 0.4 });
+  gripper.add(box(M.caseW + 0.06, 0.07, M.caseD + 0.06, plateMat, 0, 0, 0));
+  var cupMat = mat(0x24292f, { metalness: 0.1, roughness: 0.9 });
+  var cups = [];
+  for (var cx = -1; cx <= 1; cx++) {
+    for (var cz = -1; cz <= 1; cz += 2) {
+      var cup = cyl(0.045, 0.032, 0.06, cupMat, 12);
+      cup.position.set(cx * (M.caseW / 3), -0.06, cz * (M.caseD / 4));
+      gripper.add(cup);
+      cups.push(cup);
+    }
+  }
+  // The case currently held. Parented to the gripper, so it simply follows.
+  var heldCase = makeCase(false);
+  heldCase.position.y = -0.09 - M.caseH / 2;
+  heldCase.visible = false;
+  gripper.add(heldCase);
+
+  robot.position.set(0, 0, 0);
+  scene.add(robot);
+
+  // ----------------------------------------------------------------------
+  // Fault highlighting. A faulted group pulses; the eye finds it immediately,
+  // which is the entire reason for showing a machine in 3D rather than a list.
+  // ----------------------------------------------------------------------
+  var highlights = [
+    { key: "RobotAxisFault", objs: [upperArm, foreArm, column], base: [] },
+    { key: "VacuumLow",      objs: [gripper],                   base: [] },
+    { key: "ConveyorJam",    objs: [infeed],                    base: [] }
+  ];
+  function collectMeshes(obj, out) {
+    // Materials are shared between meshes by design (every carton uses the same
+    // one), so writing .emissive on a highlighted mesh would tint every object
+    // that happens to share its material - which turned the pallet stacks red
+    // whenever the conveyor faulted. Give each highlightable mesh its own copy.
+    obj.traverse(function (o) {
+      if (o.isMesh && o.material && o.material.emissive) {
+        o.material = o.material.clone();
+        out.push(o);
+      }
+    });
+    return out;
+  }
+  highlights.forEach(function (h) {
+    var meshes = [];
+    h.objs.forEach(function (o) { collectMeshes(o, meshes); });
+    h.meshes = meshes;
+  });
+
+  // ----------------------------------------------------------------------
+  // Camera: presets plus touch-friendly orbit. OrbitControls is a separate
+  // three.js example file; a small implementation here keeps the page to one
+  // vendored dependency and behaves properly under a finger on a panel.
+  // ----------------------------------------------------------------------
+  var target = new THREE.Vector3(-0.20, 0.95, 0.15);
+  var sph = { r: 8.8, theta: -0.30, phi: 0.90 };
+  var want = { r: sph.r, theta: sph.theta, phi: sph.phi, target: target.clone() };
+
+  var PRESETS = [
+    { name: "Overview", r: 8.8,  theta: -0.30, phi: 0.90, t: [-0.20, 0.95, 0.15] },
+    { name: "Robot",    r: 4.6,  theta: -0.55, phi: 1.08, t: [0.0, 1.40, 0] },
+    { name: "Pallet 1", r: 3.3,  theta: -2.05, phi: 1.14, t: [M.st1.x, 0.80, M.st1.z] },
+    { name: "Pallet 2", r: 3.3,  theta: -2.60, phi: 1.14, t: [M.st2.x, 0.80, M.st2.z] },
+    { name: "Infeed",   r: 4.4,  theta: -0.10, phi: 1.14, t: [1.62, 1.15, 0.85] },
+    { name: "Top",      r: 7.6,  theta: -1.30, phi: 0.28, t: [-0.45, 0.60, 0] }
+  ];
+  var camsEl = document.getElementById("cams");
+  var camButtons = [];
+  PRESETS.forEach(function (p, idx) {
+    var b = document.createElement("button");
+    b.className = "cam" + (idx === 0 ? " active" : "");
+    b.type = "button";
+    b.textContent = p.name;
+    b.addEventListener("click", function () {
+      want.r = p.r; want.theta = p.theta; want.phi = p.phi;
+      want.target.set(p.t[0], p.t[1], p.t[2]);
+      camButtons.forEach(function (o) { o.classList.remove("active"); });
+      b.classList.add("active");
+    });
+    camsEl.appendChild(b);
+    camButtons.push(b);
+  });
+  function clearPreset() { camButtons.forEach(function (o) { o.classList.remove("active"); }); }
+
+  var drag = null;
+  var el = renderer.domElement;
+  el.addEventListener("pointerdown", function (e) {
+    el.setPointerCapture(e.pointerId);
+    drag = { x: e.clientX, y: e.clientY, pan: e.button === 2 || e.shiftKey };
+  });
+  el.addEventListener("pointermove", function (e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    drag.x = e.clientX; drag.y = e.clientY;
+    if (drag.pan) {
+      var right = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 0);
+      var up = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 1);
+      var k = want.r * 0.0016;
+      want.target.addScaledVector(right, -dx * k).addScaledVector(up, dy * k);
+    } else {
+      want.theta -= dx * 0.006;
+      want.phi = Math.max(0.12, Math.min(1.52, want.phi - dy * 0.006));
+    }
+    clearPreset();
+  });
+  function endDrag() { drag = null; }
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", endDrag);
+  el.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  el.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    want.r = Math.max(2.2, Math.min(24, want.r * (1 + Math.sign(e.deltaY) * 0.12)));
+    clearPreset();
+  }, { passive: false });
+
+  // Pinch to zoom, because this runs on a touch panel.
+  var pinch = null;
+  el.addEventListener("touchstart", function (e) {
+    if (e.touches.length === 2) {
+      pinch = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                         e.touches[0].clientY - e.touches[1].clientY);
+    }
+  }, { passive: true });
+  el.addEventListener("touchmove", function (e) {
+    if (e.touches.length === 2 && pinch) {
+      var d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                         e.touches[0].clientY - e.touches[1].clientY);
+      want.r = Math.max(2.2, Math.min(24, want.r * (pinch / d)));
+      pinch = d;
+      clearPreset();
+    }
+  }, { passive: true });
+  el.addEventListener("touchend", function () { pinch = null; }, { passive: true });
+
+  // ----------------------------------------------------------------------
+  // Live data. The page polls the same WebDev endpoint the HMI screens use.
+  // If it cannot reach it, the cell keeps moving on a local cycle and SAYS SO
+  // rather than freezing — a dead 3D view in front of a customer is worse
+  // than an honest one.
+  // ----------------------------------------------------------------------
+  var live = null, lastGood = 0, linkOK = false, usingFallback = false;
+  var sim = { t: 0 };
+
+  function poll() {
+    fetch("admin?cmd=state", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        if (!j || j.ok === false) throw new Error("bad payload");
+        live = j; lastGood = performance.now(); linkOK = true; usingFallback = false;
+      })
+      .catch(function () { linkOK = false; });
+  }
+  poll();
+  setInterval(poll, 250);
+
+  // Local fallback motion, so the model is never a still image.
+  function fallbackState(dt) {
+    sim.t += dt;
+    var cyc = (sim.t % 6) / 6;
+    var placing = cyc > 0.5;
+    var e = placing ? (cyc - 0.5) * 2 : cyc * 2;
+    var ease = 0.5 - 0.5 * Math.cos(e * Math.PI);
+    var n = Math.floor(sim.t / 1.5) % (M.perPallet + 6);
+    return {
+      line: { running: true, mode: "Auto", cpm: 14.2, cycle: 6.0,
+              cases: Math.floor(sim.t / 1.5), target: 0 },
+      robot: {
+        state: placing ? "Placing" : "Picking",
+        j1: placing ? (10 - 150 * ease) : (-140 + 150 * ease),
+        j2: 18 + 26 * Math.sin(ease * Math.PI),
+        j3: -58 - 22 * Math.sin(ease * Math.PI),
+        j4: 0, lift: 260 + 520 * Math.sin(ease * Math.PI),
+        grip: placing ? ease < 0.86 : ease > 0.9,
+        vac: placing ? -62 : 0, cycles: 0, fault: false, faultText: ""
+      },
+      pallets: [
+        { present: true, cases: Math.min(n, M.perPallet), layer: Math.floor(Math.min(n, M.perPallet) / M.perLayer), complete: n >= M.perPallet, pattern: "4x3 interlock" },
+        { present: true, cases: Math.max(0, Math.min(M.perPallet, n - 14)), layer: 0, complete: false, pattern: "4x3 interlock" }
+      ],
+      conv: { c1: true, c2: true, c3: true,
+              pe: { infeed: true, carton: false, len1: true, len2: false, inpos1: true, inpos2: false, clear: true },
+              gate1: false, gate2: true, clamp: true, barcode: "—", scanOK: true },
+      safety: { estop: true, guards: true, air: true, interfaces: true },
+      faults: {}, zones: []
+    };
+  }
+
+  // ----------------------------------------------------------------------
+  // Applying state to the model
+  // ----------------------------------------------------------------------
+  var shown = { j1: 0, j2: 0, j3: 0, j4: 0, lift: 0 };
+  var D2R = Math.PI / 180;
+
+  function damp(cur, goal, dt, rate) {
+    return cur + (goal - cur) * (1 - Math.exp(-rate * dt));
+  }
+
+  function applyState(s, dt) {
+    var r = s.robot || {};
+    shown.j1 = damp(shown.j1, r.j1 || 0, dt, 7);
+    shown.j2 = damp(shown.j2, r.j2 || 0, dt, 7);
+    shown.j3 = damp(shown.j3, r.j3 || 0, dt, 7);
+    shown.j4 = damp(shown.j4, r.j4 || 0, dt, 7);
+    shown.lift = damp(shown.lift, r.lift || 0, dt, 7);
+
+    baseYaw.rotation.y = shown.j1 * D2R;
+    carriage.position.y = 0.34 + (shown.lift / 1000);
+    shoulder.rotation.z = shown.j2 * D2R;
+    elbow.rotation.z = shown.j3 * D2R;
+    wrist.rotation.y = shown.j4 * D2R;
+
+    heldCase.visible = !!r.grip;
+    var cupTarget = r.grip ? 0.045 : 0.06;
+    for (var i = 0; i < cups.length; i++) {
+      cups[i].scale.y = damp(cups[i].scale.y, r.grip ? 0.7 : 1.0, dt, 10);
+    }
+
+    // pallets
+    var pl = s.pallets || [];
+    for (var p = 0; p < stations.length; p++) {
+      var st = stations[p];
+      var d = pl[p] || { cases: 0 };
+      var n = Math.max(0, Math.min(M.perPallet, d.cases | 0));
+      for (var c = 0; c < st.cases.length; c++) {
+        st.cases[c].visible = c < n;
+      }
+      st.group.visible = d.present !== false;
+    }
+
+    // photo-eyes: blocked reads red, clear reads green
+    var pe = (s.conv && s.conv.pe) || {};
+    for (var q = 0; q < photoEyes.length; q++) {
+      var blocked = !!pe[photoEyes[q].key];
+      photoEyes[q].mat.color.setHex(blocked ? COL.fault : COL.run);
+      photoEyes[q].mat.opacity = blocked ? 0.95 : 0.55;
+    }
+
+    // conveyor cartons move only while the conveyor runs
+    var running = !(s.conv && s.conv.c1 === false);
+    if (running) {
+      for (var k = 0; k < infeedCases.length; k++) {
+        infeedCases[k].position.x -= dt * 0.55;
+        if (infeedCases[k].position.x < convX0 + 0.35) {
+          infeedCases[k].position.x = convX1 - 0.2;
+        }
+      }
+      for (var rr = 0; rr < rollers.length; rr++) rollers[rr].rotation.y += dt * 6;
+    }
+
+    // fault pulse
+    var faults = s.faults || {};
+    var pulse = 0.5 + 0.5 * Math.sin(performance.now() / 190);
+    highlights.forEach(function (h) {
+      var on = !!faults[h.key];
+      h.meshes.forEach(function (m) {
+        m.material.emissive.setHex(on ? COL.fault : 0x000000);
+        m.material.emissiveIntensity = on ? 0.25 + 0.55 * pulse : 0;
+      });
+    });
+  }
+
+  // ----------------------------------------------------------------------
+  // HUD
+  // ----------------------------------------------------------------------
+  var els = {
+    pill: document.getElementById("statepill"),
+    robot: document.getElementById("v-robot"),
+    cases: document.getElementById("v-cases"),
+    cpm: document.getElementById("v-cpm"),
+    cycle: document.getElementById("v-cycle"),
+    lift: document.getElementById("v-lift"),
+    vac: document.getElementById("v-vac"),
+    estop: document.getElementById("l-estop"),
+    guards: document.getElementById("l-guards"),
+    air: document.getElementById("l-air"),
+    int: document.getElementById("l-int"),
+    pallets: document.getElementById("pallets-b"),
+    banner: document.getElementById("faultbanner"),
+    bannerText: document.getElementById("faulttext"),
+    link: document.getElementById("link"),
+    linkLed: document.getElementById("l-link"),
+    linkText: document.getElementById("linktext")
+  };
+
+  var FAULT_LABELS = {
+    WrapperFilmFeed: "Wrapper — film feed torque high",
+    ConveyorJam: "Infeed conveyor — carton jam at the measuring station",
+    VacuumLow: "Gripper — vacuum below threshold",
+    GuardOpen: "Guard circuit open — motion inhibited",
+    RobotAxisFault: "Robot — axis fault, reset required"
+  };
+
+  function setLed(node, ok, warn) {
+    node.className = "led " + (ok ? "on" : (warn ? "wrn" : "bad"));
+  }
+
+  var palletDom = null;
+  function buildPalletDom() {
+    els.pallets.innerHTML = "";
+    palletDom = stations.map(function (st, i) {
+      var wrap = document.createElement("div");
+      wrap.className = "pal";
+      wrap.innerHTML =
+        '<div class="pal-h"><b>' + st.name + '</b><span class="pat"></span><span class="n"></span></div>' +
+        '<div class="bar"><i style="width:0%"></i></div>' +
+        '<div class="layers"></div>';
+      var lay = wrap.querySelector(".layers");
+      for (var L = 0; L < M.layers; L++) lay.appendChild(document.createElement("span"));
+      els.pallets.appendChild(wrap);
+      return {
+        n: wrap.querySelector(".n"),
+        bar: wrap.querySelector(".bar i"),
+        pat: wrap.querySelector(".pat"),
+        layers: lay.querySelectorAll("span")
+      };
+    });
+  }
+  buildPalletDom();
+
+  function updateHUD(s) {
+    var r = s.robot || {}, ln = s.line || {}, sf = s.safety || {}, fl = s.faults || {};
+
+    var anyFault = Object.keys(fl).some(function (k) { return fl[k]; }) || r.fault;
+    var pillCls = anyFault ? "flt" : (ln.running ? "run" : "idle");
+    var pillTxt = anyFault ? "Fault" : (ln.running ? "Running" : "Stopped");
+    els.pill.className = "pill " + pillCls;
+    els.pill.textContent = pillTxt;
+
+    els.robot.textContent = r.state || "—";
+    els.cases.textContent = (ln.cases != null ? ln.cases : 0) +
+      (ln.target ? " / " + ln.target : "");
+    els.cpm.textContent = (ln.cpm != null ? ln.cpm.toFixed(1) : "—") + " /min";
+    els.cycle.textContent = (ln.cycle != null ? ln.cycle.toFixed(2) : "—") + " s";
+    els.lift.textContent = (r.lift != null ? r.lift.toFixed(0) : "—") + " mm";
+    els.vac.textContent = (r.vac != null ? r.vac.toFixed(1) : "—") + " kPa";
+
+    setLed(els.estop, sf.estop !== false);
+    setLed(els.guards, sf.guards !== false);
+    setLed(els.air, sf.air !== false);
+    setLed(els.int, sf.interfaces !== false);
+
+    var pl = s.pallets || [];
+    palletDom.forEach(function (d, i) {
+      var p = pl[i] || { cases: 0, layer: 0 };
+      var n = Math.max(0, Math.min(M.perPallet, p.cases | 0));
+      d.n.textContent = n + " / " + M.perPallet;
+      d.bar.style.width = (100 * n / M.perPallet).toFixed(1) + "%";
+      d.pat.textContent = p.pattern || "";
+      d.pat.style.cssText = "color:#8b98a3;font-size:11px";
+      for (var L = 0; L < d.layers.length; L++) {
+        var full = (L + 1) * M.perLayer <= n;
+        var part = !full && L * M.perLayer < n;
+        d.layers[L].className = full ? "done" : (part ? "part" : "");
+      }
+    });
+
+    var msgs = Object.keys(fl).filter(function (k) { return fl[k]; })
+                    .map(function (k) { return FAULT_LABELS[k] || k; });
+    if (r.fault && r.faultText) msgs.unshift(r.faultText);
+    if (msgs.length) {
+      els.banner.classList.add("show");
+      els.bannerText.textContent = msgs[0] + (msgs.length > 1 ? "  (+" + (msgs.length - 1) + " more)" : "");
+    } else {
+      els.banner.classList.remove("show");
+    }
+
+    if (linkOK) {
+      els.link.className = "";
+      els.linkLed.className = "led on";
+      els.linkText.textContent = "live from [MachineDemo] tags";
+    } else {
+      els.link.className = "stale";
+      els.linkLed.className = "led wrn";
+      els.linkText.textContent = "no tag data — showing local motion";
+    }
+  }
+
+  // ----------------------------------------------------------------------
+  // Anchored labels: HTML positioned at projected 3D points. Cheaper and far
+  // sharper than texture labels, and they stay readable at any zoom.
+  // ----------------------------------------------------------------------
+  var labelDefs = [
+    { id: "lbl-grip", anchor: function () {
+        var v = new THREE.Vector3(); gripper.getWorldPosition(v); v.y -= 0.35; return v; },
+      text: function (s) {
+        var r = s.robot || {};
+        return r.grip ? "case held &middot; <b>" + (r.vac || 0).toFixed(0) + " kPa</b>"
+                      : "gripper open";
+      },
+      bad: function (s) { return (s.faults || {}).VacuumLow; } },
+    { id: "lbl-st1", anchor: function () { return new THREE.Vector3(M.st1.x, 1.55, M.st1.z); },
+      text: function (s) { var p = (s.pallets || [])[0] || {};
+        return "Station 1 &middot; <b>" + (p.cases | 0) + "</b>/" + M.perPallet + " &middot; layer <b>" + ((p.layer | 0) + (p.cases ? 1 : 0)) + "</b>"; } },
+    { id: "lbl-st2", anchor: function () { return new THREE.Vector3(M.st2.x, 1.55, M.st2.z); },
+      text: function (s) { var p = (s.pallets || [])[1] || {};
+        return "Station 2 &middot; <b>" + (p.cases | 0) + "</b>/" + M.perPallet + " &middot; layer <b>" + ((p.layer | 0) + (p.cases ? 1 : 0)) + "</b>"; } },
+    { id: "lbl-conv", anchor: function () {
+        return infeed.localToWorld(new THREE.Vector3(convX0 + 1.0, M.convY + 0.75, 0)); },
+      text: function (s) { var c = s.conv || {};
+        return "Infeed &middot; <b>" + (c.barcode || "—") + "</b>"; },
+      bad: function (s) { return (s.faults || {}).ConveyorJam; } }
+  ];
+  labelDefs.forEach(function (d) {
+    var n = document.createElement("div");
+    n.className = "tag3d"; n.id = d.id;
+    document.body.appendChild(n);
+    d.node = n;
+  });
+
+  var proj = new THREE.Vector3();
+  function updateLabels(s) {
+    for (var i = 0; i < labelDefs.length; i++) {
+      var d = labelDefs[i];
+      proj.copy(d.anchor()).project(camera);
+      var behind = proj.z > 1;
+      if (behind) { d.node.style.display = "none"; continue; }
+      d.node.style.display = "block";
+      d.node.style.left = ((proj.x * 0.5 + 0.5) * window.innerWidth) + "px";
+      d.node.style.top = ((-proj.y * 0.5 + 0.5) * window.innerHeight) + "px";
+      d.node.innerHTML = d.text(s);
+      d.node.className = "tag3d" + (d.bad && d.bad(s) ? " bad" : "");
+    }
+  }
+
+  // ----------------------------------------------------------------------
+  // Main loop
+  // ----------------------------------------------------------------------
+  var last = performance.now();
+  var hudAccum = 0;
+  boot.style.display = "none";
+
+  function frame(now) {
+    var dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+
+    // camera easing
+    sph.r = damp(sph.r, want.r, dt, 6);
+    sph.theta = damp(sph.theta, want.theta, dt, 6);
+    sph.phi = damp(sph.phi, want.phi, dt, 6);
+    target.lerp(want.target, 1 - Math.exp(-6 * dt));
+    camera.position.set(
+      target.x + sph.r * Math.sin(sph.phi) * Math.cos(sph.theta),
+      target.y + sph.r * Math.cos(sph.phi),
+      target.z + sph.r * Math.sin(sph.phi) * Math.sin(sph.theta)
+    );
+    camera.lookAt(target);
+
+    var s = (linkOK && live) ? live : fallbackState(dt);
+    applyState(s, dt);
+    updateLabels(s);
+
+    hudAccum += dt;
+    if (hudAccum > 0.12) { updateHUD(s); hudAccum = 0; }
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  window.addEventListener("resize", function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+</script>
+</body>
+</html>

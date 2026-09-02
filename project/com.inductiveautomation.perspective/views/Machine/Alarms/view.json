@@ -1,0 +1,1376 @@
+{
+  "custom": {
+    "counts": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 0,
+      "Diagnostic": 0,
+      "total": 0,
+      "unacked": 0,
+      "shelved": 0
+    }
+  },
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "height": "100%",
+        "backgroundColor": "#171b20",
+        "color": "#dde4e9",
+        "fontFamily": "\"Noto Sans\",\"Segoe UI\",system-ui,-apple-system,sans-serif",
+        "gap": "0px",
+        "minWidth": "0px",
+        "minHeight": "0px"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "TopBar"
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "backgroundColor": "#1d232a",
+            "borderBottom": "1px solid #2c343d",
+            "padding": "0 14px",
+            "gap": "14px",
+            "minWidth": "0px",
+            "minHeight": "0px"
+          },
+          "alignItems": "center"
+        },
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "60px"
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Titles"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "gap": "1px",
+                "overflow": "hidden",
+                "minWidth": "0px",
+                "minHeight": "0px"
+              }
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 1,
+              "basis": "180px"
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "T"
+                },
+                "props": {
+                  "text": "Palletising Line 1 \u2014 Alarms",
+                  "style": {
+                    "fontSize": "19px",
+                    "fontWeight": 700,
+                    "color": "#dde4e9",
+                    "letterSpacing": "0.2px",
+                    "lineHeight": "24px",
+                    "whiteSpace": "nowrap",
+                    "overflow": "hidden",
+                    "textOverflow": "ellipsis"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "24px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "S"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "11.5px",
+                    "color": "#8b98a3",
+                    "lineHeight": "16px",
+                    "whiteSpace": "nowrap",
+                    "overflow": "hidden",
+                    "textOverflow": "ellipsis"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "16px"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"Alarms on tag provider MachineDemo only \u00b7 source filter prov:MachineDemo:/tag:* \u00b7 \" + dateFormat(now(1000), \"HH:mm:ss\")"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Chips"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "7px",
+                "minWidth": "0px",
+                "minHeight": "0px"
+              },
+              "alignItems": "center"
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 1,
+              "basis": "auto"
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Crit"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "11.5px",
+                    "fontWeight": 700,
+                    "letterSpacing": "0.7px",
+                    "padding": "0 10px",
+                    "lineHeight": "24px",
+                    "borderRadius": "5px",
+                    "border": "1px solid currentColor",
+                    "whiteSpace": "nowrap",
+                    "textAlign": "center"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"CRITICAL \" + toStr(coalesce({view.custom.counts.Critical}, 0))"
+                      }
+                    }
+                  },
+                  "props.style.color": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if(coalesce({view.custom.counts.Critical}, 0) > 0, \"#f0565e\", \"#74808a\")"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "High"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "11.5px",
+                    "fontWeight": 700,
+                    "letterSpacing": "0.7px",
+                    "padding": "0 10px",
+                    "lineHeight": "24px",
+                    "borderRadius": "5px",
+                    "border": "1px solid currentColor",
+                    "whiteSpace": "nowrap",
+                    "textAlign": "center"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"HIGH \" + toStr(coalesce({view.custom.counts.High}, 0))"
+                      }
+                    }
+                  },
+                  "props.style.color": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if(coalesce({view.custom.counts.High}, 0) > 0, \"#f0565e\", \"#74808a\")"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Med"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "11.5px",
+                    "fontWeight": 700,
+                    "letterSpacing": "0.7px",
+                    "padding": "0 10px",
+                    "lineHeight": "24px",
+                    "borderRadius": "5px",
+                    "border": "1px solid currentColor",
+                    "whiteSpace": "nowrap",
+                    "textAlign": "center"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"MEDIUM \" + toStr(coalesce({view.custom.counts.Medium}, 0))"
+                      }
+                    }
+                  },
+                  "props.style.color": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if(coalesce({view.custom.counts.Medium}, 0) > 0, \"#eebf5e\", \"#74808a\")"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Low"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "11.5px",
+                    "fontWeight": 700,
+                    "letterSpacing": "0.7px",
+                    "padding": "0 10px",
+                    "lineHeight": "24px",
+                    "borderRadius": "5px",
+                    "border": "1px solid currentColor",
+                    "whiteSpace": "nowrap",
+                    "textAlign": "center"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"LOW \" + toStr(coalesce({view.custom.counts.Low}, 0))"
+                      }
+                    }
+                  },
+                  "props.style.color": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if(coalesce({view.custom.counts.Low}, 0) > 0, \"#6cc4e8\", \"#74808a\")"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Unack"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "11.5px",
+                    "fontWeight": 700,
+                    "letterSpacing": "0.7px",
+                    "padding": "0 10px",
+                    "lineHeight": "24px",
+                    "borderRadius": "5px",
+                    "border": "1px solid currentColor",
+                    "whiteSpace": "nowrap",
+                    "textAlign": "center",
+                    "backgroundColor": "rgba(255,255,255,0.06)"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"UNACKED \" + toStr(coalesce({view.custom.counts.unacked}, 0))"
+                      }
+                    }
+                  },
+                  "props.style.color": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if(coalesce({view.custom.counts.unacked}, 0) > 0, \"#eebf5e\", \"#74808a\")"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Nav"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "5px",
+                "minWidth": "0px",
+                "minHeight": "0px"
+              },
+              "alignItems": "center"
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "N_OVERVIEW"
+                },
+                "props": {
+                  "text": "OVERVIEW",
+                  "style": {
+                    "fontSize": "11px",
+                    "fontWeight": 700,
+                    "letterSpacing": "1px",
+                    "padding": "0 11px",
+                    "lineHeight": "26px",
+                    "borderRadius": "5px",
+                    "whiteSpace": "nowrap",
+                    "cursor": "pointer",
+                    "border": "1px solid #2c343d",
+                    "color": "#8b98a3",
+                    "backgroundColor": "transparent"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "events": {
+                  "dom": {
+                    "onClick": {
+                      "config": {
+                        "page": "/"
+                      },
+                      "scope": "C",
+                      "type": "nav"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "N_3DCELL"
+                },
+                "props": {
+                  "text": "3D CELL",
+                  "style": {
+                    "fontSize": "11px",
+                    "fontWeight": 700,
+                    "letterSpacing": "1px",
+                    "padding": "0 11px",
+                    "lineHeight": "26px",
+                    "borderRadius": "5px",
+                    "whiteSpace": "nowrap",
+                    "cursor": "pointer",
+                    "border": "1px solid #2c343d",
+                    "color": "#8b98a3",
+                    "backgroundColor": "transparent"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "events": {
+                  "dom": {
+                    "onClick": {
+                      "config": {
+                        "page": "/cell3d"
+                      },
+                      "scope": "C",
+                      "type": "nav"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "N_MANUAL"
+                },
+                "props": {
+                  "text": "MANUAL",
+                  "style": {
+                    "fontSize": "11px",
+                    "fontWeight": 700,
+                    "letterSpacing": "1px",
+                    "padding": "0 11px",
+                    "lineHeight": "26px",
+                    "borderRadius": "5px",
+                    "whiteSpace": "nowrap",
+                    "cursor": "pointer",
+                    "border": "1px solid #2c343d",
+                    "color": "#8b98a3",
+                    "backgroundColor": "transparent"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "events": {
+                  "dom": {
+                    "onClick": {
+                      "config": {
+                        "page": "/manual"
+                      },
+                      "scope": "C",
+                      "type": "nav"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "N_ALARMS"
+                },
+                "props": {
+                  "text": "ALARMS",
+                  "style": {
+                    "fontSize": "11px",
+                    "fontWeight": 700,
+                    "letterSpacing": "1px",
+                    "padding": "0 11px",
+                    "lineHeight": "26px",
+                    "borderRadius": "5px",
+                    "whiteSpace": "nowrap",
+                    "cursor": "pointer",
+                    "border": "1px solid #6cc4e8",
+                    "color": "#cfeafa",
+                    "backgroundColor": "#152f3b"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "events": {
+                  "dom": {
+                    "onClick": {
+                      "config": {
+                        "page": "/alarms"
+                      },
+                      "scope": "C",
+                      "type": "nav"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "N_SETUP"
+                },
+                "props": {
+                  "text": "SETUP",
+                  "style": {
+                    "fontSize": "11px",
+                    "fontWeight": 700,
+                    "letterSpacing": "1px",
+                    "padding": "0 11px",
+                    "lineHeight": "26px",
+                    "borderRadius": "5px",
+                    "whiteSpace": "nowrap",
+                    "cursor": "pointer",
+                    "border": "1px solid #2c343d",
+                    "color": "#8b98a3",
+                    "backgroundColor": "transparent"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "events": {
+                  "dom": {
+                    "onClick": {
+                      "config": {
+                        "page": "/setup"
+                      },
+                      "scope": "C",
+                      "type": "nav"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "User"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "gap": "1px",
+                "minWidth": "0px",
+                "minHeight": "0px"
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Name"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "13px",
+                    "fontWeight": 700,
+                    "color": "#dde4e9",
+                    "textAlign": "right",
+                    "whiteSpace": "nowrap"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "17px"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.props.auth.authenticated}, coalesce({session.props.auth.user.userName}, \"signed in\"), \"Not signed in\")"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Role"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "10.5px",
+                    "color": "#8b98a3",
+                    "textAlign": "right",
+                    "whiteSpace": "nowrap"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "14px"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if(isAuthorized(false, \"Authenticated/Roles/Maintenance\") || isAuthorized(false, \"Authenticated/Roles/Administrator\"), \"Maintenance\", if({session.props.auth.authenticated}, \"Operator\", \"anonymous session\"))"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Body"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "10px",
+            "gap": "10px",
+            "minWidth": "0px",
+            "minHeight": "0px"
+          }
+        },
+        "position": {
+          "grow": 1,
+          "shrink": 1,
+          "basis": "0px"
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Live"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "backgroundColor": "#1d232a",
+                "border": "1px solid #2c343d",
+                "borderRadius": "8px",
+                "overflow": "hidden",
+                "minWidth": "0px",
+                "minHeight": "0px"
+              }
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 1,
+              "basis": "0px"
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Head"
+                },
+                "props": {
+                  "direction": "row",
+                  "style": {
+                    "borderBottom": "1px solid #2c343d",
+                    "backgroundColor": "#20262d",
+                    "minWidth": "0px",
+                    "minHeight": "0px"
+                  },
+                  "alignItems": "center"
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "31px"
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "H"
+                    },
+                    "props": {
+                      "text": "Active alarms \u2014 acknowledge and shelve here",
+                      "style": {
+                        "fontSize": "11px",
+                        "fontWeight": 700,
+                        "letterSpacing": "1.3px",
+                        "textTransform": "uppercase",
+                        "color": "#8b98a3",
+                        "padding": "0 12px",
+                        "lineHeight": "30px",
+                        "borderBottom": "1px solid #2c343d",
+                        "whiteSpace": "nowrap",
+                        "overflow": "hidden",
+                        "textOverflow": "ellipsis",
+                        "flexShrink": 0
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1,
+                      "basis": "auto"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Hint"
+                    },
+                    "props": {
+                      "text": "select a row, then use the toolbar",
+                      "style": {
+                        "fontSize": "11px",
+                        "color": "#74808a",
+                        "lineHeight": "30px",
+                        "padding": "0 12px",
+                        "whiteSpace": "nowrap"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 1,
+                      "basis": "auto"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Body"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "padding": "0px",
+                    "gap": "0px",
+                    "minHeight": "0px",
+                    "minWidth": "0px",
+                    "overflow": "hidden"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1,
+                  "basis": "0px"
+                },
+                "children": [
+                  {
+                    "type": "ia.display.alarmstatustable",
+                    "meta": {
+                      "name": "Status"
+                    },
+                    "props": {
+                      "refreshRate": 3000,
+                      "enableAcknowledge": true,
+                      "enableShelve": true,
+                      "enableUnshelve": true,
+                      "enableDetails": true,
+                      "dateFormat": "DD/MM/YYYY HH:mm:ss",
+                      "pager": {
+                        "enabled": false,
+                        "hide": true
+                      },
+                      "filters": {
+                        "active": {
+                          "conditions": {
+                            "source": "prov:MachineDemo:/tag:*"
+                          }
+                        }
+                      },
+                      "rowStyles": {
+                        "activeUnacked": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#dde4e9",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "high": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "medium": {
+                              "color": "#eebf5e",
+                              "fontWeight": "700"
+                            },
+                            "low": {
+                              "color": "#6cc4e8",
+                              "fontWeight": "700"
+                            },
+                            "diagnostic": {
+                              "color": "#8b98a3",
+                              "fontWeight": "700"
+                            }
+                          }
+                        },
+                        "activeAcked": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#dde4e9",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "high": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "medium": {
+                              "color": "#eebf5e",
+                              "fontWeight": "700"
+                            },
+                            "low": {
+                              "color": "#6cc4e8",
+                              "fontWeight": "700"
+                            },
+                            "diagnostic": {
+                              "color": "#8b98a3",
+                              "fontWeight": "700"
+                            }
+                          }
+                        },
+                        "clearUnacked": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#dde4e9",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "high": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "medium": {
+                              "color": "#eebf5e",
+                              "fontWeight": "700"
+                            },
+                            "low": {
+                              "color": "#6cc4e8",
+                              "fontWeight": "700"
+                            },
+                            "diagnostic": {
+                              "color": "#8b98a3",
+                              "fontWeight": "700"
+                            }
+                          }
+                        },
+                        "clearAcked": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#74808a",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "high": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "medium": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "low": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "diagnostic": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            }
+                          }
+                        }
+                      },
+                      "toolbar": {
+                        "enabled": true,
+                        "enableFilter": true,
+                        "enablePreFilters": true,
+                        "enableActiveTab": true,
+                        "enableShelvedTab": true,
+                        "enableConfiguration": false
+                      },
+                      "style": {
+                        "height": "100%",
+                        "minHeight": "0px"
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1,
+                      "basis": "0px"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Hist"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "backgroundColor": "#1d232a",
+                "border": "1px solid #2c343d",
+                "borderRadius": "8px",
+                "overflow": "hidden",
+                "minWidth": "0px",
+                "minHeight": "0px"
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "330px"
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Head"
+                },
+                "props": {
+                  "direction": "row",
+                  "style": {
+                    "borderBottom": "1px solid #2c343d",
+                    "backgroundColor": "#20262d",
+                    "minWidth": "0px",
+                    "minHeight": "0px"
+                  },
+                  "alignItems": "center"
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "31px"
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "H"
+                    },
+                    "props": {
+                      "text": "Alarm journal \u2014 history",
+                      "style": {
+                        "fontSize": "11px",
+                        "fontWeight": 700,
+                        "letterSpacing": "1.3px",
+                        "textTransform": "uppercase",
+                        "color": "#8b98a3",
+                        "padding": "0 12px",
+                        "lineHeight": "30px",
+                        "borderBottom": "1px solid #2c343d",
+                        "whiteSpace": "nowrap",
+                        "overflow": "hidden",
+                        "textOverflow": "ellipsis",
+                        "flexShrink": 0
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1,
+                      "basis": "auto"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Hint"
+                    },
+                    "props": {
+                      "text": "last 8 hours",
+                      "style": {
+                        "fontSize": "11px",
+                        "color": "#74808a",
+                        "lineHeight": "30px",
+                        "padding": "0 12px",
+                        "whiteSpace": "nowrap"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 1,
+                      "basis": "auto"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Body"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "padding": "0px",
+                    "gap": "0px",
+                    "minHeight": "0px",
+                    "minWidth": "0px",
+                    "overflow": "hidden"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1,
+                  "basis": "0px"
+                },
+                "children": [
+                  {
+                    "type": "ia.display.alarmjournaltable",
+                    "meta": {
+                      "name": "Journal"
+                    },
+                    "props": {
+                      "name": "Alarms",
+                      "refreshRate": 15000,
+                      "dateFormat": "DD/MM/YYYY HH:mm:ss",
+                      "pager": {
+                        "enabled": false,
+                        "hide": true
+                      },
+                      "filter": {
+                        "conditions": {
+                          "source": "prov:MachineDemo:/tag:*"
+                        },
+                        "events": {
+                          "active": true,
+                          "acked": true,
+                          "cleared": true,
+                          "enabled": false,
+                          "disabled": false,
+                          "system": false
+                        }
+                      },
+                      "dateRange": {
+                        "realtime": {
+                          "interval": 8,
+                          "unit": "hours"
+                        }
+                      },
+                      "columns": {
+                        "eventTime": {
+                          "enabled": true,
+                          "order": 0,
+                          "width": 160,
+                          "strictWidth": true,
+                          "sort": "descending"
+                        },
+                        "displayPath": {
+                          "enabled": true,
+                          "order": 1,
+                          "width": 300
+                        },
+                        "priority": {
+                          "enabled": true,
+                          "order": 2,
+                          "width": 100,
+                          "strictWidth": true
+                        },
+                        "eventState": {
+                          "enabled": true,
+                          "order": 3,
+                          "width": 130,
+                          "strictWidth": true
+                        },
+                        "name": {
+                          "enabled": true,
+                          "order": 4,
+                          "width": 200
+                        },
+                        "eventId": {
+                          "enabled": false,
+                          "order": 5
+                        },
+                        "source": {
+                          "enabled": false,
+                          "order": 6
+                        }
+                      },
+                      "rowStyles": {
+                        "active": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#dde4e9",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "high": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "medium": {
+                              "color": "#eebf5e",
+                              "fontWeight": "700"
+                            },
+                            "low": {
+                              "color": "#6cc4e8",
+                              "fontWeight": "700"
+                            },
+                            "diagnostic": {
+                              "color": "#8b98a3",
+                              "fontWeight": "700"
+                            }
+                          }
+                        },
+                        "acked": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#dde4e9",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "high": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "medium": {
+                              "color": "#eebf5e",
+                              "fontWeight": "700"
+                            },
+                            "low": {
+                              "color": "#6cc4e8",
+                              "fontWeight": "700"
+                            },
+                            "diagnostic": {
+                              "color": "#8b98a3",
+                              "fontWeight": "700"
+                            }
+                          }
+                        },
+                        "cleared": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#74808a",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "high": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "medium": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "low": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "diagnostic": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            }
+                          }
+                        },
+                        "enabled": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#dde4e9",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "high": {
+                              "color": "#f0565e",
+                              "fontWeight": "700"
+                            },
+                            "medium": {
+                              "color": "#eebf5e",
+                              "fontWeight": "700"
+                            },
+                            "low": {
+                              "color": "#6cc4e8",
+                              "fontWeight": "700"
+                            },
+                            "diagnostic": {
+                              "color": "#8b98a3",
+                              "fontWeight": "700"
+                            }
+                          }
+                        },
+                        "disabled": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#74808a",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "high": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "medium": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "low": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "diagnostic": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            }
+                          }
+                        },
+                        "system": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#74808a",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "high": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "medium": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "low": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            },
+                            "diagnostic": {
+                              "color": "#74808a",
+                              "fontWeight": "700"
+                            }
+                          }
+                        }
+                      },
+                      "toolbar": {
+                        "enabled": true,
+                        "enableDateRange": true,
+                        "enableFilter": true,
+                        "enablePreFilters": true
+                      },
+                      "style": {
+                        "height": "100%",
+                        "minHeight": "0px"
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1,
+                      "basis": "0px"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "propConfig": {
+    "custom.counts": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr(now(3000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\tfrom java.lang import Throwable\n\tout = {\"Critical\": 0, \"High\": 0, \"Medium\": 0, \"Low\": 0, \"Diagnostic\": 0, \"total\": 0, \"unacked\": 0, \"shelved\": 0}\n\ttry:\n\t\tevts = system.alarm.queryStatus(\n\t\t\tstate=[\"ActiveUnacked\", \"ActiveAcked\", \"ClearUnacked\"], provider=[\"MachineDemo\"])\n\texcept Throwable:\n\t\treturn out\n\tfor e in evts:\n\t\ttry:\n\t\t\tpri = str(e.getPriority())\n\t\texcept Throwable:\n\t\t\tpri = \"Low\"\n\t\tif pri not in out:\n\t\t\tpri = \"Low\"\n\t\tout[pri] = out[pri] + 1\n\t\tout[\"total\"] = out[\"total\"] + 1\n\t\ttry:\n\t\t\tif not e.isAcked():\n\t\t\t\tout[\"unacked\"] = out[\"unacked\"] + 1\n\t\texcept Throwable:\n\t\t\tpass\n\treturn out\n"
+          }
+        ]
+      }
+    }
+  }
+}
