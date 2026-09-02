@@ -165,36 +165,48 @@ Base: `http://192.168.153.128:8088/system/webdev/Machine_HMI_Demo/<name>`
 | --- | --- | --- | --- |
 | `admin` | GET | `?cmd=state` | **compact live JSON the 3D page polls** |
 | `admin` | GET | `?cmd=status\|version\|check\|faults\|alarms\|alarmcheck&tag=` | read the cell, change nothing |
-| `admin` | POST | `?cmd=setup\|fix&name=\|fault&name=\|clear&name=\|reset\|speed&value=\|mode&value=\|jog&name=&on=\|guards&closed=` | everything that changes the cell |
+| `admin` | GET | any write `cmd` | **405** — refused, tag untouched |
+| `admin` | POST | anything | **405** — refused; the write path is gone |
 | `cell3d` | GET | (no query) | the 3D palletising cell page, served as HTML |
 | `lib` | GET | `?f=three` | vendored three.js (proves it works with no internet) |
 
-### Reads are open, writes are authenticated
+### HTTP is read-only. Writes go through the session or the console.
 
-`config.json` is **per method**, which is what makes the split possible:
-`doGet.require-auth` is `false` so the 3D page can poll `?cmd=state` from an
-iframe with no login prompt, and `doPost.require-auth` is `true` with
-`doPost.user-source` naming the user source the password is checked against.
+Nothing on the network can change this cell with a URL — not jog the arm, not open
+the guard circuit, not inject a fault — and that is true with or without a
+credential, because the write path was removed rather than guarded:
 
-- A write `cmd` on GET returns **405** and
-  `{"ok": false, "error": "writes are not accepted on GET"}`. It never touches
-  a tag.
-- POST with no credential returns **401** and
-  `WWW-Authenticate: BASIC realm="Machine_HMI_Demo"` — WebDev authentication on
-  8.3.8 is HTTP Basic against a **user source**, not the gateway web session and
-  not an identity provider.
-- `user-source: ""` is not a default, it is a failure: POST answers **500**
-  `No user source for project.` The name must be a user source that exists on
-  the gateway. It ships as `temp`; a gateway without one gets the same 500 on
-  POST and full function everywhere else.
-- POST arguments may arrive in the query string or as a JSON body; the body wins
-  on a clash.
+- A write `cmd` on GET (`setup fix fault clear reset speed mode jog guards`)
+  returns **405** `{"ok": false, "error": "writes are not accepted on GET"}`.
+- **Every** POST returns **405** `{"ok": false, "error": "writes are not accepted
+  over HTTP; use the Setup screen or the Designer Script Console"}`.
+- `config.json` keeps `require-auth: false` on every method and an empty
+  `user-source`, so the project ships with nothing gateway-specific in it.
 
-The **Setup screen does not use either route.** Its buttons call
-`MachineDemo.api.*` and `MachineDemo.setup.*` in gateway scope, as the signed-in
-Perspective session — the native path, with no HTTP hop back through a public
-URL and nothing to configure. The curl route exists for headless install and
-scripted testing.
+The two ways to drive the demo:
+
+1. **The Setup screen.** Its buttons call `MachineDemo.api.*` and
+   `MachineDemo.setup.*` in gateway scope, as the signed-in Perspective session —
+   the native path, no HTTP hop.
+2. **The Designer Script Console** (Tools → Script Console), same functions:
+
+```python
+MachineDemo.setup.run()                       # one-button install / repair
+MachineDemo.setup.check()                     # the eight install rows
+MachineDemo.api.setFault("ConveyorJam", True) # also WrapperFilmFeed VacuumLow GuardOpen RobotAxisFault
+MachineDemo.api.setFault("ConveyorJam", False)
+MachineDemo.api.reset()                       # every fault cleared, steady state
+MachineDemo.api.setSpeed(2)                   # machine time as a multiple of real time (api clamps at 10)
+MachineDemo.api.setMode("Auto")               # or "Manual"
+MachineDemo.api.setGuards(False)              # open the guard circuit; True closes it
+MachineDemo.api.setJog("up", True)            # momentary bit; send False to release
+```
+
+Why not authenticated POST: WebDev authentication on 8.3.8 is HTTP Basic against a
+**named user source**, and `user-source: ""` is a `500`, not a default. A project
+that ships one gateway's source name answers `500 No user source for project` on
+every other gateway. Dropping the path was chosen over shipping a name
+(decision 02/09/2026).
 
 ### `cell3d` is a Text Resource, and that is deliberate
 

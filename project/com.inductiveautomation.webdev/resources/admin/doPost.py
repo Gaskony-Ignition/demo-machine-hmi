@@ -1,60 +1,35 @@
 def doPost(request, session):
-	"""Every command that CHANGES the cell, behind gateway authentication.
+	"""POST no longer writes anything - this route was retired.
 
-	Same URL and the same `cmd=` vocabulary the read route uses, so nothing
-	about the demo has to be re-learned - only the verb changes, and with it
-	the requirement to be somebody.
+	Every command that used to accept a POST here - setup, fix, fault, clear,
+	reset, speed, mode, jog, guards - now goes through one of two places
+	instead: the Setup screen, which calls MachineDemo.api.* and
+	MachineDemo.setup.* in gateway scope as the signed-in Perspective session,
+	or the Designer's Script Console, which calls the same functions
+	directly. Nothing on the network can write to this cell any more - not
+	with a credential, not without one - because the write path itself is
+	gone, not just guarded.
 
-	    ?cmd=setup                  create everything this gateway is missing
-	    ?cmd=fix&name=tags          create ONE setup item
-	    ?cmd=fault&name=ConveyorJam inject one
-	    ?cmd=clear&name=ConveyorJam clear one
-	    ?cmd=reset                  every fault cleared, back to steady state
-	    ?cmd=speed&value=3          machine time as a multiple of real time
-	    ?cmd=mode&value=Manual      Auto or Manual
-	    ?cmd=jog&name=down&on=1     hold a momentary jog bit (up | down)
-	    ?cmd=guards&closed=0        open or close the guard circuit
+	That is a portability choice, not a security one. The old check was HTTP
+	Basic against a named user source (`doPost.user-source`, which shipped as
+	`temp` - this gateway's own name), and it answered 500 on any other
+	gateway that lacked one. Removing the write path instead of naming a
+	source means the project ships with nothing gateway-specific in it and
+	nothing left to configure or protect - every POST this route receives
+	gets the same refusal, credentialed or not.
 
-	Arguments may arrive in the query string or as a JSON body; the body wins
-	where both carry the same key, because a body is the harder of the two to
-	send by accident.
+	doGet is unaffected: reads stay open, still no credential, still the same
+	405 for a write `cmd` arriving on GET.
 
-	`require-auth` is set for doPost ONLY, in this resource's config.json.
-	doGet stays open so the 3D page can poll ?cmd=state from an iframe with no
-	login prompt - the split is the point.
-
-	The docstring is INSIDE the def on purpose: anything above `def doPost`
-	makes the endpoint return an empty HTTP 200 with nothing logged.
+	The docstring is INSIDE the def on purpose. Anything above `def doPost` -
+	a docstring, a comment, a blank line - makes the endpoint return an empty
+	HTTP 200 with nothing in the log and no error anywhere.
 	"""
 	import traceback
 
-	WRITES = ["setup", "fix", "fault", "clear", "reset", "speed", "mode",
-	          "jog", "guards"]
-
-	args = {}
-	try:
-		for k, v in (request['params'] or {}).items():
-			args[unicode(k)] = v
-	except:
-		pass
-	try:
-		body = request.get('data')
-		if body is None:
-			body = request.get('postData')
-		if body is not None and hasattr(body, 'keys'):
-			for k in body.keys():
-				args[unicode(k)] = body[k]
-	except:
-		pass
-
-	cmd = args.get('cmd', '')
-
-	def truthy(v, default='1'):
-		if v is None:
-			v = default
-		return unicode(v).lower() not in ('0', 'false', 'off', 'no', '')
-
 	def refuse(code, body):
+		# The status code is the part a script can act on; the body is the
+		# part a human reads. Both, always.
 		try:
 			request['servletResponse'].setStatus(code)
 		except:
@@ -62,54 +37,16 @@ def doPost(request, session):
 		return {'json': body}
 
 	try:
-		if cmd == 'setup':
-			return {'json': {'ok': True, 'setup': MachineDemo.setup.run()}}
-
-		if cmd == 'fix':
-			return {'json': {'ok': True,
-			                 'fixed': MachineDemo.setup.fix(
-			                     args.get('name', ''))}}
-
-		if cmd == 'fault':
-			return {'json': {'ok': True,
-			                 'result': MachineDemo.api.setFault(
-			                     args.get('name', ''), True),
-			                 'state': MachineDemo.api.state()}}
-
-		if cmd == 'clear':
-			return {'json': {'ok': True,
-			                 'result': MachineDemo.api.setFault(
-			                     args.get('name', ''), False),
-			                 'state': MachineDemo.api.state()}}
-
-		if cmd == 'reset':
-			return {'json': {'ok': True, 'reset': MachineDemo.api.reset()}}
-
-		if cmd == 'speed':
-			return {'json': {'ok': True,
-			                 'speed': MachineDemo.api.setSpeed(
-			                     args.get('value', 1.0))}}
-
-		if cmd == 'mode':
-			return {'json': {'ok': True,
-			                 'mode': MachineDemo.api.setMode(
-			                     args.get('value', 'Auto'))}}
-
-		if cmd == 'jog':
-			return {'json': {'ok': True,
-			                 'jog': MachineDemo.api.setJog(
-			                     args.get('name', ''),
-			                     truthy(args.get('on'), '1'))}}
-
-		if cmd == 'guards':
-			return {'json': {'ok': True,
-			                 'guards': MachineDemo.api.setGuards(
-			                     truthy(args.get('closed'), '1'))}}
-
-		return refuse(400, {'ok': False,
-		                    'error': 'unknown or read-only cmd: %s' % cmd,
-		                    'hint': 'reads are on GET, writes are on POST',
-		                    'writes': WRITES})
+		cmd = (request['params'] or {}).get('cmd', '')
+		return refuse(405, {
+			'ok': False,
+			'error': ('writes are not accepted over HTTP; use the Setup '
+			          'screen or the Designer Script Console'),
+			'cmd': cmd,
+			'use': ('MachineDemo.api.* / MachineDemo.setup.* from the '
+			        'Designer Script Console, or the Setup screen in the '
+			        'Perspective project'),
+		})
 
 	except:
 		return refuse(500, {'ok': False, 'error': traceback.format_exc()})

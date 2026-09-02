@@ -68,15 +68,17 @@ and the `MachineDemo` alarm journal that writes into it — then writes 97 tags 
 SQLite is a file under the gateway's data directory, and the connection has no
 username and no password to hold.
 
-Headless equivalent. Reading is open; anything that changes the gateway is a
-**POST** and needs a gateway login (see *Driving it in a meeting* for the one
-line of set-up that puts the password in a file instead of the command):
+Headless equivalent — from the Designer's Script Console (Tools → Script Console),
+which runs as your signed-in Designer session:
 
-```bash
-curl -sS -X POST --netrc-file ~/.ignition-netrc \
-     "http://<gateway>/system/webdev/Machine_HMI_Demo/admin?cmd=setup"
-curl -sS "http://<gateway>/system/webdev/Machine_HMI_Demo/admin?cmd=check"
+```python
+MachineDemo.setup.run()     # install or repair; safe to repeat
+MachineDemo.setup.check()   # the eight install rows
 ```
+
+`curl "http://<gateway>/system/webdev/Machine_HMI_Demo/admin?cmd=check"` reads the
+same rows over HTTP. HTTP is **read-only** on this project: setup, like every other
+write, is refused with 405 over HTTP on purpose (see *Driving it in a meeting*).
 
 `?cmd=setup` is safe to repeat: every step is an upsert, and on a gateway that
 already has everything it creates nothing and reports the same counts.
@@ -87,68 +89,26 @@ The Setup page doubles as a presenter console, and it is the way to drive the
 demo: its buttons call the `MachineDemo` library in-process, as the signed-in
 Perspective session, so they need nothing configured and no second window.
 
-The same commands are reachable over HTTP, and the split between them is the
-point of the security pillar:
+HTTP is read-only, and that is the security pillar made literal: nobody on the
+network can open the guard circuit or jog the arm with a URL, with or without a
+credential, because there is no write path to guard.
 
-| | Verb | Auth |
+| | Verb | Result |
 | --- | --- | --- |
-| `state` `status` `version` `check` `faults` `alarms` `alarmcheck` | GET | none — the 3D page polls `?cmd=state` from an iframe |
-| `setup` `fix` `fault` `clear` `reset` `speed` `mode` `jog` `guards` | POST | a gateway user |
+| `state` `status` `version` `check` `faults` `alarms` `alarmcheck` | GET | open — the 3D page polls `?cmd=state` from an iframe |
+| `setup` `fix` `fault` `clear` `reset` `speed` `mode` `jog` `guards` | GET | **405** `writes are not accepted on GET` |
+| anything | POST | **405** `writes are not accepted over HTTP` |
 
-A write attempted on GET is refused with **HTTP 405** and
-`{"ok": false, "error": "writes are not accepted on GET"}`. Nobody on the
-network can open the guard circuit or jog the arm with a URL.
-
-```bash
-curl -sS -X POST --netrc-file ~/.ignition-netrc \
-     "http://<gateway>/system/webdev/Machine_HMI_Demo/admin?cmd=fault&name=ConveyorJam"
-     # also WrapperFilmFeed VacuumLow GuardOpen RobotAxisFault
-curl -sS -X POST --netrc-file ~/.ignition-netrc "...?cmd=clear&name=ConveyorJam"
-curl -sS -X POST --netrc-file ~/.ignition-netrc "...?cmd=reset"
-curl -sS -X POST --netrc-file ~/.ignition-netrc "...?cmd=speed&value=2"
-curl -sS -X POST --netrc-file ~/.ignition-netrc "...?cmd=mode&value=Auto"
-curl -sS "...?cmd=state"                        # the live snapshot, no login
-```
-
-Arguments may also travel as a JSON body — `-H 'Content-Type: application/json'
--d '{"cmd":"speed","value":5}'` — which is the friendlier form from a script.
-
-**The credential never belongs in the command.** WebDev answers HTTP Basic, so
-put it in a netrc file once and let curl read it:
-
-```bash
-umask 077
-printf 'machine <gateway-host> login <user> password <password>\n' > ~/.ignition-netrc
-```
-
-A password typed into a `curl -u` argument is visible to every process on the
-machine and lands in the shell history; a 0600 netrc is neither. `--netrc-file`
-takes the path, not the secret. `curl -sS -X POST` with no credential returns
-**401** with `WWW-Authenticate: BASIC realm="Machine_HMI_Demo"`.
-
-Which user source WebDev checks the password against is named in
-`project/com.inductiveautomation.webdev/resources/admin/config.json` —
-`doPost.user-source`. It ships as `temp`, the source this demo was built
-against. **On any other gateway, set it to a user source that exists there**, or
-POST answers 500 `No user source for project.` Reads and the Setup page are
-unaffected either way, so a mis-set name costs the curl path only.
-
-The third way in is the Designer's **Script Console**, which needs no HTTP at
-all:
+The second way to drive it, when the Setup screen is not on the screen you are
+sharing, is the Designer's Script Console:
 
 ```python
-MachineDemo.api.setFault("ConveyorJam", True)
+MachineDemo.api.setFault("ConveyorJam", True)   # also WrapperFilmFeed VacuumLow GuardOpen RobotAxisFault
 MachineDemo.api.setFault("ConveyorJam", False)
-MachineDemo.api.reset()
-MachineDemo.api.setMode("Auto")
-MachineDemo.setup.run()
+MachineDemo.api.reset()                         # back to steady state
+MachineDemo.api.setSpeed(2)                     # simulation speed
+MachineDemo.api.setMode("Auto")                 # hand the cell back to the auto cycle
 ```
-
-**After demonstrating manual control, hand the cell back before `reset`.** Taking
-a cell to manual leaves it there, and `?cmd=reset` clears faults but will not
-restart a cell the operator still owns — so the line sits stopped at 0 cases/min
-and the 3D view goes still. The sequence that returns everything to a running
-demo is `?cmd=mode&value=Auto` and then `?cmd=reset`.
 
 ## How the 3D page works
 

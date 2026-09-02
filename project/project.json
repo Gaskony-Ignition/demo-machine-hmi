@@ -1,5 +1,5 @@
 {
-  "title": "Machine HMI Demo 1.2.0 (dev)",
+  "title": "Machine HMI Demo 1.3.0 (dev)",
   "description": "Machine-level operator control in Perspective for a palletising cell: line overview, robot manual control with permissives, a live 3D cell view served from the gateway, security-zone access control and alarms. Runs on Edge Panel or standard Ignition. \u00b7 dev",
   "enabled": true,
   "inheritable": false
