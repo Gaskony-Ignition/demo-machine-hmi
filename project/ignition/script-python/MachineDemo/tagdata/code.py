@@ -11,6 +11,18 @@ The tree is built by the small helpers below rather than pasted in as JSON,
 because the alarm definitions are the part a reader needs to be able to check
 and a 100 kB JSON string literal is not checkable.
 
+Two things in here are shaped the way an Ignition integrator would shape them
+rather than the way a demo usually is:
+
+* `Config/` holds the machine's GEOMETRY as tags. Case and pallet sizes, the
+  conveyor and where the two pallet stations sit. The 3D page and the screens
+  read them, so re-sizing the machine is fifteen tag writes from the Designer
+  and not a source edit.
+* `Robot` is a UDT INSTANCE of `_types_/RobotArm`, not a folder of nineteen
+  loose tags. Its members are named exactly as those tags were, so every path
+  that already existed - `[MachineDemo]Robot/J2_deg` and the rest - still
+  resolves, and the alarm on `Robot/Fault` is defined once on the type.
+
 Alarm design, deliberately:
 
 * The five Faults/* tags and Robot/Fault alarm on Equality-true.
@@ -31,8 +43,11 @@ P = MachineDemo.plant
 # ---------------------------------------------------------------------------
 
 
-def _folder(name, tags):
-	return {"name": name, "tagType": "Folder", "tags": tags}
+def _folder(name, tags, doc=None):
+	f = {"name": name, "tagType": "Folder", "tags": tags}
+	if doc:
+		f["documentation"] = doc
+	return f
 
 
 def _atomic(name, dataType, value, extra=None):
@@ -58,6 +73,17 @@ def _int(name, value, engHigh=None):
 		extra["engLow"] = 0.0
 		extra["engHigh"] = float(engHigh)
 	return _atomic(name, "Int4", int(value), extra)
+
+
+def _geom(name, value, tip, unit="mm", lo=0.0, hi=5000.0):
+	"""One number that describes the machine rather than its state.
+
+	Int4 with a unit, a range and a tooltip, so the Designer's tag browser and
+	every binding that touches it say what it is without a comment beside it.
+	"""
+	return _atomic(name, "Int4", int(value), {
+		"engUnit": unit, "engLow": float(lo), "engHigh": float(hi),
+		"formatString": "#,##0", "tooltip": tip})
 
 
 def _float(name, value, unit=None, lo=0.0, hi=100.0, fmt="#,##0.0",
@@ -148,8 +174,34 @@ def _safety():
 	])
 
 
-def _robot():
-	return _folder("Robot", [
+# ---------------------------------------------------------------------------
+# the robot, as a UDT
+# ---------------------------------------------------------------------------
+# A palletising cell has arms, plural. Written as a folder of nineteen loose
+# tags, a second arm is nineteen more tags to copy, nineteen more paths to get
+# right and an alarm whose notes have to be edited in two places. Written as a
+# TYPE, it is one instance and the alarm is defined once.
+#
+# The members are named EXACTLY as the folder's tags were, so every path the
+# rest of the demo already uses - [MachineDemo]Robot/J2_deg and the other
+# eighteen - keeps working. Nothing in the simulator, the screens or the 3D
+# page changed for this.
+
+ROBOT_TYPE = "RobotArm"
+
+ROBOT_TYPE_DOC = (
+	"One palletising robot arm: four joints, a lift column, the vacuum "
+	"gripper, its cycle counters and its fault. Add a second arm by adding a "
+	"second instance of this type, not by copying nineteen tags.")
+
+ROBOT_INSTANCE_DOC = (
+	"Robot 1 - the cell's palletising arm. An instance of the RobotArm type; "
+	"every member path is unchanged from when this was a plain folder.")
+
+
+def _robotMembers():
+	"""The arm's tags. The UDT definition and the path list both read this."""
+	return [
 		_str("State", "Idle"),
 		_float("J1_deg", 0.0, "deg", -170.0, 170.0, "#,##0.0"),
 		_float("J2_deg", 20.0, "deg", -60.0, 90.0, "#,##0.0"),
@@ -181,7 +233,40 @@ def _robot():
 			"cause, then reset and re-home before restarting the pattern - a "
 			"robot that faulted while carrying may still be holding cases.")]),
 		_str("FaultText", ""),
-	])
+	]
+
+
+def _robotType():
+	"""The UDT definition, as system.tag.configure() wants it under _types_.
+
+	Verified against the gateway rather than guessed: a UdtType node is a
+	`tags` list of ordinary AtomicTag dicts, and everything the members carry -
+	engineering range, unit, format, documentation, ALARMS - is inherited by
+	each instance and reads back on the instance's own member path. That last
+	part is the one worth proving: the demo's alarms live on Robot/Fault, and
+	an alarm that stopped being visible at that path would be an alarm nobody
+	could see raise.
+	"""
+	return {"name": ROBOT_TYPE, "tagType": "UdtType",
+	        "documentation": ROBOT_TYPE_DOC,
+	        "tags": _robotMembers()}
+
+
+def types():
+	"""Every UDT definition, for [<provider>]_types_."""
+	return [_robotType()]
+
+
+# typeId -> the function that lists that type's members. counts() and paths()
+# use it to see THROUGH an instance, so the tree still measures the same 97
+# tags it did when the robot was a folder.
+TYPE_MEMBERS = {ROBOT_TYPE: _robotMembers}
+
+
+def _robot():
+	"""The instance. No member overrides - the type is the whole definition."""
+	return {"name": "Robot", "tagType": "UdtInstance", "typeId": ROBOT_TYPE,
+	        "documentation": ROBOT_INSTANCE_DOC}
 
 
 def _station(n):
@@ -232,6 +317,64 @@ def _zones():
 	])
 
 
+CONFIG_DOC = ("Machine geometry. Change these for a different machine; "
+              "the 3D page and the sim read them.")
+
+
+def _config():
+	"""The machine's dimensions, as tags rather than as constants.
+
+	This is the difference between a demo and a machine builder's HMI. A case
+	size buried in a JavaScript file is a number only the person who wrote the
+	page can change; the same number on a tag is one an application engineer
+	changes from the Designer, on a machine that is running, and watches the
+	3D cell redraw. The customer's next machine stacks 400 mm cases on a
+	Euro pallet - that is fifteen tag values, not a source edit.
+
+	Int4 millimetres throughout, because a machine drawing is in whole
+	millimetres and a float invites a geometry that is 299.9999 wide.
+
+	Robot LINK lengths are deliberately NOT here: the simulator's inverse
+	kinematics solves against them, so they are not a number the page can be
+	handed on its own without the arm and the pattern disagreeing.
+	"""
+	return _folder("Config", [
+		_geom("CaseW_mm", 300, "Case width - across the infeed conveyor",
+		      lo=100.0, hi=1000.0),
+		_geom("CaseD_mm", 250, "Case depth - along the infeed conveyor",
+		      lo=100.0, hi=1000.0),
+		_geom("CaseH_mm", 220, "Case height - sets the layer pitch",
+		      lo=50.0, hi=1000.0),
+		_geom("PalletW_mm", 1200, "Pallet width", lo=600.0, hi=2000.0),
+		_geom("PalletD_mm", 1000, "Pallet depth", lo=600.0, hi=2000.0),
+		_geom("PalletH_mm", 140, "Pallet deck height - the first layer sits "
+		      "on top of this", lo=80.0, hi=300.0),
+		_geom("CasesPerLayer", P.CASES_PER_LAYER,
+		      "Cases in one layer of the pattern", unit="cases",
+		      lo=1.0, hi=60.0),
+		_geom("Layers", P.LAYERS_PER_PALLET, "Layers to a finished pallet",
+		      unit="layers", lo=1.0, hi=20.0),
+		_geom("ConvHeight_mm", 900, "Infeed conveyor top-of-belt height",
+		      lo=400.0, hi=1600.0),
+		_geom("ConvLength_mm", 3300, "Infeed conveyor length",
+		      lo=1000.0, hi=12000.0),
+		_geom("ConvWidth_mm", 620, "Infeed conveyor belt width",
+		      lo=200.0, hi=1600.0),
+		_geom("Station1_X_mm", -1450,
+		      "Pallet station 1 centre, X from the robot base",
+		      lo=-6000.0, hi=6000.0),
+		_geom("Station1_Z_mm", -1650,
+		      "Pallet station 1 centre, Z from the robot base",
+		      lo=-6000.0, hi=6000.0),
+		_geom("Station2_X_mm", -1450,
+		      "Pallet station 2 centre, X from the robot base",
+		      lo=-6000.0, hi=6000.0),
+		_geom("Station2_Z_mm", 1650,
+		      "Pallet station 2 centre, Z from the robot base",
+		      lo=-6000.0, hi=6000.0),
+	], CONFIG_DOC)
+
+
 def _faults():
 	return _folder("Faults", [
 		_bool("WrapperFilmFeed", False, [_digital(
@@ -274,9 +417,14 @@ def _faults():
 
 
 def tags():
-	"""The demo's top-level folders, as system.tag.configure() expects them."""
-	return [_line(), _safety(), _robot(), _pallet(), _conveyor(), _zones(),
-	        _faults()]
+	"""The demo's top-level nodes, as system.tag.configure() expects them.
+
+	Seven folders and one UDT instance. `types()` must be written into
+	[<provider>]_types_ BEFORE this list goes into the provider root, or the
+	Robot instance has no definition to resolve.
+	"""
+	return [_config(), _line(), _safety(), _robot(), _pallet(), _conveyor(),
+	        _zones(), _faults()]
 
 
 # ---------------------------------------------------------------------------
@@ -286,13 +434,34 @@ def tags():
 # A count typed into prose is a count that is wrong the next time a tag moves.
 
 
+def _members(node):
+	"""What is UNDER a node - looking through a UDT instance to its type.
+
+	An instance carries no `tags` of its own here (the type is the whole
+	definition), so a walker that only reads `tags` would count the robot as
+	zero tags and quietly report a tree 19 tags smaller than the one on the
+	gateway.
+	"""
+	tt = node.get("tagType")
+	if tt == "Folder" or tt == "UdtType":
+		return node.get("tags") or []
+	if tt == "UdtInstance":
+		kids = node.get("tags")
+		if kids:
+			return kids
+		fn = TYPE_MEMBERS.get(node.get("typeId"))
+		return fn() if fn else []
+	return None
+
+
 def _walk(nodes):
 	for n in nodes:
-		if n.get("tagType") == "Folder":
-			for sub in _walk(n.get("tags") or []):
-				yield sub
-		else:
+		kids = _members(n)
+		if kids is None:
 			yield n
+		else:
+			for sub in _walk(kids):
+				yield sub
 
 
 def counts():
@@ -301,7 +470,7 @@ def counts():
 	for a in atoms:
 		alarms += len(a.get("alarms") or [])
 	return {"tags": len(atoms), "alarms": alarms,
-	        "folders": len(tags())}
+	        "folders": len(tags()), "udts": len(types())}
 
 
 def paths():
@@ -316,10 +485,11 @@ def paths():
 		for n in nodes:
 			name = n.get("name")
 			full = ("%s/%s" % (prefix, name)) if prefix else name
-			if n.get("tagType") == "Folder":
-				walk(n.get("tags") or [], full)
-			else:
+			kids = _members(n)
+			if kids is None:
 				out.append(full)
+			else:
+				walk(kids, full)
 
 	walk(tags(), "")
 	return out

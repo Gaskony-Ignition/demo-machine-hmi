@@ -31,6 +31,12 @@
   canvas { display: block; touch-action: none; }
 
   .hud { position: fixed; z-index: 5; }
+  /* ?hud=0: the overlay cards and the camera row disappear (an embedded
+     Perspective panel wants the model, not the chrome). The fault banner,
+     the link pill and the 3D-anchored labels are not in this class, on
+     purpose, and stay. !important because #cams sets its own `display: flex`
+     in an ID rule, which otherwise outranks a plain class selector here. */
+  html.hud-off .hud { display: none !important; }
 
   .card {
     background: var(--panel);
@@ -199,22 +205,61 @@
   }
 
   // ----------------------------------------------------------------------
-  // Cell dimensions. Everything downstream derives from these, in metres,
-  // so changing a pallet size or a case size moves the pattern, the stack
-  // height and the robot's place positions together.
+  // URL params. ?camera= picks the starting preset by slug; ?hud=0 hides the
+  // overlay cards and the camera row (an embedded Perspective panel wants the
+  // model, not the chrome) while leaving the 3D-anchored labels and the fault
+  // pulse on the model itself untouched. Unknown values fall back silently.
   // ----------------------------------------------------------------------
-  var M = {
-    caseW: 0.30, caseD: 0.25, caseH: 0.22,   // 300 x 250 x 220 mm
-    palletW: 1.20, palletD: 1.00, palletH: 0.14,
-    perLayer: 12, layers: 5,
-    convY: 0.90, convLen: 3.30, convW: 0.62,
-    // Both stations and the conveyor pick point sit inside the arm's 2.5 m
-    // reach (upper 1.35 + forearm 1.15), so the model never shows the robot
-    // grasping at something it could not physically touch.
-    st1: { x: -1.45, z: -1.65 },
-    st2: { x: -1.45, z:  1.65 }
+  var urlParams = new URLSearchParams(window.location.search);
+  var CAMERA_SLUGS = {
+    overview: "Overview", robot: "Robot", pallet1: "Pallet 1",
+    pallet2: "Pallet 2", infeed: "Infeed", top: "Top"
   };
-  M.perPallet = M.perLayer * M.layers;
+  var startCameraName = CAMERA_SLUGS[(urlParams.get("camera") || "").toLowerCase()] || "Overview";
+  var hudOn = urlParams.get("hud") !== "0";
+  // Every HUD card and the camera row carry class "hud" (the fault banner,
+  // the link pill and the 3D-anchored labels deliberately do not), so hiding
+  // that one class is exactly "the overlay cards and the camera buttons" -
+  // nothing else moves.
+  document.documentElement.classList.toggle("hud-off", !hudOn);
+
+  // ----------------------------------------------------------------------
+  // Cell geometry. Read once from [MachineDemo]Config/* through ?cmd=state,
+  // in millimetres; converted to metres here because every measurement below
+  // this point is in metres. A tag that is missing - or the whole fetch
+  // failing - falls back to today's page geometry: the page must never see a
+  // hole, and must never be a blank screen just because the fetch raced the
+  // gateway.
+  // ----------------------------------------------------------------------
+  function metricsFromConfig(cfg) {
+    cfg = cfg || {};
+    function n(key, def) {
+      var v = cfg[key];
+      return (typeof v === "number" && isFinite(v)) ? v : def;
+    }
+    var m = {
+      caseW: n("caseW_mm", 300) / 1000, caseD: n("caseD_mm", 250) / 1000, caseH: n("caseH_mm", 220) / 1000,
+      palletW: n("palletW_mm", 1200) / 1000, palletD: n("palletD_mm", 1000) / 1000, palletH: n("palletH_mm", 140) / 1000,
+      perLayer: n("casesPerLayer", 12), layers: n("layers", 5),
+      convY: n("convHeight_mm", 900) / 1000, convLen: n("convLength_mm", 3300) / 1000, convW: n("convWidth_mm", 620) / 1000,
+      // Both stations and the conveyor pick point sit inside the arm's 2.5 m
+      // reach (upper 1.35 + forearm 1.15), so the model never shows the robot
+      // grasping at something it could not physically touch - true for
+      // today's defaults, and left for a machine's own Config tags to keep
+      // true for a different cell.
+      st1: { x: n("station1X_mm", -1450) / 1000, z: n("station1Z_mm", -1650) / 1000 },
+      st2: { x: n("station2X_mm", -1450) / 1000, z: n("station2Z_mm", 1650) / 1000 }
+    };
+    m.perPallet = m.perLayer * m.layers;
+    return m;
+  }
+
+  // Everything from here down used to run top-to-bottom at load. It is now
+  // main(), called once the starting geometry is known (fetched, or the
+  // built-in defaults if the fetch failed), so the scene is only ever built
+  // once and never against a hole.
+  function main(config, initialState) {
+  var M = metricsFromConfig(config);
 
   var COL = {
     steel: 0x8d99a3, steelDark: 0x59636d, floor: 0x272e35,
@@ -417,14 +462,33 @@
   // Pallet stations. Cases are pre-built and shown/hidden as the count moves,
   // so a growing stack costs no allocation at run time.
   // ----------------------------------------------------------------------
+  // rows x cols for one layer, derived from CasesPerLayer as the factor pair
+  // closest to square (the larger factor goes to X, the wider pallet
+  // dimension in every geometry this demo ships - today's 12 gives the same
+  // 4 wide x 3 deep grid the page always had). A count with no clean factor
+  // pair under it (a prime, or <1) falls back to the original 4x3 with a
+  // console warning rather than guessing at a layout that cannot tile.
+  var GRID = (function () {
+    var count = M.perLayer;
+    if (!(count > 0)) {
+      console.warn("cell3d: CasesPerLayer (" + count + ") is not a positive number - falling back to the 4x3 layout");
+      return { rows: 3, cols: 4 };
+    }
+    var a = 1;
+    for (var d = 1; d * d <= count; d++) {
+      if (count % d === 0) a = d;
+    }
+    return { rows: a, cols: count / a };
+  })();
+
   function layerLayout(layerIndex) {
-    // Alternating 4x3 / 3x4 grids on the same pallet: a real interlocked
-    // pattern, and visibly different layer to layer on the model.
+    // Alternating case orientation on the same grid, layer to layer: a real
+    // interlocked pattern, and visibly different layer to layer on the model.
     var rot = layerIndex % 2 === 1;
     var cw = rot ? M.caseD : M.caseW;
     var cd = rot ? M.caseW : M.caseD;
-    var cols = rot ? 4 : 4;
-    var rows = 3;
+    var cols = GRID.cols;
+    var rows = GRID.rows;
     var spanX = cols * cw, spanZ = rows * cd;
     var out = [];
     for (var r = 0; r < rows; r++) {
@@ -598,10 +662,8 @@
   // three.js example file; a small implementation here keeps the page to one
   // vendored dependency and behaves properly under a finger on a panel.
   // ----------------------------------------------------------------------
-  var target = new THREE.Vector3(-0.20, 0.95, 0.15);
-  var sph = { r: 8.8, theta: -0.30, phi: 0.90 };
-  var want = { r: sph.r, theta: sph.theta, phi: sph.phi, target: target.clone() };
-
+  // Presets that reference a station read the geometry actually loaded above,
+  // whether that came from Config tags or the built-in defaults.
   var PRESETS = [
     { name: "Overview", r: 8.8,  theta: -0.30, phi: 0.90, t: [-0.20, 0.95, 0.15] },
     { name: "Robot",    r: 4.6,  theta: -0.55, phi: 1.08, t: [0.0, 1.40, 0] },
@@ -610,11 +672,18 @@
     { name: "Infeed",   r: 4.4,  theta: -0.10, phi: 1.14, t: [1.62, 1.15, 0.85] },
     { name: "Top",      r: 7.6,  theta: -1.30, phi: 0.28, t: [-0.45, 0.60, 0] }
   ];
+  // ?camera= (parsed at the top, before main()) picks which preset the page
+  // opens on; an unknown slug already fell back to "Overview" there.
+  var startPreset = PRESETS.filter(function (p) { return p.name === startCameraName; })[0] || PRESETS[0];
+  var target = new THREE.Vector3(startPreset.t[0], startPreset.t[1], startPreset.t[2]);
+  var sph = { r: startPreset.r, theta: startPreset.theta, phi: startPreset.phi };
+  var want = { r: sph.r, theta: sph.theta, phi: sph.phi, target: target.clone() };
+
   var camsEl = document.getElementById("cams");
   var camButtons = [];
   PRESETS.forEach(function (p, idx) {
     var b = document.createElement("button");
-    b.className = "cam" + (idx === 0 ? " active" : "");
+    b.className = "cam" + (p === startPreset ? " active" : "");
     b.type = "button";
     b.textContent = p.name;
     b.addEventListener("click", function () {
@@ -684,7 +753,12 @@
   // rather than freezing — a dead 3D view in front of a customer is worse
   // than an honest one.
   // ----------------------------------------------------------------------
-  var live = null, lastGood = 0, linkOK = false, usingFallback = false;
+  // The initial fetch that provided the geometry doubles as the first frame
+  // of live data when it succeeded, so the model does not blank out for one
+  // extra round trip before the poll below lands.
+  var live = initialState || null;
+  var lastGood = initialState ? performance.now() : 0;
+  var linkOK = !!initialState, usingFallback = false;
   var sim = { t: 0 };
 
   function poll() {
@@ -696,7 +770,6 @@
       })
       .catch(function () { linkOK = false; });
   }
-  poll();
   setInterval(poll, 250);
 
   // Local fallback motion, so the model is never a still image.
@@ -1008,6 +1081,24 @@
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
+  } // end main()
+
+  // ----------------------------------------------------------------------
+  // Bootstrap: one fetch for the geometry (and, if it lands, the first frame
+  // of live data), then build the scene, then main() starts its own 250 ms
+  // poll. A failed fetch is not fatal - main() runs on the built-in defaults
+  // and the existing fallback-motion behaviour takes it from there.
+  // ----------------------------------------------------------------------
+  fetch("admin?cmd=state", { cache: "no-store" })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function (j) {
+      if (!j || j.ok === false) throw new Error("bad payload");
+      main(j.config, j);
+    })
+    .catch(function (err) {
+      console.warn("cell3d: initial ?cmd=state fetch failed, building with default geometry", err);
+      main(null, null);
+    });
 })();
 </script>
 </body>

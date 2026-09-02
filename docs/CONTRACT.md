@@ -29,8 +29,16 @@ Title/description carry the version: `Machine HMI Demo 1.0.0` … `· v1.0.0`.
 ## Tag contract — provider `MachineDemo` (STANDARD, created by setup)
 
 All paths below are relative to `[MachineDemo]`. Types are Ignition dataTypes.
+112 tags in eight top-level nodes: seven folders and one UDT instance.
 
 ```
+Config/        CaseW_mm 300 | CaseD_mm 250 | CaseH_mm 220                (Int4, mm)
+               PalletW_mm 1200 | PalletD_mm 1000 | PalletH_mm 140        (Int4, mm)
+               CasesPerLayer 12 | Layers 5                               (Int4)
+               ConvHeight_mm 900 | ConvLength_mm 3300 | ConvWidth_mm 620 (Int4, mm)
+               Station1_X_mm -1450 | Station1_Z_mm -1650                 (Int4, mm)
+               Station2_X_mm -1450 | Station2_Z_mm 1650                  (Int4, mm)
+
 Line/          Running Bool | Mode String("Auto"/"Manual") | CasesPerMin Float8
                CycleTime_s Float8 | CasesTotal Int4 | SimEnabled Bool
                SimSpeed Float8 | ShiftTarget Int4
@@ -38,12 +46,14 @@ Line/          Running Bool | Mode String("Auto"/"Manual") | CasesPerMin Float8
 Safety/        EStopOK Bool | GuardsClosed Bool | AirPressureOK Bool
                InterfacesOK Bool | AirPressure_kPa Float8
 
-Robot/         State String("Idle"/"Picking"/"Placing"/"Homing"/"Fault")
+Robot/         a UdtInstance of _types_/RobotArm — see below
+               State String("Idle"/"Picking"/"Placing"/"Homing"/"Fault")
                J1_deg Float8 (-170..170)   base rotation
                J2_deg Float8 (-60..90)     shoulder
                J3_deg Float8 (-140..40)    elbow
                J4_deg Float8 (-180..180)   wrist
-               Lift_mm Float8 (0..1200)
+               Lift_mm Float8 (0..1200) | LiftTarget_mm Float8 (0..1200)
+               JogUp Bool | JogDown Bool
                GripperClosed Bool | Vacuum_kPa Float8 (-80..0)
                MotorsOn Bool | Homed Bool | Ready Bool | Healthy Bool
                CycleCount Int4 | CycleTime_s Float8
@@ -66,21 +76,125 @@ Zones/Z1..Z8/  Name String | State String | Running Bool | Fault Bool
 
 Faults/        WrapperFilmFeed Bool | ConveyorJam Bool | VacuumLow Bool
                GuardOpen Bool | RobotAxisFault Bool
+
+_types_/RobotArm   the UDT definition — the nineteen Robot/ members above
 ```
 
 Alarms are configured on the `Faults/*` tags, the `Safety/*` booleans
 (alarm when false) and `Robot/Fault`, with real display paths and notes.
+`Robot/Fault`’s is defined once on the **type** and inherited by the instance;
+it reads back at `[MachineDemo]Robot/Fault` and raises on the same alarm source
+it always did, `prov:MachineDemo:/tag:Robot/Fault:/alm:Robot Fault`.
+
+### `Config/` — the machine’s geometry, as tags
+
+The case, the pallet, the infeed conveyor and where the two build stations sit.
+`MachineDemo.api.state()` publishes them to the 3D page as a `config` block, so
+re-sizing the machine is fifteen tag writes from the Designer on a running
+gateway, not a source edit. Int4 millimetres throughout — a machine drawing is
+in whole millimetres, and a float invites a geometry that is 299.9999 wide.
+
+Robot **link lengths** are deliberately not here: the simulator’s inverse
+kinematics solves against them, so they cannot be handed to the page on their
+own without the arm and the pattern disagreeing.
+
+### `Robot` is a UDT instance, and the paths did not change
+
+`_types_/RobotArm` defines the arm once — nineteen members with their
+engineering ranges, units, formats and the fault alarm. `Robot` is an instance
+of it. The members are named **exactly** as the old folder’s tags were, so
+`[MachineDemo]Robot/J2_deg` and the other eighteen resolve unchanged: the
+simulator still writes them twice a second, the screens still bind them and the
+3D page still reads them through `?cmd=state`. A second arm is a second
+instance, not nineteen more tags to copy.
+
+Written with `system.tag.configure`, verified against the live gateway rather
+than guessed:
+
+```python
+# the definition, into the _types_ folder, BEFORE the tree that instances it
+system.tag.configure("[MachineDemo]_types_",
+    [{"name": "RobotArm", "tagType": "UdtType",
+      "documentation": "...",
+      "tags": [ ...ordinary AtomicTag dicts, alarms included... ]}], "o")
+
+# the instance, at the provider root, carrying no members of its own
+system.tag.configure("[MachineDemo]",
+    [{"name": "Robot", "tagType": "UdtInstance", "typeId": "RobotArm",
+      "documentation": "..."}], "o")
+```
+
+`typeId` is the definition’s name relative to `_types_`. Everything the type’s
+members carry — range, unit, format, documentation, tooltip, **alarms** — is
+inherited and reads back on the instance’s own member path.
+
+### The upgrade trap: never write an instance over an existing folder
+
+A gateway that ran an earlier build has `Robot` as a plain **folder**.
+`system.tag.configure` with collision policy `"o"` will write a `UdtInstance`
+straight over it and **answer `Good`**. Afterwards the node browses as a
+`UdtInstance`, `getConfiguration` returns all nineteen inherited members with
+their alarms, and a check that only reads configuration is green — while every
+member sits at `Uncertain_InitialValue` for ever and answers `Bad_Unsupported`
+to every write. The tag tree is perfect and the machine is dead, with nothing in
+any log. Measured on this gateway, 02/09/2026.
+
+`MachineDemo.setup` therefore **deletes the node first** when what is standing
+there is not already a live instance, then creates the instance
+(`_clearStaleRobot`). Overwriting an instance that is already healthy is safe —
+also measured — so the delete fires once on a gateway being upgraded and never
+again. No restart, and nothing outside this provider is touched.
+
+The `udt` row of `?cmd=check` asks the only question that separates the two
+states: not “is it an instance” but “do its members carry a value”.
+
+### Setup items
+
+`?cmd=check` reports eight items, each independently, none stopping at the
+first failure: `tagProvider`, `tags`, `udt`, `config`, `alarms`, `database`,
+`journal`, `simulation`. `udt` and `config` are fixed by the same `_tagsFix`
+that writes the tree — they are separate rows because a tree that wrote its
+values while dropping its UDT, its geometry or its alarms looks perfect from
+every screen and reports nothing.
 
 ## WebDev routes — project `Machine_HMI_Demo`
 
 Base: `http://192.168.153.128:8088/system/webdev/Machine_HMI_Demo/<name>`
 
-| Resource | Route | Purpose |
-| --- | --- | --- |
-| `admin` | `?cmd=setup\|check\|status\|reset\|fault&name=\|speed&value=` | one-button install + presenter control |
-| `admin` | `?cmd=state` | **compact live JSON the 3D page polls** |
-| `cell3d` | (no query) | the 3D palletising cell page, served as HTML |
-| `lib` | `?f=three` | vendored three.js (proves it works with no internet) |
+| Resource | Method | Route | Purpose |
+| --- | --- | --- | --- |
+| `admin` | GET | `?cmd=state` | **compact live JSON the 3D page polls** |
+| `admin` | GET | `?cmd=status\|version\|check\|faults\|alarms\|alarmcheck&tag=` | read the cell, change nothing |
+| `admin` | POST | `?cmd=setup\|fix&name=\|fault&name=\|clear&name=\|reset\|speed&value=\|mode&value=\|jog&name=&on=\|guards&closed=` | everything that changes the cell |
+| `cell3d` | GET | (no query) | the 3D palletising cell page, served as HTML |
+| `lib` | GET | `?f=three` | vendored three.js (proves it works with no internet) |
+
+### Reads are open, writes are authenticated
+
+`config.json` is **per method**, which is what makes the split possible:
+`doGet.require-auth` is `false` so the 3D page can poll `?cmd=state` from an
+iframe with no login prompt, and `doPost.require-auth` is `true` with
+`doPost.user-source` naming the user source the password is checked against.
+
+- A write `cmd` on GET returns **405** and
+  `{"ok": false, "error": "writes are not accepted on GET"}`. It never touches
+  a tag.
+- POST with no credential returns **401** and
+  `WWW-Authenticate: BASIC realm="Machine_HMI_Demo"` — WebDev authentication on
+  8.3.8 is HTTP Basic against a **user source**, not the gateway web session and
+  not an identity provider.
+- `user-source: ""` is not a default, it is a failure: POST answers **500**
+  `No user source for project.` The name must be a user source that exists on
+  the gateway. It ships as `temp`; a gateway without one gets the same 500 on
+  POST and full function everywhere else.
+- POST arguments may arrive in the query string or as a JSON body; the body wins
+  on a clash.
+
+The **Setup screen does not use either route.** Its buttons call
+`MachineDemo.api.*` and `MachineDemo.setup.*` in gateway scope, as the signed-in
+Perspective session — the native path, with no HTTP hop back through a public
+URL and nothing to configure. The curl route exists for headless install and
+scripted testing.
 
 ### `cell3d` is a Text Resource, and that is deliberate
 

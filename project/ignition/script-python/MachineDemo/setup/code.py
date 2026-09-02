@@ -12,6 +12,11 @@ borrows the gateway's general purpose connection has its alarm history
 interleaved with every other project's, in a table whose retention belongs to
 somebody else.
 
+An existing gateway is UPGRADED by the same call. The robot arrived as a
+folder of loose tags and is now a UDT instance; run() converts it in place with
+system.tag.configure, keeping every tag path, and touches nothing outside this
+demo's own provider.
+
     MachineDemo.setup.check()          # report on every item, change nothing
     MachineDemo.setup.run()            # create whatever is missing
     MachineDemo.setup.fix("tags")      # just one item
@@ -153,8 +158,8 @@ JOURNAL_CONFIG = {
 # them is how "the tags are there" is told apart from "the first folder wrote
 # and then it failed", which is what a half-configured provider looks like and
 # reports no error anywhere.
-PROBE_TAGS = ["Line/SimEnabled", "Safety/GuardsClosed", "Robot/J1_deg",
-              "Robot/LiftTarget_mm", "Robot/JogUp",
+PROBE_TAGS = ["Config/CaseW_mm", "Line/SimEnabled", "Safety/GuardsClosed",
+              "Robot/J1_deg", "Robot/LiftTarget_mm", "Robot/JogUp",
               "Pallet/Station2/CasesPlaced", "Conveyor/PE_Clear",
               "Zones/Z8/Name", "Faults/RobotAxisFault"]
 
@@ -266,20 +271,67 @@ def _tagsCheck():
 	if bad:
 		return False, u"missing or bad quality: %s" % u", ".join(bad)
 	c = MachineDemo.tagdata.counts()
-	return True, u"%d tags in %d folders readable in [%s]" % (
+	return True, u"%d tags in %d top-level nodes readable in [%s]" % (
 		c["tags"], c["folders"], PROVIDER)
 
 
+def _bad(qualities):
+	"""The quality codes system.tag.configure hands back that are NOT good.
+
+	configure does not raise when it half-writes: it answers one quality per
+	node it was given, and a tree whose Robot node came back Bad because its
+	UDT definition was not there yet looks, from the return value nobody reads,
+	exactly like a tree that wrote. Read them.
+	"""
+	out = []
+	for q in (qualities or []):
+		try:
+			if q.isGood():
+				continue
+		except:
+			pass
+		try:
+			text = unicode(q)
+		except:
+			text = u"?"
+		if not text.startswith(u"Good"):
+			out.append(text)
+	return out
+
+
+def _writeTypes():
+	"""Put the UDT definitions in [<provider>]_types_.
+
+	The base path is the _types_ folder itself and the node is an ordinary
+	dict with tagType "UdtType" - the members are the same AtomicTag dicts a
+	folder would hold, alarms included. This has to happen BEFORE the provider
+	root is written, because the Robot node in that tree is an INSTANCE and an
+	instance with no definition to resolve is refused.
+	"""
+	defs = MachineDemo.tagdata.types()
+	q = system.tag.configure(u"[%s]_types_" % PROVIDER, defs, u"o")
+	bad = _bad(q)
+	if bad:
+		raise Exception(u"UDT definitions refused: %s" % u", ".join(bad))
+	return len(defs)
+
+
 def _tagsFix():
-	"""Write the cell's tags into the provider.
+	"""Write the cell's UDT definitions and its tags into the provider.
 
 	collisionPolicy "o" - overwrite. The tree is generated from the project and
 	the project is its only source, so a rerun should put the gateway back to
 	the shipped design rather than merge with whatever is there. Every value is
 	simulated twice a second anyway, so nothing of anyone's is lost.
+
+	Overwrite is also what UPGRADES a gateway that already has this demo. On
+	those, `Robot` is a plain folder of nineteen tags. Writing a UdtInstance
+	over it with "o" converts it in place: same path, same member names, and
+	the members that are no longer part of the definition are dropped rather
+	than left behind. There is no delete step, no restart, and nothing outside
+	this provider is touched - measured on the live gateway, not assumed.
 	"""
 	from java.lang import Thread as JThread
-	folders = MachineDemo.tagdata.tags()
 	last = None
 	# A provider created seconds ago is registered but not necessarily
 	# accepting writes yet, and the failure is a bare throwable rather than
@@ -287,15 +339,181 @@ def _tagsFix():
 	# provider that was already there the first one succeeds.
 	for _attempt in range(3):
 		try:
-			system.tag.configure(u"[%s]" % PROVIDER, folders, u"o")
+			nTypes = _writeTypes()
+			replaced = _clearStaleRobot()
+			folders = MachineDemo.tagdata.tags()
+			q = system.tag.configure(u"[%s]" % PROVIDER, folders, u"o")
+			bad = _bad(q)
+			if bad:
+				raise Exception(u"provider refused: %s" % u", ".join(bad))
+			_settle()
 			c = MachineDemo.tagdata.counts()
-			return u"wrote %d tags and %d alarm definitions into [%s]" % (
-				c["tags"], c["alarms"], PROVIDER)
+			said = (u"wrote %d UDT definition(s) and %d tags with %d alarm "
+			        u"definitions into [%s]"
+			        % (nTypes, c["tags"], c["alarms"], PROVIDER))
+			if replaced:
+				said = u"%s, %s" % (said, replaced)
+			return said
 		except:
 			import traceback
 			last = traceback.format_exc().strip().split("\n")[-1]
 			JThread.sleep(2000)
 	raise Exception(u"could not write tags into [%s]: %s" % (PROVIDER, last))
+
+
+def _robotCarriesValues():
+	"""Do the robot's member tags actually hold a value?
+
+	The one question that separates a working UDT instance from the broken one
+	below, and it is not answerable from the configuration - only from a read.
+	"""
+	from java.lang import Throwable as JThrowable
+	try:
+		q = system.tag.readBlocking([P.tag("Robot/J1_deg")])[0]
+		return bool(q.quality.isGood())
+	except (JThrowable, Exception):
+		return False
+
+
+def _settle(seconds=6):
+	"""Wait for the robot's members to start carrying values after a write.
+
+	A tag tree comes back from system.tag.configure before its memory tags
+	have their initial value, so the row underneath a successful fix would
+	otherwise report the tags missing about the tags it had just written.
+	"""
+	from java.lang import Thread as JThread
+	for _i in range(int(seconds * 2)):
+		if _robotCarriesValues():
+			return True
+		JThread.sleep(500)
+	return False
+
+
+def _clearStaleRobot():
+	"""Delete whatever is standing where the Robot INSTANCE goes, if it must.
+
+	This is the whole upgrade path, and it is here because of a failure that
+	reports success. system.tag.configure with collision policy "o" will write
+	a UdtInstance straight over an existing FOLDER of the same name. It answers
+	Good. Afterwards the node browses as a UdtInstance, getConfiguration
+	returns all nineteen inherited members with their engineering ranges and
+	their alarms, and `?cmd=check` is green - and every one of those members
+	sits at Uncertain_InitialValue for ever and answers Bad_Unsupported to
+	every write. The tag tree is perfect and the machine is dead, with nothing
+	in any log. Measured on this gateway, 02/09/2026.
+
+	Deleting the node first and creating the instance fresh gives members that
+	read Good straight away. Overwriting an instance that is already HEALTHY is
+	fine - also measured - so this deletes only when it has to: once on a
+	gateway being upgraded, and never again.
+	"""
+	kind = _nodeType("Robot")
+	if kind is None:
+		return None
+	if kind == u"UdtInstance" and _robotCarriesValues():
+		return None
+	from java.lang import Thread as JThread
+	system.tag.deleteTags([P.tag("Robot")])
+	JThread.sleep(500)
+	if kind == u"UdtInstance":
+		return u"replaced a Robot instance whose members carried no value"
+	return u"replaced the old Robot %s with an instance of '%s'" % (
+		kind.lower() if kind else u"node", MachineDemo.tagdata.ROBOT_TYPE)
+
+
+# ---------------------------------------------------------------------------
+# the robot UDT
+# ---------------------------------------------------------------------------
+
+
+def _nodeType(path):
+	"""The tagType at a provider path, or None if there is nothing there."""
+	from java.lang import Throwable as JThrowable
+	try:
+		cfg = system.tag.getConfiguration(P.tag(path), False)
+	except (JThrowable, Exception):
+		return None
+	for node in cfg:
+		try:
+			return unicode(node.get("tagType"))
+		except (JThrowable, Exception):
+			return None
+	return None
+
+
+def _udtCheck():
+	"""The definition exists AND the robot is an instance of it.
+
+	Two questions again, and they fail apart. A gateway that was set up before
+	the robot became a UDT has the definition (this fix wrote it) and a plain
+	FOLDER at Robot, which reads identically on every screen - the difference
+	is invisible everywhere except here and in the Designer.
+	"""
+	typeName = MachineDemo.tagdata.ROBOT_TYPE
+	typePath = u"_types_/%s" % typeName
+	if _nodeType(typePath) != u"UdtType":
+		return False, u"no UDT definition at [%s]%s" % (PROVIDER, typePath)
+	from java.lang import Throwable as JThrowable
+	try:
+		members = [unicode(t.get("name")) for t in
+		           system.tag.getConfiguration(P.tag(typePath), True)[0]
+		           .get("tags")]
+	except (JThrowable, Exception):
+		members = []
+	want = [unicode(m["name"]) for m in MachineDemo.tagdata._robotMembers()]
+	missing = [m for m in want if m not in members]
+	if missing:
+		return False, (u"'%s' is missing member(s): %s"
+		               % (typeName, u", ".join(missing)))
+	kind = _nodeType("Robot")
+	if kind != u"UdtInstance":
+		return False, (u"[%s]Robot is a %s, not an instance of '%s'"
+		               % (PROVIDER, kind or u"nothing", typeName))
+	# Being an instance is not enough. An instance written over a folder is an
+	# instance in every way except that its members never carry a value, so
+	# this row asks the only question that tells them apart.
+	if not _robotCarriesValues():
+		return False, (u"[%s]Robot is an instance of '%s' but its members "
+		               u"carry no value - it was written over the old folder "
+		               u"instead of replacing it. Fix this row."
+		               % (PROVIDER, typeName))
+	return True, (u"'%s' defines %d members and [%s]Robot is a live instance "
+	              u"of it" % (typeName, len(members), PROVIDER))
+
+
+# ---------------------------------------------------------------------------
+# the machine's geometry
+# ---------------------------------------------------------------------------
+
+
+def _configPaths():
+	return [p for p in MachineDemo.tagdata.paths() if p.startswith("Config/")]
+
+
+def _configCheck():
+	"""Every geometry tag readable, with the values a reader can sanity-check.
+
+	The detail line quotes the case and the pallet on purpose: "15 tags exist"
+	and "15 tags exist and the case is 300 x 250 x 220" are different amounts
+	of proof, and the second one costs nothing.
+	"""
+	paths = _configPaths()
+	if not paths:
+		return False, u"the project carries no Config tags"
+	vals = P.read(paths)
+	missing = [p for p, v in zip(paths, vals) if v is None]
+	if missing:
+		return False, u"missing or bad quality: %s" % u", ".join(missing)
+	got = dict(zip(paths, vals))
+	return True, (u"%d geometry tags in [%s]Config - case %sx%sx%s mm, pallet "
+	              u"%sx%s mm, %s cases x %s layers"
+	              % (len(paths), PROVIDER,
+	                 got.get("Config/CaseW_mm"), got.get("Config/CaseD_mm"),
+	                 got.get("Config/CaseH_mm"), got.get("Config/PalletW_mm"),
+	                 got.get("Config/PalletD_mm"),
+	                 got.get("Config/CasesPerLayer"),
+	                 got.get("Config/Layers")))
 
 
 # ---------------------------------------------------------------------------
@@ -491,15 +709,31 @@ def _items():
 		 "A standard provider named %s, created live through system.config - "
 		 "no file to place and no config scan to remember." % PROVIDER),
 		("tags", "Cell tags", _tagsCheck, _tagsFix,
-		 "%d tags across the line, the safety circuit, the robot, both pallet "
-		 "stations, the conveyors, eight line zones and five injectable "
-		 "faults - written into the provider from the copy the project "
-		 "carries." % c["tags"]),
+		 "%d tags across the machine's geometry, the line, the safety "
+		 "circuit, the robot, both pallet stations, the conveyors, eight line "
+		 "zones and five injectable faults - written into the provider from "
+		 "the copy the project carries, %d UDT definition(s) first."
+		 % (c["tags"], c["udts"])),
+		("udt", "Robot UDT", _udtCheck, _tagsFix,
+		 "The robot is an instance of the '%s' type under [%s]_types_, not a "
+		 "folder of %d loose tags - so a second arm is a second instance and "
+		 "the alarm on Robot/Fault is defined once. Every member path is "
+		 "unchanged: a gateway set up before this row existed is converted in "
+		 "place, without a restart."
+		 % (MachineDemo.tagdata.ROBOT_TYPE, PROVIDER,
+		    len(MachineDemo.tagdata._robotMembers()))),
+		("config", "Machine geometry", _configCheck, _tagsFix,
+		 "%d tags under [%s]Config holding the case, the pallet, the conveyor "
+		 "and where the two build stations sit. The 3D page and the screens "
+		 "read them, so the next machine is a handful of tag values rather "
+		 "than a source edit." % (len(_configPaths()), PROVIDER)),
 		("alarms", "Alarm definitions", _alarmsCheck, _tagsFix,
 		 "%d alarms on the fault tags, the safety booleans and the robot. "
 		 "They travel with the tags; this row is separate because a tree that "
 		 "wrote its values and dropped its alarms looks perfect and raises "
-		 "nothing." % c["alarms"]),
+		 "nothing. The robot's is defined on the UDT and inherited by the "
+		 "instance, which is why it still reads at Robot/Fault."
+		 % c["alarms"]),
 		("database", "Database connection", _databaseCheck, _databaseFix,
 		 "This demo's own connection, named %s - SQLite, so it is a file "
 		 "beside the gateway with no server to reach, no credential and no "
@@ -522,8 +756,8 @@ def items():
 	return _items()
 
 
-FIXABLE = ["tagProvider", "tags", "alarms", "database", "journal",
-           "simulation"]
+FIXABLE = ["tagProvider", "tags", "udt", "config", "alarms", "database",
+           "journal", "simulation"]
 
 
 def check():
@@ -604,3 +838,4 @@ def run():
 	LOG.info("setup run: %d changed, %d failed, ok=%s"
 	         % (len(done), len(failed), state["ok"]))
 	return state
+

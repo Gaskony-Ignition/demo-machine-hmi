@@ -11,10 +11,10 @@
   "doPost": {
     "enabled": true,
     "max-retry-attempts": 3,
-    "require-auth": false,
+    "require-auth": true,
     "require-https": false,
     "required-roles": "",
-    "user-source": ""
+    "user-source": "temp"
   },
   "doPut": {
     "enabled": true,

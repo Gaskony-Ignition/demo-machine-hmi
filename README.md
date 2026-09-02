@@ -68,24 +68,80 @@ and the `MachineDemo` alarm journal that writes into it — then writes 97 tags 
 SQLite is a file under the gateway's data directory, and the connection has no
 username and no password to hold.
 
-Headless equivalent:
+Headless equivalent. Reading is open; anything that changes the gateway is a
+**POST** and needs a gateway login (see *Driving it in a meeting* for the one
+line of set-up that puts the password in a file instead of the command):
 
 ```bash
-curl "http://<gateway>/system/webdev/Machine_HMI_Demo/admin?cmd=setup"
-curl "http://<gateway>/system/webdev/Machine_HMI_Demo/admin?cmd=check"
+curl -sS -X POST --netrc-file ~/.ignition-netrc \
+     "http://<gateway>/system/webdev/Machine_HMI_Demo/admin?cmd=setup"
+curl -sS "http://<gateway>/system/webdev/Machine_HMI_Demo/admin?cmd=check"
 ```
+
+`?cmd=setup` is safe to repeat: every step is an upsert, and on a gateway that
+already has everything it creates nothing and reports the same counts.
 
 ## Driving it in a meeting
 
-The Setup page doubles as a presenter console, and every control has a URL:
+The Setup page doubles as a presenter console, and it is the way to drive the
+demo: its buttons call the `MachineDemo` library in-process, as the signed-in
+Perspective session, so they need nothing configured and no second window.
+
+The same commands are reachable over HTTP, and the split between them is the
+point of the security pillar:
+
+| | Verb | Auth |
+| --- | --- | --- |
+| `state` `status` `version` `check` `faults` `alarms` `alarmcheck` | GET | none — the 3D page polls `?cmd=state` from an iframe |
+| `setup` `fix` `fault` `clear` `reset` `speed` `mode` `jog` `guards` | POST | a gateway user |
+
+A write attempted on GET is refused with **HTTP 405** and
+`{"ok": false, "error": "writes are not accepted on GET"}`. Nobody on the
+network can open the guard circuit or jog the arm with a URL.
 
 ```bash
-?cmd=fault&name=ConveyorJam     # also WrapperFilmFeed VacuumLow GuardOpen RobotAxisFault
-?cmd=clear&name=ConveyorJam
-?cmd=reset                      # back to steady state
-?cmd=speed&value=2              # simulation speed
-?cmd=state                      # the live snapshot the 3D page polls
-?cmd=mode&value=Auto            # hand the cell back to the auto cycle
+curl -sS -X POST --netrc-file ~/.ignition-netrc \
+     "http://<gateway>/system/webdev/Machine_HMI_Demo/admin?cmd=fault&name=ConveyorJam"
+     # also WrapperFilmFeed VacuumLow GuardOpen RobotAxisFault
+curl -sS -X POST --netrc-file ~/.ignition-netrc "...?cmd=clear&name=ConveyorJam"
+curl -sS -X POST --netrc-file ~/.ignition-netrc "...?cmd=reset"
+curl -sS -X POST --netrc-file ~/.ignition-netrc "...?cmd=speed&value=2"
+curl -sS -X POST --netrc-file ~/.ignition-netrc "...?cmd=mode&value=Auto"
+curl -sS "...?cmd=state"                        # the live snapshot, no login
+```
+
+Arguments may also travel as a JSON body — `-H 'Content-Type: application/json'
+-d '{"cmd":"speed","value":5}'` — which is the friendlier form from a script.
+
+**The credential never belongs in the command.** WebDev answers HTTP Basic, so
+put it in a netrc file once and let curl read it:
+
+```bash
+umask 077
+printf 'machine <gateway-host> login <user> password <password>\n' > ~/.ignition-netrc
+```
+
+A password typed into a `curl -u` argument is visible to every process on the
+machine and lands in the shell history; a 0600 netrc is neither. `--netrc-file`
+takes the path, not the secret. `curl -sS -X POST` with no credential returns
+**401** with `WWW-Authenticate: BASIC realm="Machine_HMI_Demo"`.
+
+Which user source WebDev checks the password against is named in
+`project/com.inductiveautomation.webdev/resources/admin/config.json` —
+`doPost.user-source`. It ships as `temp`, the source this demo was built
+against. **On any other gateway, set it to a user source that exists there**, or
+POST answers 500 `No user source for project.` Reads and the Setup page are
+unaffected either way, so a mis-set name costs the curl path only.
+
+The third way in is the Designer's **Script Console**, which needs no HTTP at
+all:
+
+```python
+MachineDemo.api.setFault("ConveyorJam", True)
+MachineDemo.api.setFault("ConveyorJam", False)
+MachineDemo.api.reset()
+MachineDemo.api.setMode("Auto")
+MachineDemo.setup.run()
 ```
 
 **After demonstrating manual control, hand the cell back before `reset`.** Taking

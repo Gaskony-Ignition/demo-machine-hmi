@@ -54,6 +54,28 @@ FAULTS = ["Faults/%s" % n for n in
           ["WrapperFilmFeed", "ConveyorJam", "VacuumLow", "GuardOpen",
            "RobotAxisFault"]]
 
+# The 3D page's geometry. Tag name -> (response key, default). The defaults
+# are today's page geometry, from docs/CONTRACT.md - if a Config tag does not
+# exist yet (agent A has not deployed it) or reads bad quality, the page must
+# still get a complete block, never a hole.
+CONFIG = [
+	("Config/CaseW_mm", "caseW_mm", 300),
+	("Config/CaseD_mm", "caseD_mm", 250),
+	("Config/CaseH_mm", "caseH_mm", 220),
+	("Config/PalletW_mm", "palletW_mm", 1200),
+	("Config/PalletD_mm", "palletD_mm", 1000),
+	("Config/PalletH_mm", "palletH_mm", 140),
+	("Config/CasesPerLayer", "casesPerLayer", 12),
+	("Config/Layers", "layers", 5),
+	("Config/ConvHeight_mm", "convHeight_mm", 900),
+	("Config/ConvLength_mm", "convLength_mm", 3300),
+	("Config/ConvWidth_mm", "convWidth_mm", 620),
+	("Config/Station1_X_mm", "station1X_mm", -1450),
+	("Config/Station1_Z_mm", "station1Z_mm", -1650),
+	("Config/Station2_X_mm", "station2X_mm", -1450),
+	("Config/Station2_Z_mm", "station2Z_mm", 1650),
+]
+
 _PLAN = None
 
 
@@ -76,9 +98,10 @@ def _plan():
 	for n in P.STATIONS:
 		pallet += ["Pallet/Station%d/%s" % (n, k) for k in STATION]
 
+	config = [c[0] for c in CONFIG]
 	groups = [("line", LINE), ("robot", ROBOT), ("pallet", pallet),
 	          ("conv", CONV), ("safety", SAFETY), ("faults", FAULTS),
-	          ("zones", zones)]
+	          ("zones", zones), ("config", config)]
 	paths = []
 	off = {}
 	for name, group in groups:
@@ -112,6 +135,21 @@ def _s(v):
 	return u"" if v is None else unicode(v)
 
 
+def _ci(v, default):
+	"""One Config/* value as an int, or the contract default.
+
+	Covers both holes: the tag does not exist yet (P.read() -> None) and the
+	tag exists but reads something that will not convert (bad quality already
+	came back as None from P.read(), so this is really just belt-and-braces).
+	"""
+	if v is None:
+		return default
+	try:
+		return int(v)
+	except:
+		return default
+
+
 def state():
 	"""The whole cell in one dict, in the shape the 3D page is written against.
 
@@ -129,6 +167,7 @@ def state():
 	fl = v[o["faults"]:o["faults"] + len(FAULTS)]
 	pl = v[o["pallet"]:o["pallet"] + len(o["_pallet"])]
 	zn = v[o["zones"]:o["zones"] + len(o["_zones"])]
+	cf = v[o["config"]:o["config"] + len(CONFIG)]
 
 	pallets = []
 	for k in range(len(P.STATIONS)):
@@ -191,6 +230,12 @@ def state():
 		           "VacuumLow": _b(fl[2]), "GuardOpen": _b(fl[3]),
 		           "RobotAxisFault": _b(fl[4])},
 		"zones": zones,
+		# Additive: the 3D page's geometry. Every key is always present, even
+		# when the tag underneath it does not exist yet - a missing Config tag
+		# reads back None from P.read() and falls to the default beside it
+		# above, not a hole in the response.
+		"config": dict((key, _ci(val, default))
+		               for (path, key, default), val in zip(CONFIG, cf)),
 	}
 
 
