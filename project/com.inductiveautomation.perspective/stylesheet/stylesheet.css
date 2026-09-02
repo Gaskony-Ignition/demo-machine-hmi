@@ -12,3 +12,49 @@
 	--mc-warn: #eebf5e;
 	--mc-info: #6cc4e8;
 }
+
+/* Header at panel widths.
+
+   The top bar carries identity, three status chips, six nav tabs and the user
+   block. On a desktop browser they all fit. On the 1024x600 panel the small
+   machines actually ship with, they do not - and because Titles was the only
+   flex item allowed to shrink, it absorbed the whole deficit and collapsed to
+   20px, rendering the line name as "Pa".
+
+   So the header sheds its least important content first: the subtitle, then
+   chip and tab padding, then font sizes. The nav tabs and the alarm chip never
+   disappear - on a machine HMI those are the two things an operator needs.
+
+   NOTE the psc- prefix. A component's `style.classes` value of "hdr-title"
+   reaches the DOM as class "psc-hdr-title"; a rule written against .hdr-title
+   silently matches nothing, and the component simply loses whatever inline
+   style was removed in favour of the class. Selectors are doubled to outweigh
+   Perspective's own .ia_labelComponent rules without resorting to !important.
+*/
+.psc-hdr-bar.psc-hdr-bar     { gap: 14px; padding: 0 14px; }
+.psc-hdr-title.psc-hdr-title { font-size: 19px; }
+.psc-hdr-chip.psc-hdr-chip   { font-size: 11.5px; padding: 0 10px; letter-spacing: 0.7px; }
+.psc-hdr-user.psc-hdr-user   { font-size: 13px; }
+.psc-hdr-user-sub.psc-hdr-user-sub { font-size: 10.5px; }
+
+@media (max-width: 1319px) {
+	/* !important is genuinely required here, and only here. Perspective writes
+	   display:flex as an INLINE style on every ia.display.label, and an inline
+	   style outranks any class however specific - doubling the selector cannot
+	   win it. Everything else in this file beats the component styles on
+	   specificity alone. */
+	.psc-hdr-sub.psc-hdr-sub     { display: none !important; }
+	.psc-hdr-title.psc-hdr-title { font-size: 15px; line-height: 22px; }
+	.psc-hdr-chip.psc-hdr-chip   { font-size: 10.5px; padding: 0 6px; letter-spacing: 0.2px; }
+	.psc-hdr-user.psc-hdr-user   { font-size: 11.5px; }
+	.psc-hdr-user-sub.psc-hdr-user-sub { font-size: 9.5px; }
+	.psc-nav-tab.psc-nav-tab     { font-size: 10px; padding: 0 5px; letter-spacing: 0.3px; }
+}
+
+/* Below 1120px - the 10" panel itself - the header gives up its spacing too.
+   Measured at 1024: this is what keeps the user block on screen instead of
+   14px past the right edge. */
+@media (max-width: 1119px) {
+	.psc-hdr-bar.psc-hdr-bar     { gap: 8px; padding: 0 8px; }
+	.psc-hdr-title.psc-hdr-title { font-size: 13px; line-height: 20px; }
+}

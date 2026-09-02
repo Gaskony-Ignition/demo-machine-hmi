@@ -14,6 +14,7 @@ only nesting Perspective gives you.
 Run:  python3 tools/build_cell2d_view.py
 """
 
+import datetime
 import json
 import os
 
@@ -55,8 +56,9 @@ L1 = int(1.35 * PX_PER_M)   # 148
 L2 = int(1.15 * PX_PER_M)   # 126
 
 SHOULDER_X = 210
-SHOULDER_Y = 250
-FLOOR_Y = 500
+SHOULDER_Y = 190
+FLOOR_Y = 430
+BODY_H = 550
 
 
 def coord(name, x, y, w, h, style=None, children=None, mode="fixed"):
@@ -189,18 +191,18 @@ for row in range(5):
 children = [
     # cell floor and column
     block("Floor", 0, FLOOR_Y, 1024, 6, {"backgroundColor": COL["steel"]}),
-    block("FloorFill", 0, FLOOR_Y + 6, 1024, 94, {"backgroundColor": COL["floor"]}),
-    block("Column", SHOULDER_X - 30, 150, 42, FLOOR_Y - 150,
+    block("FloorFill", 0, FLOOR_Y + 6, 1024, BODY_H - FLOOR_Y - 6, {"backgroundColor": COL["floor"]}),
+    block("Column", SHOULDER_X - 30, 90, 42, FLOOR_Y - 90,
           {"backgroundColor": COL["steel"], "borderRadius": "4px"}),
-    block("ColumnCap", SHOULDER_X - 36, 138, 54, 14,
+    block("ColumnCap", SHOULDER_X - 36, 78, 54, 14,
           {"backgroundColor": COL["steelHi"], "borderRadius": "3px"}),
     block("Base", SHOULDER_X - 60, FLOOR_Y - 22, 102, 22,
           {"backgroundColor": COL["steelHi"], "borderRadius": "3px"}),
 
     # conveyor stub, so the scene reads as a cell rather than an arm on a stick
-    block("ConvDeck", 700, 372, 300, 12, {"backgroundColor": COL["steel"]}),
-    block("ConvLeg1", 730, 384, 10, FLOOR_Y - 384, {"backgroundColor": COL["grid"]}),
-    block("ConvLeg2", 960, 384, 10, FLOOR_Y - 384, {"backgroundColor": COL["grid"]}),
+    block("ConvDeck", 700, 302, 300, 12, {"backgroundColor": COL["steel"]}),
+    block("ConvLeg1", 730, 314, 10, FLOOR_Y - 314, {"backgroundColor": COL["grid"]}),
+    block("ConvLeg2", 960, 314, 10, FLOOR_Y - 314, {"backgroundColor": COL["grid"]}),
 
     # pallet deck
     block("PalletDeck", PALLET_X - 8, FLOOR_Y - 30, 4 * (CASE_W + 3) + 12, 30,
@@ -211,16 +213,10 @@ children = [
 ]
 children += pallet_children
 
-children += [
-    label("Title", 24, 20, 620, 30, "Palletising cell - stock components only",
-          {"color": COL["ink"], "fontSize": "20px", "fontWeight": "600"}),
-    label("Sub", 24, 50, 760, 22,
-          "No JavaScript. Every moving part is a tag binding on a standard "
-          "Perspective component.",
-          {"color": COL["dim"], "fontSize": "13px"}),
-]
-
-state = label("State", 24, 92, 300, 22, "", {"color": COL["run"], "fontSize": "14px"})
+# A live readout of the three values driving the picture, so the claim "these
+# are ordinary tag bindings" is checkable on the screen itself.
+state = label("State", 24, BODY_H - 34, 460, 22, "",
+              {"color": COL["run"], "fontSize": "13px"})
 bind(state, "props.text",
      '"Robot: " + ' + T("Robot/State")
      + ' + "   J2 " + stringFormat("%.1f", ' + T("Robot/J2_deg")
@@ -229,17 +225,64 @@ bind(state, "props.text",
      + ') + " mm"')
 children.append(state)
 
+# The header is LIFTED FROM Cell3D rather than re-authored. The two cell pages
+# are siblings and should stay identical above the fold; copying the node also
+# inherits the Overview button's event config, which is the one place a missing
+# "scope" key takes the whole project down with an HTTP 500.
+import copy
+
+CELL3D = os.path.join(HERE, os.pardir, "project",
+                      "com.inductiveautomation.perspective", "views",
+                      "Machine", "Cell3D", "view.json")
+
+
+def find(node, name):
+    if node.get("meta", {}).get("name") == name:
+        return node
+    for child in node.get("children", []):
+        hit = find(child, name)
+        if hit:
+            return hit
+    return None
+
+
+def set_text(node, name, text):
+    node = find(node, name)
+    if node is None:
+        raise SystemExit("Cell3D header has no %r - the layout changed" % name)
+    node["props"]["text"] = text
+
+
+header = copy.deepcopy(find(json.load(open(CELL3D))["root"], "Header"))
+if header is None:
+    raise SystemExit("Cell3D has no Header to copy")
+set_text(header, "t1", u"Zone 2 \u00b7 Robot Cell 2 \u2014 Stock components")
+set_text(header, "t2", "The same robot, the same tags, built entirely in the "
+                       "Designer with no JavaScript")
+
+body = {
+    "type": "ia.container.coord",
+    "version": 0,
+    "meta": {"name": "Cell"},
+    "position": {"grow": 1, "shrink": 1, "basis": "0px"},
+    "props": {"mode": "fixed",
+              "style": {"backgroundColor": COL["bg"], "overflow": "hidden",
+                        "minHeight": "0px"}},
+    "children": children,
+}
+
 view = {
     "custom": {},
     "params": {},
     "props": {"defaultSize": {"width": 1024, "height": 600}},
     "root": {
-        "type": "ia.container.coord",
+        "type": "ia.container.flex",
         "version": 0,
-        "meta": {"name": "root"},
-        "props": {"mode": "fixed",
-                  "style": {"backgroundColor": COL["bg"], "overflow": "hidden"}},
-        "children": children,
+        "meta": {"name": "Page"},
+        "props": {"direction": "column",
+                  "style": {"height": "100%", "overflow": "hidden",
+                            "minHeight": "0", "backgroundColor": COL["bg"]}},
+        "children": [header, body],
     },
 }
 
@@ -249,8 +292,12 @@ resource = {
     "restricted": False,
     "overridable": True,
     "files": ["view.json"],
-    "attributes": {"lastModification": {"actor": "external",
-                                        "timestamp": "2026-09-02T12:00:00Z"}},
+    # A timestamp that does not move makes the scan skip the resource on every
+    # rebuild after the first - the file changes and the gateway never notices.
+    "attributes": {"lastModification": {
+        "actor": "external",
+        "timestamp": datetime.datetime.now(datetime.timezone.utc)
+                             .strftime("%Y-%m-%dT%H:%M:%SZ")}},
 }
 
 os.makedirs(OUT, exist_ok=True)

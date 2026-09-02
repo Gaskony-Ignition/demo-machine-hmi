@@ -146,10 +146,9 @@
           "style": {
             "backgroundColor": "#1d232a",
             "borderBottom": "1px solid #2c343d",
-            "padding": "0 14px",
-            "gap": "14px",
             "minWidth": "0px",
-            "minHeight": "0px"
+            "minHeight": "0px",
+            "classes": "hdr-bar"
           },
           "alignItems": "center"
         },
@@ -170,14 +169,14 @@
                 "gap": "1px",
                 "overflow": "hidden",
                 "paddingRight": "10px",
-                "minWidth": "0px",
+                "minWidth": "132px",
                 "minHeight": "0px"
               }
             },
             "position": {
               "grow": 1,
               "shrink": 1,
-              "basis": "0px"
+              "basis": "132px"
             },
             "children": [
               {
@@ -188,7 +187,6 @@
                 "props": {
                   "text": "Zone 2 \u00b7 Robot 2 \u2014 Manual",
                   "style": {
-                    "fontSize": "19px",
                     "fontWeight": 700,
                     "color": "#dde4e9",
                     "letterSpacing": "0.2px",
@@ -196,7 +194,8 @@
                     "whiteSpace": "nowrap",
                     "overflow": "hidden",
                     "textOverflow": "ellipsis",
-                    "display": "block"
+                    "display": "block",
+                    "classes": "hdr-title"
                   }
                 },
                 "position": {
@@ -219,7 +218,7 @@
                     "whiteSpace": "nowrap",
                     "overflow": "hidden",
                     "textOverflow": "ellipsis",
-                    "display": "block"
+                    "classes": "hdr-sub"
                   }
                 },
                 "position": {
@@ -269,16 +268,14 @@
                 "props": {
                   "text": "",
                   "style": {
-                    "fontSize": "11.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "0.7px",
-                    "padding": "0 10px",
                     "lineHeight": "24px",
                     "borderRadius": "5px",
                     "border": "1px solid currentColor",
                     "whiteSpace": "nowrap",
                     "textAlign": "center",
-                    "backgroundColor": "rgba(255,255,255,0.06)"
+                    "backgroundColor": "rgba(255,255,255,0.06)",
+                    "classes": "hdr-chip"
                   }
                 },
                 "position": {
@@ -313,16 +310,14 @@
                 "props": {
                   "text": "",
                   "style": {
-                    "fontSize": "11.5px",
                     "fontWeight": 700,
-                    "letterSpacing": "0.7px",
-                    "padding": "0 10px",
                     "lineHeight": "24px",
                     "borderRadius": "5px",
                     "border": "1px solid currentColor",
                     "whiteSpace": "nowrap",
                     "textAlign": "center",
-                    "backgroundColor": "rgba(255,255,255,0.06)"
+                    "backgroundColor": "rgba(255,255,255,0.06)",
+                    "classes": "hdr-chip"
                   }
                 },
                 "position": {
@@ -390,7 +385,8 @@
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
                     "color": "#8b98a3",
-                    "backgroundColor": "transparent"
+                    "backgroundColor": "transparent",
+                    "classes": "nav-tab"
                   }
                 },
                 "position": {
@@ -428,7 +424,8 @@
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
                     "color": "#8b98a3",
-                    "backgroundColor": "transparent"
+                    "backgroundColor": "transparent",
+                    "classes": "nav-tab"
                   }
                 },
                 "position": {
@@ -441,6 +438,45 @@
                     "onClick": {
                       "config": {
                         "page": "/cell3d"
+                      },
+                      "scope": "C",
+                      "type": "nav"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "N_CELL2D"
+                },
+                "props": {
+                  "text": "2D CELL",
+                  "style": {
+                    "fontSize": "10.5px",
+                    "fontWeight": 700,
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
+                    "lineHeight": "26px",
+                    "borderRadius": "5px",
+                    "whiteSpace": "nowrap",
+                    "cursor": "pointer",
+                    "border": "1px solid #2c343d",
+                    "color": "#8b98a3",
+                    "backgroundColor": "transparent",
+                    "classes": "nav-tab"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "events": {
+                  "dom": {
+                    "onClick": {
+                      "config": {
+                        "page": "/cell2d"
                       },
                       "scope": "C",
                       "type": "nav"
@@ -466,7 +502,8 @@
                     "cursor": "pointer",
                     "border": "1px solid #6cc4e8",
                     "color": "#cfeafa",
-                    "backgroundColor": "#152f3b"
+                    "backgroundColor": "#152f3b",
+                    "classes": "nav-tab"
                   }
                 },
                 "position": {
@@ -504,7 +541,8 @@
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
                     "color": "#8b98a3",
-                    "backgroundColor": "transparent"
+                    "backgroundColor": "transparent",
+                    "classes": "nav-tab"
                   }
                 },
                 "position": {
@@ -542,7 +580,8 @@
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
                     "color": "#8b98a3",
-                    "backgroundColor": "transparent"
+                    "backgroundColor": "transparent",
+                    "classes": "nav-tab"
                   }
                 },
                 "position": {
@@ -591,11 +630,11 @@
                 "props": {
                   "text": "",
                   "style": {
-                    "fontSize": "13px",
                     "fontWeight": 700,
                     "color": "#dde4e9",
                     "textAlign": "right",
-                    "whiteSpace": "nowrap"
+                    "whiteSpace": "nowrap",
+                    "classes": "hdr-user"
                   }
                 },
                 "position": {
@@ -622,10 +661,10 @@
                 "props": {
                   "text": "",
                   "style": {
-                    "fontSize": "10.5px",
                     "color": "#8b98a3",
                     "textAlign": "right",
-                    "whiteSpace": "nowrap"
+                    "whiteSpace": "nowrap",
+                    "classes": "hdr-user hdr-user-sub"
                   }
                 },
                 "position": {
