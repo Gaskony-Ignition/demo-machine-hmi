@@ -130,6 +130,11 @@ def _line():
 		_bool("SimEnabled", True),
 		_float("SimSpeed", 1.0, "x", 0.25, 10.0, "#,##0.00"),
 		_int("ShiftTarget", 1800),
+		# Which 8-hour shift CasesTotal is counting. The sim zeroes the total
+		# when this changes, so "cases this shift" means it. Persisted rather
+		# than held in module state, for the same reason the pallet counts are:
+		# a project scan drops the globals and the demo has to survive one.
+		_int("ShiftIndex", -1),
 	])
 
 

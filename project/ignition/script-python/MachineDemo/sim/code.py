@@ -37,6 +37,7 @@ import math
 import random
 
 from java.lang import System as JSystem
+from java.util import Calendar
 
 P = MachineDemo.plant
 LOG = system.util.getLogger("MachineDemo.sim")
@@ -263,6 +264,7 @@ def _blank():
 		"scanOK": True,
 		"cpm": 0.0,
 		"casesTotal": 0,
+		"shiftIndex": -1,
 		"cycleCount": 0,
 		"zclock": 0.0,
 		"named": False,
@@ -288,6 +290,7 @@ def _state():
 	s = _blank()
 	try:
 		want = {"casesTotal": "Line/CasesTotal",
+		        "shiftIndex": "Line/ShiftIndex",
 		        "cycleCount": "Robot/CycleCount",
 		        "lift": "Robot/Lift_mm",
 		        "liftTarget": "Robot/LiftTarget_mm",
@@ -298,6 +301,7 @@ def _state():
 			want["k%d" % n] = "Pallet/Station%d/Complete" % n
 		v = P.readDict(want)
 		s["casesTotal"] = int(v.get("casesTotal") or 0)
+		s["shiftIndex"] = int(v.get("shiftIndex", -1) if v.get("shiftIndex") is not None else -1)
 		s["cycleCount"] = int(v.get("cycleCount") or 0)
 		if v.get("lift") is not None:
 			s["jogLift"] = float(v.get("lift"))
@@ -457,10 +461,54 @@ def tick():
 		LOG.warn("tick failed: %s" % traceback.format_exc())
 
 
+def _shiftIndex(now):
+	"""Which 8-hour shift a moment falls in: 0 from 00:00, 1 from 08:00,
+	2 from 16:00, and a different number tomorrow.
+
+	Derived from the clock rather than counted, so a gateway that was off
+	overnight comes back on the right shift instead of resuming yesterday's.
+
+	Calendar, not arithmetic on the epoch: dividing currentTimeMillis by
+	86400000 gives UTC days and a UTC hour, which on a +09:30 gateway would put
+	the shift boundaries at 09:30, 17:30 and 01:30 local. Calendar.getInstance()
+	uses the gateway's own zone, so the boundaries land where an operator would
+	expect them.
+	"""
+	cal = Calendar.getInstance()
+	cal.setTimeInMillis(now)
+	day = cal.get(Calendar.YEAR) * 366 + cal.get(Calendar.DAY_OF_YEAR)
+	return int(day * 3 + cal.get(Calendar.HOUR_OF_DAY) // 8)
+
+
+def _rollShift(s, now):
+	"""Zero the shift total when the shift changes.
+
+	Without this the count only ever goes up: it is rehydrated from its tag on
+	every scan and incremented on every pick, so a demo gateway left running
+	reaches "12162 / 1800" against an 1800-case shift target - 676% of a target,
+	on the headline throughput readout of the Overview. The label says SHIFT and
+	it has to mean it.
+
+	ShiftIndex of -1 means no shift was ever recorded against this total - the
+	state of a gateway upgrading from a build that had no shift model. Whatever
+	the total says there, it is not this shift's, so it is zeroed too. On a
+	genuinely fresh install the total is already 0 and that costs nothing.
+	"""
+	idx = _shiftIndex(now)
+	if s["shiftIndex"] == idx:
+		return
+	if s["casesTotal"]:
+		LOG.info("shift %d -> %d: cases this shift reset from %d"
+		         % (s["shiftIndex"], idx, s["casesTotal"]))
+	s["casesTotal"] = 0
+	s["shiftIndex"] = idx
+
+
 def _tick():
 	s = _state()
 
 	now = JSystem.currentTimeMillis()
+	_rollShift(s, now)
 	dtr = (now - s["t"]) / 1000.0
 	s["t"] = now
 	if dtr <= 0.0:
@@ -893,7 +941,7 @@ def _write(s, dt, dtr, f, ctl, state, blocked, robotFault, held):
 
 	paths = [
 		"Line/Running", "Line/CasesPerMin", "Line/CycleTime_s",
-		"Line/CasesTotal",
+		"Line/CasesTotal", "Line/ShiftIndex",
 		"Robot/State", "Robot/J1_deg", "Robot/J2_deg", "Robot/J3_deg",
 		"Robot/J4_deg", "Robot/Lift_mm", "Robot/GripperClosed",
 		"Robot/Vacuum_kPa", "Robot/MotorsOn", "Robot/Homed", "Robot/Ready",
@@ -922,7 +970,7 @@ def _write(s, dt, dtr, f, ctl, state, blocked, robotFault, held):
 
 	vals = [
 		bool(running), round(s["cpm"], 1), round(s["cycleTime"], 2),
-		int(s["casesTotal"]),
+		int(s["casesTotal"]), int(s["shiftIndex"]),
 		state, round(j1, 1), round(j2, 1), round(j3, 1),
 		round(j4, 1), round(lift, 0), bool(grip),
 		round(vac, 1), (not blocked), (not robotFault),

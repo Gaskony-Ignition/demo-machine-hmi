@@ -3317,7 +3317,9 @@
                                     "fontWeight": 700,
                                     "color": "#dde4e9",
                                     "lineHeight": "32px",
-                                    "fontVariantNumeric": "tabular-nums"
+                                    "fontVariantNumeric": "tabular-nums",
+                                    "whiteSpace": "nowrap",
+                                    "classes": "lift-val"
                                   }
                                 },
                                 "position": {
@@ -3389,7 +3391,9 @@
                                     "fontWeight": 700,
                                     "color": "#cdd6dd",
                                     "lineHeight": "32px",
-                                    "fontVariantNumeric": "tabular-nums"
+                                    "fontVariantNumeric": "tabular-nums",
+                                    "whiteSpace": "nowrap",
+                                    "classes": "lift-val"
                                   }
                                 },
                                 "position": {
@@ -3420,13 +3424,14 @@
                               "style": {
                                 "gap": "1px",
                                 "minWidth": "0px",
-                                "minHeight": "0px"
+                                "minHeight": "0px",
+                                "classes": "jog-ind"
                               }
                             },
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "128px"
+                              "basis": "136px"
                             },
                             "children": [
                               {

@@ -249,6 +249,9 @@ def _hasDatabaseModule():
 # them is how "the tags are there" is told apart from "the first folder wrote
 # and then it failed", which is what a half-configured provider looks like and
 # reports no error anywhere.
+# Kept as the sample the STATUS reply shows when it wants a handful of
+# representative tags. The tag CHECK no longer uses it - it reads every path
+# the design declares, for the reason in _tagsCheck.
 PROBE_TAGS = ["Config/CaseW_mm", "Line/SimEnabled", "Safety/GuardsClosed",
               "Robot/J1_deg", "Robot/LiftTarget_mm", "Robot/JogUp",
               "Pallet/Station2/CasesPlaced", "Conveyor/PE_Clear",
@@ -346,13 +349,35 @@ def _providerFix():
 
 
 def _tagsCheck():
+	"""Prove every tag in the design is actually in the provider.
+
+	This used to probe ten hand-picked tags and then report
+	MachineDemo.tagdata.counts() - the count from the PROJECT - as though it
+	were the gateway's. Two things followed, and both bit:
+
+	  * A tag added to the design was invisible to the check unless someone
+	    also remembered to add it to the probe list. Line/ShiftIndex was added,
+	    the check stayed green, RUN SETUP reported "changed: []", and the tag
+	    was never created. The sim wrote to a path that did not exist - which
+	    Ignition drops in silence - so the value never persisted and every
+	    gateway restart reset the shift total it was supposed to be keeping.
+	  * The number in the message was the design's, not the gateway's. It read
+	    "113 tags readable in [MachineDemo]" against a provider holding 112.
+	    A check that counts the thing it is checking AGAINST cannot fail.
+
+	So: read every path the design declares, and report how many came back.
+	That is what tagdata.paths() was written for - its own docstring says the
+	setup uses it to prove the whole tree landed - it had simply never been
+	wired up here.
+	"""
 	from java.lang import Throwable as JThrowable
+	paths = MachineDemo.tagdata.paths()
 	try:
-		qvs = system.tag.readBlocking([P.tag(p) for p in PROBE_TAGS])
+		qvs = system.tag.readBlocking([P.tag(p) for p in paths])
 	except (JThrowable, Exception):
 		return False, u"the tag provider did not answer"
 	bad = []
-	for path, q in zip(PROBE_TAGS, qvs):
+	for path, q in zip(paths, qvs):
 		try:
 			good = q.quality.isGood()
 		except:
@@ -360,10 +385,16 @@ def _tagsCheck():
 		if not good:
 			bad.append(path)
 	if bad:
-		return False, u"missing or bad quality: %s" % u", ".join(bad)
+		# Name a few rather than all of them - a provider that is missing
+		# everything would otherwise fill the page.
+		shown = u", ".join(bad[:6])
+		if len(bad) > 6:
+			shown = u"%s and %d more" % (shown, len(bad) - 6)
+		return False, u"%d of %d tags missing or bad quality: %s" % (
+			len(bad), len(paths), shown)
 	c = MachineDemo.tagdata.counts()
-	return True, u"%d tags in %d top-level nodes readable in [%s]" % (
-		c["tags"], c["folders"], PROVIDER)
+	return True, u"all %d tags in %d top-level nodes readable in [%s]" % (
+		len(paths), c["folders"], PROVIDER)
 
 
 def _bad(qualities):

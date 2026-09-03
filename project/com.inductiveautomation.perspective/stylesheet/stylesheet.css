@@ -98,3 +98,22 @@
 	.psc-conv-name  span { font-size: 9px; letter-spacing: 0.3px; }
 	.psc-pe-cap     span { font-size: 9px; }
 }
+
+/* The lift readouts on Manual.
+
+   At 1024 their column is 68px and "2000.0 mm" needs 141px at 26px - and 76px
+   even at 14px, so no font size both fits and stays a readout. The column is
+   that narrow because Manual is three columns and the outer two are fixed at
+   330px and 340px, leaving 292px in the middle for three readouts.
+
+   Below 1120px the row drops to two. MOTION goes - the operator holding the
+   jog button does not need telling the axis is jogging - and POSITION and
+   TARGET take 139px each at 24px, where the widest reading measures 130px.
+
+   !important on the hide because Perspective writes display:flex inline on
+   the container, and an inline style outranks any class however specific. The
+   font rule is on the span, for the reason given further up this file. */
+@media (max-width: 1119px) {
+	.psc-jog-ind.psc-jog-ind { display: none !important; }
+	.psc-lift-val span { font-size: 24px; }
+}
