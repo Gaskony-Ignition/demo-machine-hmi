@@ -72,6 +72,7 @@ VIEW = os.path.join(ROOT, "project", "com.inductiveautomation.perspective",
 #
 # Read from the shipped component (`getActiveColumnConfigs` in
 # Perspective-module.modl), not guessed.
+
 def col(width=None, strict=False, sort="none", enabled=True, order=None):
     c = {"enabled": enabled, "sort": sort}
     if width is not None:
@@ -84,13 +85,46 @@ def col(width=None, strict=False, sort="none", enabled=True, order=None):
 
 OFF = col(enabled=False, width=100)
 
+# WIDTHS
+#
+# Every column whose content has a known maximum is PINNED to that maximum.
+# Exactly one column - Display Path - is left unpinned, and it absorbs all the
+# space left over. That is the whole rule, and the first version broke it: it
+# pinned only three columns and let Display Path AND Name share the remainder
+# proportionally, so on a wide window Name sat on 300+ spare pixels while
+# Active Time cut "02/09/2026 13:17:28" down to "02/09/2026 13:17..." and State
+# showed "Cleared, Unacknowledg...". Two columns starving beside two columns
+# with hundreds of pixels doing nothing.
+#
+# The widths below are the measured content maximum of each column across every
+# row of both tables, plus 26px:
+#
+#   16px  the cell padding added in stylesheet.css
+#   10px  chrome the component keeps inside the cell (measured: a 155px column
+#         gives its text 129px, not 139)
+#
+#   activeTime   136 + 26 = 162  ->  170   "02/09/2026 13:17:28"
+#   priority      64 + 26 =  90  ->   98   the "Priority" header, not a value
+#   state        181 + 26 = 207  ->  215   "Cleared, Unacknowledged"
+#   name         186 + 26 = 212  ->  222   "Robot Axis Following Error"
+#   displayPath  355 + 26 = 381 minimum, unpinned, takes everything else
+#
+# The few px of headroom on each is for a longer value than this demo happens
+# to produce - a date format with a 4-digit year already fits, an alarm name a
+# word longer does not have to break the layout.
+#
+# Two things that made the first measurement wrong, both worth remembering:
+# the text renders at font-weight 700, not the 500 a naive probe assumes, and
+# the element that actually elides is a div NESTED INSIDE `.content`, so
+# measuring `.content` reports no overflow while the cell is visibly cut off.
+
 # Key order IS column order here.
 STATUS = {
-    "activeTime":     col(155, strict=True),
-    "displayPath":    col(195),
-    "priority":       col(92, strict=True, sort="descending"),
-    "state":          col(205, strict=True),
-    "name":           col(115),
+    "activeTime":     col(170, strict=True),
+    "displayPath":    col(195),       # shares the surplus, 58%
+    "priority":       col(98, strict=True, sort="descending"),
+    "state":          col(215, strict=True),
+    "name":           col(140),       # shares the surplus, 42%
     # Off, deliberately: Display Path says the same thing in operator words.
     "source":         col(enabled=False, width=200),
     "label":          OFF, "eventId": OFF, "eventValue": OFF, "notes": OFF,
@@ -101,11 +135,11 @@ STATUS = {
 }
 
 JOURNAL = {
-    "eventTime":   col(155, strict=True, sort="descending", order=0),
-    "displayPath": col(195, order=1),
-    "priority":    col(92, strict=True, order=2),
-    "eventState":  col(205, strict=True, order=3),
-    "name":        col(115, order=4),
+    "eventTime":   col(170, strict=True, sort="descending", order=0),
+    "displayPath": col(195, order=1),          # shares the surplus, 58%
+    "priority":    col(98, strict=True, order=2),
+    "eventState":  col(215, strict=True, order=3),
+    "name":        col(140, order=4),          # shares the surplus, 42%
     "source":      col(enabled=False, width=150, order=5),
     "eventId":     col(enabled=False, width=200, order=6),
     "label":       col(enabled=False, width=100, order=7),
@@ -118,9 +152,9 @@ JOURNAL = {
 # Shelved alarms: the tab is off in this project, but the widths are set so
 # that turning it on does not produce a differently-proportioned table.
 SHELVED = {
-    "sourcePath": col(200, order=0),
-    "shelvedBy":  col(155, strict=True, order=1),
-    "expires":    col(155, strict=True, sort="descending", order=2),
+    "sourcePath": col(195, order=0),
+    "shelvedBy":  col(170, strict=True, order=1),
+    "expires":    col(170, strict=True, sort="descending", order=2),
 }
 
 TABLES = {"ia.display.alarmstatustable": {"active": STATUS, "shelved": SHELVED},
