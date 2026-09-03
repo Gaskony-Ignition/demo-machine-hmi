@@ -163,6 +163,21 @@ that file is ever missing from the zip.
 Because it is all inside the project, importing the project is the entire
 install. There is no CDN, no extra module and no second file to place.
 
+The page labels itself — a quiet "Ignition WebDev · three.js · not a
+Perspective component" across the top — because it is styled to match the rest
+of the project closely enough that nobody can tell otherwise, and in a
+demonstration that is exactly the fact worth stating. `?watermark=0` or the
+view's `watermark` param removes it.
+
+**Changing the machine it draws** is [docs/CHANGING-THE-3D-CELL.md][3d]: the
+cell's proportions are 15 tags in `[MachineDemo]Config`, and changing them
+redraws it with no source edit. That document also sets out the one real limit
+— the simulator keeps its own copy of those numbers, so a changed tag moves the
+picture and not the machine. Read it before changing a value in front of
+anyone.
+
+[3d]: docs/CHANGING-THE-3D-CELL.md
+
 ## Layout
 
 | Path | What it is |
