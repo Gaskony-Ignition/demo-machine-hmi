@@ -1,17 +1,15 @@
 # Machine HMI Demo
 
 **Machine-level operator control in Ignition Perspective — including a live 3D
-model of the cell — for a machine builder evaluating Ignition as an HMI
+model of the cell — for machine builders evaluating Ignition as an HMI
 replacement.**
 
-It exists because of one comment from a customer looking at Ignition for the
-first time:
+It exists because of a criticism that comes up whenever someone meets Ignition
+for the first time from the machine-builder side: the demonstrations are all
+*dashboard-like*, and none of them look like the screen an operator stands in
+front of at the machine.
 
-> I took a look at those demos, they are all quite 'dashboard-like', rather than
-> machine level operator control (ie edge).
-
-That is a fair criticism of most Ignition demonstrations, and it is not answered
-by argument. This is the answer instead: a simulated robotic palletising cell
+That is fair, and it is not answered by argument. This is the answer instead: a simulated robotic palletising cell
 with the screens an operator and a fitter would actually stand in front of — a
 line overview, manual control with permissives and hold-to-run jog, an alarm
 page, and a 3D view of the machine driven by the same tags as everything else.
@@ -72,8 +70,8 @@ actually do:
   writes into it, exactly as before.
 - **Ignition Edge Panel** — has **no database connectivity at all**: not
   merely discouraged, the SQL Bridge module that provides it is simply not
-  part of the Edge build, and this gateway's own customer spec says "no
-  database connections". Setup detects this (there is no `database-connection`
+  part of the Edge build, and machine specifications routinely rule databases
+  out entirely. Setup detects this (there is no `database-connection`
   resource type registered — see `_hasDatabaseModule` in
   `MachineDemo.setup`) and does not attempt one. Instead the `MachineDemo`
   alarm journal is configured as Edge's own **LOCAL** profile: alarms are
@@ -117,7 +115,7 @@ edition-appropriate configuration is actually missing or wrong — a stray
 that does have a database) reports red until `fix` runs again.
 
 This has been proven two ways. The with-database branch runs for real, against
-the `ignition-module-testing` gateway (standard Ignition). Ignition Edge Panel
+a standard Ignition gateway. Ignition Edge Panel
 has not been touched — the no-database branch is instead proven by forcing
 `MachineDemo.setup`'s capability check to answer "no database" on that same
 standard gateway and confirming the resulting rows, fixes and `check()` output
@@ -175,15 +173,28 @@ install. There is no CDN, no extra module and no second file to place.
 
 ## Development
 
-Deploy to the local module-testing gateway (which runs as uid 2003, so no
-`chown` is needed and none should be attempted):
+Point the repo at your own gateway once:
 
 ```bash
-cd project && tar cf - . | docker exec -i ignition-module-testing \
-  tar xf - -C /usr/local/bin/ignition/data/projects/Machine_HMI_Demo
-node /Home-Claude/ignition-claude-toolkit/plugins/ignition/skills/scan/tool/scan.js \
-  --gateway module-testing
+cp tools/env.example.sh tools/env.local.sh   # then edit it
 ```
+
+That file is gitignored: it holds the container name, the projects directory
+and the gateway URL, none of which belong in a repo that should be useful to
+someone whose gateway is somewhere else.
+
+Deploy and scan:
+
+```bash
+source tools/env.local.sh
+cd project && tar cf - . | docker exec -i "$GW_CONTAINER" \
+  tar xf - -C "$GW_PROJECTS/Machine_HMI_Demo"
+../tools/scan.sh
+```
+
+Check what the gateway's Ignition process runs as before deploying: if it is
+not your own uid, `chown` the files you wrote — and never `chown -R` the whole
+projects directory, which stops every scan silently.
 
 Pull the gateway's copy back over `project/` before editing — the gateway is the
 source of truth and a local mirror is stale by default.
@@ -208,7 +219,7 @@ That does not undo the change and it is not visible to anyone using the demo:
 
 - The **Alarms page filters by source** (`prov:MachineDemo:/tag:*`), so what is
   displayed is this machine and nothing else.
-- On a gateway running only this demo — which is the customer case, and the case
+- On a gateway running only this demo — which is the deployed case, and the case
   the importable zip is built for — there are no other alarms to collect.
 - What was actually fixed is ownership: its own file, its own retention, no
   dependency on a shared database server, and a clean removal.

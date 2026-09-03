@@ -1,13 +1,13 @@
 # Machine_HMI_Demo — build contract
 
-A demonstration for a palletising-machine builder evaluating Ignition as an HMI
-replacement (Edge Panel on small machines, standard Ignition where there are two
-panels). It must look and behave like **machine-level operator control**, not a
+A demonstration for machine builders evaluating Ignition as an HMI replacement
+(Edge Panel on small machines, standard Ignition where there are two panels).
+It must look and behave like **machine-level operator control**, not a
 dashboard.
 
-Gateway: `ignition-module-testing`, http://192.168.153.128:8088 (8.3.8), local docker.
-Container: `ignition-module-testing`. Projects dir:
-`/usr/local/bin/ignition/data/projects`.
+Gateway: Ignition 8.3.8 in Docker. The container name, projects directory and
+URL are per-person and live in the gitignored `tools/env.local.sh` — copy
+`tools/env.example.sh`. Nothing in this document should name a host.
 
 Project name: **`Machine_HMI_Demo`** (never change the name — it breaks URLs).
 Title/description carry the version: `Machine HMI Demo 1.0.0` … `· v1.0.0`.
@@ -15,8 +15,7 @@ Title/description carry the version: `Machine HMI Demo 1.0.0` … `· v1.0.0`.
 ## Hard rules
 
 - **No gateway restart.** Apply project resources with a Projects "Scan File System"
-  (`node /Home-Claude/ignition-claude-toolkit/plugins/ignition/skills/scan/tool/scan.js
-  --gateway module-testing`), config resources with the Platform Overview scan.
+  (`tools/scan.sh`), config resources with the Platform Overview scan.
 - Every resource dir needs a `resource.json` listing its `files` with a
   `lastModification` block, or the scan silently ignores it.
 - `doGet` must be the **first byte** of a WebDev `doGet.py` — no docstring, no
@@ -159,7 +158,7 @@ every screen and reports nothing.
 
 ### `database` and `journal` are edition-aware, not unconditional
 
-This demo argues for Ignition Edge Panel on a machine builder's small,
+This demo argues for Ignition Edge Panel on a builder's small,
 single-panel machines, and Edge Panel has **no database connectivity at all**
 — not a licence restriction, the SQL Bridge gateway module that provides it
 is simply absent from the Edge build. `MachineDemo.setup._hasDatabaseModule()`
@@ -168,7 +167,7 @@ asks the gateway directly rather than guessing: is `('ignition',
 .getResourceTypes()` returns. That type (and `database-driver`,
 `database-translator` beside it) is registered by SQL Bridge; on a gateway
 without it, the type is never registered and the check answers `False` with
-nothing to catch. Verified live against `ignition-module-testing` (a
+nothing to catch. Verified live against a standard 8.3.8 gateway (a
 STANDARD gateway) 03/09/2026: 57 resource types are registered including
 `database-connection`, and `ModuleManager.getModuleInfoAsJson()` independently
 confirms SQL Bridge is `ACTIVE`.
@@ -201,7 +200,8 @@ a real Edge gateway.
 
 ## WebDev routes — project `Machine_HMI_Demo`
 
-Base: `http://192.168.153.128:8088/system/webdev/Machine_HMI_Demo/<name>`
+Base: `<gateway>/system/webdev/Machine_HMI_Demo/<name>` (`$GW_URL` from
+`tools/env.local.sh`)
 
 | Resource | Method | Route | Purpose |
 | --- | --- | --- | --- |
@@ -279,7 +279,7 @@ python3 tools/webdev_page.py extract    # the resource -> src/cell3d/page.html
 **Run `extract` after editing in the Designer, before committing.** The two
 directions are not automatic, and the next `build` overwrites whatever was typed
 in the Designer. This is the one cost of the split, and it buys the thing the
-demo is trying to prove: that a customer can maintain the 3D page in the
+demo is trying to prove: that the buyer can maintain the 3D page in the
 Designer without a web toolchain.
 
 `admin` and `lib` remain python-resources — they are code, not pages.
