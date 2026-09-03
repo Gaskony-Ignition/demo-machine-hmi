@@ -117,3 +117,12 @@
 	.psc-jog-ind.psc-jog-ind { display: none !important; }
 	.psc-lift-val span { font-size: 24px; }
 }
+
+/* The alarm page's two tabs.
+
+   ia.container.tab writes an identical `flex: 0 1 96px` INLINE on every tab -
+   sized once, not per label - so the longer of two labels is cut with no
+   ellipsis and no warning. "HISTORICAL" needs 78px of text room and a 96px tab
+   gives it 67. An inline style outranks any class however specific, so this is
+   one of the few places !important is genuinely required rather than lazy. */
+.psc-alm-tabs .tab-menu-item { flex: 0 0 128px !important; }

@@ -636,10 +636,10 @@
         "props": {
           "tabs": [
             {
-              "text": "STANDING"
+              "text": "ACTIVE"
             },
             {
-              "text": "JOURNAL"
+              "text": "HISTORICAL"
             }
           ],
           "currentTabIndex": 0,
@@ -673,7 +673,8 @@
           },
           "style": {
             "minHeight": "0px",
-            "minWidth": "0px"
+            "minWidth": "0px",
+            "classes": "alm-tabs"
           }
         },
         "position": {
@@ -728,7 +729,7 @@
                       "name": "H"
                     },
                     "props": {
-                      "text": "Standing alarms \u2014 active, or cleared but not yet acknowledged",
+                      "text": "Active alarms \u2014 and those cleared but not yet acknowledged",
                       "style": {
                         "fontSize": "11px",
                         "fontWeight": 700,
@@ -1247,7 +1248,7 @@
                       "name": "H"
                     },
                     "props": {
-                      "text": "Alarm journal \u2014 history",
+                      "text": "Historical \u2014 the alarm journal",
                       "style": {
                         "fontSize": "11px",
                         "fontWeight": 700,
