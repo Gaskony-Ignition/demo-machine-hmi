@@ -25,7 +25,7 @@ one stands, is below.
 | --- | --- | --- |
 | Shape is data, not code | 15 Config tags changed the *picture*; the simulator kept its own constants | 15 Config tags change the **machine**: simulator, page and screens read the same tags live |
 | Follows tags without scripting | The page polled a JSON snapshot; a tag change needed a page reload | The page **rebuilds inside its 250 ms poll** when the config block changes; the HUD shows what was derived |
-| Edited from Perspective | Only from the Designer's tag browser | The **Geometry panel** — 15 `numeric-entry-field`s with bidirectional tag bindings and three preset buttons — on the 3D page itself |
+| Edited from Perspective | Only from the Designer's tag browser | The **Geometry drawer** — 15 `numeric-entry-field`s with bidirectional tag bindings and three preset buttons — slides out of the 3D page itself, and the model takes the width back when it closes |
 | Consistency check | None: a change silently disagreed with the arm | The simulator solves every placement and **reports reach**; the HUD and the change banner carry the verdict |
 | Screens honour the change | "of 60 cases" and "/5" were literals | Bound to `CasesPerLayer * Layers` and `Layers` |
 
@@ -170,5 +170,8 @@ steps:
   pallet, every placement within reach; the pallet stations reported the new
   pattern name within a tick.
 - No JavaScript errors in the page or the iframe across any rebuild.
-- The panel fits without scrolling at 1366 × 768 and at 1024 × 600, with no
+- The drawer fits without scrolling at 1366 × 768 and at 1024 × 600, with no
   caption elided and no value clipped.
+- Closed, the drawer is 0 px wide and the 3D view has the whole width (1366
+  and 1024); open, it is 312 px and the view is 1054 / 712. Four consecutive
+  toggles, correct every time, and the hidden fields are not focusable.

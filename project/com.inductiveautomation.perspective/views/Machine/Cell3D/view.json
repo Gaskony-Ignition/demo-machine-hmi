@@ -185,15 +185,41 @@
                 "props": {
                   "text": "Geometry",
                   "style": {
-                    "backgroundColor": "#14313e",
-                    "color": "#9fdcf5",
-                    "border": "1px solid #1e546c",
+                    "backgroundColor": "#262e36",
+                    "color": "#cdd6dd",
+                    "border": "1px solid #38424c",
                     "borderRadius": "7px",
                     "fontWeight": "bold",
                     "fontSize": "12.5px",
                     "minHeight": "38px",
                     "padding": "0 16px",
                     "alignItems": "center"
+                  }
+                },
+                "propConfig": {
+                  "props.style.backgroundColor": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({view.custom.geometry}, \"#14313e\", \"#262e36\")"
+                      }
+                    }
+                  },
+                  "props.style.color": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({view.custom.geometry}, \"#9fdcf5\", \"#cdd6dd\")"
+                      }
+                    }
+                  },
+                  "props.style.borderColor": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({view.custom.geometry}, \"#1e546c\", \"#38424c\")"
+                      }
+                    }
                   }
                 },
                 "events": {
@@ -310,1743 +336,1778 @@
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "312px"
+              "basis": "auto"
             },
             "props": {
               "direction": "column",
               "style": {
-                "backgroundColor": "var(--neutral-20, #1d232a)",
-                "borderLeft": "1px solid var(--neutral-40, #2c343d)",
-                "padding": "12px 14px",
-                "gap": "8px",
-                "overflow": "auto",
-                "minHeight": "0px"
+                "width": "0px",
+                "overflow": "hidden",
+                "minWidth": "0px",
+                "minHeight": "0px",
+                "transition": "width .22s ease"
               }
             },
             "propConfig": {
-              "meta.visible": {
+              "props.style.width": {
                 "binding": {
-                  "type": "property",
+                  "type": "expr",
                   "config": {
-                    "path": "view.custom.geometry"
+                    "expression": "if({view.custom.geometry}, \"312px\", \"0px\")"
                   }
                 }
               }
             },
             "children": [
               {
-                "type": "ia.display.label",
-                "version": 0,
-                "meta": {
-                  "name": "T"
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "18px"
-                },
-                "props": {
-                  "text": "Machine geometry",
-                  "style": {
-                    "fontSize": "13px",
-                    "color": "var(--neutral-90, #dde4e9)",
-                    "whiteSpace": "nowrap",
-                    "overflow": "hidden",
-                    "textOverflow": "ellipsis",
-                    "fontWeight": "bold"
-                  }
-                }
-              },
-              {
-                "type": "ia.display.label",
-                "version": 0,
-                "meta": {
-                  "name": "S"
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "28px"
-                },
-                "props": {
-                  "text": "[MachineDemo]Config \u2014 15 tags. Edit one and the cell, the pattern and the arm follow.",
-                  "style": {
-                    "fontSize": "10.5px",
-                    "color": "var(--neutral-60, #8b98a3)",
-                    "whiteSpace": "normal",
-                    "overflow": "hidden",
-                    "textOverflow": "ellipsis",
-                    "lineHeight": "14px"
-                  }
-                }
-              },
-              {
                 "type": "ia.container.flex",
-                "version": 0,
                 "meta": {
-                  "name": "Presets"
+                  "name": "GeomBody"
                 },
                 "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "34px"
-                },
-                "props": {
-                  "direction": "row",
-                  "style": {
-                    "gap": "6px"
-                  }
-                },
-                "children": [
-                  {
-                    "type": "ia.input.button",
-                    "version": 0,
-                    "meta": {
-                      "name": "P_default"
-                    },
-                    "position": {
-                      "grow": 1,
-                      "shrink": 1,
-                      "basis": "0px"
-                    },
-                    "props": {
-                      "text": "Default",
-                      "style": {
-                        "fontSize": "11px",
-                        "fontWeight": 700,
-                        "letterSpacing": "0.3px",
-                        "borderRadius": "6px",
-                        "border": "1px solid #2c343d",
-                        "backgroundColor": "#252c34",
-                        "color": "#cfd8df",
-                        "padding": "0px",
-                        "minWidth": "0px",
-                        "minHeight": "34px",
-                        "alignItems": "center",
-                        "whiteSpace": "nowrap"
-                      }
-                    },
-                    "events": {
-                      "component": {
-                        "onActionPerformed": {
-                          "type": "script",
-                          "scope": "G",
-                          "config": {
-                            "script": "\tMachineDemo.api.setGeometry('default')\n"
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "type": "ia.input.button",
-                    "version": 0,
-                    "meta": {
-                      "name": "P_euro_tall"
-                    },
-                    "position": {
-                      "grow": 1,
-                      "shrink": 1,
-                      "basis": "0px"
-                    },
-                    "props": {
-                      "text": "Euro, tall",
-                      "style": {
-                        "fontSize": "11px",
-                        "fontWeight": 700,
-                        "letterSpacing": "0.3px",
-                        "borderRadius": "6px",
-                        "border": "1px solid #2c343d",
-                        "backgroundColor": "#252c34",
-                        "color": "#cfd8df",
-                        "padding": "0px",
-                        "minWidth": "0px",
-                        "minHeight": "34px",
-                        "alignItems": "center",
-                        "whiteSpace": "nowrap"
-                      }
-                    },
-                    "events": {
-                      "component": {
-                        "onActionPerformed": {
-                          "type": "script",
-                          "scope": "G",
-                          "config": {
-                            "script": "\tMachineDemo.api.setGeometry('euro-tall')\n"
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "type": "ia.input.button",
-                    "version": 0,
-                    "meta": {
-                      "name": "P_small_dense"
-                    },
-                    "position": {
-                      "grow": 1,
-                      "shrink": 1,
-                      "basis": "0px"
-                    },
-                    "props": {
-                      "text": "Small, dense",
-                      "style": {
-                        "fontSize": "11px",
-                        "fontWeight": 700,
-                        "letterSpacing": "0.3px",
-                        "borderRadius": "6px",
-                        "border": "1px solid #2c343d",
-                        "backgroundColor": "#252c34",
-                        "color": "#cfd8df",
-                        "padding": "0px",
-                        "minWidth": "0px",
-                        "minHeight": "34px",
-                        "alignItems": "center",
-                        "whiteSpace": "nowrap"
-                      }
-                    },
-                    "events": {
-                      "component": {
-                        "onActionPerformed": {
-                          "type": "script",
-                          "scope": "G",
-                          "config": {
-                            "script": "\tMachineDemo.api.setGeometry('small-dense')\n"
-                          }
-                        }
-                      }
-                    }
-                  }
-                ]
-              },
-              {
-                "type": "ia.container.flex",
-                "version": 0,
-                "meta": {
-                  "name": "G_Case"
-                },
-                "position": {
-                  "grow": 0,
+                  "grow": 1,
                   "shrink": 0,
                   "basis": "auto"
                 },
                 "props": {
                   "direction": "column",
                   "style": {
-                    "gap": "3px"
-                  }
-                },
-                "children": [
-                  {
-                    "type": "ia.display.label",
-                    "version": 0,
-                    "meta": {
-                      "name": "H"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "16px"
-                    },
-                    "props": {
-                      "text": "Case (mm)",
-                      "style": {
-                        "fontSize": "10.5px",
-                        "color": "var(--neutral-90, #dde4e9)",
-                        "whiteSpace": "nowrap",
-                        "overflow": "hidden",
-                        "textOverflow": "ellipsis",
-                        "fontWeight": "bold",
-                        "letterSpacing": "0.6px",
-                        "textTransform": "uppercase"
-                      }
-                    }
-                  },
-                  {
-                    "type": "ia.container.flex",
-                    "version": 0,
-                    "meta": {
-                      "name": "Row"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "auto"
-                    },
-                    "props": {
-                      "direction": "row",
-                      "style": {
-                        "gap": "8px"
-                      }
-                    },
-                    "children": [
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_CaseW"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "WIDTH",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/CaseW_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_CaseD"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "DEPTH",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/CaseD_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_CaseH"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "HEIGHT",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/CaseH_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "ia.container.flex",
-                "version": 0,
-                "meta": {
-                  "name": "G_Pallet"
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "props": {
-                  "direction": "column",
-                  "style": {
-                    "gap": "3px"
-                  }
-                },
-                "children": [
-                  {
-                    "type": "ia.display.label",
-                    "version": 0,
-                    "meta": {
-                      "name": "H"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "16px"
-                    },
-                    "props": {
-                      "text": "Pallet (mm)",
-                      "style": {
-                        "fontSize": "10.5px",
-                        "color": "var(--neutral-90, #dde4e9)",
-                        "whiteSpace": "nowrap",
-                        "overflow": "hidden",
-                        "textOverflow": "ellipsis",
-                        "fontWeight": "bold",
-                        "letterSpacing": "0.6px",
-                        "textTransform": "uppercase"
-                      }
-                    }
-                  },
-                  {
-                    "type": "ia.container.flex",
-                    "version": 0,
-                    "meta": {
-                      "name": "Row"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "auto"
-                    },
-                    "props": {
-                      "direction": "row",
-                      "style": {
-                        "gap": "8px"
-                      }
-                    },
-                    "children": [
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_PalletW"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "WIDTH",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/PalletW_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_PalletD"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "DEPTH",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/PalletD_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_PalletH"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "DECK",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/PalletH_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "ia.container.flex",
-                "version": 0,
-                "meta": {
-                  "name": "G_Pattern"
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "props": {
-                  "direction": "column",
-                  "style": {
-                    "gap": "3px"
-                  }
-                },
-                "children": [
-                  {
-                    "type": "ia.display.label",
-                    "version": 0,
-                    "meta": {
-                      "name": "H"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "16px"
-                    },
-                    "props": {
-                      "text": "Pattern",
-                      "style": {
-                        "fontSize": "10.5px",
-                        "color": "var(--neutral-90, #dde4e9)",
-                        "whiteSpace": "nowrap",
-                        "overflow": "hidden",
-                        "textOverflow": "ellipsis",
-                        "fontWeight": "bold",
-                        "letterSpacing": "0.6px",
-                        "textTransform": "uppercase"
-                      }
-                    }
-                  },
-                  {
-                    "type": "ia.container.flex",
-                    "version": 0,
-                    "meta": {
-                      "name": "Row"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "auto"
-                    },
-                    "props": {
-                      "direction": "row",
-                      "style": {
-                        "gap": "8px"
-                      }
-                    },
-                    "children": [
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_CasesPerLayer"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "CASES / LAYER",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/CasesPerLayer",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_Layers"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "LAYERS",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/Layers",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "ia.container.flex",
-                "version": 0,
-                "meta": {
-                  "name": "G_Infeed"
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "props": {
-                  "direction": "column",
-                  "style": {
-                    "gap": "3px"
-                  }
-                },
-                "children": [
-                  {
-                    "type": "ia.display.label",
-                    "version": 0,
-                    "meta": {
-                      "name": "H"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "16px"
-                    },
-                    "props": {
-                      "text": "Infeed conveyor (mm)",
-                      "style": {
-                        "fontSize": "10.5px",
-                        "color": "var(--neutral-90, #dde4e9)",
-                        "whiteSpace": "nowrap",
-                        "overflow": "hidden",
-                        "textOverflow": "ellipsis",
-                        "fontWeight": "bold",
-                        "letterSpacing": "0.6px",
-                        "textTransform": "uppercase"
-                      }
-                    }
-                  },
-                  {
-                    "type": "ia.container.flex",
-                    "version": 0,
-                    "meta": {
-                      "name": "Row"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "auto"
-                    },
-                    "props": {
-                      "direction": "row",
-                      "style": {
-                        "gap": "8px"
-                      }
-                    },
-                    "children": [
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_ConvHeight"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "HEIGHT",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/ConvHeight_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_ConvLength"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "LENGTH",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/ConvLength_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_ConvWidth"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "WIDTH",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/ConvWidth_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "ia.container.flex",
-                "version": 0,
-                "meta": {
-                  "name": "G_Stations"
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "props": {
-                  "direction": "column",
-                  "style": {
-                    "gap": "3px"
-                  }
-                },
-                "children": [
-                  {
-                    "type": "ia.display.label",
-                    "version": 0,
-                    "meta": {
-                      "name": "H"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "16px"
-                    },
-                    "props": {
-                      "text": "Stations (mm from robot)",
-                      "style": {
-                        "fontSize": "10.5px",
-                        "color": "var(--neutral-90, #dde4e9)",
-                        "whiteSpace": "nowrap",
-                        "overflow": "hidden",
-                        "textOverflow": "ellipsis",
-                        "fontWeight": "bold",
-                        "letterSpacing": "0.6px",
-                        "textTransform": "uppercase"
-                      }
-                    }
-                  },
-                  {
-                    "type": "ia.container.flex",
-                    "version": 0,
-                    "meta": {
-                      "name": "Row"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "auto"
-                    },
-                    "props": {
-                      "direction": "row",
-                      "style": {
-                        "gap": "8px"
-                      }
-                    },
-                    "children": [
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_Station1_X"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "1 \u00b7 X",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/Station1_X_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_Station1_Z"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "1 \u00b7 Z",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/Station1_Z_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_Station2_X"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "2 \u00b7 X",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/Station2_X_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "F_Station2_Z"
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "0px"
-                        },
-                        "props": {
-                          "direction": "column",
-                          "style": {
-                            "gap": "2px",
-                            "minWidth": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "14px"
-                            },
-                            "props": {
-                              "text": "2 \u00b7 Z",
-                              "style": {
-                                "fontSize": "10px",
-                                "color": "var(--neutral-60, #8b98a3)",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "letterSpacing": "0.4px"
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.numeric-entry-field",
-                            "version": 0,
-                            "meta": {
-                              "name": "V"
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "32px"
-                            },
-                            "props": {
-                              "inputType": "integer",
-                              "value": 0,
-                              "style": {
-                                "fontSize": "13px",
-                                "fontWeight": "bold",
-                                "minWidth": "0px"
-                              }
-                            },
-                            "propConfig": {
-                              "props.value": {
-                                "binding": {
-                                  "type": "tag",
-                                  "config": {
-                                    "mode": "direct",
-                                    "tagPath": "[MachineDemo]Config/Station2_Z_mm",
-                                    "fallbackDelay": 2.5,
-                                    "bidirectional": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "ia.display.label",
-                "version": 0,
-                "meta": {
-                  "name": "Derived"
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "props": {
-                  "text": "",
-                  "style": {
-                    "fontSize": "11px",
-                    "color": "var(--neutral-60, #8b98a3)",
-                    "whiteSpace": "normal",
-                    "lineHeight": "15px",
-                    "paddingTop": "4px",
-                    "borderTop": "1px solid var(--neutral-40, #2c343d)"
+                    "width": "312px",
+                    "minWidth": "312px",
+                    "backgroundColor": "var(--neutral-20, #1d232a)",
+                    "borderLeft": "1px solid var(--neutral-40, #2c343d)",
+                    "padding": "12px 14px",
+                    "gap": "8px",
+                    "overflow": "auto",
+                    "minHeight": "0px"
                   }
                 },
                 "propConfig": {
-                  "props.text": {
+                  "meta.visible": {
                     "binding": {
-                      "type": "expr",
+                      "type": "property",
                       "config": {
-                        "expression": "\"Pallet of \" + toStr({[MachineDemo]Config/CasesPerLayer} * {[MachineDemo]Config/Layers}) + \" cases, pattern \" + {[MachineDemo]Pallet/Station1/PatternName} + \". Reach is checked by the simulator and shown on the 3D view.\""
+                        "path": "view.custom.geometry"
                       }
                     }
                   }
-                }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "version": 0,
+                    "meta": {
+                      "name": "T"
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "18px"
+                    },
+                    "props": {
+                      "text": "Machine geometry",
+                      "style": {
+                        "fontSize": "13px",
+                        "color": "var(--neutral-90, #dde4e9)",
+                        "whiteSpace": "nowrap",
+                        "overflow": "hidden",
+                        "textOverflow": "ellipsis",
+                        "fontWeight": "bold"
+                      }
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "version": 0,
+                    "meta": {
+                      "name": "S"
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "28px"
+                    },
+                    "props": {
+                      "text": "[MachineDemo]Config \u2014 15 tags. Edit one and the cell, the pattern and the arm follow.",
+                      "style": {
+                        "fontSize": "10.5px",
+                        "color": "var(--neutral-60, #8b98a3)",
+                        "whiteSpace": "normal",
+                        "overflow": "hidden",
+                        "textOverflow": "ellipsis",
+                        "lineHeight": "14px"
+                      }
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "version": 0,
+                    "meta": {
+                      "name": "Presets"
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "style": {
+                        "gap": "6px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.input.button",
+                        "version": 0,
+                        "meta": {
+                          "name": "P_default"
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1,
+                          "basis": "0px"
+                        },
+                        "props": {
+                          "text": "Default",
+                          "style": {
+                            "fontSize": "11px",
+                            "fontWeight": 700,
+                            "letterSpacing": "0.3px",
+                            "borderRadius": "6px",
+                            "border": "1px solid #2c343d",
+                            "backgroundColor": "#252c34",
+                            "color": "#cfd8df",
+                            "padding": "0px",
+                            "minWidth": "0px",
+                            "minHeight": "34px",
+                            "alignItems": "center",
+                            "whiteSpace": "nowrap"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tMachineDemo.api.setGeometry('default')\n"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "version": 0,
+                        "meta": {
+                          "name": "P_euro_tall"
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1,
+                          "basis": "0px"
+                        },
+                        "props": {
+                          "text": "Euro, tall",
+                          "style": {
+                            "fontSize": "11px",
+                            "fontWeight": 700,
+                            "letterSpacing": "0.3px",
+                            "borderRadius": "6px",
+                            "border": "1px solid #2c343d",
+                            "backgroundColor": "#252c34",
+                            "color": "#cfd8df",
+                            "padding": "0px",
+                            "minWidth": "0px",
+                            "minHeight": "34px",
+                            "alignItems": "center",
+                            "whiteSpace": "nowrap"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tMachineDemo.api.setGeometry('euro-tall')\n"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "version": 0,
+                        "meta": {
+                          "name": "P_small_dense"
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1,
+                          "basis": "0px"
+                        },
+                        "props": {
+                          "text": "Small, dense",
+                          "style": {
+                            "fontSize": "11px",
+                            "fontWeight": 700,
+                            "letterSpacing": "0.3px",
+                            "borderRadius": "6px",
+                            "border": "1px solid #2c343d",
+                            "backgroundColor": "#252c34",
+                            "color": "#cfd8df",
+                            "padding": "0px",
+                            "minWidth": "0px",
+                            "minHeight": "34px",
+                            "alignItems": "center",
+                            "whiteSpace": "nowrap"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tMachineDemo.api.setGeometry('small-dense')\n"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "version": 0,
+                    "meta": {
+                      "name": "G_Case"
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "3px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "version": 0,
+                        "meta": {
+                          "name": "H"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "16px"
+                        },
+                        "props": {
+                          "text": "Case (mm)",
+                          "style": {
+                            "fontSize": "10.5px",
+                            "color": "var(--neutral-90, #dde4e9)",
+                            "whiteSpace": "nowrap",
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "fontWeight": "bold",
+                            "letterSpacing": "0.6px",
+                            "textTransform": "uppercase"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_CaseW"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "WIDTH",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/CaseW_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_CaseD"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "DEPTH",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/CaseD_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_CaseH"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "HEIGHT",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/CaseH_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "version": 0,
+                    "meta": {
+                      "name": "G_Pallet"
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "3px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "version": 0,
+                        "meta": {
+                          "name": "H"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "16px"
+                        },
+                        "props": {
+                          "text": "Pallet (mm)",
+                          "style": {
+                            "fontSize": "10.5px",
+                            "color": "var(--neutral-90, #dde4e9)",
+                            "whiteSpace": "nowrap",
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "fontWeight": "bold",
+                            "letterSpacing": "0.6px",
+                            "textTransform": "uppercase"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_PalletW"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "WIDTH",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/PalletW_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_PalletD"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "DEPTH",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/PalletD_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_PalletH"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "DECK",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/PalletH_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "version": 0,
+                    "meta": {
+                      "name": "G_Pattern"
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "3px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "version": 0,
+                        "meta": {
+                          "name": "H"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "16px"
+                        },
+                        "props": {
+                          "text": "Pattern",
+                          "style": {
+                            "fontSize": "10.5px",
+                            "color": "var(--neutral-90, #dde4e9)",
+                            "whiteSpace": "nowrap",
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "fontWeight": "bold",
+                            "letterSpacing": "0.6px",
+                            "textTransform": "uppercase"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_CasesPerLayer"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "CASES / LAYER",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/CasesPerLayer",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_Layers"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "LAYERS",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/Layers",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "version": 0,
+                    "meta": {
+                      "name": "G_Infeed"
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "3px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "version": 0,
+                        "meta": {
+                          "name": "H"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "16px"
+                        },
+                        "props": {
+                          "text": "Infeed conveyor (mm)",
+                          "style": {
+                            "fontSize": "10.5px",
+                            "color": "var(--neutral-90, #dde4e9)",
+                            "whiteSpace": "nowrap",
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "fontWeight": "bold",
+                            "letterSpacing": "0.6px",
+                            "textTransform": "uppercase"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_ConvHeight"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "HEIGHT",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/ConvHeight_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_ConvLength"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "LENGTH",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/ConvLength_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_ConvWidth"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "WIDTH",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/ConvWidth_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "version": 0,
+                    "meta": {
+                      "name": "G_Stations"
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "3px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "version": 0,
+                        "meta": {
+                          "name": "H"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "16px"
+                        },
+                        "props": {
+                          "text": "Stations (mm from robot)",
+                          "style": {
+                            "fontSize": "10.5px",
+                            "color": "var(--neutral-90, #dde4e9)",
+                            "whiteSpace": "nowrap",
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "fontWeight": "bold",
+                            "letterSpacing": "0.6px",
+                            "textTransform": "uppercase"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_Station1_X"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "1 \u00b7 X",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/Station1_X_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_Station1_Z"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "1 \u00b7 Z",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/Station1_Z_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_Station2_X"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "2 \u00b7 X",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/Station2_X_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "version": 0,
+                            "meta": {
+                              "name": "F_Station2_Z"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "2px",
+                                "minWidth": "0px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "version": 0,
+                                "meta": {
+                                  "name": "K"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "14px"
+                                },
+                                "props": {
+                                  "text": "2 \u00b7 Z",
+                                  "style": {
+                                    "fontSize": "10px",
+                                    "color": "var(--neutral-60, #8b98a3)",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "letterSpacing": "0.4px"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ia.input.numeric-entry-field",
+                                "version": 0,
+                                "meta": {
+                                  "name": "V"
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "32px"
+                                },
+                                "props": {
+                                  "inputType": "integer",
+                                  "value": 0,
+                                  "style": {
+                                    "fontSize": "13px",
+                                    "fontWeight": "bold",
+                                    "minWidth": "0px"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.value": {
+                                    "binding": {
+                                      "type": "tag",
+                                      "config": {
+                                        "mode": "direct",
+                                        "tagPath": "[MachineDemo]Config/Station2_Z_mm",
+                                        "fallbackDelay": 2.5,
+                                        "bidirectional": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "version": 0,
+                    "meta": {
+                      "name": "Derived"
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "fontSize": "11px",
+                        "color": "var(--neutral-60, #8b98a3)",
+                        "whiteSpace": "normal",
+                        "lineHeight": "15px",
+                        "paddingTop": "4px",
+                        "borderTop": "1px solid var(--neutral-40, #2c343d)"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "\"Pallet of \" + toStr({[MachineDemo]Config/CasesPerLayer} * {[MachineDemo]Config/Layers}) + \" cases, pattern \" + {[MachineDemo]Pallet/Station1/PatternName} + \". Reach is checked by the simulator and shown on the 3D view.\""
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
               }
             ]
           }

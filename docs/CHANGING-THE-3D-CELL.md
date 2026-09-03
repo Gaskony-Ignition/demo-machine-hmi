@@ -64,9 +64,11 @@ the derived pattern and the reach verdict.
 
 ### The Geometry panel
 
-The 3D page's header has a **Geometry** button. It opens a panel of fifteen
-Perspective numeric fields, each bound **bidirectionally** to one Config tag,
-and three whole-machine presets:
+The 3D page's header has a **Geometry** button. It slides out a drawer of
+fifteen Perspective numeric fields, each bound **bidirectionally** to one
+Config tag, and three whole-machine presets. Closed, the drawer takes no
+width at all and the model has the whole page; the button lights while it is
+out:
 
 | Preset | What it is |
 | --- | --- |

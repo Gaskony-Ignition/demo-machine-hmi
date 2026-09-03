@@ -175,9 +175,9 @@ header = {
             "props": {
                 "text": "Geometry",
                 "style": {
-                    "backgroundColor": "#14313e",
-                    "color": "#9fdcf5",
-                    "border": "1px solid #1e546c",
+                    "backgroundColor": "#262e36",
+                    "color": "#cdd6dd",
+                    "border": "1px solid #38424c",
                     "borderRadius": "7px",
                     "fontWeight": "bold",
                     "fontSize": "12.5px",
@@ -185,6 +185,17 @@ header = {
                     "padding": "0 16px",
                     "alignItems": "center",
                 },
+            },
+            # Lit while the drawer is out, the same way the page's own camera
+            # buttons show which one is selected. A toggle that looks identical
+            # in both states is a toggle nobody trusts.
+            "propConfig": {
+                "props.style.backgroundColor": {"binding": expr_binding(
+                    'if({view.custom.geometry}, "#14313e", "#262e36")')},
+                "props.style.color": {"binding": expr_binding(
+                    'if({view.custom.geometry}, "#9fdcf5", "#cdd6dd")')},
+                "props.style.borderColor": {"binding": expr_binding(
+                    'if({view.custom.geometry}, "#1e546c", "#38424c")')},
             },
             "events": {
                 "component": {
@@ -371,13 +382,36 @@ def preset(key, text):
     }
 
 
-geom_panel = {
+# The drawer is TWO containers, and it has to be.
+#
+# `meta.visible: false` was the obvious way to close it and it does not work
+# here: Perspective renders a meta-hidden component with the class
+# `component-meta-hidden`, which is `visibility: hidden` and NOT
+# `display: none`. The panel disappears and keeps its 312px of the flex row
+# for ever, so the 3D view sat at 1054px whether the panel was open or shut -
+# measured on the gateway 04/09/2026, identical iframe AND canvas widths in
+# both states. It hides the drawer; it never gives the space back.
+#
+# So the OUTER container owns the width (0 or 312, bound to the same custom
+# prop, with a transition so it slides) and clips what does not fit, while the
+# INNER one keeps a fixed 312px and carries everything that makes the panel
+# look like a panel - the background, the border and the padding. Padding on
+# the outer would hold it open at 28px when collapsed, because a border-box
+# element cannot be narrower than its own padding.
+#
+# meta.visible stays, on the inner: with the outer collapsed the content is
+# clipped, but its fifteen fields would still be reachable by Tab, and a form
+# nobody can see is not one anybody should be able to type into.
+
+geom_body = {
     "type": "ia.container.flex",
-    "meta": {"name": "GeomPanel"},
-    "position": {"grow": 0, "shrink": 0, "basis": "312px"},
+    "meta": {"name": "GeomBody"},
+    "position": {"grow": 1, "shrink": 0, "basis": "auto"},
     "props": {
         "direction": "column",
         "style": {
+            "width": "312px",
+            "minWidth": "312px",
             "backgroundColor": PANEL,
             "borderLeft": "1px solid " + LINE,
             "padding": "12px 14px",
@@ -435,6 +469,31 @@ geom_panel = {
                 % (PROVIDER, PROVIDER, PROVIDER))}},
         },
     ],
+}
+
+geom_panel = {
+    "type": "ia.container.flex",
+    "meta": {"name": "GeomPanel"},
+    # basis auto, not a width: a flex-basis outranks the bound style width
+    # below and would pin the drawer open at whatever the basis said.
+    "position": {"grow": 0, "shrink": 0, "basis": "auto"},
+    "props": {
+        "direction": "column",
+        "style": {
+            "width": "0px",
+            "overflow": "hidden",
+            "minWidth": "0px",
+            "minHeight": "0px",
+            # Slides rather than jumps. It is a menu, and a menu that appears
+            # instantly at full width reads as the page breaking.
+            "transition": "width .22s ease",
+        },
+    },
+    "propConfig": {
+        "props.style.width": {"binding": expr_binding(
+            'if({view.custom.geometry}, "312px", "0px")')}
+    },
+    "children": [geom_body],
 }
 
 body = {

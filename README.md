@@ -173,7 +173,7 @@ view's `watermark` param removes it.
 cell's proportions and pattern are 15 tags in `[MachineDemo]Config`, and the
 simulator, the 3D page and the screens all read them live — change one and,
 within a tick, the arm is placing to the new pattern and the page has rebuilt
-itself. The page's **Geometry** button opens a Perspective panel of those
+itself. The page's **Geometry** button slides out a Perspective drawer of those
 fifteen tags with three whole-machine presets, and the simulator reports
 whether the arm can reach every placement before it tries. How close that is
 to "programmed in Perspective", and the three ways to close the rest, is
