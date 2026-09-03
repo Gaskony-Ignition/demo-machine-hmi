@@ -27,8 +27,8 @@
       "direction": "column",
       "style": {
         "height": "100%",
-        "backgroundColor": "#171b20",
-        "color": "#dde4e9",
+        "backgroundColor": "var(--neutral-10, #171b20)",
+        "color": "var(--neutral-90, #dde4e9)",
         "fontFamily": "\"Noto Sans\",\"Segoe UI\",system-ui,-apple-system,sans-serif",
         "gap": "0px",
         "minWidth": "0px",
@@ -44,7 +44,7 @@
         "props": {
           "direction": "row",
           "style": {
-            "backgroundColor": "#1d232a",
+            "backgroundColor": "var(--neutral-20, #1d232a)",
             "borderBottom": "1px solid #2c343d",
             "minWidth": "0px",
             "minHeight": "0px",
@@ -88,7 +88,7 @@
                   "text": "Alarms \u2014 this machine",
                   "style": {
                     "fontWeight": 700,
-                    "color": "#dde4e9",
+                    "color": "var(--neutral-90, #dde4e9)",
                     "letterSpacing": "0.2px",
                     "lineHeight": "24px",
                     "whiteSpace": "nowrap",
@@ -113,7 +113,7 @@
                   "text": "",
                   "style": {
                     "fontSize": "11.5px",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "lineHeight": "16px",
                     "whiteSpace": "nowrap",
                     "overflow": "hidden",
@@ -325,7 +325,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -364,7 +364,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -403,7 +403,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -442,7 +442,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -520,7 +520,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -543,6 +543,50 @@
                 }
               }
             ]
+          },
+          {
+            "type": "ia.input.dropdown",
+            "version": 0,
+            "meta": {
+              "name": "Theme"
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "138px"
+            },
+            "props": {
+              "options": [
+                {
+                  "value": "dark",
+                  "label": "Dark"
+                },
+                {
+                  "value": "dark-cool",
+                  "label": "Dark cool"
+                },
+                {
+                  "value": "dark-warm",
+                  "label": "Dark warm"
+                }
+              ],
+              "placeholder": "Theme",
+              "style": {
+                "classes": "hdr-theme",
+                "minWidth": "0px"
+              }
+            },
+            "propConfig": {
+              "props.value": {
+                "binding": {
+                  "type": "property",
+                  "config": {
+                    "path": "session.props.theme",
+                    "bidirectional": true
+                  }
+                }
+              }
+            }
           },
           {
             "type": "ia.container.flex",
@@ -572,7 +616,7 @@
                   "text": "",
                   "style": {
                     "fontWeight": 700,
-                    "color": "#dde4e9",
+                    "color": "var(--neutral-90, #dde4e9)",
                     "textAlign": "right",
                     "whiteSpace": "nowrap",
                     "classes": "hdr-user"
@@ -602,7 +646,7 @@
                 "props": {
                   "text": "",
                   "style": {
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "textAlign": "right",
                     "whiteSpace": "nowrap",
                     "classes": "hdr-user hdr-user-sub"
@@ -644,12 +688,12 @@
           ],
           "currentTabIndex": 0,
           "menuStyle": {
-            "backgroundColor": "#1d232a",
+            "backgroundColor": "var(--neutral-20, #1d232a)",
             "borderBottom": "1px solid #2c343d"
           },
           "tabStyle": {
             "inactive": {
-              "color": "#8b98a3",
+              "color": "var(--neutral-60, #8b98a3)",
               "backgroundColor": "transparent",
               "fontWeight": 700,
               "fontSize": "11px",
@@ -667,7 +711,7 @@
             }
           },
           "contentStyle": {
-            "backgroundColor": "#171b20",
+            "backgroundColor": "var(--neutral-10, #171b20)",
             "minHeight": "0px",
             "height": "100%"
           },
@@ -691,7 +735,7 @@
             "props": {
               "direction": "column",
               "style": {
-                "backgroundColor": "#1d232a",
+                "backgroundColor": "var(--neutral-20, #1d232a)",
                 "overflow": "hidden",
                 "minWidth": "0px",
                 "minHeight": "0px",
@@ -711,7 +755,7 @@
                   "direction": "row",
                   "style": {
                     "borderBottom": "1px solid #2c343d",
-                    "backgroundColor": "#20262d",
+                    "backgroundColor": "var(--neutral-20, #20262d)",
                     "minWidth": "0px",
                     "minHeight": "0px"
                   },
@@ -735,7 +779,7 @@
                         "fontWeight": 700,
                         "letterSpacing": "1.3px",
                         "textTransform": "uppercase",
-                        "color": "#8b98a3",
+                        "color": "var(--neutral-60, #8b98a3)",
                         "padding": "0 12px",
                         "lineHeight": "30px",
                         "borderBottom": "1px solid #2c343d",
@@ -761,7 +805,7 @@
                       "text": "source filter prov:MachineDemo:/tag:* \u00b7 select a row, then use the toolbar",
                       "style": {
                         "fontSize": "11px",
-                        "color": "#74808a",
+                        "color": "var(--neutral-60, #74808a)",
                         "lineHeight": "30px",
                         "padding": "0 12px",
                         "whiteSpace": "nowrap"
@@ -823,7 +867,7 @@
                         "activeUnacked": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#dde4e9",
+                            "color": "var(--neutral-90, #dde4e9)",
                             "fontWeight": "400"
                           },
                           "priorities": {
@@ -848,7 +892,7 @@
                               "backgroundColor": "transparent"
                             },
                             "diagnostic": {
-                              "color": "#8b98a3",
+                              "color": "var(--neutral-60, #8b98a3)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             }
@@ -857,7 +901,7 @@
                         "activeAcked": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#dde4e9",
+                            "color": "var(--neutral-90, #dde4e9)",
                             "fontWeight": "400"
                           },
                           "priorities": {
@@ -882,7 +926,7 @@
                               "backgroundColor": "transparent"
                             },
                             "diagnostic": {
-                              "color": "#8b98a3",
+                              "color": "var(--neutral-60, #8b98a3)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             }
@@ -891,7 +935,7 @@
                         "clearUnacked": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#dde4e9",
+                            "color": "var(--neutral-90, #dde4e9)",
                             "fontWeight": "400"
                           },
                           "priorities": {
@@ -916,7 +960,7 @@
                               "backgroundColor": "transparent"
                             },
                             "diagnostic": {
-                              "color": "#8b98a3",
+                              "color": "var(--neutral-60, #8b98a3)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             }
@@ -925,32 +969,32 @@
                         "clearAcked": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#74808a",
+                            "color": "var(--neutral-60, #74808a)",
                             "fontWeight": "400"
                           },
                           "priorities": {
                             "critical": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
                             "high": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
                             "medium": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
                             "low": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
                             "diagnostic": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             }
@@ -959,7 +1003,7 @@
                         "clearedUnacked": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#dde4e9",
+                            "color": "var(--neutral-90, #dde4e9)",
                             "fontWeight": "400"
                           },
                           "priorities": {
@@ -984,7 +1028,7 @@
                               "backgroundColor": "transparent"
                             },
                             "diagnostic": {
-                              "color": "#8b98a3",
+                              "color": "var(--neutral-60, #8b98a3)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             }
@@ -993,32 +1037,32 @@
                         "clearedAcked": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#74808a",
+                            "color": "var(--neutral-60, #74808a)",
                             "fontWeight": "400"
                           },
                           "priorities": {
                             "critical": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
                             "high": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
                             "medium": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
                             "low": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
                             "diagnostic": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             }
@@ -1210,7 +1254,7 @@
             "props": {
               "direction": "column",
               "style": {
-                "backgroundColor": "#1d232a",
+                "backgroundColor": "var(--neutral-20, #1d232a)",
                 "overflow": "hidden",
                 "minWidth": "0px",
                 "minHeight": "0px",
@@ -1230,7 +1274,7 @@
                   "direction": "row",
                   "style": {
                     "borderBottom": "1px solid #2c343d",
-                    "backgroundColor": "#20262d",
+                    "backgroundColor": "var(--neutral-20, #20262d)",
                     "minWidth": "0px",
                     "minHeight": "0px"
                   },
@@ -1254,7 +1298,7 @@
                         "fontWeight": 700,
                         "letterSpacing": "1.3px",
                         "textTransform": "uppercase",
-                        "color": "#8b98a3",
+                        "color": "var(--neutral-60, #8b98a3)",
                         "padding": "0 12px",
                         "lineHeight": "30px",
                         "borderBottom": "1px solid #2c343d",
@@ -1280,7 +1324,7 @@
                       "text": "last 24 hours",
                       "style": {
                         "fontSize": "11px",
-                        "color": "#74808a",
+                        "color": "var(--neutral-60, #74808a)",
                         "lineHeight": "30px",
                         "padding": "0 12px",
                         "whiteSpace": "nowrap"
@@ -1437,7 +1481,7 @@
                         "active": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#dde4e9",
+                            "color": "var(--neutral-90, #dde4e9)",
                             "fontWeight": "400"
                           },
                           "priorities": {
@@ -1458,7 +1502,7 @@
                               "fontWeight": "700"
                             },
                             "diagnostic": {
-                              "color": "#8b98a3",
+                              "color": "var(--neutral-60, #8b98a3)",
                               "fontWeight": "700"
                             }
                           }
@@ -1466,7 +1510,7 @@
                         "acked": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#dde4e9",
+                            "color": "var(--neutral-90, #dde4e9)",
                             "fontWeight": "400"
                           },
                           "priorities": {
@@ -1487,7 +1531,7 @@
                               "fontWeight": "700"
                             },
                             "diagnostic": {
-                              "color": "#8b98a3",
+                              "color": "var(--neutral-60, #8b98a3)",
                               "fontWeight": "700"
                             }
                           }
@@ -1495,28 +1539,28 @@
                         "cleared": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#74808a",
+                            "color": "var(--neutral-60, #74808a)",
                             "fontWeight": "400"
                           },
                           "priorities": {
                             "critical": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "high": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "medium": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "low": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "diagnostic": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             }
                           }
@@ -1524,7 +1568,7 @@
                         "enabled": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#dde4e9",
+                            "color": "var(--neutral-90, #dde4e9)",
                             "fontWeight": "400"
                           },
                           "priorities": {
@@ -1545,7 +1589,7 @@
                               "fontWeight": "700"
                             },
                             "diagnostic": {
-                              "color": "#8b98a3",
+                              "color": "var(--neutral-60, #8b98a3)",
                               "fontWeight": "700"
                             }
                           }
@@ -1553,28 +1597,28 @@
                         "disabled": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#74808a",
+                            "color": "var(--neutral-60, #74808a)",
                             "fontWeight": "400"
                           },
                           "priorities": {
                             "critical": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "high": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "medium": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "low": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "diagnostic": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             }
                           }
@@ -1582,28 +1626,28 @@
                         "system": {
                           "base": {
                             "backgroundColor": "transparent",
-                            "color": "#74808a",
+                            "color": "var(--neutral-60, #74808a)",
                             "fontWeight": "400"
                           },
                           "priorities": {
                             "critical": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "high": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "medium": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "low": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             },
                             "diagnostic": {
-                              "color": "#74808a",
+                              "color": "var(--neutral-60, #74808a)",
                               "fontWeight": "700"
                             }
                           }

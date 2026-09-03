@@ -9,6 +9,7 @@ its own title bar switched off:
 
     camera  string   default "overview"          which 3D camera the page starts on
     hud     boolean  default true                 overlay cards + camera buttons
+    watermark boolean default true                 the "WebDev, not Perspective" label
     header  boolean  default true                 this view's OWN header row
     theme   string   default {session.props.theme} which colour set the page renders in
 
@@ -230,7 +231,8 @@ bind(
     "props.src",
     '"' + WEBDEV_PATH + '?camera=" + {view.params.camera}'
     ' + "&hud=" + if({view.params.hud}, "1", "0")'
-    ' + "&theme=" + {view.params.theme}',
+    ' + "&theme=" + {view.params.theme}'
+    ' + "&watermark=" + if({view.params.watermark}, "1", "0")',
 )
 
 view = {
@@ -244,6 +246,13 @@ view = {
         # the session by default; this literal only matters if that binding
         # itself somehow fails to evaluate.
         "theme": "dark-cool",
+        # The page says, quietly, that it is WebDev and three.js rather than a
+        # Perspective component. Every other screen in this project IS
+        # Perspective and this one is deliberately styled to match, so the one
+        # architectural fact a viewer cannot see from the screen is the one
+        # worth printing on it. Off for a clean screenshot, or when the view is
+        # embedded somewhere the distinction has already been made.
+        "watermark": True,
     },
     # A view's declared params are just default values unless each one is ALSO
     # marked paramDirection "input" here - the Designer does this invisibly
@@ -268,6 +277,7 @@ view = {
             "persistent": True,
             "binding": expr_binding("{session.props.theme}"),
         },
+        "params.watermark": {"paramDirection": "input", "persistent": True},
     },
     "props": {"defaultSize": {"width": 1366, "height": 768}},
     "root": {

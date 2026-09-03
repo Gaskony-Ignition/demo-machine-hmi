@@ -4,7 +4,8 @@
     "camera": "overview",
     "hud": true,
     "header": true,
-    "theme": "dark-cool"
+    "theme": "dark-cool",
+    "watermark": true
   },
   "propConfig": {
     "params.camera": {
@@ -28,6 +29,10 @@
           "expression": "{session.props.theme}"
         }
       }
+    },
+    "params.watermark": {
+      "paramDirection": "input",
+      "persistent": true
     }
   },
   "props": {
@@ -47,7 +52,7 @@
         "height": "100%",
         "overflow": "hidden",
         "minHeight": "0",
-        "backgroundColor": "#171b20"
+        "backgroundColor": "var(--neutral-10, #171b20)"
       }
     },
     "children": [
@@ -75,7 +80,7 @@
               "direction": "row",
               "alignItems": "center",
               "style": {
-                "backgroundColor": "#1d232a",
+                "backgroundColor": "var(--neutral-20, #1d232a)",
                 "borderBottom": "1px solid #2c343d",
                 "padding": "9px 16px",
                 "gap": "14px"
@@ -106,7 +111,7 @@
                       "text": "Zone 2 \u00b7 Robot Cell 2 \u2014 Live 3D",
                       "style": {
                         "fontSize": "16px",
-                        "color": "#f2f6f8",
+                        "color": "var(--neutral-100, #f2f6f8)",
                         "fontWeight": "bold"
                       }
                     },
@@ -123,7 +128,7 @@
                       "text": "Model driven by the same [MachineDemo] tags as every other screen",
                       "style": {
                         "fontSize": "11.5px",
-                        "color": "#8b98a3",
+                        "color": "var(--neutral-60, #8b98a3)",
                         "fontWeight": "normal"
                       }
                     },
@@ -178,8 +183,8 @@
                 "props": {
                   "text": "Overview",
                   "style": {
-                    "backgroundColor": "#262e36",
-                    "color": "#cdd6dd",
+                    "backgroundColor": "var(--neutral-30, #262e36)",
+                    "color": "var(--neutral-80, #cdd6dd)",
                     "border": "1px solid #38424c",
                     "borderRadius": "7px",
                     "fontWeight": "bold",
@@ -238,7 +243,7 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "\"/system/webdev/Machine_HMI_Demo/cell3d?camera=\" + {view.params.camera} + \"&hud=\" + if({view.params.hud}, \"1\", \"0\") + \"&theme=\" + {view.params.theme}"
+                "expression": "\"/system/webdev/Machine_HMI_Demo/cell3d?camera=\" + {view.params.camera} + \"&hud=\" + if({view.params.hud}, \"1\", \"0\") + \"&theme=\" + {view.params.theme} + \"&watermark=\" + if({view.params.watermark}, \"1\", \"0\")"
               }
             }
           }

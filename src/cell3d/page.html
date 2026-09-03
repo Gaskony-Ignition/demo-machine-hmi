@@ -160,6 +160,29 @@
   .tag3d.bad { border-color: #7a2a2f; background: rgba(45,18,21,.9); color: #ffc2c5; }
   .tag3d.bad b { color: #ff8d92; }
 
+  /* ---- what this page IS ----
+     Every other screen in this project is Perspective. This one is a WebGL
+     page that Ignition's WebDev module serves, shown in an iframe. In a
+     demonstration that difference matters and is invisible - the page is
+     styled to match the rest of the project precisely so that it does not
+     look bolted on, which is exactly what makes the mechanism worth saying
+     out loud. Quiet: it labels the page, it does not compete with the HUD.
+     ?watermark=0 removes it for screenshots. */
+  #wm {
+    position: fixed; z-index: 6; top: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--dim); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px;
+    pointer-events: none; opacity: .85; white-space: nowrap;
+  }
+  #wm b { color: var(--info); font-weight: 700; }
+  #wm .sep { opacity: .5; font-weight: 400; letter-spacing: 0; }
+  /* The state card is 252px wide and the safety card sits opposite it. Below
+     about 900px the three would meet, and the label is the one that gives way
+     - it is for the person being shown the page, not the person using it. */
+  @media (max-width: 900px) { #wm { display: none; } }
+
   /* ---- link state ---- */
   #link {
     position: fixed; z-index: 6; bottom: 12px; left: 50%; transform: translateX(-50%);
@@ -223,6 +246,7 @@
 </div>
 
 <div class="hud" id="cams"></div>
+<div id="wm"><b>Ignition WebDev</b><span class="sep">·</span>three.js<span class="sep">·</span>not a Perspective component</div>
 <div id="link"><span class="led" id="l-link"></span><span id="linktext">connecting…</span></div>
 
 <script src="lib?f=three"></script>
@@ -255,6 +279,11 @@
   };
   var startCameraName = CAMERA_SLUGS[(urlParams.get("camera") || "").toLowerCase()] || "Overview";
   var hudOn = urlParams.get("hud") !== "0";
+  // Same shape as hud: present unless explicitly turned off.
+  if (urlParams.get("watermark") === "0") {
+    var wm = document.getElementById("wm");
+    if (wm) wm.style.display = "none";
+  }
   // Every HUD card and the camera row carry class "hud" (the fault banner,
   // the link pill and the 3D-anchored labels deliberately do not), so hiding
   // that one class is exactly "the overlay cards and the camera buttons" -

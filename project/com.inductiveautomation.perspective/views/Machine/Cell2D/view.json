@@ -19,7 +19,7 @@
         "height": "100%",
         "overflow": "hidden",
         "minHeight": "0",
-        "backgroundColor": "#171b20"
+        "backgroundColor": "var(--neutral-10, #171b20)"
       }
     },
     "children": [
@@ -35,7 +35,7 @@
           "direction": "row",
           "alignItems": "center",
           "style": {
-            "backgroundColor": "#1d232a",
+            "backgroundColor": "var(--neutral-20, #1d232a)",
             "borderBottom": "1px solid #2c343d",
             "padding": "9px 16px",
             "gap": "14px"
@@ -66,7 +66,7 @@
                   "text": "Zone 2 \u00b7 Robot Cell 2 \u2014 Stock components",
                   "style": {
                     "fontSize": "16px",
-                    "color": "#f2f6f8",
+                    "color": "var(--neutral-100, #f2f6f8)",
                     "fontWeight": "bold"
                   }
                 },
@@ -83,7 +83,7 @@
                   "text": "The same robot, the same tags, built entirely in the Designer with no JavaScript",
                   "style": {
                     "fontSize": "11.5px",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "fontWeight": "normal"
                   }
                 },
@@ -138,8 +138,8 @@
             "props": {
               "text": "Overview",
               "style": {
-                "backgroundColor": "#262e36",
-                "color": "#cdd6dd",
+                "backgroundColor": "var(--neutral-30, #262e36)",
+                "color": "var(--neutral-80, #cdd6dd)",
                 "border": "1px solid #38424c",
                 "borderRadius": "7px",
                 "fontWeight": "bold",
@@ -177,7 +177,7 @@
         "props": {
           "mode": "fixed",
           "style": {
-            "backgroundColor": "#171b20",
+            "backgroundColor": "var(--neutral-10, #171b20)",
             "overflow": "hidden",
             "minHeight": "0px"
           }
@@ -197,7 +197,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#7d8894"
+                "backgroundColor": "var(--neutral-60, #7d8894)"
               }
             }
           },
@@ -215,7 +215,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#22282f"
+                "backgroundColor": "var(--neutral-20, #22282f)"
               }
             }
           },
@@ -233,7 +233,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#7d8894",
+                "backgroundColor": "var(--neutral-60, #7d8894)",
                 "borderRadius": "4px"
               }
             }
@@ -252,7 +252,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#98a4b1",
+                "backgroundColor": "var(--neutral-70, #98a4b1)",
                 "borderRadius": "3px"
               }
             }
@@ -271,7 +271,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#98a4b1",
+                "backgroundColor": "var(--neutral-70, #98a4b1)",
                 "borderRadius": "3px"
               }
             }
@@ -290,7 +290,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#7d8894"
+                "backgroundColor": "var(--neutral-60, #7d8894)"
               }
             }
           },
@@ -308,7 +308,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#2b323a"
+                "backgroundColor": "var(--neutral-30, #2b323a)"
               }
             }
           },
@@ -326,7 +326,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#2b323a"
+                "backgroundColor": "var(--neutral-30, #2b323a)"
               }
             }
           },
@@ -363,7 +363,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#98a4b1",
+                "backgroundColor": "var(--neutral-70, #98a4b1)",
                 "borderRadius": "4px"
               }
             },
@@ -393,7 +393,7 @@
             "props": {
               "mode": "fixed",
               "style": {
-                "backgroundColor": "#c8ced5",
+                "backgroundColor": "var(--neutral-80, #c8ced5)",
                 "borderRadius": "13px",
                 "overflow": "visible",
                 "transformOrigin": "13px 13px"
@@ -414,7 +414,7 @@
                 },
                 "props": {
                   "style": {
-                    "backgroundColor": "#5a646f",
+                    "backgroundColor": "var(--neutral-50, #5a646f)",
                     "borderRadius": "50%"
                   }
                 }
@@ -434,7 +434,7 @@
                 "props": {
                   "mode": "fixed",
                   "style": {
-                    "backgroundColor": "#aab3bd",
+                    "backgroundColor": "var(--neutral-70, #aab3bd)",
                     "borderRadius": "11px",
                     "overflow": "visible",
                     "transformOrigin": "11px 11px"
@@ -455,7 +455,7 @@
                     },
                     "props": {
                       "style": {
-                        "backgroundColor": "#5a646f",
+                        "backgroundColor": "var(--neutral-50, #5a646f)",
                         "borderRadius": "50%"
                       }
                     }
@@ -474,7 +474,7 @@
                     },
                     "props": {
                       "style": {
-                        "backgroundColor": "#5a646f",
+                        "backgroundColor": "var(--neutral-50, #5a646f)",
                         "borderRadius": "3px"
                       }
                     }

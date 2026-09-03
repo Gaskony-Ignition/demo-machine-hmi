@@ -1,12 +1,32 @@
 /* Machine HMI Demo - machine-level operator control.
-   color-scheme is declared so Chrome's auto dark mode cannot repaint SVG fills. */
+
+   The neutrals are the THEME's, so the whole project follows whichever of the
+   six gateway themes the session is on. Perspective does not mark the DOM with
+   the theme name - it swaps the entire theme stylesheet - so chrome cannot be
+   keyed on the theme, it has to be expressed in the theme's own tokens. Those
+   are surface-relative rather than an absolute lightness ramp:
+
+       --neutral-10   #161616 dark,  #FAFAFA light   (the page)
+       --neutral-90   #DDE1E6 dark,  #21272A light   (text that reads on it)
+
+   so one definition is correct in all six, with no media query and no
+   theme-specific rule. Fallbacks are kept throughout, in case this project is
+   ever opened where the tokens are not defined.
+
+   The semantic colours below are NOT themed. Running green, fault red and
+   warning amber mean something; a green that went grey in a light theme would
+   be a defect.
+
+   color-scheme follows the theme too - `light dark` lets the browser paint
+   scrollbars and form controls to match, and stops Chrome's auto dark mode
+   repainting SVG fills, which is what it was here for originally. */
 :root {
-	color-scheme: dark;
-	--mc-bg: #171b20;
-	--mc-panel: #1d232a;
-	--mc-line: #2c343d;
-	--mc-ink: #dde4e9;
-	--mc-ink-dim: #8b98a3;
+	color-scheme: light dark;
+	--mc-bg:      var(--neutral-10, #171b20);
+	--mc-panel:   var(--neutral-20, #1d232a);
+	--mc-line:    var(--neutral-40, #2c343d);
+	--mc-ink:     var(--neutral-90, #dde4e9);
+	--mc-ink-dim: var(--neutral-60, #8b98a3);
 	--mc-run: #46d07c;
 	--mc-fault: #f0565e;
 	--mc-warn: #eebf5e;
@@ -126,3 +146,15 @@
    gives it 67. An inline style outranks any class however specific, so this is
    one of the few places !important is genuinely required rather than lazy. */
 .psc-alm-tabs .tab-menu-item { flex: 0 0 128px !important; }
+
+/* The header's theme picker.
+
+   It follows the same shed order as everything else in the top bar: below
+   1120px - the 10in panel - it goes, because an operator at the machine does
+   not pick themes and the nav tabs and the alarm chip need the room. The Setup
+   page carries the same six choices as buttons, which is what remains reachable
+   at that width. */
+.psc-hdr-theme.psc-hdr-theme { font-size: 12px; }
+@media (max-width: 1119px) {
+	.psc-hdr-theme.psc-hdr-theme { display: none !important; }
+}

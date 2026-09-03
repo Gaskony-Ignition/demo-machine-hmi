@@ -53,8 +53,8 @@
       "direction": "column",
       "style": {
         "height": "100%",
-        "backgroundColor": "#171b20",
-        "color": "#dde4e9",
+        "backgroundColor": "var(--neutral-10, #171b20)",
+        "color": "var(--neutral-90, #dde4e9)",
         "fontFamily": "\"Noto Sans\",\"Segoe UI\",system-ui,-apple-system,sans-serif",
         "gap": "0px",
         "minWidth": "0px",
@@ -70,7 +70,7 @@
         "props": {
           "direction": "row",
           "style": {
-            "backgroundColor": "#1d232a",
+            "backgroundColor": "var(--neutral-20, #1d232a)",
             "borderBottom": "1px solid #2c343d",
             "minWidth": "0px",
             "minHeight": "0px",
@@ -114,7 +114,7 @@
                   "text": "Machine HMI Demo \u2014 Setup & presenter console",
                   "style": {
                     "fontWeight": 700,
-                    "color": "#dde4e9",
+                    "color": "var(--neutral-90, #dde4e9)",
                     "letterSpacing": "0.2px",
                     "lineHeight": "24px",
                     "whiteSpace": "nowrap",
@@ -139,7 +139,7 @@
                   "text": "",
                   "style": {
                     "fontSize": "11.5px",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "lineHeight": "16px",
                     "whiteSpace": "nowrap",
                     "overflow": "hidden",
@@ -203,7 +203,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -242,7 +242,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -281,7 +281,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -320,7 +320,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -359,7 +359,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid #2c343d",
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -423,6 +423,50 @@
             ]
           },
           {
+            "type": "ia.input.dropdown",
+            "version": 0,
+            "meta": {
+              "name": "Theme"
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "138px"
+            },
+            "props": {
+              "options": [
+                {
+                  "value": "dark",
+                  "label": "Dark"
+                },
+                {
+                  "value": "dark-cool",
+                  "label": "Dark cool"
+                },
+                {
+                  "value": "dark-warm",
+                  "label": "Dark warm"
+                }
+              ],
+              "placeholder": "Theme",
+              "style": {
+                "classes": "hdr-theme",
+                "minWidth": "0px"
+              }
+            },
+            "propConfig": {
+              "props.value": {
+                "binding": {
+                  "type": "property",
+                  "config": {
+                    "path": "session.props.theme",
+                    "bidirectional": true
+                  }
+                }
+              }
+            }
+          },
+          {
             "type": "ia.container.flex",
             "meta": {
               "name": "User"
@@ -450,7 +494,7 @@
                   "text": "",
                   "style": {
                     "fontWeight": 700,
-                    "color": "#dde4e9",
+                    "color": "var(--neutral-90, #dde4e9)",
                     "textAlign": "right",
                     "whiteSpace": "nowrap",
                     "classes": "hdr-user"
@@ -480,7 +524,7 @@
                 "props": {
                   "text": "",
                   "style": {
-                    "color": "#8b98a3",
+                    "color": "var(--neutral-60, #8b98a3)",
                     "textAlign": "right",
                     "whiteSpace": "nowrap",
                     "classes": "hdr-user hdr-user-sub"
@@ -553,7 +597,7 @@
                 "props": {
                   "direction": "column",
                   "style": {
-                    "backgroundColor": "#1d232a",
+                    "backgroundColor": "var(--neutral-20, #1d232a)",
                     "border": "1px solid #2c343d",
                     "borderRadius": "8px",
                     "overflow": "hidden",
@@ -576,7 +620,7 @@
                       "direction": "row",
                       "style": {
                         "borderBottom": "1px solid #2c343d",
-                        "backgroundColor": "#20262d",
+                        "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
                       },
@@ -600,7 +644,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "1.3px",
                             "textTransform": "uppercase",
-                            "color": "#8b98a3",
+                            "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
                             "borderBottom": "1px solid #2c343d",
@@ -626,7 +670,7 @@
                           "text": "MachineDemo.setup / MachineDemo.api",
                           "style": {
                             "fontSize": "11px",
-                            "color": "#74808a",
+                            "color": "var(--neutral-60, #74808a)",
                             "lineHeight": "30px",
                             "padding": "0 12px",
                             "whiteSpace": "nowrap"
@@ -773,8 +817,8 @@
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
                                 "border": "1px solid #2c343d",
-                                "backgroundColor": "#28313a",
-                                "color": "#dde4e9",
+                                "backgroundColor": "var(--neutral-30, #28313a)",
+                                "color": "var(--neutral-90, #dde4e9)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
@@ -853,7 +897,7 @@
                 "props": {
                   "direction": "column",
                   "style": {
-                    "backgroundColor": "#1d232a",
+                    "backgroundColor": "var(--neutral-20, #1d232a)",
                     "border": "1px solid #2c343d",
                     "borderRadius": "8px",
                     "overflow": "hidden",
@@ -876,7 +920,7 @@
                       "direction": "row",
                       "style": {
                         "borderBottom": "1px solid #2c343d",
-                        "backgroundColor": "#20262d",
+                        "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
                       },
@@ -900,7 +944,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "1.3px",
                             "textTransform": "uppercase",
-                            "color": "#8b98a3",
+                            "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
                             "borderBottom": "1px solid #2c343d",
@@ -926,7 +970,7 @@
                           "text": "press CHECK - the reply is rendered as it arrives",
                           "style": {
                             "fontSize": "11px",
-                            "color": "#74808a",
+                            "color": "var(--neutral-60, #74808a)",
                             "lineHeight": "30px",
                             "padding": "0 12px",
                             "whiteSpace": "nowrap"
@@ -994,7 +1038,7 @@
                                 "height": "10px",
                                 "minWidth": "10px",
                                 "borderRadius": "50%",
-                                "backgroundColor": "#3a434b",
+                                "backgroundColor": "var(--neutral-40, #3a434b)",
                                 "border": "1px solid rgba(0,0,0,0.35)"
                               }
                             },
@@ -1031,7 +1075,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12.5px",
-                                "color": "#dde4e9",
+                                "color": "var(--neutral-90, #dde4e9)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden"
                               }
@@ -1062,7 +1106,7 @@
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "11.5px",
-                                "color": "#8b98a3",
+                                "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
                                 "textAlign": "right"
@@ -1119,7 +1163,7 @@
                                 "height": "10px",
                                 "minWidth": "10px",
                                 "borderRadius": "50%",
-                                "backgroundColor": "#3a434b",
+                                "backgroundColor": "var(--neutral-40, #3a434b)",
                                 "border": "1px solid rgba(0,0,0,0.35)"
                               }
                             },
@@ -1156,7 +1200,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12.5px",
-                                "color": "#dde4e9",
+                                "color": "var(--neutral-90, #dde4e9)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden"
                               }
@@ -1187,7 +1231,7 @@
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "11.5px",
-                                "color": "#8b98a3",
+                                "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
                                 "textAlign": "right"
@@ -1244,7 +1288,7 @@
                                 "height": "10px",
                                 "minWidth": "10px",
                                 "borderRadius": "50%",
-                                "backgroundColor": "#3a434b",
+                                "backgroundColor": "var(--neutral-40, #3a434b)",
                                 "border": "1px solid rgba(0,0,0,0.35)"
                               }
                             },
@@ -1281,7 +1325,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12.5px",
-                                "color": "#dde4e9",
+                                "color": "var(--neutral-90, #dde4e9)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden"
                               }
@@ -1312,7 +1356,7 @@
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "11.5px",
-                                "color": "#8b98a3",
+                                "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
                                 "textAlign": "right"
@@ -1369,7 +1413,7 @@
                                 "height": "10px",
                                 "minWidth": "10px",
                                 "borderRadius": "50%",
-                                "backgroundColor": "#3a434b",
+                                "backgroundColor": "var(--neutral-40, #3a434b)",
                                 "border": "1px solid rgba(0,0,0,0.35)"
                               }
                             },
@@ -1406,7 +1450,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12.5px",
-                                "color": "#dde4e9",
+                                "color": "var(--neutral-90, #dde4e9)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden"
                               }
@@ -1437,7 +1481,7 @@
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "11.5px",
-                                "color": "#8b98a3",
+                                "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
                                 "textAlign": "right"
@@ -1494,7 +1538,7 @@
                                 "height": "10px",
                                 "minWidth": "10px",
                                 "borderRadius": "50%",
-                                "backgroundColor": "#3a434b",
+                                "backgroundColor": "var(--neutral-40, #3a434b)",
                                 "border": "1px solid rgba(0,0,0,0.35)"
                               }
                             },
@@ -1531,7 +1575,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12.5px",
-                                "color": "#dde4e9",
+                                "color": "var(--neutral-90, #dde4e9)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden"
                               }
@@ -1562,7 +1606,7 @@
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "11.5px",
-                                "color": "#8b98a3",
+                                "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
                                 "textAlign": "right"
@@ -1619,7 +1663,7 @@
                                 "height": "10px",
                                 "minWidth": "10px",
                                 "borderRadius": "50%",
-                                "backgroundColor": "#3a434b",
+                                "backgroundColor": "var(--neutral-40, #3a434b)",
                                 "border": "1px solid rgba(0,0,0,0.35)"
                               }
                             },
@@ -1656,7 +1700,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12.5px",
-                                "color": "#dde4e9",
+                                "color": "var(--neutral-90, #dde4e9)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden"
                               }
@@ -1687,7 +1731,7 @@
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "11.5px",
-                                "color": "#8b98a3",
+                                "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
                                 "textAlign": "right"
@@ -1750,7 +1794,7 @@
                           "text": "RAW REPLY \u2014 scrolls",
                           "style": {
                             "fontSize": "9.5px",
-                            "color": "#74808a",
+                            "color": "var(--neutral-60, #74808a)",
                             "letterSpacing": "1px",
                             "paddingTop": "6px"
                           }
@@ -1769,7 +1813,7 @@
                         "props": {
                           "direction": "column",
                           "style": {
-                            "backgroundColor": "#12171c",
+                            "backgroundColor": "var(--neutral-10, #12171c)",
                             "borderRadius": "5px",
                             "border": "1px solid #2c343d",
                             "padding": "6px 8px",
@@ -1794,7 +1838,7 @@
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "10.5px",
-                                "color": "#8b98a3",
+                                "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "pre-wrap",
                                 "lineHeight": "14px"
                               }
@@ -1829,7 +1873,7 @@
                 "props": {
                   "direction": "column",
                   "style": {
-                    "backgroundColor": "#1d232a",
+                    "backgroundColor": "var(--neutral-20, #1d232a)",
                     "border": "1px solid #2c343d",
                     "borderRadius": "8px",
                     "overflow": "hidden",
@@ -1852,7 +1896,7 @@
                       "direction": "row",
                       "style": {
                         "borderBottom": "1px solid #2c343d",
-                        "backgroundColor": "#20262d",
+                        "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
                       },
@@ -1876,7 +1920,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "1.3px",
                             "textTransform": "uppercase",
-                            "color": "#8b98a3",
+                            "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
                             "borderBottom": "1px solid #2c343d",
@@ -1902,7 +1946,7 @@
                           "text": "the six beats of the demo",
                           "style": {
                             "fontSize": "11px",
-                            "color": "#74808a",
+                            "color": "var(--neutral-60, #74808a)",
                             "lineHeight": "30px",
                             "padding": "0 12px",
                             "whiteSpace": "nowrap"
@@ -2007,7 +2051,7 @@
                                   "style": {
                                     "fontSize": "12.5px",
                                     "fontWeight": 700,
-                                    "color": "#dde4e9",
+                                    "color": "var(--neutral-90, #dde4e9)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
@@ -2029,7 +2073,7 @@
                                   "text": "Eight zones, colour only where something runs or faults. Tap a zone to reach its cell page.",
                                   "style": {
                                     "fontSize": "11px",
-                                    "color": "#74808a",
+                                    "color": "var(--neutral-60, #74808a)",
                                     "lineHeight": "14px"
                                   }
                                 },
@@ -2112,7 +2156,7 @@
                                   "style": {
                                     "fontSize": "12.5px",
                                     "fontWeight": 700,
-                                    "color": "#dde4e9",
+                                    "color": "var(--neutral-90, #dde4e9)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
@@ -2134,7 +2178,7 @@
                                   "text": "Zone 5 turns red on the mimic, the alarm strip names it, and the Alarms page carries it with a note.",
                                   "style": {
                                     "fontSize": "11px",
-                                    "color": "#74808a",
+                                    "color": "var(--neutral-60, #74808a)",
                                     "lineHeight": "14px"
                                   }
                                 },
@@ -2217,7 +2261,7 @@
                                   "style": {
                                     "fontSize": "12.5px",
                                     "fontWeight": 700,
-                                    "color": "#dde4e9",
+                                    "color": "var(--neutral-90, #dde4e9)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
@@ -2239,7 +2283,7 @@
                                   "text": "Nothing moves - the permissive list says which interlock, and the footer says what to do about it.",
                                   "style": {
                                     "fontSize": "11px",
-                                    "color": "#74808a",
+                                    "color": "var(--neutral-60, #74808a)",
                                     "lineHeight": "14px"
                                   }
                                 },
@@ -2322,7 +2366,7 @@
                                   "style": {
                                     "fontSize": "12.5px",
                                     "fontWeight": 700,
-                                    "color": "#dde4e9",
+                                    "color": "var(--neutral-90, #dde4e9)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
@@ -2344,7 +2388,7 @@
                                   "text": "The guard permissive drops, motion is inhibited, the banner and footer both explain why.",
                                   "style": {
                                     "fontSize": "11px",
-                                    "color": "#74808a",
+                                    "color": "var(--neutral-60, #74808a)",
                                     "lineHeight": "14px"
                                   }
                                 },
@@ -2427,7 +2471,7 @@
                                   "style": {
                                     "fontSize": "12.5px",
                                     "fontWeight": 700,
-                                    "color": "#dde4e9",
+                                    "color": "var(--neutral-90, #dde4e9)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
@@ -2449,7 +2493,7 @@
                                   "text": "Same screen, same tags. Jog, gripper and service routines go read-only and say so.",
                                   "style": {
                                     "fontSize": "11px",
-                                    "color": "#74808a",
+                                    "color": "var(--neutral-60, #74808a)",
                                     "lineHeight": "14px"
                                   }
                                 },
@@ -2532,7 +2576,7 @@
                                   "style": {
                                     "fontSize": "12.5px",
                                     "fontWeight": 700,
-                                    "color": "#dde4e9",
+                                    "color": "var(--neutral-90, #dde4e9)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
@@ -2554,7 +2598,7 @@
                                   "text": "Ack and shelve on the stock component, journal history underneath, this machine's alarms only.",
                                   "style": {
                                     "fontSize": "11px",
-                                    "color": "#74808a",
+                                    "color": "var(--neutral-60, #74808a)",
                                     "lineHeight": "14px"
                                   }
                                 },
@@ -2601,7 +2645,7 @@
                 "props": {
                   "direction": "column",
                   "style": {
-                    "backgroundColor": "#1d232a",
+                    "backgroundColor": "var(--neutral-20, #1d232a)",
                     "border": "1px solid #2c343d",
                     "borderRadius": "8px",
                     "overflow": "hidden",
@@ -2624,7 +2668,7 @@
                       "direction": "row",
                       "style": {
                         "borderBottom": "1px solid #2c343d",
-                        "backgroundColor": "#20262d",
+                        "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
                       },
@@ -2648,7 +2692,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "1.3px",
                             "textTransform": "uppercase",
-                            "color": "#8b98a3",
+                            "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
                             "borderBottom": "1px solid #2c343d",
@@ -2674,7 +2718,7 @@
                           "text": "drive the demo from here",
                           "style": {
                             "fontSize": "11px",
-                            "color": "#74808a",
+                            "color": "var(--neutral-60, #74808a)",
                             "lineHeight": "30px",
                             "padding": "0 12px",
                             "whiteSpace": "nowrap"
@@ -2718,7 +2762,7 @@
                           "direction": "row",
                           "style": {
                             "gap": "10px",
-                            "backgroundColor": "#20262d",
+                            "backgroundColor": "var(--neutral-20, #20262d)",
                             "border": "1px solid #2c343d",
                             "borderRadius": "7px",
                             "padding": "7px 10px",
@@ -2766,7 +2810,7 @@
                                     "minWidth": "12px",
                                     "minHeight": "12px",
                                     "borderRadius": "50%",
-                                    "backgroundColor": "#3a434b",
+                                    "backgroundColor": "var(--neutral-40, #3a434b)",
                                     "border": "1px solid rgba(0,0,0,0.35)"
                                   }
                                 },
@@ -2816,7 +2860,7 @@
                                       "style": {
                                         "fontSize": "13.5px",
                                         "fontWeight": 700,
-                                        "color": "#dde4e9",
+                                        "color": "var(--neutral-90, #dde4e9)",
                                         "whiteSpace": "nowrap"
                                       }
                                     },
@@ -2835,7 +2879,7 @@
                                       "text": "Zone 5 stops, film feed torque",
                                       "style": {
                                         "fontSize": "11px",
-                                        "color": "#74808a",
+                                        "color": "var(--neutral-60, #74808a)",
                                         "whiteSpace": "nowrap",
                                         "overflow": "hidden",
                                         "textOverflow": "ellipsis",
@@ -2963,7 +3007,7 @@
                                     "borderRadius": "6px",
                                     "border": "1px solid #2c343d",
                                     "backgroundColor": "transparent",
-                                    "color": "#b7c2ca",
+                                    "color": "var(--neutral-80, #b7c2ca)",
                                     "padding": "0 10px",
                                     "whiteSpace": "normal",
                                     "lineHeight": "1.2",
@@ -3011,7 +3055,7 @@
                           "direction": "row",
                           "style": {
                             "gap": "10px",
-                            "backgroundColor": "#20262d",
+                            "backgroundColor": "var(--neutral-20, #20262d)",
                             "border": "1px solid #2c343d",
                             "borderRadius": "7px",
                             "padding": "7px 10px",
@@ -3059,7 +3103,7 @@
                                     "minWidth": "12px",
                                     "minHeight": "12px",
                                     "borderRadius": "50%",
-                                    "backgroundColor": "#3a434b",
+                                    "backgroundColor": "var(--neutral-40, #3a434b)",
                                     "border": "1px solid rgba(0,0,0,0.35)"
                                   }
                                 },
@@ -3109,7 +3153,7 @@
                                       "style": {
                                         "fontSize": "13.5px",
                                         "fontWeight": 700,
-                                        "color": "#dde4e9",
+                                        "color": "var(--neutral-90, #dde4e9)",
                                         "whiteSpace": "nowrap"
                                       }
                                     },
@@ -3128,7 +3172,7 @@
                                       "text": "Zone 8 tray conveyor jams",
                                       "style": {
                                         "fontSize": "11px",
-                                        "color": "#74808a",
+                                        "color": "var(--neutral-60, #74808a)",
                                         "whiteSpace": "nowrap",
                                         "overflow": "hidden",
                                         "textOverflow": "ellipsis",
@@ -3256,7 +3300,7 @@
                                     "borderRadius": "6px",
                                     "border": "1px solid #2c343d",
                                     "backgroundColor": "transparent",
-                                    "color": "#b7c2ca",
+                                    "color": "var(--neutral-80, #b7c2ca)",
                                     "padding": "0 10px",
                                     "whiteSpace": "normal",
                                     "lineHeight": "1.2",
@@ -3304,7 +3348,7 @@
                           "direction": "row",
                           "style": {
                             "gap": "10px",
-                            "backgroundColor": "#20262d",
+                            "backgroundColor": "var(--neutral-20, #20262d)",
                             "border": "1px solid #2c343d",
                             "borderRadius": "7px",
                             "padding": "7px 10px",
@@ -3352,7 +3396,7 @@
                                     "minWidth": "12px",
                                     "minHeight": "12px",
                                     "borderRadius": "50%",
-                                    "backgroundColor": "#3a434b",
+                                    "backgroundColor": "var(--neutral-40, #3a434b)",
                                     "border": "1px solid rgba(0,0,0,0.35)"
                                   }
                                 },
@@ -3402,7 +3446,7 @@
                                       "style": {
                                         "fontSize": "13.5px",
                                         "fontWeight": 700,
-                                        "color": "#dde4e9",
+                                        "color": "var(--neutral-90, #dde4e9)",
                                         "whiteSpace": "nowrap"
                                       }
                                     },
@@ -3421,7 +3465,7 @@
                                       "text": "Robot drops a case, vacuum decays",
                                       "style": {
                                         "fontSize": "11px",
-                                        "color": "#74808a",
+                                        "color": "var(--neutral-60, #74808a)",
                                         "whiteSpace": "nowrap",
                                         "overflow": "hidden",
                                         "textOverflow": "ellipsis",
@@ -3549,7 +3593,7 @@
                                     "borderRadius": "6px",
                                     "border": "1px solid #2c343d",
                                     "backgroundColor": "transparent",
-                                    "color": "#b7c2ca",
+                                    "color": "var(--neutral-80, #b7c2ca)",
                                     "padding": "0 10px",
                                     "whiteSpace": "normal",
                                     "lineHeight": "1.2",
@@ -3597,7 +3641,7 @@
                           "direction": "row",
                           "style": {
                             "gap": "10px",
-                            "backgroundColor": "#20262d",
+                            "backgroundColor": "var(--neutral-20, #20262d)",
                             "border": "1px solid #2c343d",
                             "borderRadius": "7px",
                             "padding": "7px 10px",
@@ -3645,7 +3689,7 @@
                                     "minWidth": "12px",
                                     "minHeight": "12px",
                                     "borderRadius": "50%",
-                                    "backgroundColor": "#3a434b",
+                                    "backgroundColor": "var(--neutral-40, #3a434b)",
                                     "border": "1px solid rgba(0,0,0,0.35)"
                                   }
                                 },
@@ -3695,7 +3739,7 @@
                                       "style": {
                                         "fontSize": "13.5px",
                                         "fontWeight": 700,
-                                        "color": "#dde4e9",
+                                        "color": "var(--neutral-90, #dde4e9)",
                                         "whiteSpace": "nowrap"
                                       }
                                     },
@@ -3714,7 +3758,7 @@
                                       "text": "Cell guard circuit breaks - motion inhibit",
                                       "style": {
                                         "fontSize": "11px",
-                                        "color": "#74808a",
+                                        "color": "var(--neutral-60, #74808a)",
                                         "whiteSpace": "nowrap",
                                         "overflow": "hidden",
                                         "textOverflow": "ellipsis",
@@ -3842,7 +3886,7 @@
                                     "borderRadius": "6px",
                                     "border": "1px solid #2c343d",
                                     "backgroundColor": "transparent",
-                                    "color": "#b7c2ca",
+                                    "color": "var(--neutral-80, #b7c2ca)",
                                     "padding": "0 10px",
                                     "whiteSpace": "normal",
                                     "lineHeight": "1.2",
@@ -3890,7 +3934,7 @@
                           "direction": "row",
                           "style": {
                             "gap": "10px",
-                            "backgroundColor": "#20262d",
+                            "backgroundColor": "var(--neutral-20, #20262d)",
                             "border": "1px solid #2c343d",
                             "borderRadius": "7px",
                             "padding": "7px 10px",
@@ -3938,7 +3982,7 @@
                                     "minWidth": "12px",
                                     "minHeight": "12px",
                                     "borderRadius": "50%",
-                                    "backgroundColor": "#3a434b",
+                                    "backgroundColor": "var(--neutral-40, #3a434b)",
                                     "border": "1px solid rgba(0,0,0,0.35)"
                                   }
                                 },
@@ -3988,7 +4032,7 @@
                                       "style": {
                                         "fontSize": "13.5px",
                                         "fontWeight": 700,
-                                        "color": "#dde4e9",
+                                        "color": "var(--neutral-90, #dde4e9)",
                                         "whiteSpace": "nowrap"
                                       }
                                     },
@@ -4007,7 +4051,7 @@
                                       "text": "Robot faults and stops",
                                       "style": {
                                         "fontSize": "11px",
-                                        "color": "#74808a",
+                                        "color": "var(--neutral-60, #74808a)",
                                         "whiteSpace": "nowrap",
                                         "overflow": "hidden",
                                         "textOverflow": "ellipsis",
@@ -4135,7 +4179,7 @@
                                     "borderRadius": "6px",
                                     "border": "1px solid #2c343d",
                                     "backgroundColor": "transparent",
-                                    "color": "#b7c2ca",
+                                    "color": "var(--neutral-80, #b7c2ca)",
                                     "padding": "0 10px",
                                     "whiteSpace": "normal",
                                     "lineHeight": "1.2",
@@ -4245,7 +4289,7 @@
                 "props": {
                   "direction": "column",
                   "style": {
-                    "backgroundColor": "#1d232a",
+                    "backgroundColor": "var(--neutral-20, #1d232a)",
                     "border": "1px solid #2c343d",
                     "borderRadius": "8px",
                     "overflow": "hidden",
@@ -4256,7 +4300,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "170px"
+                  "basis": "262px"
                 },
                 "children": [
                   {
@@ -4268,7 +4312,7 @@
                       "direction": "row",
                       "style": {
                         "borderBottom": "1px solid #2c343d",
-                        "backgroundColor": "#20262d",
+                        "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
                       },
@@ -4292,7 +4336,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "1.3px",
                             "textTransform": "uppercase",
-                            "color": "#8b98a3",
+                            "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
                             "borderBottom": "1px solid #2c343d",
@@ -4643,7 +4687,7 @@
                               "text": "Simulation",
                               "style": {
                                 "fontSize": "11.5px",
-                                "color": "#8b98a3"
+                                "color": "var(--neutral-60, #8b98a3)"
                               }
                             },
                             "position": {
@@ -4662,7 +4706,7 @@
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "12.5px",
-                                "color": "#b7c2ca"
+                                "color": "var(--neutral-80, #b7c2ca)"
                               }
                             },
                             "position": {
@@ -4677,6 +4721,189 @@
                                   "config": {
                                     "expression": "if(coalesce({[MachineDemo]Line/SimEnabled}, false), \"running\", \"stopped\") + \" at \" + numberFormat(coalesce({[MachineDemo]Line/SimSpeed}, 1), \"0.#\") + \"x\""
                                   }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "ThemeK"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "22px"
+                        },
+                        "props": {
+                          "style": {
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "version": 0,
+                            "meta": {
+                              "name": "K"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "auto"
+                            },
+                            "props": {
+                              "text": "Theme \u2014 Perspective and the 3D cell together",
+                              "style": {
+                                "fontSize": "10px",
+                                "color": "var(--neutral-60, #74808a)",
+                                "letterSpacing": "0.6px",
+                                "whiteSpace": "nowrap",
+                                "overflow": "hidden",
+                                "textOverflow": "ellipsis"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "Themes"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "34px"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "6px",
+                            "padding": "0 10px 6px",
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_dark"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Dark",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid #2c343d",
+                                "backgroundColor": "var(--neutral-30, #252c34)",
+                                "color": "var(--neutral-80, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'dark'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_dark_cool"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Dark cool",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid #2c343d",
+                                "backgroundColor": "var(--neutral-30, #252c34)",
+                                "color": "var(--neutral-80, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'dark-cool'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_dark_warm"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Dark warm",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid #2c343d",
+                                "backgroundColor": "var(--neutral-30, #252c34)",
+                                "color": "var(--neutral-80, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'dark-warm'\n"
+                                  },
+                                  "scope": "G"
                                 }
                               }
                             }
