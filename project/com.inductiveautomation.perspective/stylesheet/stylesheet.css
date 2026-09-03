@@ -58,3 +58,43 @@
 	.psc-hdr-bar.psc-hdr-bar     { gap: 8px; padding: 0 8px; }
 	.psc-hdr-title.psc-hdr-title { font-size: 13px; line-height: 20px; }
 }
+
+/* Alarm tables.
+
+   Perspective ships table cells with padding: 0, so every column's text sits
+   flush against the next one's and a display path runs straight into a
+   priority. 8px a side - header cells carry ia_table__cell as well, so one
+   rule covers both and the labels stay aligned with the values under them.
+
+   The column widths in the view already carry this 16px - see
+   tools/fit_alarm_columns.py. */
+/* Not the select cell - it holds a 17px checkbox in a 30px box that the
+   component sizes itself, and 8px a side leaves 14px, clipping it. */
+.psc-alm-table .ia_table__cell:not(.select-cell) { padding: 0 8px; }
+
+/* Overview labels that have to give ground.
+
+   ia.display.label puts its text in an inner <span>, and that span is the
+   element that decides whether text is elided. props.style lands on the label
+   OUTSIDE it, where `overflow: hidden; text-overflow: ellipsis` computes to
+   nothing at all - measured: overflow visible, text-overflow clip, on a label
+   whose props asked for both. So the rules go on the span.
+
+   Targeting the span also means the font-size rules below win by cascade
+   rather than by having to strip the label's inline size first. */
+.psc-zone-name  span,
+.psc-zone-state span,
+.psc-conv-name  span,
+.psc-pe-cap     span { display: block; overflow: hidden; text-overflow: ellipsis; }
+
+/* On the 1024x600 panel a zone card is 141px wide and its name and state need
+   68px and 55px side by side with a 6px gap - one pixel more than there is.
+   One size step each buys 19px of slack. The conveyor names are simply longer
+   than a third of a 646px panel and are elided after "Conveyor 2 —", which is
+   the half that identifies them. */
+@media (max-width: 1119px) {
+	.psc-zone-name  span { font-size: 10.5px; }
+	.psc-zone-state span { font-size: 9px; letter-spacing: 0.4px; }
+	.psc-conv-name  span { font-size: 9px; letter-spacing: 0.3px; }
+	.psc-pe-cap     span { font-size: 9px; }
+}

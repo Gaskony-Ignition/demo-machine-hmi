@@ -1034,7 +1034,161 @@
                       },
                       "style": {
                         "height": "100%",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "classes": "alm-table"
+                      },
+                      "columns": {
+                        "active": {
+                          "activeTime": {
+                            "enabled": true,
+                            "sort": "none",
+                            "width": 155,
+                            "strictWidth": true
+                          },
+                          "displayPath": {
+                            "enabled": true,
+                            "sort": "none",
+                            "width": 195,
+                            "strictWidth": false
+                          },
+                          "priority": {
+                            "enabled": true,
+                            "sort": "descending",
+                            "width": 92,
+                            "strictWidth": true
+                          },
+                          "state": {
+                            "enabled": true,
+                            "sort": "none",
+                            "width": 205,
+                            "strictWidth": true
+                          },
+                          "name": {
+                            "enabled": true,
+                            "sort": "none",
+                            "width": 115,
+                            "strictWidth": false
+                          },
+                          "source": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 200,
+                            "strictWidth": false
+                          },
+                          "label": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "eventId": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "eventValue": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "notes": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "isAcked": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "ackTime": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "ackUser": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "ackNotes": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "ackPipeline": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "isActive": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "activePipeline": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "isClear": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "clearTime": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "clearPipeline": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          },
+                          "deadband": {
+                            "enabled": false,
+                            "sort": "none",
+                            "width": 100,
+                            "strictWidth": false
+                          }
+                        },
+                        "shelved": {
+                          "sourcePath": {
+                            "enabled": true,
+                            "sort": "none",
+                            "width": 200,
+                            "strictWidth": false,
+                            "order": 0
+                          },
+                          "shelvedBy": {
+                            "enabled": true,
+                            "sort": "none",
+                            "width": 155,
+                            "strictWidth": true,
+                            "order": 1
+                          },
+                          "expires": {
+                            "enabled": true,
+                            "sort": "descending",
+                            "width": 155,
+                            "strictWidth": true,
+                            "order": 2
+                          }
+                        }
                       }
                     },
                     "position": {
@@ -1195,40 +1349,87 @@
                       "columns": {
                         "eventTime": {
                           "enabled": true,
-                          "order": 0,
-                          "width": 160,
+                          "sort": "descending",
+                          "width": 155,
                           "strictWidth": true,
-                          "sort": "descending"
+                          "order": 0
                         },
                         "displayPath": {
                           "enabled": true,
-                          "order": 1,
-                          "width": 300
+                          "sort": "none",
+                          "width": 195,
+                          "strictWidth": false,
+                          "order": 1
                         },
                         "priority": {
                           "enabled": true,
-                          "order": 2,
-                          "width": 100,
-                          "strictWidth": true
+                          "sort": "none",
+                          "width": 92,
+                          "strictWidth": true,
+                          "order": 2
                         },
                         "eventState": {
                           "enabled": true,
-                          "order": 3,
-                          "width": 130,
-                          "strictWidth": true
+                          "sort": "none",
+                          "width": 205,
+                          "strictWidth": true,
+                          "order": 3
                         },
                         "name": {
                           "enabled": true,
-                          "order": 4,
-                          "width": 200
-                        },
-                        "eventId": {
-                          "enabled": false,
-                          "order": 5
+                          "sort": "none",
+                          "width": 115,
+                          "strictWidth": false,
+                          "order": 4
                         },
                         "source": {
                           "enabled": false,
+                          "sort": "none",
+                          "width": 150,
+                          "strictWidth": false,
+                          "order": 5
+                        },
+                        "eventId": {
+                          "enabled": false,
+                          "sort": "none",
+                          "width": 200,
+                          "strictWidth": false,
                           "order": 6
+                        },
+                        "label": {
+                          "enabled": false,
+                          "sort": "none",
+                          "width": 100,
+                          "strictWidth": false,
+                          "order": 7
+                        },
+                        "state": {
+                          "enabled": false,
+                          "sort": "none",
+                          "width": 150,
+                          "strictWidth": false,
+                          "order": 8
+                        },
+                        "isSystemEvent": {
+                          "enabled": false,
+                          "sort": "none",
+                          "width": 200,
+                          "strictWidth": false,
+                          "order": 9
+                        },
+                        "ackUser": {
+                          "enabled": false,
+                          "sort": "none",
+                          "width": 100,
+                          "strictWidth": false,
+                          "order": 10
+                        },
+                        "ackNotes": {
+                          "enabled": false,
+                          "sort": "none",
+                          "width": 100,
+                          "strictWidth": false,
+                          "order": 11
                         }
                       },
                       "rowStyles": {
@@ -1415,7 +1616,8 @@
                       },
                       "style": {
                         "height": "100%",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "classes": "alm-table"
                       }
                     },
                     "position": {

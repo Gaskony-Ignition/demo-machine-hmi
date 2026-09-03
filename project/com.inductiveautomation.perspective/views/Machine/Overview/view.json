@@ -909,9 +909,9 @@
                             },
                             "position": {
                               "x": 0.03125,
-                              "y": 0.175,
+                              "y": 0.155,
                               "width": 0.21875,
-                              "height": 0.275
+                              "height": 0.315
                             },
                             "children": [
                               {
@@ -926,16 +926,15 @@
                                     "fontWeight": 700,
                                     "color": "#d5dde3",
                                     "whiteSpace": "nowrap",
-                                    "overflow": "hidden",
-                                    "textOverflow": "ellipsis",
-                                    "display": "block"
+                                    "display": "block",
+                                    "classes": "zone-name"
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05714285714285714,
-                                  "y": 0.0625,
-                                  "width": 0.9,
-                                  "height": 0.14583333333333334
+                                  "x": 0.057,
+                                  "y": 0.075,
+                                  "width": 0.49,
+                                  "height": 0.215
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -959,14 +958,16 @@
                                     "fontSize": "10px",
                                     "fontWeight": 700,
                                     "letterSpacing": "0.7px",
-                                    "whiteSpace": "nowrap"
+                                    "whiteSpace": "nowrap",
+                                    "textAlign": "right",
+                                    "classes": "zone-state"
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05714285714285714,
-                                  "y": 0.21875,
-                                  "width": 0.9,
-                                  "height": 0.15625
+                                  "x": 0.565,
+                                  "y": 0.075,
+                                  "width": 0.378,
+                                  "height": 0.215
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1004,9 +1005,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.7916666666666666,
+                                  "y": 0.7050000000000001,
                                   "width": 0.38571428571428573,
-                                  "height": 0.07291666666666667
+                                  "height": 0.058
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1037,9 +1038,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.6979166666666666,
+                                  "y": 0.62,
                                   "width": 0.38571428571428573,
-                                  "height": 0.07291666666666667
+                                  "height": 0.058
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1070,9 +1071,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.6041666666666666,
+                                  "y": 0.535,
                                   "width": 0.38571428571428573,
-                                  "height": 0.07291666666666667
+                                  "height": 0.058
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1103,9 +1104,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.5104166666666666,
+                                  "y": 0.45,
                                   "width": 0.38571428571428573,
-                                  "height": 0.07291666666666667
+                                  "height": 0.058
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1136,9 +1137,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.4166666666666667,
+                                  "y": 0.365,
                                   "width": 0.38571428571428573,
-                                  "height": 0.07291666666666667
+                                  "height": 0.058
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1168,9 +1169,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.8854166666666666,
-                                  "width": 0.42857142857142855,
-                                  "height": 0.10416666666666667
+                                  "y": 0.785,
+                                  "width": 0.44,
+                                  "height": 0.175
                                 }
                               },
                               {
@@ -1193,9 +1194,9 @@
                                 },
                                 "position": {
                                   "x": 0.5,
-                                  "y": 0.5,
+                                  "y": 0.365,
                                   "width": 0.44285714285714284,
-                                  "height": 0.2708333333333333
+                                  "height": 0.385
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1224,9 +1225,9 @@
                                 },
                                 "position": {
                                   "x": 0.5,
-                                  "y": 0.8125,
+                                  "y": 0.785,
                                   "width": 0.44285714285714284,
-                                  "height": 0.125
+                                  "height": 0.175
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1291,9 +1292,9 @@
                             },
                             "position": {
                               "x": 0.26875,
-                              "y": 0.175,
+                              "y": 0.155,
                               "width": 0.21875,
-                              "height": 0.275
+                              "height": 0.315
                             },
                             "children": [
                               {
@@ -1308,16 +1309,15 @@
                                     "fontWeight": 700,
                                     "color": "#d5dde3",
                                     "whiteSpace": "nowrap",
-                                    "overflow": "hidden",
-                                    "textOverflow": "ellipsis",
-                                    "display": "block"
+                                    "display": "block",
+                                    "classes": "zone-name"
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05714285714285714,
-                                  "y": 0.0625,
-                                  "width": 0.9,
-                                  "height": 0.14583333333333334
+                                  "x": 0.057,
+                                  "y": 0.075,
+                                  "width": 0.49,
+                                  "height": 0.215
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1341,14 +1341,16 @@
                                     "fontSize": "10px",
                                     "fontWeight": 700,
                                     "letterSpacing": "0.7px",
-                                    "whiteSpace": "nowrap"
+                                    "whiteSpace": "nowrap",
+                                    "textAlign": "right",
+                                    "classes": "zone-state"
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05714285714285714,
-                                  "y": 0.21875,
-                                  "width": 0.9,
-                                  "height": 0.15625
+                                  "x": 0.565,
+                                  "y": 0.075,
+                                  "width": 0.378,
+                                  "height": 0.215
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1386,9 +1388,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.7916666666666666,
+                                  "y": 0.7050000000000001,
                                   "width": 0.38571428571428573,
-                                  "height": 0.07291666666666667
+                                  "height": 0.058
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1419,9 +1421,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.6979166666666666,
+                                  "y": 0.62,
                                   "width": 0.38571428571428573,
-                                  "height": 0.07291666666666667
+                                  "height": 0.058
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1452,9 +1454,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.6041666666666666,
+                                  "y": 0.535,
                                   "width": 0.38571428571428573,
-                                  "height": 0.07291666666666667
+                                  "height": 0.058
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1485,9 +1487,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.5104166666666666,
+                                  "y": 0.45,
                                   "width": 0.38571428571428573,
-                                  "height": 0.07291666666666667
+                                  "height": 0.058
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1518,9 +1520,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.4166666666666667,
+                                  "y": 0.365,
                                   "width": 0.38571428571428573,
-                                  "height": 0.07291666666666667
+                                  "height": 0.058
                                 },
                                 "children": [],
                                 "propConfig": {
@@ -1550,9 +1552,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.8854166666666666,
-                                  "width": 0.42857142857142855,
-                                  "height": 0.10416666666666667
+                                  "y": 0.785,
+                                  "width": 0.44,
+                                  "height": 0.175
                                 }
                               },
                               {
@@ -1575,9 +1577,9 @@
                                 },
                                 "position": {
                                   "x": 0.5,
-                                  "y": 0.5,
+                                  "y": 0.365,
                                   "width": 0.44285714285714284,
-                                  "height": 0.2708333333333333
+                                  "height": 0.385
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1606,9 +1608,9 @@
                                 },
                                 "position": {
                                   "x": 0.5,
-                                  "y": 0.8125,
+                                  "y": 0.785,
                                   "width": 0.44285714285714284,
-                                  "height": 0.125
+                                  "height": 0.175
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1673,9 +1675,9 @@
                             },
                             "position": {
                               "x": 0.50625,
-                              "y": 0.175,
+                              "y": 0.155,
                               "width": 0.21875,
-                              "height": 0.275
+                              "height": 0.315
                             },
                             "children": [
                               {
@@ -1690,16 +1692,15 @@
                                     "fontWeight": 700,
                                     "color": "#d5dde3",
                                     "whiteSpace": "nowrap",
-                                    "overflow": "hidden",
-                                    "textOverflow": "ellipsis",
-                                    "display": "block"
+                                    "display": "block",
+                                    "classes": "zone-name"
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05714285714285714,
-                                  "y": 0.0625,
-                                  "width": 0.9,
-                                  "height": 0.14583333333333334
+                                  "x": 0.057,
+                                  "y": 0.075,
+                                  "width": 0.49,
+                                  "height": 0.215
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1723,14 +1724,16 @@
                                     "fontSize": "10px",
                                     "fontWeight": 700,
                                     "letterSpacing": "0.7px",
-                                    "whiteSpace": "nowrap"
+                                    "whiteSpace": "nowrap",
+                                    "textAlign": "right",
+                                    "classes": "zone-state"
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05714285714285714,
-                                  "y": 0.21875,
-                                  "width": 0.9,
-                                  "height": 0.15625
+                                  "x": 0.565,
+                                  "y": 0.075,
+                                  "width": 0.378,
+                                  "height": 0.215
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1770,9 +1773,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.5,
+                                  "y": 0.365,
                                   "width": 0.6428571428571429,
-                                  "height": 0.2708333333333333
+                                  "height": 0.385
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1800,9 +1803,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.8125,
+                                  "y": 0.785,
                                   "width": 0.7142857142857143,
-                                  "height": 0.125
+                                  "height": 0.175
                                 }
                               },
                               {
@@ -1823,10 +1826,10 @@
                                   }
                                 },
                                 "position": {
-                                  "x": 0.8571428571428571,
-                                  "y": 0.5416666666666666,
-                                  "width": 0.08571428571428572,
-                                  "height": 0.125
+                                  "x": 0.875,
+                                  "y": 0.45,
+                                  "width": 0.09,
+                                  "height": 0.13
                                 },
                                 "propConfig": {
                                   "props.style.backgroundColor": {
@@ -1891,9 +1894,9 @@
                             },
                             "position": {
                               "x": 0.74375,
-                              "y": 0.175,
+                              "y": 0.155,
                               "width": 0.21875,
-                              "height": 0.275
+                              "height": 0.315
                             },
                             "children": [
                               {
@@ -1908,16 +1911,15 @@
                                     "fontWeight": 700,
                                     "color": "#d5dde3",
                                     "whiteSpace": "nowrap",
-                                    "overflow": "hidden",
-                                    "textOverflow": "ellipsis",
-                                    "display": "block"
+                                    "display": "block",
+                                    "classes": "zone-name"
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05714285714285714,
-                                  "y": 0.0625,
-                                  "width": 0.9,
-                                  "height": 0.14583333333333334
+                                  "x": 0.057,
+                                  "y": 0.075,
+                                  "width": 0.49,
+                                  "height": 0.215
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1941,14 +1943,16 @@
                                     "fontSize": "10px",
                                     "fontWeight": 700,
                                     "letterSpacing": "0.7px",
-                                    "whiteSpace": "nowrap"
+                                    "whiteSpace": "nowrap",
+                                    "textAlign": "right",
+                                    "classes": "zone-state"
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05714285714285714,
-                                  "y": 0.21875,
-                                  "width": 0.9,
-                                  "height": 0.15625
+                                  "x": 0.565,
+                                  "y": 0.075,
+                                  "width": 0.378,
+                                  "height": 0.215
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -1988,9 +1992,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.5,
+                                  "y": 0.365,
                                   "width": 0.6428571428571429,
-                                  "height": 0.2708333333333333
+                                  "height": 0.385
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -2018,9 +2022,9 @@
                                 },
                                 "position": {
                                   "x": 0.05714285714285714,
-                                  "y": 0.8125,
+                                  "y": 0.785,
                                   "width": 0.7142857142857143,
-                                  "height": 0.125
+                                  "height": 0.175
                                 }
                               },
                               {
@@ -2041,10 +2045,10 @@
                                   }
                                 },
                                 "position": {
-                                  "x": 0.8571428571428571,
-                                  "y": 0.5416666666666666,
-                                  "width": 0.08571428571428572,
-                                  "height": 0.125
+                                  "x": 0.875,
+                                  "y": 0.45,
+                                  "width": 0.09,
+                                  "height": 0.13
                                 },
                                 "propConfig": {
                                   "props.style.backgroundColor": {
@@ -2202,9 +2206,9 @@
                             },
                             "position": {
                               "x": 0.70625,
-                              "y": 0.49,
+                              "y": 0.485,
                               "width": 0.2625,
-                              "height": 0.25
+                              "height": 0.26
                             },
                             "children": [
                               {
@@ -2218,14 +2222,15 @@
                                     "fontSize": "11.5px",
                                     "fontWeight": 700,
                                     "color": "#e6eef4",
-                                    "whiteSpace": "nowrap"
+                                    "whiteSpace": "nowrap",
+                                    "classes": "zone-name"
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05357142857142857,
-                                  "y": 0.07,
-                                  "width": 0.8928571428571429,
-                                  "height": 0.14
+                                  "x": 0.053,
+                                  "y": 0.085,
+                                  "width": 0.5,
+                                  "height": 0.22
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -2246,17 +2251,19 @@
                                 "props": {
                                   "text": "",
                                   "style": {
-                                    "fontSize": "20px",
+                                    "fontSize": "10px",
                                     "fontWeight": 700,
-                                    "letterSpacing": "0.6px",
+                                    "letterSpacing": "0.7px",
                                     "whiteSpace": "nowrap",
-                                    "lineHeight": "1"
+                                    "lineHeight": "1",
+                                    "textAlign": "right",
+                                    "classes": "zone-state"
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05357142857142857,
-                                  "y": 0.3,
-                                  "width": 0.8928571428571429,
+                                  "x": 0.575,
+                                  "y": 0.085,
+                                  "width": 0.372,
                                   "height": 0.22
                                 },
                                 "propConfig": {
@@ -2296,10 +2303,10 @@
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05952380952380952,
-                                  "y": 0.62,
-                                  "width": 0.05952380952380952,
-                                  "height": 0.09
+                                  "x": 0.0595,
+                                  "y": 0.45,
+                                  "width": 0.06,
+                                  "height": 0.14
                                 },
                                 "propConfig": {
                                   "props.style.backgroundColor": {
@@ -2325,10 +2332,10 @@
                                   }
                                 },
                                 "position": {
-                                  "x": 0.15476190476190477,
-                                  "y": 0.6,
-                                  "width": 0.7976190476190477,
-                                  "height": 0.12
+                                  "x": 0.1548,
+                                  "y": 0.43,
+                                  "width": 0.79,
+                                  "height": 0.21
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -2367,10 +2374,10 @@
                                   }
                                 },
                                 "position": {
-                                  "x": 0.05952380952380952,
-                                  "y": 0.8,
-                                  "width": 0.05952380952380952,
-                                  "height": 0.09
+                                  "x": 0.0595,
+                                  "y": 0.73,
+                                  "width": 0.06,
+                                  "height": 0.14
                                 },
                                 "propConfig": {
                                   "props.style.backgroundColor": {
@@ -2397,10 +2404,10 @@
                                   }
                                 },
                                 "position": {
-                                  "x": 0.15476190476190477,
-                                  "y": 0.78,
-                                  "width": 0.7976190476190477,
-                                  "height": 0.12
+                                  "x": 0.1548,
+                                  "y": 0.71,
+                                  "width": 0.79,
+                                  "height": 0.21
                                 },
                                 "propConfig": {
                                   "props.text": {
@@ -2833,7 +2840,7 @@
                             "position": {
                               "x": 0.56875,
                               "y": 0.905,
-                              "width": 0.11875,
+                              "width": 0.096,
                               "height": 0.0375
                             }
                           },
@@ -3027,9 +3034,9 @@
                             },
                             "position": {
                               "x": 0.022222222222222223,
-                              "y": 0.05,
+                              "y": 0.02,
                               "width": 0.29444444444444445,
-                              "height": 0.07
+                              "height": 0.17
                             },
                             "children": [
                               {
@@ -3076,7 +3083,8 @@
                                     "fontSize": "10px",
                                     "color": "#b7c2ca",
                                     "letterSpacing": "0.5px",
-                                    "whiteSpace": "nowrap"
+                                    "whiteSpace": "nowrap",
+                                    "classes": "conv-name"
                                   }
                                 },
                                 "position": {
@@ -3157,9 +3165,9 @@
                             },
                             "position": {
                               "x": 0.34444444444444444,
-                              "y": 0.05,
+                              "y": 0.02,
                               "width": 0.29444444444444445,
-                              "height": 0.07
+                              "height": 0.17
                             },
                             "children": [
                               {
@@ -3206,7 +3214,8 @@
                                     "fontSize": "10px",
                                     "color": "#b7c2ca",
                                     "letterSpacing": "0.5px",
-                                    "whiteSpace": "nowrap"
+                                    "whiteSpace": "nowrap",
+                                    "classes": "conv-name"
                                   }
                                 },
                                 "position": {
@@ -3287,9 +3296,9 @@
                             },
                             "position": {
                               "x": 0.6666666666666666,
-                              "y": 0.05,
+                              "y": 0.02,
                               "width": 0.3111111111111111,
-                              "height": 0.07
+                              "height": 0.17
                             },
                             "children": [
                               {
@@ -3336,7 +3345,8 @@
                                     "fontSize": "10px",
                                     "color": "#b7c2ca",
                                     "letterSpacing": "0.5px",
-                                    "whiteSpace": "nowrap"
+                                    "whiteSpace": "nowrap",
+                                    "classes": "conv-name"
                                   }
                                 },
                                 "position": {
@@ -3477,14 +3487,15 @@
                                 "fontSize": "9.5px",
                                 "color": "#8b98a3",
                                 "textAlign": "center",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "classes": "pe-cap"
                               }
                             },
                             "position": {
-                              "x": 0.12777777777777777,
-                              "y": 0.65,
-                              "width": 0.07777777777777778,
-                              "height": 0.06
+                              "x": 0.13467,
+                              "y": 0.635,
+                              "width": 0.064,
+                              "height": 0.155
                             }
                           },
                           {
@@ -3563,14 +3574,15 @@
                                 "fontSize": "9.5px",
                                 "color": "#8b98a3",
                                 "textAlign": "center",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "classes": "pe-cap"
                               }
                             },
                             "position": {
-                              "x": 0.2,
-                              "y": 0.65,
-                              "width": 0.07777777777777778,
-                              "height": 0.06
+                              "x": 0.20689,
+                              "y": 0.635,
+                              "width": 0.064,
+                              "height": 0.155
                             }
                           },
                           {
@@ -3649,14 +3661,15 @@
                                 "fontSize": "9.5px",
                                 "color": "#8b98a3",
                                 "textAlign": "center",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "classes": "pe-cap"
                               }
                             },
                             "position": {
-                              "x": 0.26666666666666666,
-                              "y": 0.65,
-                              "width": 0.07777777777777778,
-                              "height": 0.06
+                              "x": 0.27356,
+                              "y": 0.635,
+                              "width": 0.064,
+                              "height": 0.155
                             }
                           },
                           {
@@ -3735,14 +3748,15 @@
                                 "fontSize": "9.5px",
                                 "color": "#8b98a3",
                                 "textAlign": "center",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "classes": "pe-cap"
                               }
                             },
                             "position": {
-                              "x": 0.3611111111111111,
-                              "y": 0.65,
-                              "width": 0.07777777777777778,
-                              "height": 0.06
+                              "x": 0.368,
+                              "y": 0.635,
+                              "width": 0.064,
+                              "height": 0.155
                             }
                           },
                           {
@@ -3821,14 +3835,15 @@
                                 "fontSize": "9.5px",
                                 "color": "#8b98a3",
                                 "textAlign": "center",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "classes": "pe-cap"
                               }
                             },
                             "position": {
-                              "x": 0.48333333333333334,
-                              "y": 0.65,
-                              "width": 0.07777777777777778,
-                              "height": 0.06
+                              "x": 0.49022,
+                              "y": 0.635,
+                              "width": 0.064,
+                              "height": 0.155
                             }
                           },
                           {
@@ -3907,14 +3922,15 @@
                                 "fontSize": "9.5px",
                                 "color": "#8b98a3",
                                 "textAlign": "center",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "classes": "pe-cap"
                               }
                             },
                             "position": {
-                              "x": 0.7166666666666667,
-                              "y": 0.65,
-                              "width": 0.07777777777777778,
-                              "height": 0.06
+                              "x": 0.72356,
+                              "y": 0.635,
+                              "width": 0.064,
+                              "height": 0.155
                             }
                           },
                           {
@@ -3993,14 +4009,15 @@
                                 "fontSize": "9.5px",
                                 "color": "#8b98a3",
                                 "textAlign": "center",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "classes": "pe-cap"
                               }
                             },
                             "position": {
-                              "x": 0.85,
-                              "y": 0.65,
-                              "width": 0.07777777777777778,
-                              "height": 0.06
+                              "x": 0.85689,
+                              "y": 0.635,
+                              "width": 0.064,
+                              "height": 0.155
                             }
                           },
                           {
@@ -4050,10 +4067,10 @@
                               }
                             },
                             "position": {
-                              "x": 0.2911111111111111,
-                              "y": 0.71,
-                              "width": 0.07777777777777778,
-                              "height": 0.06
+                              "x": 0.27694,
+                              "y": 0.815,
+                              "width": 0.105,
+                              "height": 0.155
                             },
                             "propConfig": {
                               "props.text": {
@@ -4121,10 +4138,10 @@
                               }
                             },
                             "position": {
-                              "x": 0.6133333333333333,
-                              "y": 0.71,
-                              "width": 0.07777777777777778,
-                              "height": 0.06
+                              "x": 0.59917,
+                              "y": 0.815,
+                              "width": 0.105,
+                              "height": 0.155
                             },
                             "propConfig": {
                               "props.text": {
@@ -4224,9 +4241,9 @@
                             },
                             "position": {
                               "x": 0.03333333333333333,
-                              "y": 0.73,
-                              "width": 0.10666666666666667,
-                              "height": 0.06
+                              "y": 0.815,
+                              "width": 0.145,
+                              "height": 0.155
                             },
                             "propConfig": {
                               "props.text": {
@@ -4262,9 +4279,9 @@
                               "alignItems": "center"
                             },
                             "position": {
-                              "x": 0.6666666666666666,
+                              "x": 0.715,
                               "y": 0.84,
-                              "width": 0.3111111111111111,
+                              "width": 0.263,
                               "height": 0.08
                             },
                             "children": [
