@@ -629,17 +629,51 @@
         ]
       },
       {
-        "type": "ia.container.flex",
+        "type": "ia.container.tab",
         "meta": {
           "name": "Body"
         },
         "props": {
-          "direction": "column",
+          "tabs": [
+            {
+              "text": "STANDING"
+            },
+            {
+              "text": "JOURNAL"
+            }
+          ],
+          "currentTabIndex": 0,
+          "menuStyle": {
+            "backgroundColor": "#1d232a",
+            "borderBottom": "1px solid #2c343d"
+          },
+          "tabStyle": {
+            "inactive": {
+              "color": "#8b98a3",
+              "backgroundColor": "transparent",
+              "fontWeight": 700,
+              "fontSize": "11px",
+              "letterSpacing": "1.3px",
+              "padding": "0 14px"
+            },
+            "active": {
+              "color": "#cfeafa",
+              "backgroundColor": "#152f3b",
+              "fontWeight": 700,
+              "fontSize": "11px",
+              "letterSpacing": "1.3px",
+              "padding": "0 14px",
+              "borderBottom": "2px solid #6cc4e8"
+            }
+          },
+          "contentStyle": {
+            "backgroundColor": "#171b20",
+            "minHeight": "0px",
+            "height": "100%"
+          },
           "style": {
-            "padding": "10px",
-            "gap": "10px",
-            "minWidth": "0px",
-            "minHeight": "0px"
+            "minHeight": "0px",
+            "minWidth": "0px"
           }
         },
         "position": {
@@ -657,17 +691,14 @@
               "direction": "column",
               "style": {
                 "backgroundColor": "#1d232a",
-                "border": "1px solid #2c343d",
-                "borderRadius": "8px",
                 "overflow": "hidden",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "height": "100%"
               }
             },
             "position": {
-              "grow": 1,
-              "shrink": 1,
-              "basis": "0px"
+              "tabIndex": 0
             },
             "children": [
               {
@@ -797,23 +828,28 @@
                           "priorities": {
                             "critical": {
                               "color": "#f0565e",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "high": {
                               "color": "#f0565e",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "medium": {
                               "color": "#eebf5e",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "low": {
                               "color": "#6cc4e8",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "diagnostic": {
                               "color": "#8b98a3",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             }
                           }
                         },
@@ -826,23 +862,28 @@
                           "priorities": {
                             "critical": {
                               "color": "#f0565e",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "high": {
                               "color": "#f0565e",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "medium": {
                               "color": "#eebf5e",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "low": {
                               "color": "#6cc4e8",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "diagnostic": {
                               "color": "#8b98a3",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             }
                           }
                         },
@@ -855,23 +896,28 @@
                           "priorities": {
                             "critical": {
                               "color": "#f0565e",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "high": {
                               "color": "#f0565e",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "medium": {
                               "color": "#eebf5e",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "low": {
                               "color": "#6cc4e8",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "diagnostic": {
                               "color": "#8b98a3",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             }
                           }
                         },
@@ -884,23 +930,96 @@
                           "priorities": {
                             "critical": {
                               "color": "#74808a",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "high": {
                               "color": "#74808a",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "medium": {
                               "color": "#74808a",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "low": {
                               "color": "#74808a",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             },
                             "diagnostic": {
                               "color": "#74808a",
-                              "fontWeight": "700"
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
+                            }
+                          }
+                        },
+                        "clearedUnacked": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#dde4e9",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#f0565e",
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
+                            },
+                            "high": {
+                              "color": "#f0565e",
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
+                            },
+                            "medium": {
+                              "color": "#eebf5e",
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
+                            },
+                            "low": {
+                              "color": "#6cc4e8",
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
+                            },
+                            "diagnostic": {
+                              "color": "#8b98a3",
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
+                            }
+                          }
+                        },
+                        "clearedAcked": {
+                          "base": {
+                            "backgroundColor": "transparent",
+                            "color": "#74808a",
+                            "fontWeight": "400"
+                          },
+                          "priorities": {
+                            "critical": {
+                              "color": "#74808a",
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
+                            },
+                            "high": {
+                              "color": "#74808a",
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
+                            },
+                            "medium": {
+                              "color": "#74808a",
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
+                            },
+                            "low": {
+                              "color": "#74808a",
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
+                            },
+                            "diagnostic": {
+                              "color": "#74808a",
+                              "fontWeight": "700",
+                              "backgroundColor": "transparent"
                             }
                           }
                         }
@@ -937,17 +1056,14 @@
               "direction": "column",
               "style": {
                 "backgroundColor": "#1d232a",
-                "border": "1px solid #2c343d",
-                "borderRadius": "8px",
                 "overflow": "hidden",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "height": "100%"
               }
             },
             "position": {
-              "grow": 0,
-              "shrink": 0,
-              "basis": "330px"
+              "tabIndex": 1
             },
             "children": [
               {
@@ -1006,7 +1122,7 @@
                       "name": "Hint"
                     },
                     "props": {
-                      "text": "last 8 hours",
+                      "text": "last 24 hours",
                       "style": {
                         "fontSize": "11px",
                         "color": "#74808a",
@@ -1072,7 +1188,7 @@
                       },
                       "dateRange": {
                         "realtime": {
-                          "interval": 8,
+                          "interval": 24,
                           "unit": "hours"
                         }
                       },
