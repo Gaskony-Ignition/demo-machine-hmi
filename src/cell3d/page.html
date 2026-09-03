@@ -139,7 +139,11 @@
   .layers span.part { background: var(--warn); }
 
   /* ---- bottom-left: camera presets ---- */
-  #cams { bottom: 12px; left: 12px; display: flex; gap: 8px; flex-wrap: wrap; max-width: 60vw; }
+  /* 60vw was room for the six presets on a desktop and not on a 10in panel,
+     where they wrapped onto a second row - straight underneath the link pill,
+     which then swallowed the clicks on two of them. Measured 04/09/2026 at
+     1024x600: two buttons unpressable. The row needs the width it needs. */
+  #cams { bottom: 12px; left: 12px; display: flex; gap: 8px; flex-wrap: wrap; max-width: calc(100vw - 24px); }
   .cam {
     font: inherit; font-size: 12.5px; font-weight: 700; color: #cdd6dd;
     background: rgba(38,46,54,.92); border: 1px solid #38424c; border-radius: 8px;
@@ -189,9 +193,34 @@
     font-size: 11.5px; color: var(--dim); background: var(--panel);
     border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px;
     display: flex; align-items: center; gap: 8px;
+    /* A status readout, not a control. Anything it lands on top of must stay
+       pressable - see the camera row above. */
+    pointer-events: none;
   }
   #link.stale { color: var(--warn); border-color: #6e5520; }
   #link.qbad  { color: var(--warn); border-color: #6e5520; }
+  .row .v.warn { color: var(--warn); }
+  .row .v.ok   { color: var(--run); }
+
+  /* ---- geometry changed ----
+     Shown for a few seconds when a [MachineDemo]Config tag changes and the
+     cell has been rebuilt from it: which tag, what it was, what it is now,
+     and what the simulator derived. This is the moment the demo is FOR - a
+     number typed into a Perspective field beside this page, and the machine
+     redrawn - so it is said out loud rather than left for the eye to notice.
+     Sits under the watermark; the fault banner outranks it. */
+  #geo {
+    position: fixed; z-index: 7; top: 46px; left: 50%; transform: translateX(-50%);
+    display: none; align-items: center; gap: 10px; max-width: 70vw;
+    background: rgba(20,49,62,.95); border: 1px solid #1e546c; border-radius: 9px;
+    padding: 9px 16px; color: #bfe6f7; font-size: 12.5px; font-weight: 600;
+    box-shadow: 0 6px 26px rgba(0,0,0,.45); white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #geo.show { display: flex; }
+  #geo.bad { background: rgba(61,48,15,.95); border-color: #8c6b20; color: #ffdf9e; }
+  #geo b { font-family: var(--mono); font-weight: 400; color: #7ee2d2; }
+  #geo.bad b { color: #ffdf9e; }
 
   /* A 10in panel is 1024x600, and at that width the camera row and the link
      pill both want the bottom of the screen. Lift the pill above the row --
@@ -227,6 +256,8 @@
     <div class="row"><span class="k">Cycle</span><span class="v" id="v-cycle">—</span></div>
     <div class="row"><span class="k">Lift</span><span class="v" id="v-lift">—</span></div>
     <div class="row"><span class="k">Vacuum</span><span class="v" id="v-vac">—</span></div>
+    <div class="row"><span class="k">Pattern</span><span class="v" id="v-pattern">—</span></div>
+    <div class="row"><span class="k">Reach</span><span class="v" id="v-reach">—</span></div>
   </div>
 </div>
 
@@ -246,6 +277,7 @@
 </div>
 
 <div class="hud" id="cams"></div>
+<div id="geo"></div>
 <div id="wm"><b>Ignition WebDev</b><span class="sep">·</span>three.js<span class="sep">·</span>not a Perspective component</div>
 <div id="link"><span class="led" id="l-link"></span><span id="linktext">connecting…</span></div>
 
@@ -359,12 +391,17 @@
   })(THEME);
 
   // ----------------------------------------------------------------------
-  // Cell geometry. Read once from [MachineDemo]Config/* through ?cmd=state,
-  // in millimetres; converted to metres here because every measurement below
-  // this point is in metres. A tag that is missing - or the whole fetch
-  // failing - falls back to today's page geometry: the page must never see a
-  // hole, and must never be a blank screen just because the fetch raced the
-  // gateway.
+  // Cell geometry. [MachineDemo]Config/* through ?cmd=state, in millimetres;
+  // converted to metres here because every measurement below this point is in
+  // metres. Read at load to build the cell, and again on EVERY poll: when the
+  // config block changes - somebody wrote a Config tag - buildCell() below
+  // tears the geometry down and rebuilds it from the new numbers, inside the
+  // 250 ms poll. The simulator reads the same tags on its own tick, so the arm
+  // is placing to the new pattern by the time the picture shows it.
+  //
+  // A tag that is missing - or the whole fetch failing - falls back to the
+  // defaults from MachineDemo.plant.GEOMETRY: the page must never see a hole,
+  // and must never be a blank screen just because the fetch raced the gateway.
   // ----------------------------------------------------------------------
   function metricsFromConfig(cfg) {
     cfg = cfg || {};
@@ -377,13 +414,12 @@
       palletW: n("palletW_mm", 1200) / 1000, palletD: n("palletD_mm", 1000) / 1000, palletH: n("palletH_mm", 140) / 1000,
       perLayer: n("casesPerLayer", 12), layers: n("layers", 5),
       convY: n("convHeight_mm", 900) / 1000, convLen: n("convLength_mm", 3300) / 1000, convW: n("convWidth_mm", 620) / 1000,
-      // Both stations and the conveyor pick point sit inside the arm's 2.5 m
-      // reach (upper 1.35 + forearm 1.15), so the model never shows the robot
-      // grasping at something it could not physically touch - true for
-      // today's defaults, and left for a machine's own Config tags to keep
-      // true for a different cell.
-      st1: { x: n("station1X_mm", -1450) / 1000, z: n("station1Z_mm", -1650) / 1000 },
-      st2: { x: n("station2X_mm", -1450) / 1000, z: n("station2Z_mm", 1650) / 1000 }
+      // Whether the arm can reach every placement of the pattern on these
+      // stations is the simulator's call, not this page's: it solves each
+      // one and publishes the answer in the state's `geometry.reach` block,
+      // which the HUD shows. The defaults here are known to solve.
+      st1: { x: n("station1X_mm", -1300) / 1000, z: n("station1Z_mm", -1500) / 1000 },
+      st2: { x: n("station2X_mm", -1300) / 1000, z: n("station2Z_mm", 1500) / 1000 }
     };
     m.perPallet = m.perLayer * m.layers;
     return m;
@@ -520,173 +556,6 @@
   scene.add(fence);
 
   // ----------------------------------------------------------------------
-  // Infeed conveyor, its cartons and its photo-eyes
-  // ----------------------------------------------------------------------
-  var infeed = new THREE.Group();
-  var conveyor = new THREE.Group();
-  infeed.add(conveyor);
-  var frameMat = mat(COL.steelDark, { roughness: 0.6 });
-  var rollerMat = mat(COL.steel, { metalness: 0.85, roughness: 0.35 });
-
-  var convX0 = 2.05, convX1 = convX0 + M.convLen;
-  var convMid = (convX0 + convX1) / 2;
-  conveyor.add(box(M.convLen, 0.10, 0.06, frameMat, convMid, M.convY - 0.06, -M.convW / 2));
-  conveyor.add(box(M.convLen, 0.10, 0.06, frameMat, convMid, M.convY - 0.06,  M.convW / 2));
-  var legXs = [convX0 + 0.35, convMid, convX1 - 0.35];
-  for (var i = 0; i < legXs.length; i++) {
-    for (var s = -1; s <= 1; s += 2) {
-      conveyor.add(box(0.07, M.convY - 0.12, 0.07, frameMat, legXs[i], (M.convY - 0.12) / 2, s * M.convW / 2));
-    }
-  }
-  var rollers = [];
-  for (var rx = convX0 + 0.09; rx < convX1; rx += 0.135) {
-    var r = cyl(0.045, 0.045, M.convW - 0.02, rollerMat, 12);
-    r.rotation.x = Math.PI / 2;
-    r.position.set(rx, M.convY, 0);
-    r.castShadow = false;
-    conveyor.add(r);
-    rollers.push(r);
-  }
-  infeed.rotation.y = -Math.PI / 2;
-  infeed.position.set(1.62, 0, -(convX0 + 0.35));
-  scene.add(infeed);
-
-  // Photo-eyes. Each is an emitter, a receiver and a beam whose colour is the
-  // live tag: a fitter can see WHICH eye is blocked and where to walk.
-  var peDefs = [
-    { key: "infeed",  x: convX1 - 0.35, label: "PE Infeed"  },
-    { key: "len1",    x: convX1 - 1.70, label: "PE Length 1" },
-    { key: "len2",    x: convX1 - 2.30, label: "PE Length 2" },
-    { key: "carton",  x: convX1 - 3.10, label: "PE Carton"  },
-    { key: "inpos1",  x: convX0 + 0.60, label: "PE In-Pos 1" },
-    { key: "inpos2",  x: convX0 + 0.25, label: "PE In-Pos 2" }
-  ];
-  var photoEyes = [];
-  peDefs.forEach(function (d) {
-    var g = new THREE.Group();
-    var post = box(0.05, 0.34, 0.05, frameMat, d.x, M.convY + 0.17, -M.convW / 2 - 0.10);
-    var post2 = box(0.05, 0.34, 0.05, frameMat, d.x, M.convY + 0.17, M.convW / 2 + 0.10);
-    g.add(post); g.add(post2);
-    var beamMat = new THREE.MeshBasicMaterial({ color: COL.run, transparent: true, opacity: 0.85 });
-    var beam = cyl(0.008, 0.008, M.convW + 0.20, beamMat, 6);
-    beam.rotation.x = Math.PI / 2;
-    beam.position.set(d.x, M.convY + 0.20, 0);
-    beam.castShadow = false;
-    g.add(beam);
-    infeed.add(g);
-    photoEyes.push({ key: d.key, label: d.label, beam: beam, mat: beamMat, x: d.x });
-  });
-
-  // Cartons riding the infeed.
-  var caseMatA = mat(COL.caseA, { metalness: 0.05, roughness: 0.85 });
-  var caseMatB = mat(COL.caseB, { metalness: 0.05, roughness: 0.85 });
-  function makeCase(alt) {
-    var g = new THREE.Group();
-    var body = box(M.caseW, M.caseH, M.caseD, alt ? caseMatB : caseMatA, 0, 0, 0);
-    g.add(body);
-    // A seam line so a stack of cases does not read as one solid block.
-    var seam = box(M.caseW + 0.004, 0.006, M.caseD * 0.02, mat(0x6b4a22, { metalness: 0, roughness: 1 }), 0, 0, M.caseD / 2);
-    seam.castShadow = false;
-    g.add(seam);
-    return g;
-  }
-  var infeedCases = [];
-  for (var c = 0; c < 6; c++) {
-    var cs = makeCase(c % 2 === 1);
-    cs.position.set(convX0 + 0.6 + c * 0.72, M.convY + M.caseH / 2 + 0.045, 0);
-    infeed.add(cs);
-    infeedCases.push(cs);
-  }
-
-  // ----------------------------------------------------------------------
-  // Pallet stations. Cases are pre-built and shown/hidden as the count moves,
-  // so a growing stack costs no allocation at run time.
-  // ----------------------------------------------------------------------
-  // rows x cols for one layer, derived from CasesPerLayer as the factor pair
-  // closest to square (the larger factor goes to X, the wider pallet
-  // dimension in every geometry this demo ships - today's 12 gives the same
-  // 4 wide x 3 deep grid the page always had). A count with no clean factor
-  // pair under it (a prime, or <1) falls back to the original 4x3 with a
-  // console warning rather than guessing at a layout that cannot tile.
-  var GRID = (function () {
-    var count = M.perLayer;
-    if (!(count > 0)) {
-      console.warn("cell3d: CasesPerLayer (" + count + ") is not a positive number - falling back to the 4x3 layout");
-      return { rows: 3, cols: 4 };
-    }
-    var a = 1;
-    for (var d = 1; d * d <= count; d++) {
-      if (count % d === 0) a = d;
-    }
-    return { rows: a, cols: count / a };
-  })();
-
-  function layerLayout(layerIndex) {
-    // Alternating case orientation on the same grid, layer to layer: a real
-    // interlocked pattern, and visibly different layer to layer on the model.
-    var rot = layerIndex % 2 === 1;
-    var cw = rot ? M.caseD : M.caseW;
-    var cd = rot ? M.caseW : M.caseD;
-    var cols = GRID.cols;
-    var rows = GRID.rows;
-    var spanX = cols * cw, spanZ = rows * cd;
-    var out = [];
-    for (var r = 0; r < rows; r++) {
-      for (var q = 0; q < cols; q++) {
-        var inset = 0.94;
-        out.push({
-          x: (-spanX / 2 + cw * (q + 0.5)) * inset,
-          z: (-spanZ / 2 + cd * (r + 0.5)) * inset,
-          rot: rot ? Math.PI / 2 : 0
-        });
-      }
-    }
-    return out;
-  }
-
-  function makePalletStation(pos, name) {
-    var g = new THREE.Group();
-    g.position.set(pos.x, 0, pos.z);
-
-    var palletMat = mat(COL.pallet, { metalness: 0.02, roughness: 0.95 });
-    var deck = new THREE.Group();
-    for (var b = -1; b <= 1; b++) {
-      deck.add(box(M.palletW, 0.045, 0.10, palletMat, 0, M.palletH - 0.02, b * (M.palletD / 2 - 0.05)));
-    }
-    for (var k = 0; k < 5; k++) {
-      deck.add(box(0.09, 0.035, M.palletD, palletMat, -M.palletW / 2 + 0.045 + k * (M.palletW - 0.09) / 4, M.palletH + 0.02, 0));
-    }
-    for (var f = -1; f <= 1; f += 1) {
-      for (var h = -1; h <= 1; h += 2) {
-        deck.add(box(0.10, M.palletH - 0.04, 0.10, palletMat, h * (M.palletW / 2 - 0.05), (M.palletH - 0.04) / 2, f * (M.palletD / 2 - 0.05)));
-      }
-    }
-    g.add(deck);
-
-    // Station frame: a low guide rail, so an empty station still looks like
-    // a station rather than a bare pallet on the floor.
-    var railMat = mat(COL.steelDark, { roughness: 0.6 });
-    g.add(box(M.palletW + 0.30, 0.06, 0.06, railMat, 0, 0.10, -(M.palletD / 2 + 0.16)));
-    g.add(box(0.06, 0.06, M.palletD + 0.30, railMat, -(M.palletW / 2 + 0.16), 0.10, 0));
-
-    var cases = [];
-    for (var L = 0; L < M.layers; L++) {
-      var lay = layerLayout(L);
-      for (var n = 0; n < lay.length; n++) {
-        var cm = makeCase((L + n) % 2 === 1);
-        cm.position.set(lay[n].x, M.palletH + M.caseH * (L + 0.5) + 0.02, lay[n].z);
-        cm.rotation.y = lay[n].rot;
-        cm.visible = false;
-        g.add(cm);
-        cases.push(cm);
-      }
-    }
-    scene.add(g);
-    return { group: g, cases: cases, name: name, pos: pos };
-  }
-  var stations = [makePalletStation(M.st1, "Station 1"), makePalletStation(M.st2, "Station 2")];
-
-  // ----------------------------------------------------------------------
   // The robot. Joint convention is the one frozen in the build contract:
   //   j1 base about Y, lift raises the carriage, j2 shoulder about Z,
   //   j3 elbow about Z, j4 wrist about Y.
@@ -748,74 +617,319 @@
   var gripper = new THREE.Group();
   gripper.position.y = -0.14;
   wrist.add(gripper);
-  var plateMat = mat(0x39424b, { metalness: 0.7, roughness: 0.4 });
-  gripper.add(box(M.caseW + 0.06, 0.07, M.caseD + 0.06, plateMat, 0, 0, 0));
-  var cupMat = mat(0x24292f, { metalness: 0.1, roughness: 0.9 });
-  var cups = [];
-  for (var cx = -1; cx <= 1; cx++) {
-    for (var cz = -1; cz <= 1; cz += 2) {
-      var cup = cyl(0.045, 0.032, 0.06, cupMat, 12);
-      cup.position.set(cx * (M.caseW / 3), -0.06, cz * (M.caseD / 4));
-      gripper.add(cup);
-      cups.push(cup);
-    }
-  }
-  // The case currently held. Parented to the gripper, so it simply follows.
-  var heldCase = makeCase(false);
-  heldCase.position.y = -0.09 - M.caseH / 2;
-  heldCase.visible = false;
-  gripper.add(heldCase);
-
   robot.position.set(0, 0, 0);
   scene.add(robot);
 
   // ----------------------------------------------------------------------
-  // Fault highlighting. A faulted group pulses; the eye finds it immediately,
-  // which is the entire reason for showing a machine in 3D rather than a list.
+  // Everything whose SIZE or PLACE is a Config tag: the infeed conveyor and
+  // what rides on it, the two pallet stations and their cases, the gripper
+  // head (sized to the case), and the fault highlights that point at them.
+  // Built once here and rebuilt by rebuildCell() whenever the polled config
+  // changes. The robot arm above is not in here - its links are the arm, not
+  // the job, and they do not move with the tags.
   // ----------------------------------------------------------------------
-  var highlights = [
-    { key: "RobotAxisFault", objs: [upperArm, foreArm, column], base: [] },
-    { key: "VacuumLow",      objs: [gripper],                   base: [] },
-    { key: "ConveyorJam",    objs: [infeed],                    base: [] }
-  ];
-  function collectMeshes(obj, out) {
-    // Materials are shared between meshes by design (every carton uses the same
-    // one), so writing .emissive on a highlighted mesh would tint every object
-    // that happens to share its material - which turned the pallet stacks red
-    // whenever the conveyor faulted. Give each highlightable mesh its own copy.
-    obj.traverse(function (o) {
-      if (o.isMesh && o.material && o.material.emissive) {
-        o.material = o.material.clone();
-        out.push(o);
+  var infeed, conveyor, convX0, convX1, rollers, photoEyes, infeedCases;
+  var GRID, stations, cups, heldCase, highlights;
+
+  function disposeObject(o) {
+    if (o.parent) o.parent.remove(o);
+    o.traverse(function (m) {
+      if (m.isMesh && m.geometry) m.geometry.dispose();
+    });
+  }
+
+  function buildCell() {
+    if (infeed) disposeObject(infeed);
+    if (stations) stations.forEach(function (st) { disposeObject(st.group); });
+    while (gripper.children.length) disposeObject(gripper.children[0]);
+
+    // ----------------------------------------------------------------------
+    // Infeed conveyor, its cartons and its photo-eyes
+    // ----------------------------------------------------------------------
+    infeed = new THREE.Group();
+    conveyor = new THREE.Group();
+    infeed.add(conveyor);
+    var frameMat = mat(COL.steelDark, { roughness: 0.6 });
+    var rollerMat = mat(COL.steel, { metalness: 0.85, roughness: 0.35 });
+
+    convX0 = 2.05; convX1 = convX0 + M.convLen;
+    var convMid = (convX0 + convX1) / 2;
+    conveyor.add(box(M.convLen, 0.10, 0.06, frameMat, convMid, M.convY - 0.06, -M.convW / 2));
+    conveyor.add(box(M.convLen, 0.10, 0.06, frameMat, convMid, M.convY - 0.06,  M.convW / 2));
+    var legXs = [convX0 + 0.35, convMid, convX1 - 0.35];
+    for (var i = 0; i < legXs.length; i++) {
+      for (var s = -1; s <= 1; s += 2) {
+        conveyor.add(box(0.07, M.convY - 0.12, 0.07, frameMat, legXs[i], (M.convY - 0.12) / 2, s * M.convW / 2));
+      }
+    }
+    rollers = [];
+    for (var rx = convX0 + 0.09; rx < convX1; rx += 0.135) {
+      var r = cyl(0.045, 0.045, M.convW - 0.02, rollerMat, 12);
+      r.rotation.x = Math.PI / 2;
+      r.position.set(rx, M.convY, 0);
+      r.castShadow = false;
+      conveyor.add(r);
+      rollers.push(r);
+    }
+    infeed.rotation.y = -Math.PI / 2;
+    infeed.position.set(1.62, 0, -(convX0 + 0.35));
+    scene.add(infeed);
+
+    // Photo-eyes. Each is an emitter, a receiver and a beam whose colour is the
+    // live tag: a fitter can see WHICH eye is blocked and where to walk.
+    var peDefs = [
+      { key: "infeed",  x: convX1 - 0.35, label: "PE Infeed"  },
+      { key: "len1",    x: convX1 - 1.70, label: "PE Length 1" },
+      { key: "len2",    x: convX1 - 2.30, label: "PE Length 2" },
+      { key: "carton",  x: convX1 - 3.10, label: "PE Carton"  },
+      { key: "inpos1",  x: convX0 + 0.60, label: "PE In-Pos 1" },
+      { key: "inpos2",  x: convX0 + 0.25, label: "PE In-Pos 2" }
+    ];
+    photoEyes = [];
+    peDefs.forEach(function (d) {
+      var g = new THREE.Group();
+      var post = box(0.05, 0.34, 0.05, frameMat, d.x, M.convY + 0.17, -M.convW / 2 - 0.10);
+      var post2 = box(0.05, 0.34, 0.05, frameMat, d.x, M.convY + 0.17, M.convW / 2 + 0.10);
+      g.add(post); g.add(post2);
+      var beamMat = new THREE.MeshBasicMaterial({ color: COL.run, transparent: true, opacity: 0.85 });
+      var beam = cyl(0.008, 0.008, M.convW + 0.20, beamMat, 6);
+      beam.rotation.x = Math.PI / 2;
+      beam.position.set(d.x, M.convY + 0.20, 0);
+      beam.castShadow = false;
+      g.add(beam);
+      infeed.add(g);
+      photoEyes.push({ key: d.key, label: d.label, beam: beam, mat: beamMat, x: d.x });
+    });
+
+    // Cartons riding the infeed.
+    var caseMatA = mat(COL.caseA, { metalness: 0.05, roughness: 0.85 });
+    var caseMatB = mat(COL.caseB, { metalness: 0.05, roughness: 0.85 });
+    function makeCase(alt) {
+      var g = new THREE.Group();
+      var body = box(M.caseW, M.caseH, M.caseD, alt ? caseMatB : caseMatA, 0, 0, 0);
+      g.add(body);
+      // A seam line so a stack of cases does not read as one solid block.
+      var seam = box(M.caseW + 0.004, 0.006, M.caseD * 0.02, mat(0x6b4a22, { metalness: 0, roughness: 1 }), 0, 0, M.caseD / 2);
+      seam.castShadow = false;
+      g.add(seam);
+      return g;
+    }
+    infeedCases = [];
+    for (var c = 0; c < 6; c++) {
+      var cs = makeCase(c % 2 === 1);
+      cs.position.set(convX0 + 0.6 + c * 0.72, M.convY + M.caseH / 2 + 0.045, 0);
+      infeed.add(cs);
+      infeedCases.push(cs);
+    }
+
+    // ----------------------------------------------------------------------
+    // Pallet stations. Cases are pre-built and shown/hidden as the count moves,
+    // so a growing stack costs no allocation at run time.
+    // ----------------------------------------------------------------------
+    // rows x cols for one layer, derived from CasesPerLayer as the factor pair
+    // closest to square (the larger factor goes to X, the wider pallet
+    // dimension in every geometry this demo ships - today's 12 gives the same
+    // 4 wide x 3 deep grid the page always had). A count with no clean factor
+    // pair under it (a prime, or <1) falls back to the original 4x3 with a
+    // console warning rather than guessing at a layout that cannot tile.
+    GRID = (function () {
+      var count = M.perLayer;
+      if (!(count > 0)) {
+        console.warn("cell3d: CasesPerLayer (" + count + ") is not a positive number - falling back to the 4x3 layout");
+        return { rows: 3, cols: 4 };
+      }
+      var a = 1;
+      for (var d = 1; d * d <= count; d++) {
+        if (count % d === 0) a = d;
+      }
+      return { rows: a, cols: count / a };
+    })();
+
+    function layerLayout(layerIndex) {
+      // Alternating case orientation on the same grid, layer to layer: a real
+      // interlocked pattern, and visibly different layer to layer on the model.
+      var rot = layerIndex % 2 === 1;
+      var cw = rot ? M.caseD : M.caseW;
+      var cd = rot ? M.caseW : M.caseD;
+      var cols = GRID.cols;
+      var rows = GRID.rows;
+      var spanX = cols * cw, spanZ = rows * cd;
+      var out = [];
+      // Column by column - the ORDER the cases appear is the order the arm
+      // places them, and a pick is one column (`rows` cases in a line), so the
+      // simulator's slot k is exactly cases k*rows .. k*rows+rows-1 here. The
+      // simulator's _layout() is this loop in Jython; change one, change both.
+      for (var q = 0; q < cols; q++) {
+        for (var r = 0; r < rows; r++) {
+          var inset = 0.94;
+          out.push({
+            x: (-spanX / 2 + cw * (q + 0.5)) * inset,
+            z: (-spanZ / 2 + cd * (r + 0.5)) * inset,
+            rot: rot ? Math.PI / 2 : 0
+          });
+        }
+      }
+      return out;
+    }
+
+    function makePalletStation(pos, name) {
+      var g = new THREE.Group();
+      g.position.set(pos.x, 0, pos.z);
+
+      var palletMat = mat(COL.pallet, { metalness: 0.02, roughness: 0.95 });
+      var deck = new THREE.Group();
+      for (var b = -1; b <= 1; b++) {
+        deck.add(box(M.palletW, 0.045, 0.10, palletMat, 0, M.palletH - 0.02, b * (M.palletD / 2 - 0.05)));
+      }
+      for (var k = 0; k < 5; k++) {
+        deck.add(box(0.09, 0.035, M.palletD, palletMat, -M.palletW / 2 + 0.045 + k * (M.palletW - 0.09) / 4, M.palletH + 0.02, 0));
+      }
+      for (var f = -1; f <= 1; f += 1) {
+        for (var h = -1; h <= 1; h += 2) {
+          deck.add(box(0.10, M.palletH - 0.04, 0.10, palletMat, h * (M.palletW / 2 - 0.05), (M.palletH - 0.04) / 2, f * (M.palletD / 2 - 0.05)));
+        }
+      }
+      g.add(deck);
+
+      // Station frame: a low guide rail, so an empty station still looks like
+      // a station rather than a bare pallet on the floor.
+      var railMat = mat(COL.steelDark, { roughness: 0.6 });
+      g.add(box(M.palletW + 0.30, 0.06, 0.06, railMat, 0, 0.10, -(M.palletD / 2 + 0.16)));
+      g.add(box(0.06, 0.06, M.palletD + 0.30, railMat, -(M.palletW / 2 + 0.16), 0.10, 0));
+
+      var cases = [];
+      for (var L = 0; L < M.layers; L++) {
+        var lay = layerLayout(L);
+        for (var n = 0; n < lay.length; n++) {
+          var cm = makeCase((L + n) % 2 === 1);
+          cm.position.set(lay[n].x, M.palletH + M.caseH * (L + 0.5) + 0.02, lay[n].z);
+          cm.rotation.y = lay[n].rot;
+          cm.visible = false;
+          g.add(cm);
+          cases.push(cm);
+        }
+      }
+      scene.add(g);
+      return { group: g, cases: cases, name: name, pos: pos };
+    }
+    stations = [makePalletStation(M.st1, "Station 1"), makePalletStation(M.st2, "Station 2")];
+
+
+    var plateMat = mat(0x39424b, { metalness: 0.7, roughness: 0.4 });
+    gripper.add(box(M.caseW + 0.06, 0.07, M.caseD + 0.06, plateMat, 0, 0, 0));
+    var cupMat = mat(0x24292f, { metalness: 0.1, roughness: 0.9 });
+    cups = [];
+    for (var cx = -1; cx <= 1; cx++) {
+      for (var cz = -1; cz <= 1; cz += 2) {
+        var cup = cyl(0.045, 0.032, 0.06, cupMat, 12);
+        cup.position.set(cx * (M.caseW / 3), -0.06, cz * (M.caseD / 4));
+        gripper.add(cup);
+        cups.push(cup);
+      }
+    }
+    // The case currently held. Parented to the gripper, so it simply follows.
+    heldCase = makeCase(false);
+    heldCase.position.y = -0.09 - M.caseH / 2;
+    heldCase.visible = false;
+    gripper.add(heldCase);
+
+
+    // ----------------------------------------------------------------------
+    // Fault highlighting. A faulted group pulses; the eye finds it immediately,
+    // which is the entire reason for showing a machine in 3D rather than a list.
+    // ----------------------------------------------------------------------
+    highlights = [
+      { key: "RobotAxisFault", objs: [upperArm, foreArm, column], base: [] },
+      { key: "VacuumLow",      objs: [gripper],                   base: [] },
+      { key: "ConveyorJam",    objs: [infeed],                    base: [] }
+    ];
+    function collectMeshes(obj, out) {
+      // Materials are shared between meshes by design (every carton uses the same
+      // one), so writing .emissive on a highlighted mesh would tint every object
+      // that happens to share its material - which turned the pallet stacks red
+      // whenever the conveyor faulted. Give each highlightable mesh its own copy.
+      obj.traverse(function (o) {
+        if (o.isMesh && o.material && o.material.emissive) {
+          o.material = o.material.clone();
+          out.push(o);
+        }
+      });
+      return out;
+    }
+    highlights.forEach(function (h) {
+      var meshes = [];
+      h.objs.forEach(function (o) { collectMeshes(o, meshes); });
+      h.meshes = meshes;
+    });
+
+  }
+  buildCell();
+
+  // The tag names behind the response keys, for the "what changed" toast.
+  var CONFIG_TAGS = {
+    caseW_mm: "CaseW_mm", caseD_mm: "CaseD_mm", caseH_mm: "CaseH_mm",
+    palletW_mm: "PalletW_mm", palletD_mm: "PalletD_mm", palletH_mm: "PalletH_mm",
+    casesPerLayer: "CasesPerLayer", layers: "Layers",
+    convHeight_mm: "ConvHeight_mm", convLength_mm: "ConvLength_mm", convWidth_mm: "ConvWidth_mm",
+    station1X_mm: "Station1_X_mm", station1Z_mm: "Station1_Z_mm",
+    station2X_mm: "Station2_X_mm", station2Z_mm: "Station2_Z_mm"
+  };
+  function configKey(c) {
+    if (!c) return "";
+    return Object.keys(c).sort().map(function (k) { return k + "=" + c[k]; }).join(",");
+  }
+  var builtConfig = config || null;
+  var builtKey = configKey(builtConfig);
+  var geoEl = document.getElementById("geo");
+  var geoTimer = null;
+
+  function rebuildCell(newConfig, geometry) {
+    var changes = [];
+    Object.keys(CONFIG_TAGS).forEach(function (k) {
+      var was = builtConfig ? builtConfig[k] : undefined;
+      if (was !== newConfig[k]) {
+        changes.push("<b>" + CONFIG_TAGS[k] + "</b> " + (was === undefined ? "?" : was) + " &rarr; <b>" + newConfig[k] + "</b>");
       }
     });
-    return out;
+    M = metricsFromConfig(newConfig);
+    builtConfig = newConfig;
+    builtKey = configKey(newConfig);
+    buildCell();
+    buildPalletDom();
+
+    var reach = geometry && geometry.reach;
+    var msg = "Machine geometry changed from [MachineDemo]Config &middot; " + changes.join(" &middot; ");
+    if (geometry && geometry.pattern) {
+      msg += " &middot; " + geometry.pattern + ", " + geometry.casesPerPallet + " a pallet";
+    }
+    if (reach && reach.ok === false) msg += " &middot; " + reach.note;
+    geoEl.innerHTML = msg;
+    geoEl.className = "show" + (reach && reach.ok === false ? " bad" : "");
+    clearTimeout(geoTimer);
+    geoTimer = setTimeout(function () { geoEl.className = ""; }, 7000);
   }
-  highlights.forEach(function (h) {
-    var meshes = [];
-    h.objs.forEach(function (o) { collectMeshes(o, meshes); });
-    h.meshes = meshes;
-  });
 
   // ----------------------------------------------------------------------
   // Camera: presets plus touch-friendly orbit. OrbitControls is a separate
   // three.js example file; a small implementation here keeps the page to one
   // vendored dependency and behaves properly under a finger on a panel.
   // ----------------------------------------------------------------------
-  // Presets that reference a station read the geometry actually loaded above,
-  // whether that came from Config tags or the built-in defaults.
+  // Presets that reference a station read the geometry as it is when the
+  // button is pressed - a function, because the stations move with the tags.
   var PRESETS = [
     { name: "Overview", r: 8.8,  theta: -0.30, phi: 0.90, t: [-0.20, 0.95, 0.15] },
     { name: "Robot",    r: 4.6,  theta: -0.55, phi: 1.08, t: [0.0, 1.40, 0] },
-    { name: "Pallet 1", r: 3.3,  theta: -2.05, phi: 1.14, t: [M.st1.x, 0.80, M.st1.z] },
-    { name: "Pallet 2", r: 3.3,  theta: -2.60, phi: 1.14, t: [M.st2.x, 0.80, M.st2.z] },
+    { name: "Pallet 1", r: 3.3,  theta: -2.05, phi: 1.14, t: function () { return [M.st1.x, 0.80, M.st1.z]; } },
+    { name: "Pallet 2", r: 3.3,  theta: -2.60, phi: 1.14, t: function () { return [M.st2.x, 0.80, M.st2.z]; } },
     { name: "Infeed",   r: 4.4,  theta: -0.10, phi: 1.14, t: [1.62, 1.15, 0.85] },
     { name: "Top",      r: 7.6,  theta: -1.30, phi: 0.28, t: [-0.45, 0.60, 0] }
   ];
   // ?camera= (parsed at the top, before main()) picks which preset the page
   // opens on; an unknown slug already fell back to "Overview" there.
+  function presetT(p) { return typeof p.t === "function" ? p.t() : p.t; }
   var startPreset = PRESETS.filter(function (p) { return p.name === startCameraName; })[0] || PRESETS[0];
-  var target = new THREE.Vector3(startPreset.t[0], startPreset.t[1], startPreset.t[2]);
+  var startT = presetT(startPreset);
+  var target = new THREE.Vector3(startT[0], startT[1], startT[2]);
   var sph = { r: startPreset.r, theta: startPreset.theta, phi: startPreset.phi };
   var want = { r: sph.r, theta: sph.theta, phi: sph.phi, target: target.clone() };
 
@@ -828,7 +942,8 @@
     b.textContent = p.name;
     b.addEventListener("click", function () {
       want.r = p.r; want.theta = p.theta; want.phi = p.phi;
-      want.target.set(p.t[0], p.t[1], p.t[2]);
+      var t = presetT(p);
+      want.target.set(t[0], t[1], t[2]);
       camButtons.forEach(function (o) { o.classList.remove("active"); });
       b.classList.add("active");
     });
@@ -907,6 +1022,9 @@
       .then(function (j) {
         if (!j || j.ok === false) throw new Error("bad payload");
         live = j; lastGood = performance.now(); linkOK = true; usingFallback = false;
+        // A Config tag changed: same numbers the simulator just re-derived
+        // its pattern from, so rebuild the picture to match.
+        if (j.config && configKey(j.config) !== builtKey) rebuildCell(j.config, j.geometry);
       })
       .catch(function () { linkOK = false; });
   }
@@ -1029,6 +1147,8 @@
     cycle: document.getElementById("v-cycle"),
     lift: document.getElementById("v-lift"),
     vac: document.getElementById("v-vac"),
+    pattern: document.getElementById("v-pattern"),
+    reach: document.getElementById("v-reach"),
     estop: document.getElementById("l-estop"),
     guards: document.getElementById("l-guards"),
     air: document.getElementById("l-air"),
@@ -1094,6 +1214,21 @@
     els.cycle.textContent = (ln.cycle != null ? ln.cycle.toFixed(2) : "—") + " s";
     els.lift.textContent = (r.lift != null ? r.lift.toFixed(0) : "—") + " mm";
     els.vac.textContent = (r.vac != null ? r.vac.toFixed(1) : "—") + " kPa";
+
+    // What the simulator derived from the Config tags. `geometry` is only on
+    // a real payload - the fallback motion has no opinion about reach.
+    var g = s.geometry || {};
+    els.pattern.textContent = g.pattern || (M.layers + " x " + M.perLayer);
+    var reach = g.reach;
+    if (!reach) {
+      els.reach.textContent = "—"; els.reach.className = "v";
+    } else if (reach.ok === false) {
+      els.reach.textContent = reach.unreachable + " short"; els.reach.className = "v warn";
+      els.reach.title = reach.note || "";
+    } else {
+      els.reach.textContent = "OK"; els.reach.className = "v ok";
+      els.reach.title = reach.note || "";
+    }
 
     setLed(els.estop, sf.estop !== false);
     setLed(els.guards, sf.guards !== false);
@@ -1204,17 +1339,45 @@
   });
 
   var proj = new THREE.Vector3();
+  // The HUD cards and the two top-centre pills. An anchored label whose point
+  // projects under one of them is hidden rather than left peeking out from
+  // behind a card - the camera decides where the labels fall, and on the
+  // pallet close-up the gripper label was reading "er open" from under the
+  // state card (seen 03/09/2026).
+  var coverEls = Array.prototype.slice.call(document.querySelectorAll(".hud.card, #wm, #geo, #faultbanner, #qualitybanner"));
+  // The label's OWN rectangle against each card, not its anchor point: a label
+  // is centred on its anchor and is up to 240px wide, so an anchor that is
+  // clear of a card is no guarantee at all - measured on the Pallet 1 camera,
+  // where the station 2 and infeed labels still ran under a card with their
+  // anchors 100px clear of it.
+  function coveredRect(q) {
+    for (var i = 0; i < coverEls.length; i++) {
+      var el = coverEls[i];
+      var st = getComputedStyle(el);
+      if (st.display === "none" || st.visibility === "hidden") continue;
+      var r = el.getBoundingClientRect();
+      if (!r.width) continue;
+      if (q.left < r.right + 4 && q.right > r.left - 4 &&
+          q.top < r.bottom + 4 && q.bottom > r.top - 4) return true;
+    }
+    return false;
+  }
   function updateLabels(s) {
     for (var i = 0; i < labelDefs.length; i++) {
       var d = labelDefs[i];
       proj.copy(d.anchor()).project(camera);
       var behind = proj.z > 1;
+      var px = (proj.x * 0.5 + 0.5) * window.innerWidth;
+      var py = (-proj.y * 0.5 + 0.5) * window.innerHeight;
       if (behind) { d.node.style.display = "none"; continue; }
+      // Written, positioned, THEN measured - the text decides the width, and
+      // the width is most of what decides whether it clears a card.
       d.node.style.display = "block";
-      d.node.style.left = ((proj.x * 0.5 + 0.5) * window.innerWidth) + "px";
-      d.node.style.top = ((-proj.y * 0.5 + 0.5) * window.innerHeight) + "px";
+      d.node.style.left = px + "px";
+      d.node.style.top = py + "px";
       d.node.innerHTML = d.text(s);
       d.node.className = "tag3d" + (d.bad && d.bad(s) ? " bad" : "");
+      if (coveredRect(d.node.getBoundingClientRect())) d.node.style.display = "none";
     }
   }
 

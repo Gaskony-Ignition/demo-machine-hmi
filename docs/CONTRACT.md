@@ -35,8 +35,9 @@ Config/        CaseW_mm 300 | CaseD_mm 250 | CaseH_mm 220                (Int4, 
                PalletW_mm 1200 | PalletD_mm 1000 | PalletH_mm 140        (Int4, mm)
                CasesPerLayer 12 | Layers 5                               (Int4)
                ConvHeight_mm 900 | ConvLength_mm 3300 | ConvWidth_mm 620 (Int4, mm)
-               Station1_X_mm -1450 | Station1_Z_mm -1650                 (Int4, mm)
-               Station2_X_mm -1450 | Station2_Z_mm 1650                  (Int4, mm)
+               Station1_X_mm -1300 | Station1_Z_mm -1500                 (Int4, mm)
+               Station2_X_mm -1300 | Station2_Z_mm 1500                  (Int4, mm)
+               (defaults; the ONE list is MachineDemo.plant.GEOMETRY)
 
 Line/          Running Bool | Mode String("Auto"/"Manual") | CasesPerMin Float8
                CycleTime_s Float8 | CasesTotal Int4 | SimEnabled Bool
@@ -88,14 +89,36 @@ it always did, `prov:MachineDemo:/tag:Robot/Fault:/alm:Robot Fault`.
 ### `Config/` — the machine’s geometry, as tags
 
 The case, the pallet, the infeed conveyor and where the two build stations sit.
-`MachineDemo.api.state()` publishes them to the 3D page as a `config` block, so
-re-sizing the machine is fifteen tag writes from the Designer on a running
-gateway, not a source edit. Int4 millimetres throughout — a machine drawing is
-in whole millimetres, and a float invites a geometry that is 299.9999 wide.
+Three readers, one set of numbers, all live (since v1.9.0, 03/09/2026):
 
-Robot **link lengths** are deliberately not here: the simulator’s inverse
-kinematics solves against them, so they cannot be handed to the page on their
-own without the arm and the pattern disagreeing.
+- **The simulator** reads all fifteen every tick, in the same round trip as
+  the controls, and derives the pattern from them in `MachineDemo.sim
+  ._geometry()`: rows × cols (the factor pair closest to square, larger along
+  X), **cases a pick = one column**, the placement height of every layer, the
+  centroid every pick lands on, the safe travel height, and whether the arm
+  can **reach** each of those — every placement is solved and run forward
+  again, and anything more than 50 mm off is reported. A change re-aims the
+  running cycle within a tick and re-writes `Pallet/*/PatternName`.
+- **The 3D page** gets them as the `config` block of `?cmd=state` and
+  **rebuilds its geometry the moment the block changes** — inside the 250 ms
+  poll — naming the change on screen. It fills each layer column by column,
+  the same order the simulator places, so the picture and the arm agree on
+  where case *n* is.
+- **The screens** bind to them: pallet capacity on Overview and Manual is
+  `CasesPerLayer * Layers`, not a literal.
+
+Re-sizing the machine is therefore fifteen tag writes from the Designer on a
+running gateway, and the **Geometry panel on the 3D page** is exactly that:
+fifteen `ia.input.numeric-entry-field`s bound bidirectionally to the tags,
+plus three whole-machine presets (`MachineDemo.api.setGeometry`) that write
+all fifteen at once. Int4 millimetres throughout — a machine drawing is in
+whole millimetres, and a float invites a geometry that is 299.9999 wide.
+
+Robot **link lengths** are deliberately not here: they are the arm, not the
+job. The reach report is what says whether *this* arm can build *this*
+pattern — the default and all three presets solve with 0 mm error; the
+stations moved from 2.2 m to 1.98 m on 03/09/2026 because the first honest
+solve found the far column of a 1.2 m pallet 64 mm beyond a 2.5 m arm.
 
 ### `Robot` is a UDT instance, and the paths did not change
 
@@ -242,6 +265,7 @@ MachineDemo.api.setSpeed(2)                   # machine time as a multiple of re
 MachineDemo.api.setMode("Auto")               # or "Manual"
 MachineDemo.api.setGuards(False)              # open the guard circuit; True closes it
 MachineDemo.api.setJog("up", True)            # momentary bit; send False to release
+MachineDemo.api.setGeometry("euro-tall")      # all 15 Config tags at once; also "default", "small-dense"
 ```
 
 Why not authenticated POST: WebDev authentication on 8.3.8 is HTTP Basic against a
@@ -304,9 +328,22 @@ Designer without a web toolchain.
   "safety": {"estop": true, "guards": true, "air": true, "interfaces": true},
   "faults": {"WrapperFilmFeed": false, "ConveyorJam": false, "VacuumLow": false,
              "GuardOpen": false, "RobotAxisFault": false},
-  "zones": [{"id":"Z1","name":"Robot 1","state":"Running","running":true,"fault":false}, ...]
+  "zones": [{"id":"Z1","name":"Robot 1","state":"Running","running":true,"fault":false}, ...],
+  "config":   {"caseW_mm": 300, ... the fifteen Config tags, always complete},
+  "quality":  {"ok": true, "bad": [], "stale": false, "worst": "Good"},
+  "geometry": {"pattern": "5 x 12 interlock", "rows": 3, "cols": 4,
+               "casesPerPick": 3, "picksPerLayer": 4, "casesPerPallet": 60,
+               "pickWristY_mm": 1395, "stackTop_mm": 1260,
+               "reach": {"ok": true, "unreachable": 0, "worst_mm": 0,
+                         "note": "every placement within reach (worst 0 mm)",
+                         "detail": []}}
 }
 ```
+
+`config`, `quality` and `geometry` are **additive** blocks beside the frozen
+shape. `geometry` is what the simulator derived from `config`, cached until a
+Config tag changes; the page rebuilds when `config` changes and shows
+`geometry.pattern` and `geometry.reach` on the HUD.
 
 Robot joint convention for the 3D page (right-handed, Y up, mm):
 `j1` rotates the base about **Y**; `j2` is the shoulder about **Z** (positive

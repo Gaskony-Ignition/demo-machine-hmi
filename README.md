@@ -170,11 +170,14 @@ demonstration that is exactly the fact worth stating. `?watermark=0` or the
 view's `watermark` param removes it.
 
 **Changing the machine it draws** is [docs/CHANGING-THE-3D-CELL.md][3d]: the
-cell's proportions are 15 tags in `[MachineDemo]Config`, and changing them
-redraws it with no source edit. That document also sets out the one real limit
-— the simulator keeps its own copy of those numbers, so a changed tag moves the
-picture and not the machine. Read it before changing a value in front of
-anyone.
+cell's proportions and pattern are 15 tags in `[MachineDemo]Config`, and the
+simulator, the 3D page and the screens all read them live — change one and,
+within a tick, the arm is placing to the new pattern and the page has rebuilt
+itself. The page's **Geometry** button opens a Perspective panel of those
+fifteen tags with three whole-machine presets, and the simulator reports
+whether the arm can reach every placement before it tries. How close that is
+to "programmed in Perspective", and the three ways to close the rest, is
+[docs/3D-AS-PERSPECTIVE.md](docs/3D-AS-PERSPECTIVE.md).
 
 [3d]: docs/CHANGING-THE-3D-CELL.md
 

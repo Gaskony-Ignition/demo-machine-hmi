@@ -9,7 +9,7 @@ The provider name appears in exactly one place - PROVIDER - because a demo that
 spells it out in forty bindings is a demo that cannot be renamed.
 """
 
-VERSION = "1.8.0"
+VERSION = "1.9.0"
 
 PROVIDER = "MachineDemo"
 
@@ -28,18 +28,71 @@ def tag(path):
 # ---------------------------------------------------------------------------
 # the machine
 # ---------------------------------------------------------------------------
-# These are the numbers the simulator, the setup notes and the screens all have
-# to agree about. The pattern is 3 cases per pick, 4 picks to a layer, 5 layers
-# to a pallet - so a nominal 12.6 s cycle is 14.3 cases a minute, which is what
-# a mid-size case palletiser actually does.
+# The machine's shape is TAGS - [<provider>]Config/* - and these are only the
+# defaults those tags are created with. The simulator, the 3D page and the
+# screens all read the tags, so a different machine is fifteen tag writes and
+# nothing here has to change. GEOMETRY is the one list of them: tag path, the
+# key it travels under in ?cmd=state, and the default. MachineDemo.tagdata
+# creates the tags from it, MachineDemo.api publishes them from it and
+# MachineDemo.sim derives its pattern, heights and reach from it.
+#
+# With these defaults the pattern is 12 cases a layer in a 4 x 3 grid, placed a
+# column of 3 at a time, 5 layers to a pallet - so a nominal 12.6 s cycle is
+# 14.3 cases a minute, which is what a mid-size case palletiser actually does.
+#
+# The stations sit 1.98 m from the robot base. They were 2.2 m until 03/09/2026,
+# when the arm was first asked to place at the pattern's actual case positions
+# rather than at four hand-picked offsets and turned out to be 64 mm short of
+# the far column of a 1.2 m pallet on a 2.5 m arm. The reach report in
+# MachineDemo.sim is what found it, and would find it again.
 
+GEOMETRY = [
+	("Config/CaseW_mm", "caseW_mm", 300),
+	("Config/CaseD_mm", "caseD_mm", 250),
+	("Config/CaseH_mm", "caseH_mm", 220),
+	("Config/PalletW_mm", "palletW_mm", 1200),
+	("Config/PalletD_mm", "palletD_mm", 1000),
+	("Config/PalletH_mm", "palletH_mm", 140),
+	("Config/CasesPerLayer", "casesPerLayer", 12),
+	("Config/Layers", "layers", 5),
+	("Config/ConvHeight_mm", "convHeight_mm", 900),
+	("Config/ConvLength_mm", "convLength_mm", 3300),
+	("Config/ConvWidth_mm", "convWidth_mm", 620),
+	("Config/Station1_X_mm", "station1X_mm", -1300),
+	("Config/Station1_Z_mm", "station1Z_mm", -1500),
+	("Config/Station2_X_mm", "station2X_mm", -1300),
+	("Config/Station2_Z_mm", "station2Z_mm", 1500),
+]
+GEOMETRY_DEFAULT = dict((key, default) for path, key, default in GEOMETRY)
+
+# Whole machines, as overrides on the defaults. A presenter picks one from the
+# 3D page's geometry panel and the cell, the pattern and the arm all follow -
+# the same fifteen writes an application engineer would make in the Designer,
+# just made at once. Every value here has been checked against the arm's reach
+# (see MachineDemo.sim.geometryInfo) - a preset the robot cannot build is a
+# demo that stops on case 34 with no explanation.
+GEOMETRY_PRESETS = [
+	("default", "Default cell",
+	 "300 x 250 x 220 mm cases, 12 a layer, 5 layers, 1200 x 1000 pallet", {}),
+	("euro-tall", "Tall cases, Euro pallet",
+	 "350 mm cases, 8 a layer, 4 layers, on a 1200 x 800 Euro pallet",
+	 {"caseH_mm": 350, "palletD_mm": 800, "casesPerLayer": 8, "layers": 4}),
+	("small-dense", "Small cases, dense",
+	 "200 x 200 x 150 mm cases, 30 a layer, 7 layers",
+	 {"caseW_mm": 200, "caseD_mm": 200, "caseH_mm": 150,
+	  "casesPerLayer": 30, "layers": 7}),
+]
+
+# The defaults, under the names the rest of the project has always used. They
+# describe the DEFAULT machine only - the live numbers are the Config tags, and
+# MachineDemo.sim derives everything below from those every tick.
 CASES_PER_PICK = 3
 SLOTS_PER_LAYER = 4
-CASES_PER_LAYER = CASES_PER_PICK * SLOTS_PER_LAYER      # 12
-LAYERS_PER_PALLET = 5
-CASES_PER_PALLET = CASES_PER_LAYER * LAYERS_PER_PALLET  # 60
+CASES_PER_LAYER = GEOMETRY_DEFAULT["casesPerLayer"]                  # 12
+LAYERS_PER_PALLET = GEOMETRY_DEFAULT["layers"]                       # 5
+CASES_PER_PALLET = CASES_PER_LAYER * LAYERS_PER_PALLET               # 60
 
-PATTERN_NAME = "5 x 12 interlock"
+PATTERN_NAME = "%d x %d interlock" % (LAYERS_PER_PALLET, CASES_PER_LAYER)
 
 # Nominal pick-and-place cycle, in MACHINE seconds. SimSpeed is a multiplier on
 # how fast machine time runs against the wall clock; it does not make the
@@ -47,10 +100,12 @@ PATTERN_NAME = "5 x 12 interlock"
 # speed.
 CYCLE_S = 12.6
 
-# The cell's physical geometry - arm links, where the conveyor and the pallets
-# are, how tall a case is - lives in MachineDemo.sim and only there, because it
-# is only ever used by the IK solve. Two copies of a case height is how a
-# palletiser comes to stack layers the arm cannot reach.
+# The arm itself - link lengths, column travel - lives in MachineDemo.sim and
+# only there, because it is only ever used by the IK solve, and the 3D page
+# draws the same two links. Where the conveyor and the pallets are and how tall
+# a case is are NOT constants anywhere any more: they are the Config tags, read
+# live. Two copies of a case height is how a palletiser comes to stack layers
+# the arm cannot reach, and that is exactly the defect this replaced.
 
 STATIONS = [1, 2]
 

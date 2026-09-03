@@ -1278,7 +1278,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "\"of 60 cases\""
+                                        "expression": "\"of \" + toStr({[MachineDemo]Config/CasesPerLayer} * {[MachineDemo]Config/Layers}) + \" cases\""
                                       }
                                     }
                                   }
@@ -1661,7 +1661,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "\"of 60 cases\""
+                                        "expression": "\"of \" + toStr({[MachineDemo]Config/CasesPerLayer} * {[MachineDemo]Config/Layers}) + \" cases\""
                                       }
                                     }
                                   }

@@ -8088,7 +8088,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "\"cases \" + toStr(coalesce({[MachineDemo]Pallet/Station1/CasesPlaced}, 0)) + \"/60   layer \" + toStr(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0)) + \"/5\""
+                                        "expression": "\"cases \" + toStr(coalesce({[MachineDemo]Pallet/Station1/CasesPlaced}, 0)) + \"/\" + toStr({[MachineDemo]Config/CasesPerLayer} * {[MachineDemo]Config/Layers}) + \"   layer \" + toStr(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0)) + \"/\" + toStr({[MachineDemo]Config/Layers})"
                                       }
                                     }
                                   }
@@ -8370,7 +8370,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "\"cases \" + toStr(coalesce({[MachineDemo]Pallet/Station2/CasesPlaced}, 0)) + \"/60   layer \" + toStr(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0)) + \"/5\""
+                                        "expression": "\"cases \" + toStr(coalesce({[MachineDemo]Pallet/Station2/CasesPlaced}, 0)) + \"/\" + toStr({[MachineDemo]Config/CasesPerLayer} * {[MachineDemo]Config/Layers}) + \"   layer \" + toStr(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0)) + \"/\" + toStr({[MachineDemo]Config/Layers})"
                                       }
                                     }
                                   }

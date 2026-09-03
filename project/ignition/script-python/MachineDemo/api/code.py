@@ -54,27 +54,11 @@ FAULTS = ["Faults/%s" % n for n in
           ["WrapperFilmFeed", "ConveyorJam", "VacuumLow", "GuardOpen",
            "RobotAxisFault"]]
 
-# The 3D page's geometry. Tag name -> (response key, default). The defaults
-# are today's page geometry, from docs/CONTRACT.md - if a Config tag does not
-# exist yet (agent A has not deployed it) or reads bad quality, the page must
-# still get a complete block, never a hole.
-CONFIG = [
-	("Config/CaseW_mm", "caseW_mm", 300),
-	("Config/CaseD_mm", "caseD_mm", 250),
-	("Config/CaseH_mm", "caseH_mm", 220),
-	("Config/PalletW_mm", "palletW_mm", 1200),
-	("Config/PalletD_mm", "palletD_mm", 1000),
-	("Config/PalletH_mm", "palletH_mm", 140),
-	("Config/CasesPerLayer", "casesPerLayer", 12),
-	("Config/Layers", "layers", 5),
-	("Config/ConvHeight_mm", "convHeight_mm", 900),
-	("Config/ConvLength_mm", "convLength_mm", 3300),
-	("Config/ConvWidth_mm", "convWidth_mm", 620),
-	("Config/Station1_X_mm", "station1X_mm", -1450),
-	("Config/Station1_Z_mm", "station1Z_mm", -1650),
-	("Config/Station2_X_mm", "station2X_mm", -1450),
-	("Config/Station2_Z_mm", "station2Z_mm", 1650),
-]
+# The machine's geometry: (tag path, response key, default), the ONE list in
+# MachineDemo.plant that the tags are created from and the simulator derives
+# from. If a Config tag does not exist yet or reads bad quality, the page must
+# still get a complete block, never a hole - hence the defaults.
+CONFIG = P.GEOMETRY
 
 _PLAN = None
 
@@ -358,7 +342,21 @@ def state():
 		# Additive: whether this snapshot is trustworthy - see _quality()'s
 		# docstring for how "stale" is judged across the whole read.
 		"quality": _quality(paths, qvs),
+		# Additive: what the simulator DERIVED from that config - the pattern,
+		# cases a pick, and whether the arm can reach every placement. Cached
+		# in the simulator until a Config tag changes, so the poll pays
+		# nothing for it.
+		"geometry": _geometry(),
 	}
+
+
+def _geometry():
+	try:
+		return MachineDemo.sim.geometryInfo()
+	except:
+		import traceback
+		LOG.warn("geometryInfo failed: %s" % traceback.format_exc())
+		return {"reach": {"ok": True, "unreachable": 0, "note": u""}}
 
 
 # ---------------------------------------------------------------------------
@@ -422,6 +420,33 @@ def reset():
 	MachineDemo.sim.clearInternals()
 	LOG.info("reset to steady state")
 	return {"cleared": list(P.FAULTS), "running": True}
+
+
+def geometryPresets():
+	"""The whole-machine presets, for the geometry panel."""
+	return [{"name": n, "label": l, "detail": d, "values": v}
+	        for n, l, d, v in P.GEOMETRY_PRESETS]
+
+
+def setGeometry(preset="default"):
+	"""Write all fifteen Config tags at once, to a named preset.
+
+	Exactly the writes an application engineer would make one at a time in
+	the Designer - nothing here that a tag write cannot do - which is the
+	point: the simulator and the 3D page pick the change up from the tags,
+	not from this call.
+	"""
+	key = (preset or "default").strip().lower()
+	match = [p for p in P.GEOMETRY_PRESETS if p[0] == key]
+	if not match:
+		raise ValueError("no such geometry preset: '%s' - try one of %s"
+		                 % (preset, ", ".join(p[0] for p in P.GEOMETRY_PRESETS)))
+	name, label, detail, over = match[0]
+	values = dict(P.GEOMETRY_DEFAULT)
+	values.update(over)
+	P.write(dict((path, int(values[k])) for path, k, d in P.GEOMETRY))
+	LOG.info("geometry set to preset '%s' (%s)" % (name, detail))
+	return {"preset": name, "label": label, "values": values}
 
 
 def setSpeed(value):

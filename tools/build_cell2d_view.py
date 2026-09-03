@@ -256,6 +256,9 @@ def set_text(node, name, text):
 header = copy.deepcopy(find(json.load(open(CELL3D))["root"], "Header"))
 if header is None:
     raise SystemExit("Cell3D has no Header to copy")
+# The geometry-panel toggle is Cell3D's alone: this view has no panel for it.
+header["children"] = [c for c in header["children"]
+                      if c.get("meta", {}).get("name") != "GeomToggle"]
 set_text(header, "t1", u"Zone 2 \u00b7 Robot Cell 2 \u2014 Stock components")
 set_text(header, "t2", "The same robot, the same tags, built entirely in the "
                        "Designer with no JavaScript")

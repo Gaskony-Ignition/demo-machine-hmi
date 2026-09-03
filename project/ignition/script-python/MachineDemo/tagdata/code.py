@@ -15,9 +15,10 @@ Two things in here are shaped the way an Ignition integrator would shape them
 rather than the way a demo usually is:
 
 * `Config/` holds the machine's GEOMETRY as tags. Case and pallet sizes, the
-  conveyor and where the two pallet stations sit. The 3D page and the screens
-  read them, so re-sizing the machine is fifteen tag writes from the Designer
-  and not a source edit.
+  conveyor and where the two pallet stations sit. The simulator, the 3D page
+  and the screens all read them live, so re-sizing the machine is fifteen tag
+  writes from the Designer and not a source edit - and the arm places to the
+  new pattern within a tick of the write.
 * `Robot` is a UDT INSTANCE of `_types_/RobotArm`, not a folder of nineteen
   loose tags. Its members are named exactly as those tags were, so every path
   that already existed - `[MachineDemo]Robot/J2_deg` and the rest - still
@@ -322,8 +323,8 @@ def _zones():
 	])
 
 
-CONFIG_DOC = ("Machine geometry. Change these for a different machine; "
-              "the 3D page and the sim read them.")
+CONFIG_DOC = ("Machine geometry. Change these for a different machine: the "
+              "simulator, the 3D page and the screens all read them live.")
 
 
 def _config():
@@ -333,48 +334,56 @@ def _config():
 	size buried in a JavaScript file is a number only the person who wrote the
 	page can change; the same number on a tag is one an application engineer
 	changes from the Designer, on a machine that is running, and watches the
-	3D cell redraw. The customer's next machine stacks 400 mm cases on a
-	Euro pallet - that is fifteen tag values, not a source edit.
+	3D cell redraw AND the arm start placing to the new pattern. The next
+	machine stacks 350 mm cases on a Euro pallet - that is fifteen tag values,
+	not a source edit, and since 03/09/2026 that sentence is true of the
+	simulator too, not only of the picture.
+
+	The defaults come from MachineDemo.plant.GEOMETRY, the one list that the
+	API publishes from and the simulator derives from - a default typed here
+	as well would be a second copy.
 
 	Int4 millimetres throughout, because a machine drawing is in whole
 	millimetres and a float invites a geometry that is 299.9999 wide.
 
-	Robot LINK lengths are deliberately NOT here: the simulator's inverse
-	kinematics solves against them, so they are not a number the page can be
-	handed on its own without the arm and the pattern disagreeing.
+	Robot LINK lengths are deliberately NOT here: they are the arm, not the
+	job. The simulator's inverse kinematics solves against them and the 3D
+	page draws the same two links; the reach report says whether THIS arm can
+	build THIS pattern, which is the question a bigger pallet actually raises.
 	"""
+	D = P.GEOMETRY_DEFAULT
 	return _folder("Config", [
-		_geom("CaseW_mm", 300, "Case width - across the infeed conveyor",
-		      lo=100.0, hi=1000.0),
-		_geom("CaseD_mm", 250, "Case depth - along the infeed conveyor",
-		      lo=100.0, hi=1000.0),
-		_geom("CaseH_mm", 220, "Case height - sets the layer pitch",
-		      lo=50.0, hi=1000.0),
-		_geom("PalletW_mm", 1200, "Pallet width", lo=600.0, hi=2000.0),
-		_geom("PalletD_mm", 1000, "Pallet depth", lo=600.0, hi=2000.0),
-		_geom("PalletH_mm", 140, "Pallet deck height - the first layer sits "
-		      "on top of this", lo=80.0, hi=300.0),
-		_geom("CasesPerLayer", P.CASES_PER_LAYER,
+		_geom("CaseW_mm", D["caseW_mm"],
+		      "Case width - across the infeed conveyor", lo=100.0, hi=1000.0),
+		_geom("CaseD_mm", D["caseD_mm"],
+		      "Case depth - along the infeed conveyor", lo=100.0, hi=1000.0),
+		_geom("CaseH_mm", D["caseH_mm"],
+		      "Case height - sets the layer pitch", lo=50.0, hi=1000.0),
+		_geom("PalletW_mm", D["palletW_mm"], "Pallet width", lo=600.0, hi=2000.0),
+		_geom("PalletD_mm", D["palletD_mm"], "Pallet depth", lo=600.0, hi=2000.0),
+		_geom("PalletH_mm", D["palletH_mm"], "Pallet deck height - the first "
+		      "layer sits on top of this", lo=80.0, hi=300.0),
+		_geom("CasesPerLayer", D["casesPerLayer"],
 		      "Cases in one layer of the pattern", unit="cases",
 		      lo=1.0, hi=60.0),
-		_geom("Layers", P.LAYERS_PER_PALLET, "Layers to a finished pallet",
+		_geom("Layers", D["layers"], "Layers to a finished pallet",
 		      unit="layers", lo=1.0, hi=20.0),
-		_geom("ConvHeight_mm", 900, "Infeed conveyor top-of-belt height",
-		      lo=400.0, hi=1600.0),
-		_geom("ConvLength_mm", 3300, "Infeed conveyor length",
+		_geom("ConvHeight_mm", D["convHeight_mm"],
+		      "Infeed conveyor top-of-belt height", lo=400.0, hi=1600.0),
+		_geom("ConvLength_mm", D["convLength_mm"], "Infeed conveyor length",
 		      lo=1000.0, hi=12000.0),
-		_geom("ConvWidth_mm", 620, "Infeed conveyor belt width",
+		_geom("ConvWidth_mm", D["convWidth_mm"], "Infeed conveyor belt width",
 		      lo=200.0, hi=1600.0),
-		_geom("Station1_X_mm", -1450,
+		_geom("Station1_X_mm", D["station1X_mm"],
 		      "Pallet station 1 centre, X from the robot base",
 		      lo=-6000.0, hi=6000.0),
-		_geom("Station1_Z_mm", -1650,
+		_geom("Station1_Z_mm", D["station1Z_mm"],
 		      "Pallet station 1 centre, Z from the robot base",
 		      lo=-6000.0, hi=6000.0),
-		_geom("Station2_X_mm", -1450,
+		_geom("Station2_X_mm", D["station2X_mm"],
 		      "Pallet station 2 centre, X from the robot base",
 		      lo=-6000.0, hi=6000.0),
-		_geom("Station2_Z_mm", 1650,
+		_geom("Station2_Z_mm", D["station2Z_mm"],
 		      "Pallet station 2 centre, Z from the robot base",
 		      lo=-6000.0, hi=6000.0),
 	], CONFIG_DOC)

@@ -1,15 +1,14 @@
 # Changing the 3D cell
 
-*How much of this machine is data, how much is code, and what it actually
-takes to make it represent something else.*
+*How much of this machine is data, how much is code, and what it takes to make
+it represent something else.*
 
-The honest summary: **the shape of the machine is 15 numbers, and the numbers
-are tags.** Changing them redraws the cell — bigger cases, a different pallet,
-a shorter conveyor, stations in different places — with no source edit and no
-JavaScript.
+The summary: **the shape of the machine is 15 numbers, the numbers are tags,
+and everything reads them live.** Change one and, within a tick, the
+simulator is placing to the new pattern, the 3D page has rebuilt itself, and
+the screens show the new capacity. No source edit, no JavaScript, no reload.
 
-There is one important limit, in [The catch](#the-catch) below, and it is the
-first thing to read if you intend to change a value live in front of someone.
+The fastest way to see it is the **Geometry** button on the 3D page.
 
 ---
 
@@ -17,9 +16,9 @@ first thing to read if you intend to change a value live in front of someone.
 
 | | What changes | What you edit | Who can do it |
 | --- | --- | --- | --- |
-| **1** | The machine's proportions | 15 tags in `[MachineDemo]Config` | anyone with the Designer |
-| **2** | The arrangement of parts | one block of `page.html` | anyone who can read the block |
-| **3** | A different machine entirely | the same block, more of it | someone comfortable with three.js |
+| **1** | The machine's proportions and pattern | 15 tags in `[MachineDemo]Config` | anyone with the Designer, or the Geometry panel |
+| **2** | The arrangement of parts | one function in `page.html` | anyone who can read the function |
+| **3** | A different machine entirely | the same function, more of it | someone comfortable with three.js |
 
 ---
 
@@ -27,7 +26,7 @@ first thing to read if you intend to change a value live in front of someone.
 
 `[MachineDemo]Config` holds the cell's dimensions in whole millimetres:
 
-```
+```text
 CaseW_mm  CaseD_mm  CaseH_mm             the case being handled
 PalletW_mm  PalletD_mm  PalletH_mm       the pallet it goes on
 CasesPerLayer  Layers                    the pattern
@@ -39,78 +38,93 @@ Station2_X_mm  Station2_Z_mm             measured from the robot base
 Every one has engineering limits and a tooltip describing what it means, so
 the Designer's tag editor will not let you type a 6-metre case.
 
-**The path a number takes.** Tag → the `admin?cmd=state` endpoint, which
-returns them as a `config` block → the page's `metricsFromConfig()`, which
-converts mm to metres → the `M` object → every `box()` and `cyl()` call that
-builds the scene.
+### Three readers, one set of numbers
 
-Nothing in that chain is special. You can see the middle of it yourself:
+**The simulator** reads all fifteen every tick, in the same round trip as its
+controls, and derives the machine from them:
 
-```bash
-curl -s "<gateway>/system/webdev/Machine_HMI_Demo/admin?cmd=state" | jq .config
+- the layer grid — rows × columns is the factor pair closest to square, the
+  larger along X (12 → 4 × 3, 8 → 4 × 2, 30 → 6 × 5);
+- **cases a pick = one column** of that grid, so the case set squared up on
+  the infeed is the column the gripper carries across;
+- where every pick lands — the centroid of the cases it places, in the
+  order the page fills them;
+- the height of every layer, the pick height off the belt, the safe travel
+  height over the tallest stack;
+- and whether the arm can **reach** all of it (below).
+
+**The 3D page** gets the same fifteen as the `config` block of `?cmd=state`
+and rebuilds its geometry the moment that block changes, inside its 250 ms
+poll — conveyor, stations, cases, gripper head — and names the change on
+screen: *CaseH_mm 220 → 350 · 5 x 12 interlock, 60 a pallet*. The HUD shows
+the derived pattern and the reach verdict.
+
+**The screens** bind to them. Pallet capacity on Overview and Manual is
+`CasesPerLayer * Layers`, not a literal 60.
+
+### The Geometry panel
+
+The 3D page's header has a **Geometry** button. It opens a panel of fifteen
+Perspective numeric fields, each bound **bidirectionally** to one Config tag,
+and three whole-machine presets:
+
+| Preset | What it is |
+| --- | --- |
+| Default | 300 × 250 × 220 mm cases, 12 a layer, 5 layers, 1200 × 1000 pallet |
+| Euro, tall | 350 mm cases, 8 a layer (4 × 2), 4 layers, on a 1200 × 800 Euro pallet |
+| Small, dense | 200 × 200 × 150 mm cases, 30 a layer (6 × 5), 7 layers |
+
+There is no script behind the fields. Typing 350 into CASE HEIGHT and
+pressing Enter writes `Config/CaseH_mm`; the simulator re-derives on its next
+tick; the page rebuilds on its next poll. The presets call
+`MachineDemo.api.setGeometry()`, which does nothing a tag write could not —
+it writes all fifteen at once.
+
+This is the demonstration's argument in one gesture: the 3D model is fed by
+tags exactly the way a Perspective component is, and here it is being edited
+from Perspective.
+
+### Reach
+
+A bigger pallet, a taller stack or a station further out is a question the
+arm has to answer, not the page. The simulator solves every placement of the
+pattern on both stations, plus the pick and the clearance over a finished
+pallet, runs each solution forward through the same kinematics, and reports
+anything more than 50 mm from where it was sent:
+
+```json
+"reach": {"ok": true, "unreachable": 0, "worst_mm": 0,
+          "note": "every placement within reach (worst 0 mm)", "detail": []}
 ```
 
-**Proved, not asserted.** Feeding the page a different set of numbers — 600 mm
-drums 900 mm tall, 3 to a layer, 3 layers, on a Euro pallet, with a shorter
-wider conveyor — produces a different machine from the same code:
+The HUD's **Reach** row shows *OK* or *n short*; the geometry-changed
+banner turns amber and carries the first offender. The default and all
+three presets solve with 0 mm error. Type `Station1_X_mm = -2000` and you
+will be told, by the machine, before the arm demonstrates it.
 
-![The same page, given a different set of 15 numbers](img/geom-other-machine.png)
+The first honest solve is also why the default stations moved from 2.2 m to
+1.98 m from the robot base on 03/09/2026: the far column of a 1.2 m pallet
+was 64 mm beyond a 2.5 m arm, and the previous hand-picked slot offsets had
+been quietly avoiding it.
 
-The scene is rebuilt once, at load, from whatever the config says. So after
-changing a tag, **reload the page** — the geometry is not re-read on the
-polling cycle, deliberately: a machine that changed shape underneath an
-operator mid-cycle would be worse than one that needed a refresh.
+### What is *not* a tag
 
----
-
-## The catch
-
-**The simulator does not read these tags.** It has its own copy of the same
-numbers, as constants in `MachineDemo.plant`:
-
-```python
-CASES_PER_PICK = 3
-SLOTS_PER_LAYER = 4
-CASES_PER_LAYER = CASES_PER_PICK * SLOTS_PER_LAYER      # 12
-LAYERS_PER_PALLET = 5
-CASES_PER_PALLET = CASES_PER_LAYER * LAYERS_PER_PALLET  # 60
-```
-
-Today the two agree, because the tags' *default values* are generated from
-those constants — `_geom("CasesPerLayer", P.CASES_PER_LAYER, ...)`. Change a
-tag and they stop agreeing, and the disagreement is visible: the picture
-draws the new pattern while the arm keeps placing the old one. In the image
-above the stations read `39/9` and `36/9` — more cases placed than the new
-pattern can hold — and the stacks do not line up with the gripper.
-
-The constants also feed the inverse kinematics: the arm's placement heights
-come from `CASE_H_M` and `PALLET_DECK_M`, and the station positions from
-`STATION_XZ`. So this affects the dimension tags too, not just the pattern
-ones — the arm reaches to where the *constants* say the pallet is, while the
-page draws it where the *tags* say.
-
-**What that means in practice.** Level 1 changes the model honestly, and that
-is genuinely useful: it is how you show a prospect their own case size on
-their own pallet. But it is a picture, not a re-commissioned machine, and it
-is not a change to make live in front of someone unless the simulator is
-changed to match.
-
-**Closing it** means having the simulator read the same 15 tags at startup
-and recompute its derived geometry from them, instead of importing constants.
-That is a real piece of work — those constants reach into the kinematics, and
-getting it wrong makes the arm grasp at places it cannot reach — but it is
-the difference between *the picture changes* and *the machine changes*, and
-it is worth doing before anyone claims the second.
+The robot's link lengths (1.35 m and 1.15 m), its column travel (1200 mm) and
+its joint limits. They are the arm, not the job — a machine builder changes
+the pattern for every customer and the arm once per model. The page draws
+the same two links the simulator solves against, and the reach report is
+what tells you whether *this* arm can build *this* pattern.
 
 ---
 
 ## Level 2 — the arrangement
 
-The scene is built in one function, `main()`, in `src/cell3d/page.html`. It
-reads top to bottom in the order a person would build the cell: floor, grid,
-guard fence, conveyor, robot, pallet stations, cases.
+The scene is built in `src/cell3d/page.html`. The static parts — floor, grid,
+fence, the robot arm's links — are built once at the top of `main()`.
+Everything whose size or place is a Config tag is built by `buildCell()`,
+which is what the live rebuild calls.
 
-It uses two helpers and almost nothing else:
+Both use two helpers and almost nothing else:
 
 ```js
 box(w, h, d, material, x, y, z)      // a rectangular part
@@ -127,21 +141,25 @@ real arm has. Rotating `shoulder` carries everything below it, so the
 kinematics are the nesting, not a matrix calculation.
 
 **To change what a part looks like**, find it by name and change its numbers.
-**To add a part**, add a `box()` or `cyl()` beside the ones around it.
+**To add a part**, add a `box()` or `cyl()` beside the ones around it. If its
+size should follow a tag, put it in `buildCell()` and read `M`.
 
 ---
 
 ## Level 3 — a different machine
 
 Nothing about the page is palletising-specific except the contents of
-`main()`. The plumbing either side of it — the config fetch, the state poll,
-the HUD, the damping, the theme palettes, the camera presets — is machine
-agnostic.
+`main()` and `buildCell()`. The plumbing either side — the config fetch, the
+state poll, the live rebuild, the HUD, the damping, the theme palettes, the
+camera presets — is machine agnostic.
 
 A different machine means replacing the parts list with a different one and
 pointing `applyState()` at whichever tags drive it. The existing file is the
-worked example: about 400 lines of the 1250 are the parts, and the rest is
+worked example: about 400 lines of the 1400 are the parts, and the rest is
 the plumbing you would keep.
+
+For where this could go next — a scene that is *data* rather than code, or
+a real Perspective component — see [3D-AS-PERSPECTIVE.md](3D-AS-PERSPECTIVE.md).
 
 ---
 
@@ -160,3 +178,6 @@ python3 tools/webdev_page.py extract    # the resource -> src/cell3d/page.html
 **Run `extract` after editing in the Designer**, before committing, or the
 next `build` overwrites what you typed there. That is the one rule the split
 imposes.
+
+The Perspective side is generated too: `tools/build_cell3d_view.py` writes the
+Cell3D view, panel included. Rebuild it rather than editing the JSON.

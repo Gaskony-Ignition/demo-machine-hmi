@@ -31,6 +31,16 @@ demo resumes the pallet where it was rather than starting it again.
 Faults are read from the tags every tick rather than held in here, so toggling
 [MachineDemo]Faults/ConveyorJam in the Designer drives the cell exactly the way
 the presenter route does.
+
+Geometry is read the same way. The fifteen Config/* tags - case, pallet,
+pattern, conveyor, where the two stations sit - are read every tick alongside
+the controls, and everything the cycle needs that depends on them (the layer
+pitch, the placement heights, where each pick goes on the pallet, how many
+cases a pick is, the safe travel height, whether the arm can reach any of it)
+is derived from them in _geometry() and cached until a value changes. So a
+tag written in the Designer changes the MACHINE within a tick, not just the
+picture: the 3D page rebuilds from the same tags, and the two agree because
+they are both reading the one set of numbers. There is no second copy.
 """
 
 import math
@@ -85,39 +95,41 @@ def _task(x, z, wristY, j4=0.0):
 	return (math.degrees(math.atan2(-z, x)), math.hypot(x, z), wristY, j4)
 
 
-# Where the cell's three places are, in metres.
+# The two places that do NOT move with the Config tags, in metres. The infeed
+# conveyor's pick end is fixed beside the robot - the page draws the conveyor
+# growing away from it when ConvLength changes - and home is home.
 INFEED_XZ = (1.62, 0.10)          # pick point off the infeed conveyor
-STATION_XZ = {1: (-1.45, -1.65), 2: (-1.45, 1.65)}
 HOME_XZ = (1.10, 0.0)
-
-CONVEYOR_TOP_M = 0.90
-CASE_H_M = 0.22
-WRIST_TO_CASE_TOP_M = 0.125       # gripper depth: wrist above the case it holds
-
-# Wrist height to lift a case off the conveyor.
-#
-# The two numbers in the spec disagree by 45 mm: its components - conveyor top
-# 0.90, case 0.22, and the 0.125 gripper depth its PLACE formula uses - come to
-# 1.245, but it states 1.29. Taking the stated number rather than the
-# derivation, because the error directions are not equal: 1.29 floats the case
-# 45 mm above the belt, which nobody can see, and 1.245 would put it 45 mm
-# THROUGH the belt if the page's gripper is drawn deeper than 0.125. Change the
-# one constant if the page says otherwise.
-PICK_WRIST_Y = 1.29
-_PICK_WRIST_Y_DERIVED = CONVEYOR_TOP_M + CASE_H_M + WRIST_TO_CASE_TOP_M
-
-PALLET_DECK_M = 0.16              # top of the pallet, where layer 0 sits
 HOME_WRIST_Y = 1.35
+
+# Three offsets that are the 3D page's, read off how it draws the parts, so the
+# arm puts a case exactly where the page shows one:
+#   a case on the infeed rides ROLLER_TOP_M above the conveyor's top-of-belt
+#   height (the rollers), layer 0 sits DECK_TOP_M above the pallet's deck
+#   height (the deck boards), and the case the gripper holds has its top
+#   WRIST_TO_CASE_TOP_M below the wrist (0.14 plate drop + 0.09 case drop).
+# The gripper depth used to be 0.125 here while the page drew 0.23, so every
+# placed case was set 105 mm INTO the layer below it and every pick reached
+# 60 mm through the belt. Measured off the page's own numbers, 03/09/2026.
+ROLLER_TOP_M = 0.045
+DECK_TOP_M = 0.02
+WRIST_TO_CASE_TOP_M = 0.23
+CASE_INSET = 0.94                 # the page draws the pattern 6% inside its span
 
 # How far above the tallest stack the wrist travels while it is swinging.
 SAFE_CLEAR_M = 0.35
 
-# Where this pick's three cases go within the layer, as (J1 offset degrees,
-# radius offset m) around the station centre. Polar rather than Cartesian
-# deliberately: an offset along X and Z can push the planar radius past the
-# arm's reach at the far corner, and a slot the robot cannot reach is a demo
-# that stops on case 34 with no explanation.
-SLOT_POLAR = [(-5.5, -0.24), (5.5, -0.24), (-5.5, 0.16), (5.5, 0.16)]
+# A placement is judged reached if the solved wrist lands within this of where
+# it was asked to go. The arm's joints and column are clamped in _solve(), so
+# anything further out than this is a slot the machine cannot build.
+REACH_TOL_M = 0.05
+
+# Everything else about the cell - the case, the pallet, the pattern, the
+# conveyor height, where the stations sit - is the Config tags, derived into
+# one dict by _geometry() and cached here until a tag changes. Nothing below
+# this line reads a case height or a station position from anywhere else.
+_G = None
+_G_KEY = None
 
 
 def _solve(r, wristY):
@@ -140,8 +152,248 @@ def _solve(r, wristY):
 	return _clamp(j2, -60.0, 90.0), _clamp(j3, -140.0, 40.0), lift
 
 
+def _forward(j2, j3, lift):
+	"""Where the wrist actually is for a solved (J2, J3, Lift): (radius, y).
+
+	_solve() clamps every joint and the column to its travel, so its answer is
+	not always the point it was asked for. Running that answer forward is how
+	the reach report tells a slot the arm can build from one it cannot.
+	"""
+	a = math.radians(j2)
+	b = math.radians(j2 + j3)
+	r = L1 * math.cos(a) + L2 * math.cos(b)
+	y = BASE_Y + lift / 1000.0 + L1 * math.sin(a) + L2 * math.sin(b)
+	return r, y
+
+
 HOME = _task(HOME_XZ[0], HOME_XZ[1], HOME_WRIST_Y)
-PICK_LOW = _task(INFEED_XZ[0], INFEED_XZ[1], PICK_WRIST_Y)
+
+
+# ---------------------------------------------------------------------------
+# geometry, derived from the Config tags
+# ---------------------------------------------------------------------------
+
+
+def _grid(count):
+	"""(rows, cols) for one layer of `count` cases - the SAME rule the 3D page
+	uses, so the arm and the picture agree on where case n is.
+
+	The factor pair closest to square, the larger factor along X (the wider
+	pallet dimension). A count that will not factor - a prime - becomes one
+	row of `count`, which tiles; anything that is not a positive number falls
+	back to the 4 x 3 the demo shipped with, as the page does.
+	"""
+	try:
+		count = int(count)
+	except:
+		count = 0
+	if count <= 0:
+		return 3, 4
+	a = 1
+	d = 1
+	while d * d <= count:
+		if count % d == 0:
+			a = d
+		d += 1
+	return a, count // a
+
+
+def _layout(g, rot):
+	"""Station-local (x, z) of every case in a layer, in the order the page
+	fills them: column by column, so that one pick - one column - is `rows`
+	cases standing in a line. Odd layers are the same grid with the case
+	turned, which is what interlocks the stack."""
+	cw = g["caseD"] if rot else g["caseW"]
+	cd = g["caseW"] if rot else g["caseD"]
+	rows, cols = g["rows"], g["cols"]
+	spanX = cols * cw
+	spanZ = rows * cd
+	out = []
+	for q in range(cols):
+		for r in range(rows):
+			out.append(((-spanX / 2.0 + cw * (q + 0.5)) * CASE_INSET,
+			            (-spanZ / 2.0 + cd * (r + 0.5)) * CASE_INSET))
+	return out
+
+
+def _geometry(raw):
+	"""Everything the cycle needs, from the fifteen Config values.
+
+	`raw` is {response key: int} - the same keys ?cmd=state publishes - with a
+	default already filled in for any tag that did not read. Distances come in
+	as whole millimetres and leave as metres, because the solve is in metres.
+	"""
+	mm = lambda k: raw[k] / 1000.0
+	g = {
+		"raw": dict(raw),
+		"caseW": mm("caseW_mm"), "caseD": mm("caseD_mm"),
+		"caseH": mm("caseH_mm"),
+		"palletW": mm("palletW_mm"), "palletD": mm("palletD_mm"),
+		"perLayer": max(1, int(raw["casesPerLayer"])),
+		"layers": max(1, int(raw["layers"])),
+		"convY": mm("convHeight_mm"),
+		"stations": {1: (mm("station1X_mm"), mm("station1Z_mm")),
+		             2: (mm("station2X_mm"), mm("station2Z_mm"))},
+	}
+	g["rows"], g["cols"] = _grid(g["perLayer"])
+	# A pick is one column of the pattern: the case set squared up on the
+	# infeed is the row of cases the gripper takes across in one go. With the
+	# default 4 x 3 that is three, which is what it always was.
+	g["pick"] = g["rows"]
+	g["perPallet"] = g["perLayer"] * g["layers"]
+	# Layer 0's case bottoms, and the wrist height that lifts a case set off
+	# the infeed. Both derived, both matching the page to the millimetre.
+	g["deck"] = mm("palletH_mm") + DECK_TOP_M
+	g["pickWristY"] = g["convY"] + g["caseH"] + ROLLER_TOP_M + WRIST_TO_CASE_TOP_M
+	g["pickLow"] = _task(INFEED_XZ[0], INFEED_XZ[1], g["pickWristY"])
+	# Where each pick lands: the centroid of the cases it places, per layer
+	# parity, in station-local metres. Column-major layout means a full column
+	# has a centroid on the column's centreline; a short last column (a count
+	# that does not divide) is simply whatever cases are left.
+	slots = {}
+	for parity in (0, 1):
+		lay = _layout(g, parity == 1)
+		cents = []
+		for k in range(0, len(lay), g["pick"]):
+			grp = lay[k:k + g["pick"]]
+			cents.append((sum(c[0] for c in grp) / len(grp),
+			              sum(c[1] for c in grp) / len(grp)))
+		slots[parity] = cents
+	g["slots"] = slots
+	g["picksPerLayer"] = len(slots[0])
+	g["pattern"] = "%d x %d interlock" % (g["layers"], g["perLayer"])
+	# The infeed runs 8% faster than the robot consumes a column - see the
+	# CARTON_PITCH note further down for why exactly-matched rates were wrong.
+	g["cartonPitch"] = (P.CYCLE_S / float(g["pick"])) * 0.92
+	g["bufferMax"] = 2 * g["pick"]
+	g["reach"] = _reach(g)
+	return g
+
+
+def _reach(g):
+	"""Can this arm build this pattern on these pallets? Asked of the solver.
+
+	Every slot of every layer on both stations, plus the pick, is solved and
+	run forward again; a wrist that lands more than REACH_TOL_M from where it
+	was sent is a case the machine would set down in the wrong place - or, at
+	the far corner of a big pallet, in mid-air. This is the number the
+	geometry panel and ?cmd=state report, so a presenter who types a 2 m
+	pallet finds out from the screen and not from the arm.
+	"""
+	bad = []
+	worst = 0.0
+
+	def check(where, pose):
+		j1, r, y, j4 = pose
+		j2, j3, lift = _solve(r, y)
+		r2, y2 = _forward(j2, j3, lift)
+		err = math.hypot(r - r2, y - y2)
+		if err > REACH_TOL_M:
+			bad.append("%s (%.0f mm short)" % (where, err * 1000.0))
+		return err
+
+	worst = max(worst, check("infeed pick", g["pickLow"]))
+	for n in sorted(g["stations"].keys()):
+		for layer in range(g["layers"]):
+			for slot in range(g["picksPerLayer"]):
+				pose = _placePoseG(g, n, slot, layer, None)
+				worst = max(worst, check("station %d layer %d slot %d"
+				                         % (n, layer + 1, slot + 1), pose))
+	# The travel height over the finished stack: a pallet the arm can build
+	# but cannot then clear is a pallet it collides with on the last retract.
+	top = g["deck"] + g["layers"] * g["caseH"] + SAFE_CLEAR_M
+	for n in sorted(g["stations"].keys()):
+		x, z = g["stations"][n]
+		worst = max(worst, check("clearing station %d" % n, _task(x, z, top)))
+	if bad:
+		note = "%d of %d placements beyond reach - first: %s" % (
+			len(bad), 1 + 2 * g["layers"] * g["picksPerLayer"] + 2, bad[0])
+	else:
+		note = "every placement within reach (worst %.0f mm)" % (worst * 1000.0)
+	return {"ok": not bad, "unreachable": len(bad), "worst_mm":
+	        int(round(worst * 1000.0)), "note": note, "detail": bad[:8]}
+
+
+def _rawFromRead(values):
+	"""{key: int} from what the Config tags read back, defaults filling any
+	tag that is missing or will not convert - a machine with a hole in its
+	geometry is not a machine, so the hole is filled and the tag fixed later
+	by setup rather than the cycle stopping."""
+	raw = {}
+	for (path, key, default), v in zip(P.GEOMETRY, values):
+		try:
+			raw[key] = int(v) if v is not None else int(default)
+		except:
+			raw[key] = int(default)
+	return raw
+
+
+def _geo(values=None):
+	"""The current derived geometry. Pass the fifteen freshly read Config
+	values from the tick; with none it reads them itself, which is what
+	rehydration and ?cmd=status do. Rebuilt only when a value changes."""
+	global _G, _G_KEY
+	if values is None:
+		if _G is not None:
+			return _G
+		values = P.read([c[0] for c in P.GEOMETRY])
+	raw = _rawFromRead(values)
+	key = tuple(raw[c[1]] for c in P.GEOMETRY)
+	if key != _G_KEY:
+		old = _G
+		_G = _geometry(raw)
+		_G_KEY = key
+		if old is not None:
+			changed = [c[1] for c in P.GEOMETRY
+			           if old["raw"][c[1]] != raw[c[1]]]
+			LOG.info("geometry changed (%s): %s, %d cases a pallet, %d a "
+			         "pick; %s" % (", ".join(changed), _G["pattern"],
+			                        _G["perPallet"], _G["pick"],
+			                        _G["reach"]["note"]))
+			if not _G["reach"]["ok"]:
+				LOG.warn("geometry: %s" % _G["reach"]["note"])
+			if _S is not None:
+				_onGeometryChange(_S, _G)
+	return _G
+
+
+def _onGeometryChange(s, g):
+	"""Bring the running cycle onto the new machine.
+
+	The pallet counts are kept - the cases are on the pallet - and clamped to
+	the new capacity, so a smaller pattern on a full station completes it and
+	the wrapper takes it away. Layer and slot are re-derived from the count,
+	the travel height from the new stack, and the next _target() call glides
+	the arm from wherever it is to the new place. Names are re-written so the
+	stations report the new pattern.
+	"""
+	for n in P.STATIONS:
+		st = s["st"][n]
+		st["cases"] = min(g["perPallet"], st["cases"])
+		if st["cases"] >= g["perPallet"]:
+			st["complete"] = True
+	st = s["st"][s["active"]]
+	s["layer"] = min(g["layers"] - 1, st["cases"] // g["perLayer"])
+	s["slot"] = (st["cases"] % g["perLayer"]) // g["pick"]
+	s["buf"] = min(g["bufferMax"], s["buf"])
+	s["safeY"] = _safeWristY(s, s["layer"])
+	s["named"] = False
+
+
+def geometryInfo():
+	"""The derived machine, for ?cmd=state and the geometry panel: additive,
+	small, and cached - the poll pays nothing for it until a tag changes."""
+	g = _geo()
+	return {
+		"pattern": g["pattern"],
+		"rows": g["rows"], "cols": g["cols"],
+		"casesPerPick": g["pick"],
+		"picksPerLayer": g["picksPerLayer"],
+		"casesPerPallet": g["perPallet"],
+		"pickWristY_mm": int(round(g["pickWristY"] * 1000.0)),
+		"stackTop_mm": int(round((g["deck"] + g["layers"] * g["caseH"]) * 1000.0)),
+		"reach": g["reach"],
+	}
 
 
 def _stackTopM(s):
@@ -153,11 +405,12 @@ def _stackTopM(s):
 	A part-built layer counts as a whole one - the cases in it are already at
 	full height.
 	"""
-	top = PALLET_DECK_M
+	g = _geo()
+	top = g["deck"]
 	for n in P.STATIONS:
 		c = s["st"][n]["cases"]
-		layers = (c + P.CASES_PER_LAYER - 1) // P.CASES_PER_LAYER
-		top = max(top, PALLET_DECK_M + layers * CASE_H_M)
+		layers = (c + g["perLayer"] - 1) // g["perLayer"]
+		top = max(top, g["deck"] + layers * g["caseH"])
 	return top
 
 
@@ -168,8 +421,9 @@ def _safeWristY(s, layer):
 	high enough to clear the infeed and the pallet rails rather than skimming
 	them, which is what the bare stack-plus-clearance figure would give.
 	"""
-	top = max(_stackTopM(s), PALLET_DECK_M + (layer + 1) * CASE_H_M)
-	return max(PICK_WRIST_Y, top + SAFE_CLEAR_M)
+	g = _geo()
+	top = max(_stackTopM(s), g["deck"] + (layer + 1) * g["caseH"])
+	return max(g["pickWristY"], top + SAFE_CLEAR_M)
 
 # The cycle, as (name, machine-seconds at nominal, the state the robot reports).
 # They sum to P.CYCLE_S, and a jittered cycle scales all eight together.
@@ -219,13 +473,12 @@ LOW_VACUUM_KPA = -17.0
 # single idle tick roughly every third cycle and Line/Running flickered false
 # for half a second. A machine that micro-stops for no reason is the first
 # thing a machine builder notices.
-CARTON_PITCH_S = (P.CYCLE_S / float(P.CASES_PER_PICK)) * 0.92
-
-# Two picks' worth of accumulation. It is also the fuse on a jam: with the
-# infeed stopped the robot works the buffer down and starves about 25 machine-
-# seconds later, so the fault has a visible cause and then a visible effect
-# rather than both at once.
-BUFFER_MAX = 2 * P.CASES_PER_PICK
+# Both the pitch and the buffer depend on how many cases a pick is, which is
+# the pattern's, so they live on the derived geometry: g["cartonPitch"] and
+# g["bufferMax"] (two picks' worth of accumulation - also the fuse on a jam:
+# with the infeed stopped the robot works the buffer down and starves about
+# 25 machine-seconds later, so the fault has a visible cause and then a
+# visible effect rather than both at once).
 
 DISCHARGE_LIFT_S = 3.0     # pallet leaves the station
 DISCHARGE_TOTAL_S = 8.0    # a fresh pallet is in place
@@ -251,13 +504,13 @@ def _blank():
 		"pose": list(HOME),
 		"from": list(HOME),
 		"idle": True,
-		"safeY": PICK_WRIST_Y,
+		"safeY": _geo()["pickWristY"],
 		"homing": 0.0,
 		"wasBlocked": False,
 		"active": 1,
 		"slot": 0,
 		"layer": 0,
-		"buf": 2 * P.CASES_PER_PICK,
+		"buf": _geo()["bufferMax"],
 		"carton": 0.0,
 		"barcode": 0,
 		"lastBarcode": "",
@@ -310,13 +563,14 @@ def _state():
 		if bc.startswith("T") and bc[1:].isdigit():
 			s["barcode"] = int(bc[1:])
 			s["lastBarcode"] = bc
+		perPallet = _geo()["perPallet"]
 		for n in P.STATIONS:
 			st = s["st"][n]
 			if v.get("p%d" % n) is not None:
 				st["present"] = bool(v.get("p%d" % n))
-			st["cases"] = min(P.CASES_PER_PALLET, int(v.get("c%d" % n) or 0))
+			st["cases"] = min(perPallet, int(v.get("c%d" % n) or 0))
 			st["complete"] = bool(v.get("k%d" % n))
-			if st["cases"] >= P.CASES_PER_PALLET:
+			if st["cases"] >= perPallet:
 				st["complete"] = True
 		for n in P.STATIONS:
 			if s["st"][n]["present"] and not s["st"][n]["complete"]:
@@ -343,7 +597,7 @@ def info():
 	carriageY = BASE_Y + lift / 1000.0
 	return {
 		"wristY_m": round(wristY, 3),
-		"safeY_m": round(s.get("safeY") or PICK_WRIST_Y, 3),
+		"safeY_m": round(s.get("safeY") or _geo()["pickWristY"], 3),
 		"stackTop_m": round(_stackTopM(s), 3),
 		"radius_m": round(radius, 3),
 		"solveD_m": round(math.hypot(radius, wristY - carriageY), 3),
@@ -357,6 +611,7 @@ def info():
 		"cycleTime": round(s["cycleTime"], 2),
 		"casesTotal": s["casesTotal"],
 		"cycleCount": s["cycleCount"],
+		"geometry": geometryInfo(),
 	}
 
 
@@ -397,21 +652,25 @@ def _placePose(station, slot, layer, safeY=None):
 	"""Where the wrist has to be over this slot on the pallet.
 
 	`safeY` None means the placement height itself: layer L sits on top of L
-	completed layers, so the case bottom is at PALLET_DECK_M + L*CASE_H_M and
-	the wrist rides one case plus the gripper above that. Pass a height instead
-	and it is the same J1 and radius at that height, which is what makes the
-	descent vertical.
+	completed layers, so the case bottom is at deck + L*caseH and the wrist
+	rides one case plus the gripper above that. Pass a height instead and it
+	is the same J1 and radius at that height, which is what makes the descent
+	vertical.
 	"""
-	x, z = STATION_XZ.get(station, STATION_XZ[1])
-	centre = _task(x, z, 0.0)
-	dj1, dr = SLOT_POLAR[slot % P.SLOTS_PER_LAYER]
+	return _placePoseG(_geo(), station, slot, layer, safeY)
+
+
+def _placePoseG(g, station, slot, layer, safeY):
+	"""_placePose against an explicit geometry - the reach report solves a
+	geometry that is not (yet) the live one."""
+	x, z = g["stations"].get(station, g["stations"][1])
+	dx, dz = g["slots"][layer % 2][slot % g["picksPerLayer"]]
 	if safeY is None:
-		wristY = (PALLET_DECK_M + layer * CASE_H_M + CASE_H_M
-		          + WRIST_TO_CASE_TOP_M)
+		wristY = g["deck"] + layer * g["caseH"] + g["caseH"] + WRIST_TO_CASE_TOP_M
 	else:
 		wristY = safeY
 	j4 = 90.0 if (layer % 2) else 0.0    # every second layer interlocks
-	return (centre[0] + dj1, centre[1] + dr, wristY, j4)
+	return _task(x + dx, z + dz, wristY, j4)
 
 
 def _target(s, phase):
@@ -421,7 +680,8 @@ def _target(s, phase):
 	end at the safe height, the four vertical legs end with J1 unchanged.
 	"""
 	name = PHASES[phase][0]
-	safeY = s.get("safeY") or PICK_WRIST_Y
+	g = _geo()
+	safeY = s.get("safeY") or g["pickWristY"]
 	if name == "Approach":
 		# The empty-gripper swing back. It travels at the HIGHER of where it
 		# starts and where it is going, so that a cycle which began after the
@@ -433,7 +693,7 @@ def _target(s, phase):
 	if name == "Lift":
 		return _task(INFEED_XZ[0], INFEED_XZ[1], safeY)
 	if name in ("Descend", "Grip"):
-		return PICK_LOW
+		return g["pickLow"]
 	if name in ("Traverse", "Retract"):
 		return _placePose(s["active"], s["slot"], s["layer"], safeY)
 	if name in ("Lower", "Release"):
@@ -519,15 +779,18 @@ def _tick():
 		dtr = 2.0
 
 	# Everything the tick needs to read, in ONE round trip: the controls, the
-	# five faults, the two jog bits and the guard circuit.
-	ctl = P.readDict({
+	# two jog bits, the guard circuit and the fifteen geometry tags.
+	want = {
 		"enabled": "Line/SimEnabled",
 		"speed": "Line/SimSpeed",
 		"mode": "Line/Mode",
 		"jogUp": "Robot/JogUp",
 		"jogDown": "Robot/JogDown",
 		"guards": "Safety/GuardsClosed",
-	})
+	}
+	for path, key, default in P.GEOMETRY:
+		want[key] = path
+	ctl = P.readDict(want)
 	f = dict(zip(P.FAULTS, P.read(["Faults/%s" % n for n in P.FAULTS])))
 	for k in f:
 		f[k] = bool(f[k])
@@ -535,6 +798,11 @@ def _tick():
 	if ctl.get("enabled") is None:
 		# The provider is not there yet. Setup has not been run.
 		return
+
+	# The machine's shape, this tick. Cached until a value changes, and a
+	# change re-derives the pattern and re-aims the cycle before anything
+	# below moves.
+	g = _geo([ctl.get(key) for path, key, default in P.GEOMETRY])
 
 	speed = _clamp(float(ctl.get("speed") or 1.0), 0.1, 20.0)
 	dt = dtr * speed
@@ -624,10 +892,12 @@ def _endPhase(s):
 	# The cases are on the pallet the instant the gripper lets go, so this is
 	# where the pallet count moves - not at the end of the cycle, which would
 	# show the arm already halfway home before the pallet changed.
+	g = _geo()
 	st = s["st"][s["active"]]
-	st["cases"] = min(P.CASES_PER_PALLET, st["cases"] + P.CASES_PER_PICK)
-	s["casesTotal"] += P.CASES_PER_PICK
-	if st["cases"] >= P.CASES_PER_PALLET:
+	placed = min(g["pick"], g["perPallet"] - st["cases"])
+	st["cases"] = min(g["perPallet"], st["cases"] + g["pick"])
+	s["casesTotal"] += max(0, placed)
+	if st["cases"] >= g["perPallet"]:
 		st["complete"] = True
 
 	# Raise the travel height NOW, for the retract that follows, to whatever
@@ -635,8 +905,7 @@ def _endPhase(s):
 	# this cycle worked its height out, and doing it here means the extra rise
 	# happens on the vertical retract leg instead of part-way through the swing
 	# back - the arm goes up and then across, rather than climbing as it goes.
-	nextLayer = min(P.LAYERS_PER_PALLET - 1,
-	                st["cases"] // P.CASES_PER_LAYER)
+	nextLayer = min(g["layers"] - 1, st["cases"] // g["perLayer"])
 	s["safeY"] = max(s["safeY"], _safeWristY(s, nextLayer))
 
 
@@ -657,21 +926,21 @@ def _availableStation(s):
 
 def _startCycle(s, f):
 	"""Begin a pick, if there is product staged and a pallet to build on."""
-	if s["buf"] < P.CASES_PER_PICK:
+	g = _geo()
+	if s["buf"] < g["pick"]:
 		return False
 	n = _availableStation(s)
 	if n is None:
 		return False
 	s["active"] = n
 	st = s["st"][n]
-	s["layer"] = min(P.LAYERS_PER_PALLET - 1,
-	                 st["cases"] // P.CASES_PER_LAYER)
-	s["slot"] = (st["cases"] % P.CASES_PER_LAYER) // P.CASES_PER_PICK
+	s["layer"] = min(g["layers"] - 1, st["cases"] // g["perLayer"])
+	s["slot"] = (st["cases"] % g["perLayer"]) // g["pick"]
 	# Worked out ONCE per cycle, not per tick: it depends on the stacks, and a
 	# travel height that moved under the arm halfway through a swing would jerk
 	# the wrist every time a case landed.
 	s["safeY"] = _safeWristY(s, s["layer"])
-	s["buf"] -= P.CASES_PER_PICK
+	s["buf"] -= g["pick"]
 	s["idle"] = False
 	s["phase"] = 0
 	s["pf"] = 0.0
@@ -688,12 +957,13 @@ def _material(s, dt, f, held):
 	s["c2"] = not held
 	if not s["c1"]:
 		return
+	g = _geo()
 	s["carton"] += dt
 	guard = 0
-	while s["carton"] >= CARTON_PITCH_S and guard < 20:
+	while s["carton"] >= g["cartonPitch"] and guard < 20:
 		guard += 1
-		s["carton"] -= CARTON_PITCH_S
-		s["buf"] = min(BUFFER_MAX, s["buf"] + 1)
+		s["carton"] -= g["cartonPitch"]
+		s["buf"] = min(g["bufferMax"], s["buf"] + 1)
 		s["barcode"] += 1
 		s["lastBarcode"] = "T%05d" % s["barcode"]
 		# One no-read in every 37 cartons. It is not a fault - it is the thing
@@ -709,7 +979,7 @@ def _inPosition(s):
 	they blink once a cycle, which is what makes them worth putting on a
 	screen, and they stay dark when the infeed has nothing to send.
 	"""
-	if s["buf"] < P.CASES_PER_PICK or s["idle"]:
+	if s["buf"] < _geo()["pick"] or s["idle"]:
 		return False, False
 	name = PHASES[s["phase"]][0]
 	# Dark from the moment the set is lifted until the next one has indexed
@@ -728,7 +998,7 @@ def _eyes(s, f):
 		return {"PE_Infeed": True, "PE_Carton": True, "PE_Length1": True,
 		        "PE_Length2": False, "PE_Clear": False,
 		        "PE_InPos1": pos1, "PE_InPos2": pos2}
-	u = s["carton"] / CARTON_PITCH_S
+	u = s["carton"] / _geo()["cartonPitch"]
 	carton = 0.18 <= u < 0.46
 	len1 = 0.32 <= u < 0.60
 	len2 = 0.40 <= u < 0.68
@@ -920,8 +1190,9 @@ def _write(s, dt, dtr, f, ctl, state, blocked, robotFault, held):
 	grip, vac = _grip(s, state, f)
 	eyes = _eyes(s, f)
 
+	g = _geo()
 	producing = state in ("Picking", "Placing")
-	inst = (P.CASES_PER_PICK * 60.0 / s["cycleTime"]) if producing else 0.0
+	inst = (g["pick"] * 60.0 / s["cycleTime"]) if producing else 0.0
 	# Eight machine-seconds of memory: long enough that the readout does not
 	# flicker between phases, short enough that a jam shows inside a cycle.
 	s["cpm"] += (inst - s["cpm"]) * min(1.0, dt / 8.0)
@@ -1004,8 +1275,7 @@ def _write(s, dt, dtr, f, ctl, state, blocked, robotFault, held):
 		          "Pallet/Station%d/Layer" % n,
 		          "Pallet/Station%d/Complete" % n]
 		vals += [bool(st["present"]), int(st["cases"]),
-		         int(min(P.LAYERS_PER_PALLET,
-		                 st["cases"] // P.CASES_PER_LAYER)),
+		         int(min(g["layers"], st["cases"] // g["perLayer"])),
 		         bool(st["complete"])]
 
 	# The other three robot cells on the line. They are not modelled - only
@@ -1023,9 +1293,15 @@ def _write(s, dt, dtr, f, ctl, state, blocked, robotFault, held):
 	zone["Z8"] = (bool(s.get("c1")), f["ConveyorJam"])
 
 	if not s["named"]:
+		# Once after a reload, and again whenever the geometry changes: the
+		# zone names, and the pattern each station is building - which is the
+		# Config tags' pattern, not a string typed at install.
 		for zid in P.ZONE_IDS:
 			paths.append("Zones/%s/Name" % zid)
 			vals.append(P.ZONE_NAME[zid])
+		for n in P.STATIONS:
+			paths.append("Pallet/Station%d/PatternName" % n)
+			vals.append(g["pattern"])
 		s["named"] = True
 
 	for zid in P.ZONE_IDS:

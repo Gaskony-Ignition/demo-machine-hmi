@@ -2,8 +2,9 @@
 """Build Machine/Cell3D - the 3D palletising cell as a genuinely embeddable
 Perspective view.
 
-The view is a header plus an ia.display.iframe pointed at the WebDev-served
-3D page. This generator adds four view params so the same view can be
+The view is a header, an ia.display.iframe pointed at the WebDev-served 3D
+page, and a geometry panel (toggled from the header) of fifteen numeric fields
+bound bidirectionally to the [MachineDemo]Config tags. This generator adds four view params so the same view can be
 dropped into any screen as an Embedded View, aimed at a chosen camera, with
 its own title bar switched off:
 
@@ -56,6 +57,17 @@ OUT = os.path.join(HERE, os.pardir, "project",
 
 COL_BG = "#171b20"
 WEBDEV_PATH = "/system/webdev/Machine_HMI_Demo/cell3d"
+PROVIDER = "MachineDemo"
+
+
+def tag_binding(path, bidirectional=False):
+    """A direct tag binding. `bidirectional` goes INSIDE config - at binding
+    level it is accepted and silently never writes back."""
+    cfg = {"mode": "direct", "tagPath": "[%s]%s" % (PROVIDER, path),
+           "fallbackDelay": 2.5}
+    if bidirectional:
+        cfg["bidirectional"] = True
+    return {"type": "tag", "config": cfg}
 
 
 def expr_binding(expression):
@@ -154,6 +166,37 @@ header = {
             },
         },
         {
+            # Opens the geometry panel beside the 3D view. Cell2D's builder
+            # copies this header and strips THIS node by name - a toggle for a
+            # panel that view does not have would be an inert button.
+            "type": "ia.input.button",
+            "meta": {"name": "GeomToggle"},
+            "position": {"shrink": 0},
+            "props": {
+                "text": "Geometry",
+                "style": {
+                    "backgroundColor": "#14313e",
+                    "color": "#9fdcf5",
+                    "border": "1px solid #1e546c",
+                    "borderRadius": "7px",
+                    "fontWeight": "bold",
+                    "fontSize": "12.5px",
+                    "minHeight": "38px",
+                    "padding": "0 16px",
+                    "alignItems": "center",
+                },
+            },
+            "events": {
+                "component": {
+                    "onActionPerformed": {
+                        "type": "script",
+                        "scope": "G",
+                        "config": {"script": "\tself.view.custom.geometry = not self.view.custom.geometry\n"},
+                    }
+                }
+            },
+        },
+        {
             "type": "ia.input.button",
             "meta": {"name": "BackToOverview"},
             "position": {"shrink": 0},
@@ -235,8 +278,175 @@ bind(
     ' + "&watermark=" + if({view.params.watermark}, "1", "0")',
 )
 
+# --- the geometry panel ------------------------------------------------------
+# Fifteen numeric entry fields, each bound BIDIRECTIONALLY to one of the
+# [MachineDemo]Config tags. No script anywhere in it: typing 350 into CaseH
+# writes the tag, the simulator re-derives the pattern on its next tick and the
+# 3D page rebuilds on its next poll. That is the whole mechanism, and it is the
+# demo's argument - the 3D model is fed by tags exactly the way a Perspective
+# component is, and here it is being edited from Perspective.
+
+INK = "var(--neutral-90, #dde4e9)"
+DIM = "var(--neutral-60, #8b98a3)"
+PANEL = "var(--neutral-20, #1d232a)"
+LINE = "var(--neutral-40, #2c343d)"
+
+
+def label(name, text, size="11px", color=DIM, extra=None, basis="auto"):
+    style = {"fontSize": size, "color": color, "whiteSpace": "nowrap",
+             "overflow": "hidden", "textOverflow": "ellipsis"}
+    if extra:
+        style.update(extra)
+    return {"type": "ia.display.label", "version": 0, "meta": {"name": name},
+            "position": {"grow": 0, "shrink": 0, "basis": basis},
+            "props": {"text": text, "style": style}}
+
+
+def field(tag, caption):
+    """One geometry value: a caption over a numeric entry field bound to the tag."""
+    name = tag.replace("_mm", "")
+    return {
+        "type": "ia.container.flex", "version": 0,
+        "meta": {"name": "F_" + name},
+        "position": {"grow": 1, "shrink": 1, "basis": "0px"},
+        "props": {"direction": "column", "style": {"gap": "2px", "minWidth": "0px"}},
+        "children": [
+            label("K", caption, "10px", DIM, {"letterSpacing": "0.4px"}, "14px"),
+            {
+                "type": "ia.input.numeric-entry-field", "version": 0,
+                "meta": {"name": "V"},
+                "position": {"grow": 0, "shrink": 0, "basis": "32px"},
+                "props": {
+                    "inputType": "integer",
+                    "value": 0,
+                    "style": {"fontSize": "13px", "fontWeight": "bold",
+                              "minWidth": "0px"},
+                },
+                "propConfig": {
+                    "props.value": {"binding": tag_binding("Config/" + tag, True)}
+                },
+            },
+        ],
+    }
+
+
+def group(title, fields):
+    return {
+        "type": "ia.container.flex", "version": 0,
+        "meta": {"name": "G_" + title.split(" ")[0].replace("(", "")},
+        "position": {"grow": 0, "shrink": 0, "basis": "auto"},
+        "props": {"direction": "column", "style": {"gap": "3px"}},
+        "children": [
+            label("H", title, "10.5px", INK, {"fontWeight": "bold",
+                  "letterSpacing": "0.6px", "textTransform": "uppercase"}, "16px"),
+            {
+                "type": "ia.container.flex", "version": 0,
+                "meta": {"name": "Row"},
+                "position": {"grow": 0, "shrink": 0, "basis": "auto"},
+                "props": {"direction": "row", "style": {"gap": "8px"}},
+                "children": [field(t, c) for t, c in fields],
+            },
+        ],
+    }
+
+
+def preset(key, text):
+    return {
+        "type": "ia.input.button", "version": 0,
+        "meta": {"name": "P_" + key.replace("-", "_")},
+        "position": {"grow": 1, "shrink": 1, "basis": "0px"},
+        "props": {
+            "text": text,
+            "style": {"fontSize": "11px", "fontWeight": 700,
+                      "letterSpacing": "0.3px", "borderRadius": "6px",
+                      "border": "1px solid #2c343d",
+                      "backgroundColor": "#252c34", "color": "#cfd8df",
+                      "padding": "0px", "minWidth": "0px", "minHeight": "34px",
+                      "alignItems": "center", "whiteSpace": "nowrap"},
+        },
+        "events": {"component": {"onActionPerformed": {
+            "type": "script", "scope": "G",
+            "config": {"script": "\tMachineDemo.api.setGeometry(%r)\n" % key},
+        }}},
+    }
+
+
+geom_panel = {
+    "type": "ia.container.flex",
+    "meta": {"name": "GeomPanel"},
+    "position": {"grow": 0, "shrink": 0, "basis": "312px"},
+    "props": {
+        "direction": "column",
+        "style": {
+            "backgroundColor": PANEL,
+            "borderLeft": "1px solid " + LINE,
+            "padding": "12px 14px",
+            "gap": "8px",
+            "overflow": "auto",
+            "minHeight": "0px",
+        },
+    },
+    "propConfig": {
+        "meta.visible": {"binding": {"type": "property",
+                                     "config": {"path": "view.custom.geometry"}}}
+    },
+    "children": [
+        label("T", "Machine geometry", "13px", INK, {"fontWeight": "bold"}, "18px"),
+        label("S", "[%s]Config \u2014 15 tags. Edit one and the cell, the "
+              "pattern and the arm follow." % PROVIDER, "10.5px", DIM,
+              {"whiteSpace": "normal", "lineHeight": "14px"}, "28px"),
+        {
+            "type": "ia.container.flex", "version": 0,
+            "meta": {"name": "Presets"},
+            "position": {"grow": 0, "shrink": 0, "basis": "34px"},
+            "props": {"direction": "row", "style": {"gap": "6px"}},
+            "children": [preset("default", "Default"),
+                         preset("euro-tall", "Euro, tall"),
+                         preset("small-dense", "Small, dense")],
+        },
+        group("Case (mm)", [("CaseW_mm", "WIDTH"), ("CaseD_mm", "DEPTH"),
+                            ("CaseH_mm", "HEIGHT")]),
+        group("Pallet (mm)", [("PalletW_mm", "WIDTH"), ("PalletD_mm", "DEPTH"),
+                              ("PalletH_mm", "DECK")]),
+        group("Pattern", [("CasesPerLayer", "CASES / LAYER"), ("Layers", "LAYERS")]),
+        group("Infeed conveyor (mm)", [("ConvHeight_mm", "HEIGHT"),
+                                       ("ConvLength_mm", "LENGTH"),
+                                       ("ConvWidth_mm", "WIDTH")]),
+        # One row of four, not two groups of two: measured at 1024x600 the
+        # panel content was 643px in a 543px column and Station 2 sat below
+        # the fold. Four 65px fields hold "-1,300" at 13px bold with room.
+        group("Stations (mm from robot)", [("Station1_X_mm", "1 \u00b7 X"),
+                                           ("Station1_Z_mm", "1 \u00b7 Z"),
+                                           ("Station2_X_mm", "2 \u00b7 X"),
+                                           ("Station2_Z_mm", "2 \u00b7 Z")]),
+        {
+            "type": "ia.display.label", "version": 0,
+            "meta": {"name": "Derived"},
+            "position": {"grow": 0, "shrink": 0, "basis": "auto"},
+            "props": {"text": "", "style": {"fontSize": "11px", "color": DIM,
+                                            "whiteSpace": "normal",
+                                            "lineHeight": "15px",
+                                            "paddingTop": "4px",
+                                            "borderTop": "1px solid " + LINE}},
+            "propConfig": {"props.text": {"binding": expr_binding(
+                '"Pallet of " + toStr({[%s]Config/CasesPerLayer} * {[%s]Config/Layers})'
+                ' + " cases, pattern " + {[%s]Pallet/Station1/PatternName}'
+                ' + ". Reach is checked by the simulator and shown on the 3D view."'
+                % (PROVIDER, PROVIDER, PROVIDER))}},
+        },
+    ],
+}
+
+body = {
+    "type": "ia.container.flex",
+    "meta": {"name": "Body"},
+    "position": {"grow": 1, "shrink": 1, "basis": "0px"},
+    "props": {"direction": "row", "style": {"minHeight": "0px"}},
+    "children": [cell_iframe, geom_panel],
+}
+
 view = {
-    "custom": {},
+    "custom": {"geometry": False},
     "params": {
         "camera": "overview",
         "hud": True,
@@ -292,7 +502,7 @@ view = {
                 "backgroundColor": COL_BG,
             },
         },
-        "children": [header_slot, cell_iframe],
+        "children": [header_slot, body],
     },
 }
 
