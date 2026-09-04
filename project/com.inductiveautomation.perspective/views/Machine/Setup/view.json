@@ -1083,7 +1083,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "150px"
+                              "basis": "126px"
                             },
                             "propConfig": {
                               "props.text": {
@@ -1105,7 +1105,7 @@
                               "text": "",
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                "fontSize": "11.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
@@ -1208,7 +1208,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "150px"
+                              "basis": "126px"
                             },
                             "propConfig": {
                               "props.text": {
@@ -1230,7 +1230,7 @@
                               "text": "",
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                "fontSize": "11.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
@@ -1333,7 +1333,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "150px"
+                              "basis": "126px"
                             },
                             "propConfig": {
                               "props.text": {
@@ -1355,7 +1355,7 @@
                               "text": "",
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                "fontSize": "11.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
@@ -1458,7 +1458,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "150px"
+                              "basis": "126px"
                             },
                             "propConfig": {
                               "props.text": {
@@ -1480,7 +1480,7 @@
                               "text": "",
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                "fontSize": "11.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
@@ -1583,7 +1583,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "150px"
+                              "basis": "126px"
                             },
                             "propConfig": {
                               "props.text": {
@@ -1605,7 +1605,7 @@
                               "text": "",
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                "fontSize": "11.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
@@ -1708,7 +1708,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "150px"
+                              "basis": "126px"
                             },
                             "propConfig": {
                               "props.text": {
@@ -1730,7 +1730,7 @@
                               "text": "",
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                "fontSize": "11.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",

@@ -131,7 +131,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "\"This machine only \u00b7 provider MachineDemo \u00b7 \" + dateFormat(now(1000), \"HH:mm:ss\")"
+                        "expression": "\"This machine only \u00b7 MachineDemo \u00b7 \" + dateFormat(now(1000), \"HH:mm:ss\")"
                       }
                     }
                   }

@@ -179,6 +179,13 @@ whether the arm can reach every placement before it tries. How close that is
 to "programmed in Perspective", and the three ways to close the rest, is
 [docs/3D-AS-PERSPECTIVE.md](docs/3D-AS-PERSPECTIVE.md).
 
+**Driving it from a real machine** is
+[docs/REAL-DATA.md](docs/REAL-DATA.md). The 3D page reads tags and cannot tell
+where their values come from, so a real cell is a change of tag source rather
+than a rewrite. That document also sets out the one question that decides the
+size of the job: whether the robot controller publishes its actual joint
+positions, only its commanded ones, or nothing but sequence state.
+
 [3d]: docs/CHANGING-THE-3D-CELL.md
 
 ## Layout
@@ -188,6 +195,9 @@ to "programmed in Perspective", and the three ways to close the rest, is
 | `project/` | The Ignition project, as the gateway holds it. Source of truth. |
 | `tools/package.sh` | Builds the importable zip; stamps the version into the Title and Description. |
 | `docs/CONTRACT.md` | Tag contract, WebDev routes, the frozen `?cmd=state` shape and the robot's kinematic convention. |
+| `docs/CHANGING-THE-3D-CELL.md` | The three levels at which the modelled machine can be changed. |
+| `docs/REAL-DATA.md` | What changes when the tags come from a PLC instead of the simulator. |
+| `docs/3D-AS-PERSPECTIVE.md` | How close the 3D view is to being a Perspective component, and how to close the gap. |
 
 ## Development
 
@@ -219,21 +229,19 @@ source of truth and a local mirror is stale by default.
 
 ## What "its own resources" does and does not mean
 
-The demo creates four named things and owns all of them: the `MachineDemo` tag
-provider, the `MachineDemoDB` SQLite connection, the `MachineDemo` alarm journal
-that writes into it, and the tables inside that file. Removing the demo is
-deleting the project and those three gateway resources — nothing else is touched,
-and no shared database server is involved.
+The demo creates three named things and owns all of them: the `MachineDemo` tag
+provider, the `MachineDemoDB` SQLite connection, and the `MachineDemo` alarm
+journal that writes into it. Removing the demo is deleting the project and those
+three gateway resources — nothing else is touched, and no shared database server
+is involved.
 
-**One honest limitation, measured rather than assumed.** A journal profile is not
-a per-project filter. Ignition writes *every* alarm event on the gateway into
-*every* enabled journal profile unless a source filter list is configured, and no
-filter-list resource type exists on 8.3.8 to configure one with. So on a gateway
-that is also running other projects, this demo's file will accumulate their alarms
-too — measured here at 1,511 rows of which 6 were the demo's own, the rest from
-two other projects on the same test rig.
+**Worth knowing on a shared gateway.** A journal profile is not a per-project
+filter. Ignition writes every alarm event on the gateway into every enabled
+journal profile unless a source filter list is configured, and no filter-list
+resource type exists on 8.3.8 to configure one with. So on a gateway that also
+runs other projects, this demo's file accumulates their alarm events as well.
 
-That does not undo the change and it is not visible to anyone using the demo:
+That is invisible to anyone using the demo, because the reads are scoped:
 
 - The **Alarms page filters by source** (`prov:MachineDemo:/tag:*`), so what is
   displayed is this machine and nothing else.
@@ -259,7 +267,7 @@ These are checked, not assumed — each was tested against the running gateway:
 | The machine refuses independently of the screen | With the guard circuit open the jog button was disabled, the bit never set, and the axis did not move (476 → 476 mm) — belt and braces, the way a real cell behaves. |
 | The alarm strip cannot silently show nothing | Checked in BOTH states: with a jam standing it read `Palletiser / Infeed / Carton Jam - Active, Unacknowledged`; cleared, it returned to a neutral zero-active state rather than a stuck placeholder. |
 | It works on the panels it targets | HUD checked for overlap and overflow at 1024×600, 1280×800 and 1920×1080. |
-| It survives a gateway restart unattended | The gateway was restarted out from under the demo mid-session (not by this project). It came back with all 97 tags and 11 alarms present, `?cmd=check` green on all four items, the simulator resumed on its own at 13.6 cases/min, the pallets kept their progress, and the 3D page reconnected to live tags with no intervention. Nothing has to be re-run after a restart. |
+| It survives a gateway restart unattended | The gateway was restarted out from under the demo mid-session (not by this project). It came back with the whole tag tree and its alarms present, `?cmd=check` green on all eight rows, the simulator resumed on its own at 13.6 cases/min, the pallets kept their progress, and the 3D page reconnected to live tags with no intervention. Nothing has to be re-run after a restart. |
 | Colour is spent only on the abnormal | Measured from the rendered page, not the code. In the normal state the Overview carries no large saturated areas: running zones read grey with a small green LED, and the per-zone STOP buttons are neutral with red text rather than red fills. Inject a fault and the faulted zone is the only saturated thing on screen. The alarm strip distinguishes three states — active is red `#ff8d92`, cleared-but-unacknowledged is amber `#eebf5e`, acknowledged is grey — so a page with zero active alarms never reads as an emergency. |
 | The zip actually imports | `tools/package.sh` gates on archive integrity, a file count against the tree, and a resource-manifest pass (valid JSON, `lastModification` present, `files[]` matching the directory) — the three ways a project imports "successfully" with a resource the gateway silently never scans. |
 

@@ -16,7 +16,7 @@ The fastest way to see it is the **Geometry** button on the 3D page.
 
 | | What changes | What you edit | Who can do it |
 | --- | --- | --- | --- |
-| **1** | The machine's proportions and pattern | 15 tags in `[MachineDemo]Config` | anyone with the Designer, or the Geometry panel |
+| **1** | The machine's proportions and pattern | 15 tags in `[MachineDemo]Config` | anyone with the Designer, or the Geometry drawer |
 | **2** | The arrangement of parts | one function in `page.html` | anyone who can read the function |
 | **3** | A different machine entirely | the same function, more of it | someone comfortable with three.js |
 
@@ -62,7 +62,7 @@ the derived pattern and the reach verdict.
 **The screens** bind to them. Pallet capacity on Overview and Manual is
 `CasesPerLayer * Layers`, not a literal 60.
 
-### The Geometry panel
+### The Geometry drawer
 
 The 3D page's header has a **Geometry** button. It slides out a drawer of
 fifteen Perspective numeric fields, each bound **bidirectionally** to one
@@ -76,8 +76,8 @@ out:
 | Euro, tall | 350 mm cases, 8 a layer (4 × 2), 4 layers, on a 1200 × 800 Euro pallet |
 | Small, dense | 200 × 200 × 150 mm cases, 30 a layer (6 × 5), 7 layers |
 
-There is no script behind the fields. Typing 350 into CASE HEIGHT and
-pressing Enter writes `Config/CaseH_mm`; the simulator re-derives on its next
+There is no script behind the fields. Typing 350 into the case HEIGHT field
+and pressing Enter writes `Config/CaseH_mm`; the simulator re-derives on its next
 tick; the page rebuilds on its next poll. The presets call
 `MachineDemo.api.setGeometry()`, which does nothing a tag write could not —
 it writes all fifteen at once.
@@ -182,4 +182,4 @@ next `build` overwrites what you typed there. That is the one rule the split
 imposes.
 
 The Perspective side is generated too: `tools/build_cell3d_view.py` writes the
-Cell3D view, panel included. Rebuild it rather than editing the JSON.
+Cell3D view, drawer included. Rebuild it rather than editing the JSON.

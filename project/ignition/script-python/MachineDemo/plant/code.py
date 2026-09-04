@@ -77,10 +77,14 @@ GEOMETRY_PRESETS = [
 	("euro-tall", "Tall cases, Euro pallet",
 	 "350 mm cases, 8 a layer, 4 layers, on a 1200 x 800 Euro pallet",
 	 {"caseH_mm": 350, "palletD_mm": 800, "casesPerLayer": 8, "layers": 4}),
+	# Five layers, not seven: the Overview draws a fixed strip of five layer
+	# pips per station, so a preset with more layers than that completes a
+	# pallet with pips that never light. Every preset stays at or under five
+	# until that strip is built from the Layers tag.
 	("small-dense", "Small cases, dense",
-	 "200 x 200 x 150 mm cases, 30 a layer, 7 layers",
+	 "200 x 200 x 150 mm cases, 30 a layer, 5 layers",
 	 {"caseW_mm": 200, "caseD_mm": 200, "caseH_mm": 150,
-	  "casesPerLayer": 30, "layers": 7}),
+	  "casesPerLayer": 30, "layers": 5}),
 ]
 
 # The defaults, under the names the rest of the project has always used. They

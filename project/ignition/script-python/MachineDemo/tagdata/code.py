@@ -278,8 +278,12 @@ def _robot():
 def _station(n):
 	return _folder("Station%d" % n, [
 		_bool("Present", True),
-		_int("CasesPlaced", 0, P.CASES_PER_PALLET),
-		_int("Layer", 0, P.LAYERS_PER_PALLET),
+		# Ranged for the biggest pattern the Config tags allow, not for the
+		# default one: the geometry is live now, so a range pinned to today's
+		# 60 cases would be exceeded the moment anyone chose a denser pattern,
+		# and a bar bound to it would sit hard against its own end stop.
+		_int("CasesPlaced", 0, 300),
+		_int("Layer", 0, 20),
 		_bool("Complete", False),
 		_str("PatternName", P.PATTERN_NAME),
 	])

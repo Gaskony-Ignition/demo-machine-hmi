@@ -10,7 +10,9 @@ URL are per-person and live in the gitignored `tools/env.local.sh` — copy
 `tools/env.example.sh`. Nothing in this document should name a host.
 
 Project name: **`Machine_HMI_Demo`** (never change the name — it breaks URLs).
-Title/description carry the version: `Machine HMI Demo 1.0.0` … `· v1.0.0`.
+Title/description carry the version, stamped by `tools/package.sh` from
+`MachineDemo.plant.VERSION`: title `Machine HMI Demo <version>`, description
+ending `· v<version>` (or `(dev)` and `· dev` for a development build).
 
 ## Hard rules
 
@@ -59,7 +61,7 @@ Robot/         a UdtInstance of _types_/RobotArm — see below
                CycleCount Int4 | CycleTime_s Float8
                Fault Bool | FaultText String
 
-Pallet/Station1/  Present Bool | CasesPlaced Int4 (0..60) | Layer Int4 (0..5)
+Pallet/Station1/  Present Bool | CasesPlaced Int4 | Layer Int4
                   Complete Bool | PatternName String
 Pallet/Station2/  (identical)
 
@@ -319,7 +321,7 @@ Designer without a web toolchain.
             "j4": 12.0, "lift": 340.0, "grip": true, "vac": -62.4,
             "cycles": 812, "fault": false, "faultText": ""},
   "pallets": [{"present": true, "cases": 37, "layer": 3, "complete": false,
-               "pattern": "5x3 interlock"}, {...}],
+               "pattern": "5 x 12 interlock"}, {...}],
   "conv": {"c1": true, "c2": true, "c3": false,
            "pe": {"infeed": true, "carton": false, "len1": true, "len2": false,
                   "inpos1": true, "inpos2": false, "clear": true},
@@ -350,12 +352,17 @@ Robot joint convention for the 3D page (right-handed, Y up, mm):
 lifts the upper arm); `j3` is the elbow about **Z** relative to the upper arm;
 `j4` rotates the wrist about **Y**; `lift` raises the whole column in mm.
 
-## Ownership — do not write outside your own list
+## Generated resources — rebuild, do not hand-edit
 
-| Owner | Files |
+Several resources are written by a generator and any manual edit is lost on the
+next run:
+
+| Resource | Generator |
 | --- | --- |
-| **lead (Claude)** | `com.inductiveautomation.webdev/resources/cell3d/*`, `.../lib/*`, project skeleton, `project.json`, stylesheet, session-props |
-| **agent: sim** | `ignition/script-python/MachineDemo/*`, `com.inductiveautomation.webdev/resources/admin/*`, `ignition/timer/*` |
-| **agent: views** | `com.inductiveautomation.perspective/views/*`, `.../page-config/*` |
+| `com.inductiveautomation.webdev/resources/cell3d` | `tools/webdev_page.py build` (source: `src/cell3d/page.html`) |
+| `perspective/views/Machine/Cell3D` | `tools/build_cell3d_view.py` |
+| `perspective/views/Machine/Cell2D` | `tools/build_cell2d_view.py` |
+| `project.json` title and description | `tools/package.sh` |
 
-Nobody else edits `project.json`, the stylesheet or session-props.
+`tools/webdev_page.py extract` brings a Designer edit of the 3D page back into
+`src/` before it is overwritten. It is the one direction that is not automatic.

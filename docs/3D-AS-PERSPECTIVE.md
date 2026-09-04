@@ -1,8 +1,8 @@
 # The 3D cell as Perspective
 
 *How close the 3D view is to "programmed in Perspective with some scripting,
-driven by tags", what closed the gap today, and the three ways to close the
-rest.*
+driven by tags", what closed the gap on 03/09/2026, and the three ways to close
+the rest.*
 
 ## What "feels like Perspective" means
 
@@ -16,12 +16,11 @@ relies on without naming them:
    Designer, against the project library.
 4. **Nothing else is needed**: no toolchain, no build, no browser knowledge.
 
-The 3D page is judged against those four. Today's position, and where each
-one stands, is below.
+The 3D page is judged against those four, below.
 
-## Where it stands after 03/09/2026
+## Where it stands
 
-| Property | Before today | Now |
+| Property | Before 03/09/2026 | Now |
 | --- | --- | --- |
 | Shape is data, not code | 15 Config tags changed the *picture*; the simulator kept its own constants | 15 Config tags change the **machine**: simulator, page and screens read the same tags live |
 | Follows tags without scripting | The page polled a JSON snapshot; a tag change needed a page reload | The page **rebuilds inside its 250 ms poll** when the config block changes; the HUD shows what was derived |
@@ -30,7 +29,7 @@ one stands, is below.
 | Screens honour the change | "of 60 cases" and "/5" were literals | Bound to `CasesPerLayer * Layers` and `Layers` |
 
 What that gives the presenter: open the 3D page, press **Geometry**, type
-350 into CASE HEIGHT, press Enter. Within half a second the pallet stack is
+350 into the case HEIGHT field, press Enter. Within half a second the pallet stack is
 taller, the arm is placing to the new heights, the pattern label reads the
 new pattern, Overview's capacity reads the new capacity, and a banner names
 the tag that changed. Press **Euro, tall** and it is a different machine —
@@ -117,7 +116,7 @@ Then it *is* Perspective:
   flex repeaters (one component per robot);
 - there is no `?cmd=state` to maintain, no watermark to explain.
 
-The simulator, the tags, the Geometry panel and the reach report carry
+The simulator, the tags, the Geometry drawer and the reach report carry
 over unchanged: they are already tags and scripts, which is the point of
 having built them that way.
 
@@ -128,8 +127,8 @@ the scene document with box/cylinder/group parts and tag-bound transforms is
 roughly a week; camera presets, HUD labels, fault highlighting and shadows
 add another. The existing page is the specification.
 
-**Risk:** module work is not Friday work. It is the thing to *propose* on
-Friday, with today's page as the proof that the model, the tags and the
+**Risk:** a module is weeks of work, not days. It is the thing to *propose*,
+with the page as it stands as the proof that the model, the tags and the
 simulator already agree.
 
 ## Option C — stock components only (already on the Cell2D page)
@@ -142,21 +141,19 @@ this far, and no further. It stays as the counterpoint to the 3D page.
 
 ## Recommendation
 
-For Friday: **present the page as it is now**, with the Geometry panel as
-the centrepiece — it is the tag → screen argument made in Perspective, and
-it is measured true end to end today. Say plainly that the rendering is
-WebDev; the watermark already does.
+**Present the page as it stands**, with the Geometry drawer as the centrepiece.
+It is the tag → screen argument made in Perspective, and it is measured true end
+to end. Say plainly that the rendering is WebDev; the watermark already does.
 
 Then propose **Option B** as the productisation path, with **Option A** as
 the interim if a second machine has to be modelled before a component
 exists. Option A's scene document is also the exact prop schema Option B
 would take, so nothing done for A is thrown away.
 
-## What was proved today
+## What was measured
 
-Measured on the module-testing gateway, 03/09/2026, driving the Perspective
-client with a headless browser and reading the WebDev state route between
-steps:
+On the test gateway, 03/09/2026, driving the Perspective client with a headless
+browser and reading the WebDev state route between steps:
 
 - Pressing **Default** wrote all fifteen tags; the state route showed the
   new station positions; the simulator's reach report went from *4 of 43
