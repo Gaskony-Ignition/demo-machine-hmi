@@ -32,20 +32,20 @@ def T(path):
 
 # --- palette, kept to the same values the 3D page uses -----------------------
 COL = {
-    "bg":      "#171b20",
-    "floor":   "#22282f",
-    "grid":    "#2b323a",
-    "steel":   "#7d8894",
-    "steelHi": "#98a4b1",
-    "arm":     "#c8ced5",
-    "arm2":    "#aab3bd",
-    "joint":   "#5a646f",
-    "case":    "#b98a4e",
-    "caseAlt": "#a8793f",
-    "pallet":  "#8a6b41",
-    "ink":     "#e6ebf0",
-    "dim":     "#8b98a3",
-    "run":     "#5fd08a",
+    "bg":      "var(--md-bg, #171b20)",
+    "floor":   "var(--md-floor, #22282f)",
+    "grid":    "var(--md-grid, #2b323a)",
+    "steel":   "var(--md-steel, #7d8894)",
+    "steelHi": "var(--md-steel-hi, #98a4b1)",
+    "arm":     "var(--md-arm, #c8ced5)",
+    "arm2":    "var(--md-arm-2, #aab3bd)",
+    "joint":   "var(--md-joint, #5a646f)",
+    "case":    "var(--md-case, #b98a4e)",
+    "caseAlt": "var(--md-case-alt, #a8793f)",
+    "pallet":  "var(--md-pallet-deck, #8a6b41)",
+    "ink":     "var(--md-ink-cool, #e6ebf0)",
+    "dim":     "var(--md-ink-quiet, #8b98a3)",
+    "run":     "var(--md-run-soft, #5fd08a)",
 }
 
 # Side elevation, 110 px per metre. The sim's link lengths are 1.35 m and
@@ -119,7 +119,7 @@ gripper = block("Gripper", L2 - 12, -7, 26, 34, {
 
 held_case = block("HeldCase", L2 - 16, 28, 32, 26, {
     "backgroundColor": COL["case"],
-    "border": "1px solid #8d6836",
+    "border": "1px solid var(--md-case-line, #8d6836)",
     "borderRadius": "2px",
 })
 bind(held_case, "meta.visible", T("Robot/GripperClosed"))
@@ -182,7 +182,7 @@ for row in range(5):
                   PALLET_TOP - (row + 1) * (CASE_H + 3),
                   CASE_W, CASE_H,
                   {"backgroundColor": COL["case"] if row % 2 == 0 else COL["caseAlt"],
-                   "border": "1px solid #8d6836", "borderRadius": "2px"}),
+                   "border": "1px solid var(--md-case-line, #8d6836)", "borderRadius": "2px"}),
             "meta.visible",
             T("Pallet/Station1/CasesPlaced") + " > " + str(idx * 3)))
 

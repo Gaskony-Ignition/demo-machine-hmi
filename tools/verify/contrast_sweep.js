@@ -11,11 +11,27 @@
 //     says it is disabled. A tab with cursor:pointer and no disabled
 //     attribute is not exempt, however quiet it looks.
 //
-// Usage:  node tools/verify/contrast_sweep.js <gateway-url> [--light]
+// Usage:  node tools/verify/contrast_sweep.js <gateway-url> [--light] [--theme NAME]
 // Run from the verify-view tool directory (that is where playwright lives).
+//
+//   --light        overrides the ten --neutral-* tokens with an APPROXIMATION
+//                  of Ignition's light ramp. Kept unchanged so the numbers
+//                  stay comparable with the 04/09/2026 baseline of 190-191.
+//                  It is only an approximation: nothing else the theme
+//                  defines moves, so --input stays black and the theme
+//                  dropdown reads as a failure that a real light theme does
+//                  not have.
+//   --theme NAME   swaps the REAL theme stylesheet. Perspective serves it at
+//                  /data/perspective/themes/<name>.css and links it in the
+//                  head, so replacing that one href gives the genuine article
+//                  - the real ramp, the real component styles, the real
+//                  --success/--error - without a session or a designer. This
+//                  is the honest measurement; --light is the historical one.
 const { chromium } = require('playwright');
 const BASE = process.argv[2] || 'http://localhost:8088';
 const LIGHT = process.argv.includes('--light');
+const ti = process.argv.indexOf('--theme');
+const THEME = ti > 0 ? process.argv[ti + 1] : null;
 const PAGES = ['', 'cell3d', 'cell2d', 'manual', 'alarms', 'setup'];
 // Ignition's light ramp is the dark one inverted.
 const RAMP = {'--neutral-10':'#FAFAFA','--neutral-20':'#F0F0F0','--neutral-30':'#E4E4E4',
@@ -23,7 +39,15 @@ const RAMP = {'--neutral-10':'#FAFAFA','--neutral-20':'#F0F0F0','--neutral-30':'
   '--neutral-70':'#6A6A6A','--neutral-80':'#4A4A4A','--neutral-90':'#2A2A2A','--neutral-100':'#161616'};
 
 const PROBE = `(() => {
-  const P = s => { const m=(s.match(/[\\d.]+/g)||[]).map(Number);
+  // A colour derived with relative colour syntax - rgb(from ...) - computes
+  // to the color(srgb 0..1) form, not rgb(0..255). Reading its channels as
+  // 0-255 turns every such colour into near-black and reports contrast that
+  // is not there, so both forms are parsed rather than one.
+  const P = s => {
+    const c = /^color\\(\\s*srgb\\s+([-\\d.eE]+)\\s+([-\\d.eE]+)\\s+([-\\d.eE]+)(?:\\s*\\/\\s*([\\d.]+)(%?))?/.exec(s);
+    if (c) return {r:+c[1]*255, g:+c[2]*255, b:+c[3]*255,
+                   a: c[4]===undefined ? 1 : (+c[4] / (c[5] ? 100 : 1))};
+    const m=(s.match(/[\\d.]+/g)||[]).map(Number);
     return {r:m[0]||0,g:m[1]||0,b:m[2]||0,a:m.length>3?m[3]:1}; };
   const L = c => { const f=[c.r,c.g,c.b].map(v=>{v/=255;
     return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});
@@ -75,6 +99,13 @@ const PROBE = `(() => {
     await p.goto(`${BASE}/data/perspective/client/Machine_HMI_Demo/${pg}`,
                  { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
     await p.waitForTimeout(3200);
+    if (THEME) {
+      await p.evaluate(t => {
+        const l = document.querySelector('link[href*="/data/perspective/themes/"]');
+        if (l) l.href = l.href.replace(/themes\/[^/]+\.css/, 'themes/' + t + '.css');
+      }, THEME);
+      await p.waitForTimeout(1500);
+    }
     if (LIGHT) await p.evaluate(R => { for (const [k, v] of Object.entries(R))
       document.documentElement.style.setProperty(k, v); }, RAMP);
     await p.waitForTimeout(900);
@@ -89,7 +120,8 @@ const PROBE = `(() => {
     await p.close();
   }
   await b.close();
-  console.log(`ramp=${LIGHT ? 'light' : 'dark'}  texts=${total}  below 3.0 = ${fails.length}`);
+  console.log(`ramp=${LIGHT ? 'light' : 'dark'}  theme=${THEME || 'session default'}` +
+              `  texts=${total}  below 3.0 = ${fails.length}`);
   for (const f of fails.slice(0, 30)) console.log('  ', JSON.stringify(f));
   if (fails.length > 30) console.log(`   ... and ${fails.length - 30} more`);
   process.exit(fails.length ? 1 : 0);

@@ -55,7 +55,7 @@ OUT = os.path.join(HERE, os.pardir, "project",
                    "com.inductiveautomation.perspective", "views",
                    "Machine", "Cell3D")
 
-COL_BG = "#171b20"
+COL_BG = "var(--md-bg, #171b20)"
 WEBDEV_PATH = "/system/webdev/Machine_HMI_Demo/cell3d"
 PROVIDER = "MachineDemo"
 
@@ -94,8 +94,8 @@ header = {
         "direction": "row",
         "alignItems": "center",
         "style": {
-            "backgroundColor": "#1d232a",
-            "borderBottom": "1px solid #2c343d",
+            "backgroundColor": "var(--md-panel, #1d232a)",
+            "borderBottom": "1px solid var(--md-line, #2c343d)",
             "padding": "9px 16px",
             "gap": "14px",
         },
@@ -114,7 +114,7 @@ header = {
                         "text": "Zone 2 · Robot Cell 2 — Live 3D",
                         "style": {
                             "fontSize": "16px",
-                            "color": "#f2f6f8",
+                            "color": "var(--md-ink-max, #f2f6f8)",
                             "fontWeight": "bold",
                         },
                     },
@@ -127,7 +127,7 @@ header = {
                         "text": "Model driven by the same [MachineDemo] tags as every other screen",
                         "style": {
                             "fontSize": "11.5px",
-                            "color": "#8b98a3",
+                            "color": "var(--md-ink-quiet, #8b98a3)",
                             "fontWeight": "normal",
                         },
                     },
@@ -148,9 +148,9 @@ header = {
                     "textTransform": "uppercase",
                     "borderRadius": "4px",
                     "padding": "3px 9px",
-                    "backgroundColor": "#14313e",
-                    "color": "#6cc4e8",
-                    "border": "1px solid #1e546c",
+                    "backgroundColor": "var(--md-info-bg-2, #14313e)",
+                    "color": "var(--md-info, #6cc4e8)",
+                    "border": "1px solid var(--md-info-line, #1e546c)",
                 },
             },
             "propConfig": {
@@ -175,9 +175,9 @@ header = {
             "props": {
                 "text": "Geometry",
                 "style": {
-                    "backgroundColor": "#262e36",
-                    "color": "#cdd6dd",
-                    "border": "1px solid #38424c",
+                    "backgroundColor": "var(--md-well, #262e36)",
+                    "color": "var(--md-ink-mid, #cdd6dd)",
+                    "border": "1px solid var(--md-line-soft, #38424c)",
                     "borderRadius": "7px",
                     "fontWeight": "bold",
                     "fontSize": "12.5px",
@@ -191,11 +191,11 @@ header = {
             # in both states is a toggle nobody trusts.
             "propConfig": {
                 "props.style.backgroundColor": {"binding": expr_binding(
-                    'if({view.custom.geometry}, "#14313e", "#262e36")')},
+                    'if({view.custom.geometry}, "var(--md-info-bg-2, #14313e)", "var(--md-well, #262e36)")')},
                 "props.style.color": {"binding": expr_binding(
-                    'if({view.custom.geometry}, "#9fdcf5", "#cdd6dd")')},
+                    'if({view.custom.geometry}, "var(--md-info-ink, #9fdcf5)", "var(--md-ink-mid, #cdd6dd)")')},
                 "props.style.borderColor": {"binding": expr_binding(
-                    'if({view.custom.geometry}, "#1e546c", "#38424c")')},
+                    'if({view.custom.geometry}, "var(--md-info-line, #1e546c)", "var(--md-line-soft, #38424c)")')},
             },
             "events": {
                 "component": {
@@ -214,9 +214,9 @@ header = {
             "props": {
                 "text": "Overview",
                 "style": {
-                    "backgroundColor": "#262e36",
-                    "color": "#cdd6dd",
-                    "border": "1px solid #38424c",
+                    "backgroundColor": "var(--md-well, #262e36)",
+                    "color": "var(--md-ink-mid, #cdd6dd)",
+                    "border": "1px solid var(--md-line-soft, #38424c)",
                     "borderRadius": "7px",
                     "fontWeight": "bold",
                     "fontSize": "12.5px",
@@ -370,8 +370,8 @@ def preset(key, text):
             "text": text,
             "style": {"fontSize": "11px", "fontWeight": 700,
                       "letterSpacing": "0.3px", "borderRadius": "6px",
-                      "border": "1px solid #2c343d",
-                      "backgroundColor": "#252c34", "color": "#cfd8df",
+                      "border": "1px solid var(--md-line, #2c343d)",
+                      "backgroundColor": "var(--md-face, #252c34)", "color": "var(--md-ink-body, #cfd8df)",
                       "padding": "0px", "minWidth": "0px", "minHeight": "34px",
                       "alignItems": "center", "whiteSpace": "nowrap"},
         },

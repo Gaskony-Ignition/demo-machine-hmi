@@ -81,7 +81,7 @@
           "direction": "row",
           "style": {
             "backgroundColor": "var(--neutral-20, #1d232a)",
-            "borderBottom": "1px solid #2c343d",
+            "borderBottom": "1px solid var(--md-line, #2c343d)",
             "minWidth": "0px",
             "minHeight": "0px",
             "classes": "hdr-bar"
@@ -212,7 +212,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -251,7 +251,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -290,7 +290,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -329,7 +329,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -368,7 +368,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -407,9 +407,9 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #6cc4e8",
-                    "color": "#cfeafa",
-                    "backgroundColor": "#152f3b",
+                    "border": "1px solid var(--md-info, #6cc4e8)",
+                    "color": "var(--md-info-ink-2, #cfeafa)",
+                    "backgroundColor": "var(--md-info-bg, #152f3b)",
                     "classes": "nav-tab"
                   }
                 },
@@ -456,6 +456,18 @@
                 {
                   "value": "dark-warm",
                   "label": "Dark warm"
+                },
+                {
+                  "value": "light",
+                  "label": "Light"
+                },
+                {
+                  "value": "light-cool",
+                  "label": "Light cool"
+                },
+                {
+                  "value": "light-warm",
+                  "label": "Light warm"
                 }
               ],
               "placeholder": "Theme",
@@ -609,7 +621,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -630,7 +642,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -658,7 +670,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -747,15 +759,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#152f3b",
-                                "color": "#cfeafa",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "46px",
-                                "borderColor": "#1e546c"
+                                "borderColor": "var(--md-info-line, #1e546c)"
                               }
                             },
                             "position": {
@@ -787,15 +799,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#1c3b2a",
-                                "color": "#bff0d2",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-run-bg, #1c3b2a)",
+                                "color": "var(--md-run-ink, #bff0d2)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "46px",
-                                "borderColor": "#2c7a4a"
+                                "borderColor": "var(--md-run-line, #2c7a4a)"
                               }
                             },
                             "position": {
@@ -827,7 +839,7 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "backgroundColor": "var(--neutral-30, #28313a)",
                                 "color": "var(--neutral-90, #dde4e9)",
                                 "padding": "0 10px",
@@ -866,15 +878,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#3a301a",
-                                "color": "#f4dda2",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-warn-bg, #3a301a)",
+                                "color": "var(--md-warn-ink, #f4dda2)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "46px",
-                                "borderColor": "#7d6427"
+                                "borderColor": "var(--md-warn-line, #7d6427)"
                               }
                             },
                             "position": {
@@ -909,7 +921,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -930,7 +942,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -958,7 +970,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -1063,7 +1075,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.check.rows[0].led} = \"ok\", \"#46d07c\", if({view.custom.check.rows[0].led} = \"bad\", \"#f0565e\", \"#74808a\"))"
+                                    "expression": "if({view.custom.check.rows[0].led} = \"ok\", \"var(--md-run, #46d07c)\", if({view.custom.check.rows[0].led} = \"bad\", \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\"))"
                                   }
                                 }
                               },
@@ -1188,7 +1200,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.check.rows[1].led} = \"ok\", \"#46d07c\", if({view.custom.check.rows[1].led} = \"bad\", \"#f0565e\", \"#74808a\"))"
+                                    "expression": "if({view.custom.check.rows[1].led} = \"ok\", \"var(--md-run, #46d07c)\", if({view.custom.check.rows[1].led} = \"bad\", \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\"))"
                                   }
                                 }
                               },
@@ -1313,7 +1325,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.check.rows[2].led} = \"ok\", \"#46d07c\", if({view.custom.check.rows[2].led} = \"bad\", \"#f0565e\", \"#74808a\"))"
+                                    "expression": "if({view.custom.check.rows[2].led} = \"ok\", \"var(--md-run, #46d07c)\", if({view.custom.check.rows[2].led} = \"bad\", \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\"))"
                                   }
                                 }
                               },
@@ -1438,7 +1450,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.check.rows[3].led} = \"ok\", \"#46d07c\", if({view.custom.check.rows[3].led} = \"bad\", \"#f0565e\", \"#74808a\"))"
+                                    "expression": "if({view.custom.check.rows[3].led} = \"ok\", \"var(--md-run, #46d07c)\", if({view.custom.check.rows[3].led} = \"bad\", \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\"))"
                                   }
                                 }
                               },
@@ -1563,7 +1575,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.check.rows[4].led} = \"ok\", \"#46d07c\", if({view.custom.check.rows[4].led} = \"bad\", \"#f0565e\", \"#74808a\"))"
+                                    "expression": "if({view.custom.check.rows[4].led} = \"ok\", \"var(--md-run, #46d07c)\", if({view.custom.check.rows[4].led} = \"bad\", \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\"))"
                                   }
                                 }
                               },
@@ -1688,7 +1700,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.check.rows[5].led} = \"ok\", \"#46d07c\", if({view.custom.check.rows[5].led} = \"bad\", \"#f0565e\", \"#74808a\"))"
+                                    "expression": "if({view.custom.check.rows[5].led} = \"ok\", \"var(--md-run, #46d07c)\", if({view.custom.check.rows[5].led} = \"bad\", \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\"))"
                                   }
                                 }
                               },
@@ -1813,7 +1825,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.check.rows[6].led} = \"ok\", \"#46d07c\", if({view.custom.check.rows[6].led} = \"bad\", \"#f0565e\", \"#74808a\"))"
+                                    "expression": "if({view.custom.check.rows[6].led} = \"ok\", \"var(--md-run, #46d07c)\", if({view.custom.check.rows[6].led} = \"bad\", \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\"))"
                                   }
                                 }
                               },
@@ -1938,7 +1950,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.check.rows[7].led} = \"ok\", \"#46d07c\", if({view.custom.check.rows[7].led} = \"bad\", \"#f0565e\", \"#74808a\"))"
+                                    "expression": "if({view.custom.check.rows[7].led} = \"ok\", \"var(--md-run, #46d07c)\", if({view.custom.check.rows[7].led} = \"bad\", \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\"))"
                                   }
                                 }
                               },
@@ -2026,7 +2038,7 @@
                           "style": {
                             "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                             "fontSize": "11.5px",
-                            "color": "#6cc4e8",
+                            "color": "var(--md-info, #6cc4e8)",
                             "paddingTop": "4px"
                           }
                         },
@@ -2076,7 +2088,7 @@
                           "style": {
                             "backgroundColor": "var(--neutral-10, #12171c)",
                             "borderRadius": "5px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "padding": "6px 8px",
                             "overflowY": "auto",
                             "minWidth": "0px",
@@ -2135,7 +2147,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -2156,7 +2168,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -2184,7 +2196,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -2273,7 +2285,7 @@
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "13px",
                                 "fontWeight": 700,
-                                "color": "#6cc4e8",
+                                "color": "var(--md-info, #6cc4e8)",
                                 "textAlign": "center"
                               }
                             },
@@ -2378,7 +2390,7 @@
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "13px",
                                 "fontWeight": 700,
-                                "color": "#6cc4e8",
+                                "color": "var(--md-info, #6cc4e8)",
                                 "textAlign": "center"
                               }
                             },
@@ -2483,7 +2495,7 @@
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "13px",
                                 "fontWeight": 700,
-                                "color": "#6cc4e8",
+                                "color": "var(--md-info, #6cc4e8)",
                                 "textAlign": "center"
                               }
                             },
@@ -2588,7 +2600,7 @@
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "13px",
                                 "fontWeight": 700,
-                                "color": "#6cc4e8",
+                                "color": "var(--md-info, #6cc4e8)",
                                 "textAlign": "center"
                               }
                             },
@@ -2693,7 +2705,7 @@
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "13px",
                                 "fontWeight": 700,
-                                "color": "#6cc4e8",
+                                "color": "var(--md-info, #6cc4e8)",
                                 "textAlign": "center"
                               }
                             },
@@ -2798,7 +2810,7 @@
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "fontSize": "13px",
                                 "fontWeight": 700,
-                                "color": "#6cc4e8",
+                                "color": "var(--md-info, #6cc4e8)",
                                 "textAlign": "center"
                               }
                             },
@@ -2908,7 +2920,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -2929,7 +2941,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -2957,7 +2969,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -3025,7 +3037,7 @@
                           "style": {
                             "gap": "10px",
                             "backgroundColor": "var(--neutral-20, #20262d)",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "borderRadius": "7px",
                             "padding": "7px 10px",
                             "minWidth": "0px",
@@ -3086,7 +3098,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/WrapperFilmFeed}, false), \"#f0565e\", \"#3a434b\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/WrapperFilmFeed}, false), \"var(--md-fault, #f0565e)\", \"var(--md-beam-off, #3a434b)\")"
                                       }
                                     }
                                   }
@@ -3188,7 +3200,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/WrapperFilmFeed}, false), \"#f0565e\", \"#74808a\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/WrapperFilmFeed}, false), \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\")"
                                       }
                                     }
                                   }
@@ -3227,15 +3239,15 @@
                                     "fontWeight": 700,
                                     "letterSpacing": "0.5px",
                                     "borderRadius": "6px",
-                                    "border": "1px solid #2c343d",
-                                    "backgroundColor": "#3a1d21",
-                                    "color": "#ffb3b6",
+                                    "border": "1px solid var(--md-line, #2c343d)",
+                                    "backgroundColor": "var(--md-fault-bg, #3a1d21)",
+                                    "color": "var(--md-fault-ink-3, #ffb3b6)",
                                     "padding": "0 10px",
                                     "whiteSpace": "normal",
                                     "lineHeight": "1.2",
                                     "textAlign": "center",
                                     "height": "36px",
-                                    "borderColor": "#7a2a2f"
+                                    "borderColor": "var(--md-fault-edge, #7a2a2f)"
                                   }
                                 },
                                 "position": {
@@ -3267,7 +3279,7 @@
                                     "fontWeight": 700,
                                     "letterSpacing": "0.5px",
                                     "borderRadius": "6px",
-                                    "border": "1px solid #2c343d",
+                                    "border": "1px solid var(--md-line, #2c343d)",
                                     "backgroundColor": "transparent",
                                     "color": "var(--neutral-80, #b7c2ca)",
                                     "padding": "0 10px",
@@ -3302,7 +3314,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if(coalesce({[MachineDemo]Faults/WrapperFilmFeed}, false), \"#c2444c\", \"#2c343d\")"
+                                "expression": "if(coalesce({[MachineDemo]Faults/WrapperFilmFeed}, false), \"var(--md-fault-line, #c2444c)\", \"var(--md-line, #2c343d)\")"
                               }
                             }
                           }
@@ -3318,7 +3330,7 @@
                           "style": {
                             "gap": "10px",
                             "backgroundColor": "var(--neutral-20, #20262d)",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "borderRadius": "7px",
                             "padding": "7px 10px",
                             "minWidth": "0px",
@@ -3379,7 +3391,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/ConveyorJam}, false), \"#f0565e\", \"#3a434b\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/ConveyorJam}, false), \"var(--md-fault, #f0565e)\", \"var(--md-beam-off, #3a434b)\")"
                                       }
                                     }
                                   }
@@ -3481,7 +3493,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/ConveyorJam}, false), \"#f0565e\", \"#74808a\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/ConveyorJam}, false), \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\")"
                                       }
                                     }
                                   }
@@ -3520,15 +3532,15 @@
                                     "fontWeight": 700,
                                     "letterSpacing": "0.5px",
                                     "borderRadius": "6px",
-                                    "border": "1px solid #2c343d",
-                                    "backgroundColor": "#3a1d21",
-                                    "color": "#ffb3b6",
+                                    "border": "1px solid var(--md-line, #2c343d)",
+                                    "backgroundColor": "var(--md-fault-bg, #3a1d21)",
+                                    "color": "var(--md-fault-ink-3, #ffb3b6)",
                                     "padding": "0 10px",
                                     "whiteSpace": "normal",
                                     "lineHeight": "1.2",
                                     "textAlign": "center",
                                     "height": "36px",
-                                    "borderColor": "#7a2a2f"
+                                    "borderColor": "var(--md-fault-edge, #7a2a2f)"
                                   }
                                 },
                                 "position": {
@@ -3560,7 +3572,7 @@
                                     "fontWeight": 700,
                                     "letterSpacing": "0.5px",
                                     "borderRadius": "6px",
-                                    "border": "1px solid #2c343d",
+                                    "border": "1px solid var(--md-line, #2c343d)",
                                     "backgroundColor": "transparent",
                                     "color": "var(--neutral-80, #b7c2ca)",
                                     "padding": "0 10px",
@@ -3595,7 +3607,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if(coalesce({[MachineDemo]Faults/ConveyorJam}, false), \"#c2444c\", \"#2c343d\")"
+                                "expression": "if(coalesce({[MachineDemo]Faults/ConveyorJam}, false), \"var(--md-fault-line, #c2444c)\", \"var(--md-line, #2c343d)\")"
                               }
                             }
                           }
@@ -3611,7 +3623,7 @@
                           "style": {
                             "gap": "10px",
                             "backgroundColor": "var(--neutral-20, #20262d)",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "borderRadius": "7px",
                             "padding": "7px 10px",
                             "minWidth": "0px",
@@ -3672,7 +3684,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/VacuumLow}, false), \"#f0565e\", \"#3a434b\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/VacuumLow}, false), \"var(--md-fault, #f0565e)\", \"var(--md-beam-off, #3a434b)\")"
                                       }
                                     }
                                   }
@@ -3774,7 +3786,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/VacuumLow}, false), \"#f0565e\", \"#74808a\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/VacuumLow}, false), \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\")"
                                       }
                                     }
                                   }
@@ -3813,15 +3825,15 @@
                                     "fontWeight": 700,
                                     "letterSpacing": "0.5px",
                                     "borderRadius": "6px",
-                                    "border": "1px solid #2c343d",
-                                    "backgroundColor": "#3a1d21",
-                                    "color": "#ffb3b6",
+                                    "border": "1px solid var(--md-line, #2c343d)",
+                                    "backgroundColor": "var(--md-fault-bg, #3a1d21)",
+                                    "color": "var(--md-fault-ink-3, #ffb3b6)",
                                     "padding": "0 10px",
                                     "whiteSpace": "normal",
                                     "lineHeight": "1.2",
                                     "textAlign": "center",
                                     "height": "36px",
-                                    "borderColor": "#7a2a2f"
+                                    "borderColor": "var(--md-fault-edge, #7a2a2f)"
                                   }
                                 },
                                 "position": {
@@ -3853,7 +3865,7 @@
                                     "fontWeight": 700,
                                     "letterSpacing": "0.5px",
                                     "borderRadius": "6px",
-                                    "border": "1px solid #2c343d",
+                                    "border": "1px solid var(--md-line, #2c343d)",
                                     "backgroundColor": "transparent",
                                     "color": "var(--neutral-80, #b7c2ca)",
                                     "padding": "0 10px",
@@ -3888,7 +3900,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if(coalesce({[MachineDemo]Faults/VacuumLow}, false), \"#c2444c\", \"#2c343d\")"
+                                "expression": "if(coalesce({[MachineDemo]Faults/VacuumLow}, false), \"var(--md-fault-line, #c2444c)\", \"var(--md-line, #2c343d)\")"
                               }
                             }
                           }
@@ -3904,7 +3916,7 @@
                           "style": {
                             "gap": "10px",
                             "backgroundColor": "var(--neutral-20, #20262d)",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "borderRadius": "7px",
                             "padding": "7px 10px",
                             "minWidth": "0px",
@@ -3965,7 +3977,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/GuardOpen}, false), \"#f0565e\", \"#3a434b\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/GuardOpen}, false), \"var(--md-fault, #f0565e)\", \"var(--md-beam-off, #3a434b)\")"
                                       }
                                     }
                                   }
@@ -4067,7 +4079,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/GuardOpen}, false), \"#f0565e\", \"#74808a\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/GuardOpen}, false), \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\")"
                                       }
                                     }
                                   }
@@ -4106,15 +4118,15 @@
                                     "fontWeight": 700,
                                     "letterSpacing": "0.5px",
                                     "borderRadius": "6px",
-                                    "border": "1px solid #2c343d",
-                                    "backgroundColor": "#3a1d21",
-                                    "color": "#ffb3b6",
+                                    "border": "1px solid var(--md-line, #2c343d)",
+                                    "backgroundColor": "var(--md-fault-bg, #3a1d21)",
+                                    "color": "var(--md-fault-ink-3, #ffb3b6)",
                                     "padding": "0 10px",
                                     "whiteSpace": "normal",
                                     "lineHeight": "1.2",
                                     "textAlign": "center",
                                     "height": "36px",
-                                    "borderColor": "#7a2a2f"
+                                    "borderColor": "var(--md-fault-edge, #7a2a2f)"
                                   }
                                 },
                                 "position": {
@@ -4146,7 +4158,7 @@
                                     "fontWeight": 700,
                                     "letterSpacing": "0.5px",
                                     "borderRadius": "6px",
-                                    "border": "1px solid #2c343d",
+                                    "border": "1px solid var(--md-line, #2c343d)",
                                     "backgroundColor": "transparent",
                                     "color": "var(--neutral-80, #b7c2ca)",
                                     "padding": "0 10px",
@@ -4181,7 +4193,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if(coalesce({[MachineDemo]Faults/GuardOpen}, false), \"#c2444c\", \"#2c343d\")"
+                                "expression": "if(coalesce({[MachineDemo]Faults/GuardOpen}, false), \"var(--md-fault-line, #c2444c)\", \"var(--md-line, #2c343d)\")"
                               }
                             }
                           }
@@ -4197,7 +4209,7 @@
                           "style": {
                             "gap": "10px",
                             "backgroundColor": "var(--neutral-20, #20262d)",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "borderRadius": "7px",
                             "padding": "7px 10px",
                             "minWidth": "0px",
@@ -4258,7 +4270,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/RobotAxisFault}, false), \"#f0565e\", \"#3a434b\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/RobotAxisFault}, false), \"var(--md-fault, #f0565e)\", \"var(--md-beam-off, #3a434b)\")"
                                       }
                                     }
                                   }
@@ -4360,7 +4372,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/RobotAxisFault}, false), \"#f0565e\", \"#74808a\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/RobotAxisFault}, false), \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\")"
                                       }
                                     }
                                   }
@@ -4399,15 +4411,15 @@
                                     "fontWeight": 700,
                                     "letterSpacing": "0.5px",
                                     "borderRadius": "6px",
-                                    "border": "1px solid #2c343d",
-                                    "backgroundColor": "#3a1d21",
-                                    "color": "#ffb3b6",
+                                    "border": "1px solid var(--md-line, #2c343d)",
+                                    "backgroundColor": "var(--md-fault-bg, #3a1d21)",
+                                    "color": "var(--md-fault-ink-3, #ffb3b6)",
                                     "padding": "0 10px",
                                     "whiteSpace": "normal",
                                     "lineHeight": "1.2",
                                     "textAlign": "center",
                                     "height": "36px",
-                                    "borderColor": "#7a2a2f"
+                                    "borderColor": "var(--md-fault-edge, #7a2a2f)"
                                   }
                                 },
                                 "position": {
@@ -4439,7 +4451,7 @@
                                     "fontWeight": 700,
                                     "letterSpacing": "0.5px",
                                     "borderRadius": "6px",
-                                    "border": "1px solid #2c343d",
+                                    "border": "1px solid var(--md-line, #2c343d)",
                                     "backgroundColor": "transparent",
                                     "color": "var(--neutral-80, #b7c2ca)",
                                     "padding": "0 10px",
@@ -4474,7 +4486,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if(coalesce({[MachineDemo]Faults/RobotAxisFault}, false), \"#c2444c\", \"#2c343d\")"
+                                "expression": "if(coalesce({[MachineDemo]Faults/RobotAxisFault}, false), \"var(--md-fault-line, #c2444c)\", \"var(--md-line, #2c343d)\")"
                               }
                             }
                           }
@@ -4511,15 +4523,15 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
-                            "backgroundColor": "#1c3b2a",
-                            "color": "#bff0d2",
+                            "border": "1px solid var(--md-line, #2c343d)",
+                            "backgroundColor": "var(--md-run-bg, #1c3b2a)",
+                            "color": "var(--md-run-ink, #bff0d2)",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "42px",
-                            "borderColor": "#2c7a4a"
+                            "borderColor": "var(--md-run-line, #2c7a4a)"
                           }
                         },
                         "position": {
@@ -4552,7 +4564,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -4562,7 +4574,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "262px"
+                  "basis": "296px"
                 },
                 "children": [
                   {
@@ -4573,7 +4585,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -4601,7 +4613,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -4669,15 +4681,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#152f3b",
-                                "color": "#cfeafa",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "38px",
-                                "borderColor": "#1e546c"
+                                "borderColor": "var(--md-info-line, #1e546c)"
                               }
                             },
                             "position": {
@@ -4709,15 +4721,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#152f3b",
-                                "color": "#cfeafa",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "38px",
-                                "borderColor": "#1e546c"
+                                "borderColor": "var(--md-info-line, #1e546c)"
                               }
                             },
                             "position": {
@@ -4749,15 +4761,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#152f3b",
-                                "color": "#cfeafa",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "38px",
-                                "borderColor": "#1e546c"
+                                "borderColor": "var(--md-info-line, #1e546c)"
                               }
                             },
                             "position": {
@@ -4789,15 +4801,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#152f3b",
-                                "color": "#cfeafa",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "38px",
-                                "borderColor": "#1e546c"
+                                "borderColor": "var(--md-info-line, #1e546c)"
                               }
                             },
                             "position": {
@@ -4850,15 +4862,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#1c3b2a",
-                                "color": "#bff0d2",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-run-bg, #1c3b2a)",
+                                "color": "var(--md-run-ink, #bff0d2)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "34px",
-                                "borderColor": "#2c7a4a"
+                                "borderColor": "var(--md-run-line, #2c7a4a)"
                               }
                             },
                             "position": {
@@ -4890,15 +4902,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#3a1d21",
-                                "color": "#ffb3b6",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-fault-bg, #3a1d21)",
+                                "color": "var(--md-fault-ink-3, #ffb3b6)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "34px",
-                                "borderColor": "#7a2a2f"
+                                "borderColor": "var(--md-fault-edge, #7a2a2f)"
                               }
                             },
                             "position": {
@@ -5022,7 +5034,7 @@
                               "text": "Theme \u2014 Perspective and the 3D cell together",
                               "style": {
                                 "fontSize": "10px",
-                                "color": "var(--neutral-60, #74808a)",
+                                "color": "var(--md-ink-dim, #74808a)",
                                 "letterSpacing": "0.6px",
                                 "whiteSpace": "nowrap",
                                 "overflow": "hidden",
@@ -5071,9 +5083,9 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.4px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "var(--neutral-30, #252c34)",
-                                "color": "var(--neutral-80, #cfd8df)",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
                                 "padding": "0px",
                                 "minWidth": "0px",
                                 "alignItems": "center",
@@ -5110,9 +5122,9 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.4px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "var(--neutral-30, #252c34)",
-                                "color": "var(--neutral-80, #cfd8df)",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
                                 "padding": "0px",
                                 "minWidth": "0px",
                                 "alignItems": "center",
@@ -5149,9 +5161,9 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.4px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "var(--neutral-30, #252c34)",
-                                "color": "var(--neutral-80, #cfd8df)",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
                                 "padding": "0px",
                                 "minWidth": "0px",
                                 "alignItems": "center",
@@ -5164,6 +5176,146 @@
                                   "type": "script",
                                   "config": {
                                     "script": "\tself.session.props.theme = 'dark-warm'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "Themes2"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "34px"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "6px",
+                            "padding": "0 10px 6px",
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_light"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Light",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'light'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_light_cool"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Light cool",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'light-cool'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_light_warm"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Light warm",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'light-warm'\n"
                                   },
                                   "scope": "G"
                                 }

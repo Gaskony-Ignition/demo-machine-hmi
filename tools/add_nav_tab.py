@@ -26,10 +26,12 @@ AFTER = "N_3DCELL"
 
 # The nav marks the current page by colour. Each view therefore needs to know
 # which of its tabs is the active one.
-ACTIVE = {"backgroundColor": "#152f3b", "border": "1px solid #6cc4e8",
-          "color": "#cfeafa"}
-INACTIVE = {"backgroundColor": "transparent", "border": "1px solid #2c343d",
-            "color": "#8b98a3"}
+ACTIVE = {"backgroundColor": "var(--md-info-bg, #152f3b)",
+          "border": "1px solid var(--md-info, #6cc4e8)",
+          "color": "var(--md-info-ink-2, #cfeafa)"}
+INACTIVE = {"backgroundColor": "transparent",
+            "border": "1px solid var(--md-line, #2c343d)",
+            "color": "var(--md-ink-quiet, #8b98a3)"}
 
 
 def find(node, name):

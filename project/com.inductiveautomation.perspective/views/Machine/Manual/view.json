@@ -145,7 +145,7 @@
           "direction": "row",
           "style": {
             "backgroundColor": "var(--neutral-20, #1d232a)",
-            "borderBottom": "1px solid #2c343d",
+            "borderBottom": "1px solid var(--md-line, #2c343d)",
             "minWidth": "0px",
             "minHeight": "0px",
             "classes": "hdr-bar"
@@ -296,7 +296,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if(coalesce({[MachineDemo]Line/Mode}, \"Auto\") = \"Manual\", \"#eebf5e\", \"#6cc4e8\")"
+                        "expression": "if(coalesce({[MachineDemo]Line/Mode}, \"Auto\") = \"Manual\", \"var(--md-warn, #eebf5e)\", \"var(--md-info, #6cc4e8)\")"
                       }
                     }
                   }
@@ -338,7 +338,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({view.custom.canMove}, \"#46d07c\", \"#eebf5e\")"
+                        "expression": "if({view.custom.canMove}, \"var(--md-run, #46d07c)\", \"var(--md-warn, #eebf5e)\")"
                       }
                     }
                   }
@@ -383,7 +383,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -422,7 +422,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -461,7 +461,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -500,9 +500,9 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #6cc4e8",
-                    "color": "#cfeafa",
-                    "backgroundColor": "#152f3b",
+                    "border": "1px solid var(--md-info, #6cc4e8)",
+                    "color": "var(--md-info-ink-2, #cfeafa)",
+                    "backgroundColor": "var(--md-info-bg, #152f3b)",
                     "classes": "nav-tab"
                   }
                 },
@@ -539,7 +539,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -578,7 +578,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -627,6 +627,18 @@
                 {
                   "value": "dark-warm",
                   "label": "Dark warm"
+                },
+                {
+                  "value": "light",
+                  "label": "Light"
+                },
+                {
+                  "value": "light-cool",
+                  "label": "Light cool"
+                },
+                {
+                  "value": "light-warm",
+                  "label": "Light warm"
                 }
               ],
               "placeholder": "Theme",
@@ -742,7 +754,7 @@
             "padding": "4px 14px",
             "gap": "12px",
             "backgroundColor": "var(--neutral-20, #20262d)",
-            "borderBottom": "1px solid #2c343d",
+            "borderBottom": "1px solid var(--md-line, #2c343d)",
             "minWidth": "0px",
             "minHeight": "0px"
           },
@@ -808,7 +820,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "if({view.custom.mayOperate}, \"#bff0d2\", \"#eebf5e\")"
+                    "expression": "if({view.custom.mayOperate}, \"var(--md-run-ink, #bff0d2)\", \"var(--md-warn, #eebf5e)\")"
                   }
                 }
               }
@@ -846,7 +858,7 @@
                     "fontWeight": 700,
                     "letterSpacing": "0.5px",
                     "borderRadius": "6px",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "backgroundColor": "transparent",
                     "color": "var(--neutral-80, #b7c2ca)",
                     "padding": "0 10px",
@@ -885,7 +897,7 @@
                     "fontWeight": 700,
                     "letterSpacing": "0.5px",
                     "borderRadius": "6px",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "backgroundColor": "transparent",
                     "color": "var(--neutral-80, #b7c2ca)",
                     "padding": "0 10px",
@@ -924,7 +936,7 @@
                     "fontWeight": 700,
                     "letterSpacing": "0.5px",
                     "borderRadius": "6px",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "backgroundColor": "transparent",
                     "color": "var(--neutral-80, #b7c2ca)",
                     "padding": "0 10px",
@@ -959,7 +971,7 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "if({view.custom.mayOperate}, \"#16261d\", \"#2b2418\")"
+                "expression": "if({view.custom.mayOperate}, \"var(--md-run-bg-2, #16261d)\", \"var(--md-warn-bg-2, #2b2418)\")"
               }
             }
           },
@@ -967,7 +979,7 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "if({view.custom.mayOperate}, \"#2c7a4a\", \"#7d6427\")"
+                "expression": "if({view.custom.mayOperate}, \"var(--md-run-line, #2c7a4a)\", \"var(--md-warn-line, #7d6427)\")"
               }
             }
           }
@@ -1022,7 +1034,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -1043,7 +1055,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -1071,7 +1083,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -1157,7 +1169,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Safety/EStopOK}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Safety/EStopOK}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -1235,7 +1247,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Safety/GuardsClosed}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Safety/GuardsClosed}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -1313,7 +1325,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Safety/AirPressureOK}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Safety/AirPressureOK}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -1422,7 +1434,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Safety/InterfacesOK}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Safety/InterfacesOK}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -1500,7 +1512,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Robot/MotorsOn}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Robot/MotorsOn}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -1578,7 +1590,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Robot/Homed}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Robot/Homed}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -1656,7 +1668,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Robot/Healthy}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Robot/Healthy}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -1734,7 +1746,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(!coalesce({[MachineDemo]Robot/Fault}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(!coalesce({[MachineDemo]Robot/Fault}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -1843,7 +1855,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Line/Mode}, \"Auto\") = \"Manual\", \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Line/Mode}, \"Auto\") = \"Manual\", \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -1952,7 +1964,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.mayOperate}, \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if({view.custom.mayOperate}, \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -1995,7 +2007,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -2016,7 +2028,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -2044,7 +2056,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -2113,7 +2125,7 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "backgroundColor": "var(--neutral-30, #28313a)",
                                 "color": "var(--neutral-90, #dde4e9)",
                                 "padding": "0 10px",
@@ -2178,7 +2190,7 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "backgroundColor": "var(--neutral-30, #28313a)",
                                 "color": "var(--neutral-90, #dde4e9)",
                                 "padding": "0 10px",
@@ -2264,15 +2276,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#152f3b",
-                                "color": "#cfeafa",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "36px",
-                                "borderColor": "#1e546c"
+                                "borderColor": "var(--md-info-line, #1e546c)"
                               }
                             },
                             "position": {
@@ -2330,7 +2342,7 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "backgroundColor": "transparent",
                                 "color": "var(--neutral-80, #b7c2ca)",
                                 "padding": "0 10px",
@@ -2433,7 +2445,7 @@
                               "style": {
                                 "backgroundColor": "var(--neutral-10, #12171c)",
                                 "borderRadius": "3px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "height": "12px",
                                 "overflow": "hidden",
                                 "minWidth": "0px",
@@ -2454,7 +2466,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#6cc4e8",
+                                    "backgroundColor": "var(--md-info, #6cc4e8)",
                                     "borderRadius": "3px",
                                     "height": "100%",
                                     "width": "0%",
@@ -2529,7 +2541,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -2550,7 +2562,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -2578,7 +2590,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -2664,7 +2676,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "\"#46d07c\""
+                                    "expression": "\"var(--md-run, #46d07c)\""
                                   }
                                 }
                               }
@@ -2742,7 +2754,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "\"#46d07c\""
+                                    "expression": "\"var(--md-run, #46d07c)\""
                                   }
                                 }
                               }
@@ -2820,7 +2832,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.mayOperate}, \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if({view.custom.mayOperate}, \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -2898,7 +2910,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.mayOperate}, \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if({view.custom.mayOperate}, \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -2976,7 +2988,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.mayOperate}, \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if({view.custom.mayOperate}, \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -3205,7 +3217,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -3226,7 +3238,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -3254,7 +3266,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -3532,7 +3544,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({view.custom.jog} != 0 || {view.custom.seek}, \"#46d07c\", \"#8b98a3\")"
+                                        "expression": "if({view.custom.jog} != 0 || {view.custom.seek}, \"var(--md-run, #46d07c)\", \"var(--md-ink-quiet, #8b98a3)\")"
                                       }
                                     }
                                   }
@@ -3552,7 +3564,7 @@
                           "style": {
                             "backgroundColor": "var(--neutral-10, #12171c)",
                             "borderRadius": "3px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "overflow": "hidden",
                             "minWidth": "0px",
                             "minHeight": "0px"
@@ -3572,7 +3584,7 @@
                             "props": {
                               "direction": "row",
                               "style": {
-                                "backgroundColor": "#46d07c",
+                                "backgroundColor": "var(--md-run, #46d07c)",
                                 "height": "100%",
                                 "width": "0%",
                                 "borderRadius": "3px",
@@ -3630,7 +3642,7 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "backgroundColor": "var(--neutral-30, #28313a)",
                                 "color": "var(--neutral-90, #dde4e9)",
                                 "padding": "0 10px",
@@ -3723,7 +3735,7 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "backgroundColor": "var(--neutral-30, #28313a)",
                                 "color": "var(--neutral-90, #dde4e9)",
                                 "padding": "0 10px",
@@ -3856,15 +3868,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#3a1d21",
-                                "color": "#ffb3b6",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-fault-bg, #3a1d21)",
+                                "color": "var(--md-fault-ink-3, #ffb3b6)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "40px",
-                                "borderColor": "#7a2a2f"
+                                "borderColor": "var(--md-fault-edge, #7a2a2f)"
                               }
                             },
                             "position": {
@@ -3896,15 +3908,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#3a301a",
-                                "color": "#f4dda2",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-warn-bg, #3a301a)",
+                                "color": "var(--md-warn-ink, #f4dda2)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "40px",
-                                "borderColor": "#7d6427"
+                                "borderColor": "var(--md-warn-line, #7d6427)"
                               }
                             },
                             "position": {
@@ -3965,7 +3977,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -3986,7 +3998,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -4014,7 +4026,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -4082,7 +4094,7 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "backgroundColor": "var(--neutral-30, #28313a)",
                                 "color": "var(--neutral-90, #dde4e9)",
                                 "padding": "0 10px",
@@ -4147,7 +4159,7 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "backgroundColor": "var(--neutral-30, #28313a)",
                                 "color": "var(--neutral-90, #dde4e9)",
                                 "padding": "0 10px",
@@ -4233,15 +4245,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#1c3b2a",
-                                "color": "#bff0d2",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-run-bg, #1c3b2a)",
+                                "color": "var(--md-run-ink, #bff0d2)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "42px",
-                                "borderColor": "#2c7a4a"
+                                "borderColor": "var(--md-run-line, #2c7a4a)"
                               }
                             },
                             "position": {
@@ -4299,15 +4311,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#3a1d21",
-                                "color": "#ffb3b6",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-fault-bg, #3a1d21)",
+                                "color": "var(--md-fault-ink-3, #ffb3b6)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "42px",
-                                "borderColor": "#7a2a2f"
+                                "borderColor": "var(--md-fault-edge, #7a2a2f)"
                               }
                             },
                             "position": {
@@ -4365,15 +4377,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#3a301a",
-                                "color": "#f4dda2",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-warn-bg, #3a301a)",
+                                "color": "var(--md-warn-ink, #f4dda2)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "42px",
-                                "borderColor": "#7d6427"
+                                "borderColor": "var(--md-warn-line, #7d6427)"
                               }
                             },
                             "position": {
@@ -4431,15 +4443,15 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
-                                "backgroundColor": "#152f3b",
-                                "color": "#cfeafa",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
                                 "padding": "0 10px",
                                 "whiteSpace": "normal",
                                 "lineHeight": "1.2",
                                 "textAlign": "center",
                                 "height": "42px",
-                                "borderColor": "#1e546c"
+                                "borderColor": "var(--md-info-line, #1e546c)"
                               }
                             },
                             "position": {
@@ -4500,7 +4512,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -4521,7 +4533,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -4549,7 +4561,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -4669,7 +4681,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[0].level} = \"CRITICAL\" || {view.custom.msgs[0].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[0].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[0].level} = \"CRITICAL\" || {view.custom.msgs[0].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[0].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -4792,7 +4804,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[1].level} = \"CRITICAL\" || {view.custom.msgs[1].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[1].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[1].level} = \"CRITICAL\" || {view.custom.msgs[1].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[1].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -4915,7 +4927,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[2].level} = \"CRITICAL\" || {view.custom.msgs[2].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[2].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[2].level} = \"CRITICAL\" || {view.custom.msgs[2].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[2].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -5038,7 +5050,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[3].level} = \"CRITICAL\" || {view.custom.msgs[3].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[3].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[3].level} = \"CRITICAL\" || {view.custom.msgs[3].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[3].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -5161,7 +5173,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[4].level} = \"CRITICAL\" || {view.custom.msgs[4].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[4].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[4].level} = \"CRITICAL\" || {view.custom.msgs[4].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[4].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -5284,7 +5296,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[5].level} = \"CRITICAL\" || {view.custom.msgs[5].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[5].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[5].level} = \"CRITICAL\" || {view.custom.msgs[5].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[5].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -5407,7 +5419,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[6].level} = \"CRITICAL\" || {view.custom.msgs[6].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[6].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[6].level} = \"CRITICAL\" || {view.custom.msgs[6].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[6].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -5530,7 +5542,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[7].level} = \"CRITICAL\" || {view.custom.msgs[7].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[7].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[7].level} = \"CRITICAL\" || {view.custom.msgs[7].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[7].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -5653,7 +5665,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[8].level} = \"CRITICAL\" || {view.custom.msgs[8].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[8].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[8].level} = \"CRITICAL\" || {view.custom.msgs[8].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[8].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -5776,7 +5788,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[9].level} = \"CRITICAL\" || {view.custom.msgs[9].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[9].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[9].level} = \"CRITICAL\" || {view.custom.msgs[9].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[9].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -5899,7 +5911,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[10].level} = \"CRITICAL\" || {view.custom.msgs[10].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[10].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[10].level} = \"CRITICAL\" || {view.custom.msgs[10].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[10].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -6022,7 +6034,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[11].level} = \"CRITICAL\" || {view.custom.msgs[11].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[11].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[11].level} = \"CRITICAL\" || {view.custom.msgs[11].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[11].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -6145,7 +6157,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[12].level} = \"CRITICAL\" || {view.custom.msgs[12].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[12].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[12].level} = \"CRITICAL\" || {view.custom.msgs[12].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[12].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -6268,7 +6280,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[13].level} = \"CRITICAL\" || {view.custom.msgs[13].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[13].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[13].level} = \"CRITICAL\" || {view.custom.msgs[13].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[13].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -6391,7 +6403,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[14].level} = \"CRITICAL\" || {view.custom.msgs[14].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[14].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[14].level} = \"CRITICAL\" || {view.custom.msgs[14].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[14].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -6514,7 +6526,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[15].level} = \"CRITICAL\" || {view.custom.msgs[15].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[15].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[15].level} = \"CRITICAL\" || {view.custom.msgs[15].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[15].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -6637,7 +6649,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[16].level} = \"CRITICAL\" || {view.custom.msgs[16].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[16].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[16].level} = \"CRITICAL\" || {view.custom.msgs[16].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[16].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -6760,7 +6772,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[17].level} = \"CRITICAL\" || {view.custom.msgs[17].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[17].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[17].level} = \"CRITICAL\" || {view.custom.msgs[17].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[17].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -6883,7 +6895,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[18].level} = \"CRITICAL\" || {view.custom.msgs[18].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[18].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[18].level} = \"CRITICAL\" || {view.custom.msgs[18].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[18].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -7006,7 +7018,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.msgs[19].level} = \"CRITICAL\" || {view.custom.msgs[19].level} = \"HIGH\", \"#f0565e\", if({view.custom.msgs[19].level} = \"MEDIUM\", \"#eebf5e\", \"#46d07c\"))"
+                                    "expression": "if({view.custom.msgs[19].level} = \"CRITICAL\" || {view.custom.msgs[19].level} = \"HIGH\", \"var(--md-fault, #f0565e)\", if({view.custom.msgs[19].level} = \"MEDIUM\", \"var(--md-warn, #eebf5e)\", \"var(--md-run, #46d07c)\"))"
                                   }
                                 }
                               }
@@ -7082,7 +7094,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -7103,7 +7115,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -7131,7 +7143,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -7241,7 +7253,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Robot/Fault}, false), \"#f0565e\", \"#46d07c\")"
+                                    "expression": "if(coalesce({[MachineDemo]Robot/Fault}, false), \"var(--md-fault, #f0565e)\", \"var(--md-run, #46d07c)\")"
                                   }
                                 }
                               }
@@ -7788,7 +7800,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "11.5px",
-                                "color": "#ff8d92",
+                                "color": "var(--md-fault-ink, #ff8d92)",
                                 "lineHeight": "15px"
                               }
                             },
@@ -7823,7 +7835,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -7844,7 +7856,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -7872,7 +7884,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -7920,7 +7932,7 @@
                           "style": {
                             "gap": "5px",
                             "backgroundColor": "var(--neutral-20, #20262d)",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "borderRadius": "6px",
                             "padding": "7px 9px",
                             "minWidth": "0px",
@@ -7980,7 +7992,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Present}, false), \"#46d07c\", \"#3a434b\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Present}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                       }
                                     }
                                   }
@@ -8036,7 +8048,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Complete}, false), \"#6cc4e8\", if(coalesce({[MachineDemo]Pallet/Station1/Present}, false), \"#46d07c\", \"#8b98a3\"))"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Complete}, false), \"var(--md-info, #6cc4e8)\", if(coalesce({[MachineDemo]Pallet/Station1/Present}, false), \"var(--md-run, #46d07c)\", \"var(--md-ink-quiet, #8b98a3)\"))"
                                       }
                                     }
                                   }
@@ -8137,7 +8149,7 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "backgroundColor": "var(--neutral-30, #28313a)",
                                 "color": "var(--neutral-90, #dde4e9)",
                                 "padding": "0 10px",
@@ -8202,7 +8214,7 @@
                           "style": {
                             "gap": "5px",
                             "backgroundColor": "var(--neutral-20, #20262d)",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "borderRadius": "6px",
                             "padding": "7px 9px",
                             "minWidth": "0px",
@@ -8262,7 +8274,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Present}, false), \"#46d07c\", \"#3a434b\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Present}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                       }
                                     }
                                   }
@@ -8318,7 +8330,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Complete}, false), \"#6cc4e8\", if(coalesce({[MachineDemo]Pallet/Station2/Present}, false), \"#46d07c\", \"#8b98a3\"))"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Complete}, false), \"var(--md-info, #6cc4e8)\", if(coalesce({[MachineDemo]Pallet/Station2/Present}, false), \"var(--md-run, #46d07c)\", \"var(--md-ink-quiet, #8b98a3)\"))"
                                       }
                                     }
                                   }
@@ -8419,7 +8431,7 @@
                                 "fontWeight": 700,
                                 "letterSpacing": "0.5px",
                                 "borderRadius": "6px",
-                                "border": "1px solid #2c343d",
+                                "border": "1px solid var(--md-line, #2c343d)",
                                 "backgroundColor": "var(--neutral-30, #28313a)",
                                 "color": "var(--neutral-90, #dde4e9)",
                                 "padding": "0 10px",
@@ -8522,7 +8534,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Clear}, false), \"#46d07c\", \"#eebf5e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Clear}, false), \"var(--md-run, #46d07c)\", \"var(--md-warn, #eebf5e)\")"
                                   }
                                 }
                               }
@@ -8600,7 +8612,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/ScanOK}, false), \"#46d07c\", \"#eebf5e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/ScanOK}, false), \"var(--md-run, #46d07c)\", \"var(--md-warn, #eebf5e)\")"
                                   }
                                 }
                               }
@@ -8709,7 +8721,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Infeed}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Infeed}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -8787,7 +8799,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos1}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos1}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -8865,7 +8877,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos2}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos2}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -8943,7 +8955,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Clamp_Extended}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Clamp_Extended}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -9009,7 +9021,7 @@
           "direction": "row",
           "style": {
             "backgroundColor": "var(--neutral-20, #1d232a)",
-            "borderTop": "1px solid #2c343d",
+            "borderTop": "1px solid var(--md-line, #2c343d)",
             "padding": "0 16px",
             "gap": "12px",
             "minWidth": "0px",
@@ -9050,7 +9062,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "if({view.custom.canMove}, \"#46d07c\", \"#eebf5e\")"
+                    "expression": "if({view.custom.canMove}, \"var(--md-run, #46d07c)\", \"var(--md-warn, #eebf5e)\")"
                   }
                 }
               }
@@ -9088,7 +9100,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "if({view.custom.canMove}, \"#b7c2ca\", \"#eebf5e\")"
+                    "expression": "if({view.custom.canMove}, \"var(--md-ink-soft, #b7c2ca)\", \"var(--md-warn, #eebf5e)\")"
                   }
                 }
               }
@@ -9126,7 +9138,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "if({view.custom.canMove}, \"#46d07c\", \"#eebf5e\")"
+                    "expression": "if({view.custom.canMove}, \"var(--md-run, #46d07c)\", \"var(--md-warn, #eebf5e)\")"
                   }
                 }
               }
@@ -9173,7 +9185,7 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "if({view.custom.canMove}, \"#1d232a\", \"#2b2418\")"
+                "expression": "if({view.custom.canMove}, \"var(--md-panel, #1d232a)\", \"var(--md-warn-bg-2, #2b2418)\")"
               }
             }
           },
@@ -9181,7 +9193,7 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "if({view.custom.canMove}, \"#2c343d\", \"#7d6427\")"
+                "expression": "if({view.custom.canMove}, \"var(--md-line, #2c343d)\", \"var(--md-warn-line, #7d6427)\")"
               }
             }
           }

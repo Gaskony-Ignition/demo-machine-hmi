@@ -19,7 +19,7 @@
         "height": "100%",
         "overflow": "hidden",
         "minHeight": "0",
-        "backgroundColor": "#171b20"
+        "backgroundColor": "var(--md-bg, #171b20)"
       }
     },
     "children": [
@@ -35,8 +35,8 @@
           "direction": "row",
           "alignItems": "center",
           "style": {
-            "backgroundColor": "#1d232a",
-            "borderBottom": "1px solid #2c343d",
+            "backgroundColor": "var(--md-panel, #1d232a)",
+            "borderBottom": "1px solid var(--md-line, #2c343d)",
             "padding": "9px 16px",
             "gap": "14px"
           }
@@ -66,7 +66,7 @@
                   "text": "Zone 2 \u00b7 Robot Cell 2 \u2014 Stock components",
                   "style": {
                     "fontSize": "16px",
-                    "color": "#f2f6f8",
+                    "color": "var(--md-ink-max, #f2f6f8)",
                     "fontWeight": "bold"
                   }
                 },
@@ -83,7 +83,7 @@
                   "text": "The same robot, the same tags, built entirely in the Designer with no JavaScript",
                   "style": {
                     "fontSize": "11.5px",
-                    "color": "#8b98a3",
+                    "color": "var(--md-ink-quiet, #8b98a3)",
                     "fontWeight": "normal"
                   }
                 },
@@ -110,9 +110,9 @@
                 "textTransform": "uppercase",
                 "borderRadius": "4px",
                 "padding": "3px 9px",
-                "backgroundColor": "#14313e",
-                "color": "#6cc4e8",
-                "border": "1px solid #1e546c"
+                "backgroundColor": "var(--md-info-bg-2, #14313e)",
+                "color": "var(--md-info, #6cc4e8)",
+                "border": "1px solid var(--md-info-line, #1e546c)"
               }
             },
             "propConfig": {
@@ -138,9 +138,9 @@
             "props": {
               "text": "Overview",
               "style": {
-                "backgroundColor": "#262e36",
-                "color": "#cdd6dd",
-                "border": "1px solid #38424c",
+                "backgroundColor": "var(--md-well, #262e36)",
+                "color": "var(--md-ink-mid, #cdd6dd)",
+                "border": "1px solid var(--md-line-soft, #38424c)",
                 "borderRadius": "7px",
                 "fontWeight": "bold",
                 "fontSize": "12.5px",
@@ -177,7 +177,7 @@
         "props": {
           "mode": "fixed",
           "style": {
-            "backgroundColor": "#171b20",
+            "backgroundColor": "var(--md-bg, #171b20)",
             "overflow": "hidden",
             "minHeight": "0px"
           }
@@ -197,7 +197,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#7d8894"
+                "backgroundColor": "var(--md-steel, #7d8894)"
               }
             }
           },
@@ -215,7 +215,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#22282f"
+                "backgroundColor": "var(--md-floor, #22282f)"
               }
             }
           },
@@ -233,7 +233,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#7d8894",
+                "backgroundColor": "var(--md-steel, #7d8894)",
                 "borderRadius": "4px"
               }
             }
@@ -252,7 +252,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#98a4b1",
+                "backgroundColor": "var(--md-steel-hi, #98a4b1)",
                 "borderRadius": "3px"
               }
             }
@@ -271,7 +271,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#98a4b1",
+                "backgroundColor": "var(--md-steel-hi, #98a4b1)",
                 "borderRadius": "3px"
               }
             }
@@ -290,7 +290,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#7d8894"
+                "backgroundColor": "var(--md-steel, #7d8894)"
               }
             }
           },
@@ -308,7 +308,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#2b323a"
+                "backgroundColor": "var(--md-grid, #2b323a)"
               }
             }
           },
@@ -326,7 +326,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#2b323a"
+                "backgroundColor": "var(--md-grid, #2b323a)"
               }
             }
           },
@@ -344,7 +344,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#8a6b41",
+                "backgroundColor": "var(--md-pallet-deck, #8a6b41)",
                 "borderRadius": "2px"
               }
             }
@@ -363,7 +363,7 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#98a4b1",
+                "backgroundColor": "var(--md-steel-hi, #98a4b1)",
                 "borderRadius": "4px"
               }
             },
@@ -393,7 +393,7 @@
             "props": {
               "mode": "fixed",
               "style": {
-                "backgroundColor": "#c8ced5",
+                "backgroundColor": "var(--md-arm, #c8ced5)",
                 "borderRadius": "13px",
                 "overflow": "visible",
                 "transformOrigin": "13px 13px"
@@ -414,7 +414,7 @@
                 },
                 "props": {
                   "style": {
-                    "backgroundColor": "#5a646f",
+                    "backgroundColor": "var(--md-joint, #5a646f)",
                     "borderRadius": "50%"
                   }
                 }
@@ -434,7 +434,7 @@
                 "props": {
                   "mode": "fixed",
                   "style": {
-                    "backgroundColor": "#aab3bd",
+                    "backgroundColor": "var(--md-arm-2, #aab3bd)",
                     "borderRadius": "11px",
                     "overflow": "visible",
                     "transformOrigin": "11px 11px"
@@ -455,7 +455,7 @@
                     },
                     "props": {
                       "style": {
-                        "backgroundColor": "#5a646f",
+                        "backgroundColor": "var(--md-joint, #5a646f)",
                         "borderRadius": "50%"
                       }
                     }
@@ -474,7 +474,7 @@
                     },
                     "props": {
                       "style": {
-                        "backgroundColor": "#5a646f",
+                        "backgroundColor": "var(--md-joint, #5a646f)",
                         "borderRadius": "3px"
                       }
                     }
@@ -493,8 +493,8 @@
                     },
                     "props": {
                       "style": {
-                        "backgroundColor": "#b98a4e",
-                        "border": "1px solid #8d6836",
+                        "backgroundColor": "var(--md-case, #b98a4e)",
+                        "border": "1px solid var(--md-case-line, #8d6836)",
                         "borderRadius": "2px"
                       }
                     },
@@ -547,8 +547,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -577,8 +577,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -607,8 +607,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -637,8 +637,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -667,8 +667,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#a8793f",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case-alt, #a8793f)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -697,8 +697,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#a8793f",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case-alt, #a8793f)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -727,8 +727,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#a8793f",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case-alt, #a8793f)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -757,8 +757,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#a8793f",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case-alt, #a8793f)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -787,8 +787,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -817,8 +817,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -847,8 +847,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -877,8 +877,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -907,8 +907,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#a8793f",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case-alt, #a8793f)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -937,8 +937,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#a8793f",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case-alt, #a8793f)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -967,8 +967,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#a8793f",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case-alt, #a8793f)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -997,8 +997,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#a8793f",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case-alt, #a8793f)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -1027,8 +1027,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -1057,8 +1057,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -1087,8 +1087,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -1117,8 +1117,8 @@
             },
             "props": {
               "style": {
-                "backgroundColor": "#b98a4e",
-                "border": "1px solid #8d6836",
+                "backgroundColor": "var(--md-case, #b98a4e)",
+                "border": "1px solid var(--md-case-line, #8d6836)",
                 "borderRadius": "2px"
               }
             },
@@ -1148,7 +1148,7 @@
             "props": {
               "text": "",
               "style": {
-                "color": "#5fd08a",
+                "color": "var(--md-run-soft, #5fd08a)",
                 "fontSize": "13px"
               }
             },

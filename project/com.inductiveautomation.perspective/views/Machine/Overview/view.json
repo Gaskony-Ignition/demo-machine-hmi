@@ -45,7 +45,7 @@
           "direction": "row",
           "style": {
             "backgroundColor": "var(--neutral-20, #1d232a)",
-            "borderBottom": "1px solid #2c343d",
+            "borderBottom": "1px solid var(--md-line, #2c343d)",
             "minWidth": "0px",
             "minHeight": "0px",
             "classes": "hdr-bar"
@@ -196,7 +196,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if(coalesce({[MachineDemo]Line/Running}, false), \"#8b98a3\", \"#eebf5e\")"
+                        "expression": "if(coalesce({[MachineDemo]Line/Running}, false), \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-warn, #eebf5e)\")"
                       }
                     }
                   }
@@ -237,7 +237,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if(coalesce({[MachineDemo]Line/Mode}, \"Auto\") = \"Manual\", \"#eebf5e\", \"#6cc4e8\")"
+                        "expression": "if(coalesce({[MachineDemo]Line/Mode}, \"Auto\") = \"Manual\", \"var(--md-warn, #eebf5e)\", \"var(--md-info, #6cc4e8)\")"
                       }
                     }
                   }
@@ -278,7 +278,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if(coalesce({view.custom.alm.active}, 0) > 0, \"#f0565e\", if(coalesce({view.custom.alm.n}, 0) > 0, \"#eebf5e\", \"#8b98a3\"))"
+                        "expression": "if(coalesce({view.custom.alm.active}, 0) > 0, \"var(--md-fault, #f0565e)\", if(coalesce({view.custom.alm.n}, 0) > 0, \"var(--md-warn, #eebf5e)\", \"var(--md-ink-quiet, #8b98a3)\"))"
                       }
                     }
                   }
@@ -323,9 +323,9 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #6cc4e8",
-                    "color": "#cfeafa",
-                    "backgroundColor": "#152f3b",
+                    "border": "1px solid var(--md-info, #6cc4e8)",
+                    "color": "var(--md-info-ink-2, #cfeafa)",
+                    "backgroundColor": "var(--md-info-bg, #152f3b)",
                     "classes": "nav-tab"
                   }
                 },
@@ -362,7 +362,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -401,7 +401,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -440,7 +440,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -479,7 +479,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -518,7 +518,7 @@
                     "borderRadius": "5px",
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "color": "var(--neutral-60, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
@@ -567,6 +567,18 @@
                 {
                   "value": "dark-warm",
                   "label": "Dark warm"
+                },
+                {
+                  "value": "light",
+                  "label": "Light"
+                },
+                {
+                  "value": "light-cool",
+                  "label": "Light cool"
+                },
+                {
+                  "value": "light-warm",
+                  "label": "Light warm"
                 }
               ],
               "placeholder": "Theme",
@@ -719,7 +731,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -740,7 +752,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -768,7 +780,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -877,8 +889,8 @@
                               "direction": "row",
                               "style": {
                                 "backgroundColor": "var(--neutral-30, #232a31)",
-                                "backgroundImage": "repeating-linear-gradient(90deg,#232a31 0 6px,#39434c 6px 7.5px)",
-                                "border": "1px solid #3b4650",
+                                "backgroundImage": "repeating-linear-gradient(90deg,var(--md-inset, #232a31) 0 6px,var(--md-edge, #39434c) 6px 7.5px)",
+                                "border": "1px solid var(--md-rule, #3b4650)",
                                 "borderRadius": "4px",
                                 "minWidth": "0px",
                                 "minHeight": "0px"
@@ -920,7 +932,7 @@
                                   "text": "\u25b6",
                                   "style": {
                                     "fontSize": "12px",
-                                    "color": "var(--neutral-60, #74808a)",
+                                    "color": "var(--md-arrow, #74808a)",
                                     "lineHeight": "24px"
                                   }
                                 },
@@ -945,7 +957,7 @@
                                 "minWidth": "0px",
                                 "minHeight": "0px",
                                 "backgroundColor": "var(--neutral-20, #20262d)",
-                                "border": "1.5px solid #39434c",
+                                "border": "1.5px solid var(--md-edge, #39434c)",
                                 "borderRadius": "8px",
                                 "cursor": "pointer",
                                 "overflow": "hidden"
@@ -1026,7 +1038,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z1/Running}, \"#8b98a3\", \"#74808a\"))"
+                                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z1/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                                       }
                                     }
                                   }
@@ -1059,7 +1071,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0) > 0, \"#46d07c\", \"#262e36\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0) > 0, \"var(--md-run, #46d07c)\", \"var(--md-well, #262e36)\")"
                                       }
                                     }
                                   }
@@ -1092,7 +1104,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0) > 1, \"#46d07c\", \"#262e36\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0) > 1, \"var(--md-run, #46d07c)\", \"var(--md-well, #262e36)\")"
                                       }
                                     }
                                   }
@@ -1125,7 +1137,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0) > 2, \"#46d07c\", \"#262e36\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0) > 2, \"var(--md-run, #46d07c)\", \"var(--md-well, #262e36)\")"
                                       }
                                     }
                                   }
@@ -1158,7 +1170,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0) > 3, \"#46d07c\", \"#262e36\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0) > 3, \"var(--md-run, #46d07c)\", \"var(--md-well, #262e36)\")"
                                       }
                                     }
                                   }
@@ -1191,7 +1203,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0) > 4, \"#46d07c\", \"#262e36\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station1/Layer}, 0) > 4, \"var(--md-run, #46d07c)\", \"var(--md-well, #262e36)\")"
                                       }
                                     }
                                   }
@@ -1229,7 +1241,7 @@
                                     "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                     "fontSize": "26px",
                                     "fontWeight": 700,
-                                    "color": "#7ee2d2",
+                                    "color": "var(--md-teal, #7ee2d2)",
                                     "textAlign": "right",
                                     "lineHeight": "1",
                                     "whiteSpace": "nowrap",
@@ -1290,7 +1302,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#2e1a1d\", \"#20262d\")"
+                                    "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-card, #20262d)\")"
                                   }
                                 }
                               },
@@ -1298,7 +1310,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", \"#39434c\")"
+                                    "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -1328,7 +1340,7 @@
                                 "minWidth": "0px",
                                 "minHeight": "0px",
                                 "backgroundColor": "var(--neutral-20, #20262d)",
-                                "border": "1.5px solid #39434c",
+                                "border": "1.5px solid var(--md-edge, #39434c)",
                                 "borderRadius": "8px",
                                 "cursor": "pointer",
                                 "overflow": "hidden"
@@ -1409,7 +1421,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z2/Running}, \"#8b98a3\", \"#74808a\"))"
+                                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z2/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                                       }
                                     }
                                   }
@@ -1442,7 +1454,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0) > 0, \"#46d07c\", \"#262e36\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0) > 0, \"var(--md-run, #46d07c)\", \"var(--md-well, #262e36)\")"
                                       }
                                     }
                                   }
@@ -1475,7 +1487,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0) > 1, \"#46d07c\", \"#262e36\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0) > 1, \"var(--md-run, #46d07c)\", \"var(--md-well, #262e36)\")"
                                       }
                                     }
                                   }
@@ -1508,7 +1520,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0) > 2, \"#46d07c\", \"#262e36\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0) > 2, \"var(--md-run, #46d07c)\", \"var(--md-well, #262e36)\")"
                                       }
                                     }
                                   }
@@ -1541,7 +1553,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0) > 3, \"#46d07c\", \"#262e36\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0) > 3, \"var(--md-run, #46d07c)\", \"var(--md-well, #262e36)\")"
                                       }
                                     }
                                   }
@@ -1574,7 +1586,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0) > 4, \"#46d07c\", \"#262e36\")"
+                                        "expression": "if(coalesce({[MachineDemo]Pallet/Station2/Layer}, 0) > 4, \"var(--md-run, #46d07c)\", \"var(--md-well, #262e36)\")"
                                       }
                                     }
                                   }
@@ -1612,7 +1624,7 @@
                                     "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                     "fontSize": "26px",
                                     "fontWeight": 700,
-                                    "color": "#7ee2d2",
+                                    "color": "var(--md-teal, #7ee2d2)",
                                     "textAlign": "right",
                                     "lineHeight": "1",
                                     "whiteSpace": "nowrap",
@@ -1673,7 +1685,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#2e1a1d\", \"#20262d\")"
+                                    "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-card, #20262d)\")"
                                   }
                                 }
                               },
@@ -1681,7 +1693,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", \"#39434c\")"
+                                    "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -1711,7 +1723,7 @@
                                 "minWidth": "0px",
                                 "minHeight": "0px",
                                 "backgroundColor": "var(--neutral-20, #20262d)",
-                                "border": "1.5px solid #39434c",
+                                "border": "1.5px solid var(--md-edge, #39434c)",
                                 "borderRadius": "8px",
                                 "cursor": "pointer",
                                 "overflow": "hidden"
@@ -1792,7 +1804,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z3/Running}, \"#8b98a3\", \"#74808a\"))"
+                                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z3/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                                       }
                                     }
                                   }
@@ -1880,7 +1892,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Robot/Healthy}, false), \"#46d07c\", \"#eebf5e\")"
+                                        "expression": "if(coalesce({[MachineDemo]Robot/Healthy}, false), \"var(--md-run, #46d07c)\", \"var(--md-warn, #eebf5e)\")"
                                       }
                                     }
                                   }
@@ -1892,7 +1904,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#2e1a1d\", \"#20262d\")"
+                                    "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-card, #20262d)\")"
                                   }
                                 }
                               },
@@ -1900,7 +1912,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", \"#39434c\")"
+                                    "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -1930,7 +1942,7 @@
                                 "minWidth": "0px",
                                 "minHeight": "0px",
                                 "backgroundColor": "var(--neutral-20, #20262d)",
-                                "border": "1.5px solid #39434c",
+                                "border": "1.5px solid var(--md-edge, #39434c)",
                                 "borderRadius": "8px",
                                 "cursor": "pointer",
                                 "overflow": "hidden"
@@ -2011,7 +2023,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z4/Running}, \"#8b98a3\", \"#74808a\"))"
+                                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z4/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                                       }
                                     }
                                   }
@@ -2099,7 +2111,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Robot/Healthy}, false), \"#46d07c\", \"#eebf5e\")"
+                                        "expression": "if(coalesce({[MachineDemo]Robot/Healthy}, false), \"var(--md-run, #46d07c)\", \"var(--md-warn, #eebf5e)\")"
                                       }
                                     }
                                   }
@@ -2111,7 +2123,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#2e1a1d\", \"#20262d\")"
+                                    "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-card, #20262d)\")"
                                   }
                                 }
                               },
@@ -2119,7 +2131,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", \"#39434c\")"
+                                    "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -2167,8 +2179,8 @@
                               "direction": "row",
                               "style": {
                                 "backgroundColor": "var(--neutral-30, #232a31)",
-                                "backgroundImage": "repeating-linear-gradient(90deg,#232a31 0 6px,#39434c 6px 7.5px)",
-                                "border": "1px solid #3b4650",
+                                "backgroundImage": "repeating-linear-gradient(90deg,var(--md-inset, #232a31) 0 6px,var(--md-edge, #39434c) 6px 7.5px)",
+                                "border": "1px solid var(--md-rule, #3b4650)",
                                 "borderRadius": "4px",
                                 "minWidth": "0px",
                                 "minHeight": "0px"
@@ -2191,8 +2203,8 @@
                             "props": {
                               "direction": "row",
                               "style": {
-                                "backgroundColor": "#14313e",
-                                "border": "1px solid #1e546c",
+                                "backgroundColor": "var(--md-info-bg-2, #14313e)",
+                                "border": "1px solid var(--md-info-line, #1e546c)",
                                 "borderRadius": "5px",
                                 "padding": "0 6px",
                                 "minWidth": "0px",
@@ -2217,7 +2229,7 @@
                                   "text": "CAR 1",
                                   "style": {
                                     "fontSize": "9px",
-                                    "color": "#6cc4e8",
+                                    "color": "var(--md-info, #6cc4e8)",
                                     "letterSpacing": "0.6px"
                                   }
                                 },
@@ -2242,7 +2254,7 @@
                                 "minWidth": "0px",
                                 "minHeight": "0px",
                                 "backgroundColor": "var(--neutral-20, #20262d)",
-                                "border": "2px solid #39434c",
+                                "border": "2px solid var(--md-edge, #39434c)",
                                 "borderRadius": "8px",
                                 "cursor": "pointer",
                                 "overflow": "hidden"
@@ -2323,7 +2335,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z5/Running}, \"#8b98a3\", \"#74808a\"))"
+                                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z5/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                                       }
                                     }
                                   }
@@ -2357,7 +2369,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/WrapperFilmFeed}, false), \"#f0565e\", \"#46d07c\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/WrapperFilmFeed}, false), \"var(--md-fault, #f0565e)\", \"var(--md-run, #46d07c)\")"
                                       }
                                     }
                                   }
@@ -2394,7 +2406,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Faults/WrapperFilmFeed}, false), \"#ff8d92\", \"#b7c2ca\")"
+                                        "expression": "if(coalesce({[MachineDemo]Faults/WrapperFilmFeed}, false), \"var(--md-fault-ink, #ff8d92)\", \"var(--md-ink-soft, #b7c2ca)\")"
                                       }
                                     }
                                   }
@@ -2428,7 +2440,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Safety/GuardsClosed}, false), \"#46d07c\", \"#f0565e\")"
+                                        "expression": "if(coalesce({[MachineDemo]Safety/GuardsClosed}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                       }
                                     }
                                   }
@@ -2470,7 +2482,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#2e1a1d\", \"#20262d\")"
+                                    "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-card, #20262d)\")"
                                   }
                                 }
                               },
@@ -2478,7 +2490,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", \"#39434c\")"
+                                    "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -2526,8 +2538,8 @@
                               "direction": "row",
                               "style": {
                                 "backgroundColor": "var(--neutral-30, #232a31)",
-                                "backgroundImage": "repeating-linear-gradient(90deg,#232a31 0 6px,#39434c 6px 7.5px)",
-                                "border": "1px solid #3b4650",
+                                "backgroundImage": "repeating-linear-gradient(90deg,var(--md-inset, #232a31) 0 6px,var(--md-edge, #39434c) 6px 7.5px)",
+                                "border": "1px solid var(--md-rule, #3b4650)",
                                 "borderRadius": "4px",
                                 "minWidth": "0px",
                                 "minHeight": "0px"
@@ -2569,7 +2581,7 @@
                                   "text": "\u25b6",
                                   "style": {
                                     "fontSize": "12px",
-                                    "color": "var(--neutral-60, #74808a)",
+                                    "color": "var(--md-arrow, #74808a)",
                                     "lineHeight": "24px"
                                   }
                                 },
@@ -2589,7 +2601,7 @@
                             "props": {
                               "direction": "row",
                               "style": {
-                                "backgroundColor": "#7a5b2e",
+                                "backgroundColor": "var(--md-pallet, #7a5b2e)",
                                 "borderRadius": "2px",
                                 "minWidth": "0px",
                                 "minHeight": "0px"
@@ -2611,7 +2623,7 @@
                             "props": {
                               "direction": "row",
                               "style": {
-                                "backgroundColor": "#7a5b2e",
+                                "backgroundColor": "var(--md-pallet, #7a5b2e)",
                                 "borderRadius": "2px",
                                 "minWidth": "0px",
                                 "minHeight": "0px"
@@ -2633,7 +2645,7 @@
                             "props": {
                               "direction": "row",
                               "style": {
-                                "backgroundColor": "#7a5b2e",
+                                "backgroundColor": "var(--md-pallet, #7a5b2e)",
                                 "borderRadius": "2px",
                                 "minWidth": "0px",
                                 "minHeight": "0px"
@@ -2696,7 +2708,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Safety/EStopOK}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Safety/EStopOK}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -2751,7 +2763,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Safety/GuardsClosed}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Safety/GuardsClosed}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -2806,7 +2818,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Safety/AirPressureOK}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Safety/AirPressureOK}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -2861,7 +2873,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Safety/InterfacesOK}, false), \"#46d07c\", \"#f0565e\")"
+                                    "expression": "if(coalesce({[MachineDemo]Safety/InterfacesOK}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                   }
                                 }
                               }
@@ -2935,7 +2947,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
@@ -2956,7 +2968,7 @@
                     "props": {
                       "direction": "row",
                       "style": {
-                        "borderBottom": "1px solid #2c343d",
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
                         "minHeight": "0px"
@@ -2984,7 +2996,7 @@
                             "color": "var(--neutral-60, #8b98a3)",
                             "padding": "0 12px",
                             "lineHeight": "30px",
-                            "borderBottom": "1px solid #2c343d",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
                             "textOverflow": "ellipsis",
@@ -3110,7 +3122,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Conveyor/C1_Run}, false), \"#46d07c\", \"#3a434b\")"
+                                        "expression": "if(coalesce({[MachineDemo]Conveyor/C1_Run}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                       }
                                     }
                                   }
@@ -3178,8 +3190,8 @@
                               "direction": "row",
                               "style": {
                                 "backgroundColor": "var(--neutral-30, #232a31)",
-                                "backgroundImage": "repeating-linear-gradient(90deg,#232a31 0 6px,#39434c 6px 7.5px)",
-                                "border": "1px solid #3b4650",
+                                "backgroundImage": "repeating-linear-gradient(90deg,var(--md-inset, #232a31) 0 6px,var(--md-edge, #39434c) 6px 7.5px)",
+                                "border": "1px solid var(--md-rule, #3b4650)",
                                 "borderRadius": "4px",
                                 "minWidth": "0px",
                                 "minHeight": "0px"
@@ -3241,7 +3253,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Conveyor/C2_Run}, false), \"#46d07c\", \"#3a434b\")"
+                                        "expression": "if(coalesce({[MachineDemo]Conveyor/C2_Run}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                       }
                                     }
                                   }
@@ -3309,8 +3321,8 @@
                               "direction": "row",
                               "style": {
                                 "backgroundColor": "var(--neutral-30, #232a31)",
-                                "backgroundImage": "repeating-linear-gradient(90deg,#232a31 0 6px,#39434c 6px 7.5px)",
-                                "border": "1px solid #3b4650",
+                                "backgroundImage": "repeating-linear-gradient(90deg,var(--md-inset, #232a31) 0 6px,var(--md-edge, #39434c) 6px 7.5px)",
+                                "border": "1px solid var(--md-rule, #3b4650)",
                                 "borderRadius": "4px",
                                 "minWidth": "0px",
                                 "minHeight": "0px"
@@ -3372,7 +3384,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Conveyor/C3_Run}, false), \"#46d07c\", \"#3a434b\")"
+                                        "expression": "if(coalesce({[MachineDemo]Conveyor/C3_Run}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                       }
                                     }
                                   }
@@ -3440,8 +3452,8 @@
                               "direction": "row",
                               "style": {
                                 "backgroundColor": "var(--neutral-30, #232a31)",
-                                "backgroundImage": "repeating-linear-gradient(90deg,#232a31 0 6px,#39434c 6px 7.5px)",
-                                "border": "1px solid #3b4650",
+                                "backgroundImage": "repeating-linear-gradient(90deg,var(--md-inset, #232a31) 0 6px,var(--md-edge, #39434c) 6px 7.5px)",
+                                "border": "1px solid var(--md-rule, #3b4650)",
                                 "borderRadius": "4px",
                                 "minWidth": "0px",
                                 "minHeight": "0px"
@@ -3483,7 +3495,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Infeed}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Infeed}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -3514,7 +3526,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Infeed}, false), \"#46d07c\", \"#39434c\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Infeed}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -3570,7 +3582,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Carton}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Carton}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -3601,7 +3613,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Carton}, false), \"#46d07c\", \"#39434c\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Carton}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -3657,7 +3669,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Length1}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Length1}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -3688,7 +3700,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Length1}, false), \"#46d07c\", \"#39434c\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Length1}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -3744,7 +3756,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Length2}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Length2}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -3775,7 +3787,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Length2}, false), \"#46d07c\", \"#39434c\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Length2}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -3831,7 +3843,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos1}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos1}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -3862,7 +3874,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos1}, false), \"#46d07c\", \"#39434c\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos1}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -3918,7 +3930,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos2}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos2}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -3949,7 +3961,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos2}, false), \"#46d07c\", \"#39434c\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos2}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -4005,7 +4017,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Clear}, false), \"#46d07c\", \"#3a434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Clear}, false), \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\")"
                                   }
                                 }
                               }
@@ -4036,7 +4048,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Clear}, false), \"#46d07c\", \"#39434c\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Clear}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
                               }
@@ -4090,7 +4102,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Gate1_Up}, false), \"#eebf5e\", \"#39434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Gate1_Up}, false), \"var(--md-warn, #eebf5e)\", \"var(--md-gate-off, #39434b)\")"
                                   }
                                 }
                               }
@@ -4129,7 +4141,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Gate1_Up}, false), \"#eebf5e\", \"#74808a\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Gate1_Up}, false), \"var(--md-warn, #eebf5e)\", \"var(--md-ink-dim, #74808a)\")"
                                   }
                                 }
                               }
@@ -4161,7 +4173,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Gate2_Up}, false), \"#eebf5e\", \"#39434b\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Gate2_Up}, false), \"var(--md-warn, #eebf5e)\", \"var(--md-gate-off, #39434b)\")"
                                   }
                                 }
                               }
@@ -4200,7 +4212,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Gate2_Up}, false), \"#eebf5e\", \"#74808a\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Gate2_Up}, false), \"var(--md-warn, #eebf5e)\", \"var(--md-ink-dim, #74808a)\")"
                                   }
                                 }
                               }
@@ -4232,7 +4244,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Clamp_Extended}, false), \"#46d07c\", \"#4a5560\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Clamp_Extended}, false), \"var(--md-run, #46d07c)\", \"var(--md-clamp-off, #4a5560)\")"
                                   }
                                 }
                               }
@@ -4264,7 +4276,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Clamp_Extended}, false), \"#46d07c\", \"#4a5560\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Clamp_Extended}, false), \"var(--md-run, #46d07c)\", \"var(--md-clamp-off, #4a5560)\")"
                                   }
                                 }
                               }
@@ -4302,7 +4314,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Clamp_Extended}, false), \"#46d07c\", \"#74808a\")"
+                                    "expression": "if(coalesce({[MachineDemo]Conveyor/Clamp_Extended}, false), \"var(--md-run, #46d07c)\", \"var(--md-ink-dim, #74808a)\")"
                                   }
                                 }
                               }
@@ -4356,7 +4368,7 @@
                                     "binding": {
                                       "type": "expr",
                                       "config": {
-                                        "expression": "if(coalesce({[MachineDemo]Conveyor/ScanOK}, false), \"#46d07c\", \"#f0565e\")"
+                                        "expression": "if(coalesce({[MachineDemo]Conveyor/ScanOK}, false), \"var(--md-run, #46d07c)\", \"var(--md-fault, #f0565e)\")"
                                       }
                                     }
                                   }
@@ -4424,7 +4436,7 @@
                               "text": "\u25b6",
                               "style": {
                                 "fontSize": "13px",
-                                "color": "var(--neutral-60, #74808a)"
+                                "color": "var(--md-arrow, #74808a)"
                               }
                             },
                             "position": {
@@ -4474,7 +4486,7 @@
                   "style": {
                     "gap": "10px",
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "6px",
                     "padding": "4px 10px",
                     "minWidth": "0px",
@@ -4610,7 +4622,7 @@
                             "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                             "fontSize": "21px",
                             "fontWeight": 700,
-                            "color": "#7ee2d2",
+                            "color": "var(--md-teal, #7ee2d2)",
                             "lineHeight": "24px",
                             "textAlign": "right",
                             "whiteSpace": "nowrap",
@@ -4668,7 +4680,7 @@
                         "fontWeight": 700,
                         "letterSpacing": "0.5px",
                         "borderRadius": "6px",
-                        "border": "1px solid #2c343d",
+                        "border": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-30, #232a31)",
                         "color": "var(--neutral-80, #b7c2ca)",
                         "padding": "0 10px",
@@ -4708,15 +4720,15 @@
                         "fontWeight": 700,
                         "letterSpacing": "0.5px",
                         "borderRadius": "6px",
-                        "border": "1px solid #2c343d",
-                        "backgroundColor": "#3a1d21",
-                        "color": "#ffb3b6",
+                        "border": "1px solid var(--md-line, #2c343d)",
+                        "backgroundColor": "var(--md-fault-bg, #3a1d21)",
+                        "color": "var(--md-fault-ink-3, #ffb3b6)",
                         "padding": "0 10px",
                         "whiteSpace": "normal",
                         "lineHeight": "1.2",
                         "textAlign": "center",
                         "height": "44px",
-                        "borderColor": "#7a2a2f"
+                        "borderColor": "var(--md-fault-edge, #7a2a2f)"
                       }
                     },
                     "position": {
@@ -4747,7 +4759,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "6px",
                     "padding": "5px 8px",
                     "gap": "4px",
@@ -4808,7 +4820,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z1/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z1/Running}, \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\"))"
                               }
                             }
                           }
@@ -4891,7 +4903,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z1/Running}, \"#8b98a3\", \"#74808a\"))"
+                                "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z1/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                               }
                             }
                           }
@@ -4930,15 +4942,15 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #262e36)",
-                            "color": "#e59aa0",
+                            "color": "var(--md-fault-ink-2, #e59aa0)",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#4a3338"
+                            "borderColor": "var(--md-fault-edge-2, #4a3338)"
                           }
                         },
                         "position": {
@@ -4970,7 +4982,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #232a31)",
                             "color": "var(--neutral-80, #b7c2ca)",
                             "padding": "0 10px",
@@ -5006,7 +5018,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-panel, #1d232a)\")"
                       }
                     }
                   },
@@ -5014,7 +5026,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"#f0565e\", \"#2c343d\")"
+                        "expression": "if({[MachineDemo]Zones/Z1/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-line, #2c343d)\")"
                       }
                     }
                   }
@@ -5029,7 +5041,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "6px",
                     "padding": "5px 8px",
                     "gap": "4px",
@@ -5090,7 +5102,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z2/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z2/Running}, \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\"))"
                               }
                             }
                           }
@@ -5173,7 +5185,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z2/Running}, \"#8b98a3\", \"#74808a\"))"
+                                "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z2/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                               }
                             }
                           }
@@ -5212,15 +5224,15 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #262e36)",
-                            "color": "#e59aa0",
+                            "color": "var(--md-fault-ink-2, #e59aa0)",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#4a3338"
+                            "borderColor": "var(--md-fault-edge-2, #4a3338)"
                           }
                         },
                         "position": {
@@ -5252,7 +5264,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #232a31)",
                             "color": "var(--neutral-80, #b7c2ca)",
                             "padding": "0 10px",
@@ -5288,7 +5300,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-panel, #1d232a)\")"
                       }
                     }
                   },
@@ -5296,7 +5308,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"#f0565e\", \"#2c343d\")"
+                        "expression": "if({[MachineDemo]Zones/Z2/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-line, #2c343d)\")"
                       }
                     }
                   }
@@ -5311,7 +5323,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "6px",
                     "padding": "5px 8px",
                     "gap": "4px",
@@ -5372,7 +5384,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z3/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z3/Running}, \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\"))"
                               }
                             }
                           }
@@ -5455,7 +5467,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z3/Running}, \"#8b98a3\", \"#74808a\"))"
+                                "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z3/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                               }
                             }
                           }
@@ -5494,15 +5506,15 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #262e36)",
-                            "color": "#e59aa0",
+                            "color": "var(--md-fault-ink-2, #e59aa0)",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#4a3338"
+                            "borderColor": "var(--md-fault-edge-2, #4a3338)"
                           }
                         },
                         "position": {
@@ -5534,7 +5546,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #232a31)",
                             "color": "var(--neutral-80, #b7c2ca)",
                             "padding": "0 10px",
@@ -5570,7 +5582,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-panel, #1d232a)\")"
                       }
                     }
                   },
@@ -5578,7 +5590,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"#f0565e\", \"#2c343d\")"
+                        "expression": "if({[MachineDemo]Zones/Z3/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-line, #2c343d)\")"
                       }
                     }
                   }
@@ -5593,7 +5605,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "6px",
                     "padding": "5px 8px",
                     "gap": "4px",
@@ -5654,7 +5666,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z4/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z4/Running}, \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\"))"
                               }
                             }
                           }
@@ -5737,7 +5749,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z4/Running}, \"#8b98a3\", \"#74808a\"))"
+                                "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z4/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                               }
                             }
                           }
@@ -5776,15 +5788,15 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #262e36)",
-                            "color": "#e59aa0",
+                            "color": "var(--md-fault-ink-2, #e59aa0)",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#4a3338"
+                            "borderColor": "var(--md-fault-edge-2, #4a3338)"
                           }
                         },
                         "position": {
@@ -5816,7 +5828,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #232a31)",
                             "color": "var(--neutral-80, #b7c2ca)",
                             "padding": "0 10px",
@@ -5852,7 +5864,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-panel, #1d232a)\")"
                       }
                     }
                   },
@@ -5860,7 +5872,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"#f0565e\", \"#2c343d\")"
+                        "expression": "if({[MachineDemo]Zones/Z4/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-line, #2c343d)\")"
                       }
                     }
                   }
@@ -5875,7 +5887,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "6px",
                     "padding": "5px 8px",
                     "gap": "4px",
@@ -5936,7 +5948,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z5/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z5/Running}, \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\"))"
                               }
                             }
                           }
@@ -6019,7 +6031,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z5/Running}, \"#8b98a3\", \"#74808a\"))"
+                                "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z5/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                               }
                             }
                           }
@@ -6058,15 +6070,15 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #262e36)",
-                            "color": "#e59aa0",
+                            "color": "var(--md-fault-ink-2, #e59aa0)",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#4a3338"
+                            "borderColor": "var(--md-fault-edge-2, #4a3338)"
                           }
                         },
                         "position": {
@@ -6098,7 +6110,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #232a31)",
                             "color": "var(--neutral-80, #b7c2ca)",
                             "padding": "0 10px",
@@ -6134,7 +6146,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-panel, #1d232a)\")"
                       }
                     }
                   },
@@ -6142,7 +6154,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"#f0565e\", \"#2c343d\")"
+                        "expression": "if({[MachineDemo]Zones/Z5/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-line, #2c343d)\")"
                       }
                     }
                   }
@@ -6157,7 +6169,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "6px",
                     "padding": "5px 8px",
                     "gap": "4px",
@@ -6218,7 +6230,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z6/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z6/Running}, \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\"))"
                               }
                             }
                           }
@@ -6301,7 +6313,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z6/Running}, \"#8b98a3\", \"#74808a\"))"
+                                "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z6/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                               }
                             }
                           }
@@ -6340,15 +6352,15 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #262e36)",
-                            "color": "#e59aa0",
+                            "color": "var(--md-fault-ink-2, #e59aa0)",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#4a3338"
+                            "borderColor": "var(--md-fault-edge-2, #4a3338)"
                           }
                         },
                         "position": {
@@ -6380,7 +6392,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #232a31)",
                             "color": "var(--neutral-80, #b7c2ca)",
                             "padding": "0 10px",
@@ -6416,7 +6428,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                        "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-panel, #1d232a)\")"
                       }
                     }
                   },
@@ -6424,7 +6436,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"#f0565e\", \"#2c343d\")"
+                        "expression": "if({[MachineDemo]Zones/Z6/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-line, #2c343d)\")"
                       }
                     }
                   }
@@ -6439,7 +6451,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "6px",
                     "padding": "5px 8px",
                     "gap": "4px",
@@ -6500,7 +6512,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z7/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z7/Running}, \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\"))"
                               }
                             }
                           }
@@ -6583,7 +6595,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z7/Running}, \"#8b98a3\", \"#74808a\"))"
+                                "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z7/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                               }
                             }
                           }
@@ -6622,15 +6634,15 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #262e36)",
-                            "color": "#e59aa0",
+                            "color": "var(--md-fault-ink-2, #e59aa0)",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#4a3338"
+                            "borderColor": "var(--md-fault-edge-2, #4a3338)"
                           }
                         },
                         "position": {
@@ -6662,7 +6674,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #232a31)",
                             "color": "var(--neutral-80, #b7c2ca)",
                             "padding": "0 10px",
@@ -6698,7 +6710,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                        "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-panel, #1d232a)\")"
                       }
                     }
                   },
@@ -6706,7 +6718,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"#f0565e\", \"#2c343d\")"
+                        "expression": "if({[MachineDemo]Zones/Z7/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-line, #2c343d)\")"
                       }
                     }
                   }
@@ -6721,7 +6733,7 @@
                   "direction": "column",
                   "style": {
                     "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid #2c343d",
+                    "border": "1px solid var(--md-line, #2c343d)",
                     "borderRadius": "6px",
                     "padding": "5px 8px",
                     "gap": "4px",
@@ -6782,7 +6794,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z8/Running}, \"#46d07c\", \"#3a434b\"))"
+                                "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z8/Running}, \"var(--md-run, #46d07c)\", \"var(--md-beam-off, #3a434b)\"))"
                               }
                             }
                           }
@@ -6865,7 +6877,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"#f0565e\", if({[MachineDemo]Zones/Z8/Running}, \"#8b98a3\", \"#74808a\"))"
+                                "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"var(--md-fault, #f0565e)\", if({[MachineDemo]Zones/Z8/Running}, \"var(--md-ink-quiet, #8b98a3)\", \"var(--md-ink-dim, #74808a)\"))"
                               }
                             }
                           }
@@ -6904,15 +6916,15 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #262e36)",
-                            "color": "#e59aa0",
+                            "color": "var(--md-fault-ink-2, #e59aa0)",
                             "padding": "0 10px",
                             "whiteSpace": "normal",
                             "lineHeight": "1.2",
                             "textAlign": "center",
                             "height": "27px",
-                            "borderColor": "#4a3338"
+                            "borderColor": "var(--md-fault-edge-2, #4a3338)"
                           }
                         },
                         "position": {
@@ -6944,7 +6956,7 @@
                             "fontWeight": 700,
                             "letterSpacing": "0.5px",
                             "borderRadius": "6px",
-                            "border": "1px solid #2c343d",
+                            "border": "1px solid var(--md-line, #2c343d)",
                             "backgroundColor": "var(--neutral-30, #232a31)",
                             "color": "var(--neutral-80, #b7c2ca)",
                             "padding": "0 10px",
@@ -6980,7 +6992,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"#2e1a1d\", \"#1d232a\")"
+                        "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"var(--md-fault-bg-2, #2e1a1d)\", \"var(--md-panel, #1d232a)\")"
                       }
                     }
                   },
@@ -6988,7 +7000,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"#f0565e\", \"#2c343d\")"
+                        "expression": "if({[MachineDemo]Zones/Z8/Fault}, \"var(--md-fault, #f0565e)\", \"var(--md-line, #2c343d)\")"
                       }
                     }
                   }
@@ -7007,7 +7019,7 @@
           "direction": "row",
           "style": {
             "backgroundColor": "var(--neutral-20, #1d232a)",
-            "borderTop": "1px solid #2c343d",
+            "borderTop": "1px solid var(--md-line, #2c343d)",
             "padding": "0 16px",
             "gap": "16px",
             "minWidth": "0px",
@@ -7086,7 +7098,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "coalesce({view.custom.alm.colour}, \"#8b98a3\")"
+                    "expression": "coalesce({view.custom.alm.colour}, \"var(--md-ink-quiet, #8b98a3)\")"
                   }
                 }
               }
@@ -7133,7 +7145,7 @@
                 "fontWeight": 700,
                 "letterSpacing": "1px",
                 "color": "var(--neutral-60, #8b98a3)",
-                "border": "1px solid #2c343d",
+                "border": "1px solid var(--md-line, #2c343d)",
                 "padding": "0 10px",
                 "lineHeight": "24px",
                 "borderRadius": "5px",
@@ -7164,7 +7176,7 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "coalesce({view.custom.alm.bg}, \"#1d232a\")"
+                "expression": "coalesce({view.custom.alm.bg}, \"var(--md-panel, #1d232a)\")"
               }
             }
           },
@@ -7172,7 +7184,7 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "coalesce({view.custom.alm.border}, \"#2c343d\")"
+                "expression": "coalesce({view.custom.alm.border}, \"var(--md-line, #2c343d)\")"
               }
             }
           }
@@ -7190,7 +7202,7 @@
         "transforms": [
           {
             "type": "script",
-            "code": "\tfrom java.lang import Throwable\n\tout = {\"text\": \"No active alarms on this machine\", \"sub\": \"0 alarms - 0 unacknowledged\", \"colour\": \"#8b98a3\", \"bg\": \"#1d232a\", \"border\": \"#2c343d\", \"time\": \"\", \"n\": 0, \"active\": 0}\n\ttry:\n\t\trows = MachineDemo.plant.liveAlarms()\n\texcept Throwable:\n\t\treturn out\n\tif not rows:\n\t\treturn out\n\torder = {\"Diagnostic\": 0, \"Low\": 1, \"Medium\": 2, \"High\": 3, \"Critical\": 4}\n\tbest = None\n\tbestscore = -1\n\tbestpri = 0\n\tunacked = 0\n\tactive = 0\n\tfor a in rows:\n\t\tif not a.get(\"acked\"):\n\t\t\tunacked = unacked + 1\n\t\tpri = order.get(str(a.get(\"priority\") or \"Low\"), 1)\n\t\tif a.get(\"active\"):\n\t\t\tactive = active + 1\n\t\t\tscore = 100 + pri * 2\n\t\telse:\n\t\t\tscore = pri * 2\n\t\tif not a.get(\"acked\"):\n\t\t\tscore = score + 1\n\t\tif score > bestscore:\n\t\t\tbestscore = score\n\t\t\tbestpri = pri\n\t\t\tbest = a\n\tif best is None:\n\t\treturn out\n\tlbl = str(best.get(\"label\") or \"\")\n\tnm = str(best.get(\"name\") or \"Alarm\")\n\tif not lbl:\n\t\tlbl = nm\n\tst = str(best.get(\"state\") or \"\")\n\tcolour = \"#6cc4e8\"\n\tbg = \"#1d232a\"\n\tborder = \"#2c343d\"\n\tif bestpri >= 3:\n\t\tcolour = \"#ff8d92\"\n\t\tbg = \"#2e1a1d\"\n\t\tborder = \"#c2444c\"\n\telif bestpri == 2:\n\t\tcolour = \"#eebf5e\"\n\t\tbg = \"#2b2418\"\n\t\tborder = \"#7d6427\"\n\tif not best.get(\"active\"):\n\t\t# Cleared is not the same as wrong. The background was already being\n\t\t# neutralised here but the TEXT stayed red, so a page with zero active\n\t\t# alarms still read as an emergency. A cleared alarm that nobody has\n\t\t# acknowledged is amber - it wants attention, not action - and one that\n\t\t# has been acknowledged is just history.\n\t\tbg = \"#1d232a\"\n\t\tborder = \"#2c343d\"\n\t\tif best.get(\"acked\"):\n\t\t\tcolour = \"#8b98a3\"\n\t\telse:\n\t\t\tcolour = \"#eebf5e\"\n\tout[\"text\"] = lbl + \"  -  \" + st\n\tout[\"sub\"] = \"%d alarms - %d active - %d unacknowledged\" % (len(rows), active, unacked)\n\tout[\"colour\"] = colour\n\tout[\"bg\"] = bg\n\tout[\"border\"] = border\n\tout[\"time\"] = str(best.get(\"time\") or \"\")\n\tout[\"n\"] = len(rows)\n\tout[\"active\"] = active\n\treturn out\n"
+            "code": "\tfrom java.lang import Throwable\n\tout = {\"text\": \"No active alarms on this machine\", \"sub\": \"0 alarms - 0 unacknowledged\", \"colour\": \"var(--md-ink-quiet, #8b98a3)\", \"bg\": \"var(--md-panel, #1d232a)\", \"border\": \"var(--md-line, #2c343d)\", \"time\": \"\", \"n\": 0, \"active\": 0}\n\ttry:\n\t\trows = MachineDemo.plant.liveAlarms()\n\texcept Throwable:\n\t\treturn out\n\tif not rows:\n\t\treturn out\n\torder = {\"Diagnostic\": 0, \"Low\": 1, \"Medium\": 2, \"High\": 3, \"Critical\": 4}\n\tbest = None\n\tbestscore = -1\n\tbestpri = 0\n\tunacked = 0\n\tactive = 0\n\tfor a in rows:\n\t\tif not a.get(\"acked\"):\n\t\t\tunacked = unacked + 1\n\t\tpri = order.get(str(a.get(\"priority\") or \"Low\"), 1)\n\t\tif a.get(\"active\"):\n\t\t\tactive = active + 1\n\t\t\tscore = 100 + pri * 2\n\t\telse:\n\t\t\tscore = pri * 2\n\t\tif not a.get(\"acked\"):\n\t\t\tscore = score + 1\n\t\tif score > bestscore:\n\t\t\tbestscore = score\n\t\t\tbestpri = pri\n\t\t\tbest = a\n\tif best is None:\n\t\treturn out\n\tlbl = str(best.get(\"label\") or \"\")\n\tnm = str(best.get(\"name\") or \"Alarm\")\n\tif not lbl:\n\t\tlbl = nm\n\tst = str(best.get(\"state\") or \"\")\n\tcolour = \"var(--md-info, #6cc4e8)\"\n\tbg = \"var(--md-panel, #1d232a)\"\n\tborder = \"var(--md-line, #2c343d)\"\n\tif bestpri >= 3:\n\t\tcolour = \"var(--md-fault-ink, #ff8d92)\"\n\t\tbg = \"var(--md-fault-bg-2, #2e1a1d)\"\n\t\tborder = \"var(--md-fault-line, #c2444c)\"\n\telif bestpri == 2:\n\t\tcolour = \"var(--md-warn, #eebf5e)\"\n\t\tbg = \"var(--md-warn-bg-2, #2b2418)\"\n\t\tborder = \"var(--md-warn-line, #7d6427)\"\n\tif not best.get(\"active\"):\n\t\t# Cleared is not the same as wrong. The background was already being\n\t\t# neutralised here but the TEXT stayed red, so a page with zero active\n\t\t# alarms still read as an emergency. A cleared alarm that nobody has\n\t\t# acknowledged is amber - it wants attention, not action - and one that\n\t\t# has been acknowledged is just history.\n\t\tbg = \"var(--md-panel, #1d232a)\"\n\t\tborder = \"var(--md-line, #2c343d)\"\n\t\tif best.get(\"acked\"):\n\t\t\tcolour = \"var(--md-ink-quiet, #8b98a3)\"\n\t\telse:\n\t\t\tcolour = \"var(--md-warn, #eebf5e)\"\n\tout[\"text\"] = lbl + \"  -  \" + st\n\tout[\"sub\"] = \"%d alarms - %d active - %d unacknowledged\" % (len(rows), active, unacked)\n\tout[\"colour\"] = colour\n\tout[\"bg\"] = bg\n\tout[\"border\"] = border\n\tout[\"time\"] = str(best.get(\"time\") or \"\")\n\tout[\"n\"] = len(rows)\n\tout[\"active\"] = active\n\treturn out\n"
           }
         ]
       }

@@ -20,16 +20,20 @@ TWO PLACES, ON PURPOSE
                     then its padding, then its font sizes at that width, and on
                     a 10in panel an operator does not pick themes.
 
-  Setup page row  - six buttons beside the simulation-speed row, which is the
-                    same idiom and is reachable at any width. This is the one
-                    that still works on the panel.
+  Setup page rows - six buttons beside the simulation-speed row, two rows of
+                    three, which is the same idiom and is reachable at any
+                    width. This is the one that still works on the panel.
 
 The dropdown writes `session.props.theme` through a bidirectional binding.
 `bidirectional` goes INSIDE `config`; at binding level it is accepted and
 silently never writes back, which looks exactly like a dropdown that does not
 work.
 
-Idempotent. Run:  python3 tools/add_theme_picker.py
+Idempotent, and it REBUILDS what it owns rather than skipping when it is
+already there - the theme list changes, and a guard that only checks whether
+the control exists would leave the old options in place.
+
+Run:  python3 tools/add_theme_picker.py
 """
 
 import datetime
@@ -40,54 +44,73 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 VIEWS = os.path.join(HERE, os.pardir, "project",
                      "com.inductiveautomation.perspective", "views", "Machine")
 
-# Ignition ships six stock themes and the 3D page has a palette for each. Only
-# the three DARK ones are offered, and that is a measured decision, not taste.
+# Ignition ships six stock themes and the 3D page has a palette for each. All
+# six are offered, since 04/09/2026. Until then only the three DARK ones were,
+# and the reason is worth keeping because it is what the work had to undo.
 #
-# The chrome follows the theme now (tools/themeify.py mapped 569 neutral
-# colours onto the theme's surface-relative tokens), and on a light theme that
-# part works. What does not is everything else:
+# WHAT WAS WRONG
 #
-#   * ~1200 more colours are produced INSIDE expressions and scripts rather
-#     than sitting in props.style, so they are literal hex chosen for a dark
-#     ground and no substitution reaches them.
-#   * The semantic accents - running green #46d07c, fault red #f0565e,
-#     warning amber #eebf5e, info blue #6cc4e8 - are built for a dark
-#     background. Measured on a light theme they come out at contrast ratios
-#     of 1.31 to 1.49 against the surface behind them; 4.5 is the readable
-#     bar and 3.0 is the floor for large text. The alarm page alone had 106
-#     labels under 3.0.
+# tools/themeify.py had mapped 568 neutral colours onto the theme's own
+# surface-relative tokens, and on a light theme that part worked. The other
+# 849 did not: its regex only matches a prop whose WHOLE value is a hex
+# string, so everything inside an if() expression, a `1px solid #2c343d`
+# shorthand, a gradient, an alarm-table rowStyle or a script transform stayed
+# literal. Measured on all six pages, compositing every rgba layer over its
+# real surface rather than reading the top one as opaque:
 #
-# Ignition's own --success/--warning/--error tokens DO flip correctly and are
-# the right target for those, but adopting them also restyles the dark themes,
-# which is a separate decision.
+#     dark    590 texts,   0 below 3.0
+#     light   590 texts, 190 below 3.0
 #
-# RE-MEASURED 04/09/2026, on all six pages, compositing every rgba layer over
-# its real surface rather than reading the top one as opaque:
-#
-#     dark    590 texts,   0 below 3.0   (one exempt: a disabled button)
-#     light   590 texts, 191 below 3.0
-#
-# So the gap is real and it is bigger than an accent fix. The 191 split two
-# ways, and only the first is about colour choice:
+# and the 190 split two ways, only the first of which is about colour choice:
 #
 #   * accents on light chrome - #46d07c/#eebf5e/#6cc4e8 on #F0F0F0 at 1.5-1.75
 #   * surfaces that never flip - a card left at a literal #1d232a while its
 #     text follows the token to near-black: 1.06:1, unreadable, and nothing to
 #     do with the accents
 #
-# The second is the work. 1417 literal hex values across the views, 63 of them
-# distinct (568 more are already var()-wrapped). It is a lookup table, not
-# 1417 decisions, and the safe shape is to hoist all 63 into variables whose
-# DARK values are byte-identical to today - so the three shipping themes are
-# provably unchanged - and give the light themes their own. That is a day's
-# work with a contrast gate on the end, not a polish item, and it is why light
-# is still not offered.
+# The second was the bulk of it, and the objection to fixing it was never the
+# light themes - it was that adopting the theme tokens outright would restyle
+# the three dark ones that are already in use.
 #
-# So: three themes that are verified legible, rather than six of which half
-# are not. Every one of these visibly changes the whole project - Perspective
-# chrome, stock components, and the 3D cell together.
+# WHAT WAS DONE
+#
+# tools/mdvars.py hoists all 849 into `var(--md-NAME, #originalhex)` and
+# defines each --md-NAME so that a dark theme computes it to EXACTLY the
+# literal it replaced, and a light theme to the theme's own token (neutrals)
+# or a measured light value (the accents). Read that file for the mechanism;
+# the short version is a polarity term that clamps to 0 across every dark
+# theme and 1 across every light one, so the two ends are pinned and the
+# middle never happens.
+#
+# Ignition's own --success/--warning/--error do flip correctly and were
+# rejected for the accents: --success is #0AA648 and the project's running
+# green is #46d07c, so adopting them is a dark-theme change.
+#
+# MEASURED AFTER, 04/09/2026
+#
+#   tools/verify/md_vars_check.js   66 variables x 3 dark themes,
+#                                   0 differ from the literal they replaced
+#   tools/verify/colour_snapshot.js 0 elements changed colour, six pages
+#   contrast_sweep.js               dark 0 below 3.0   (unchanged)
+#   contrast_sweep.js --light       22 below 3.0, from 190
+#   contrast_sweep.js --theme light / light-cool / light-warm     0, 0, 0
+#
+# --light is the historical approximation - it overrides the ten --neutral-*
+# tokens and nothing else, and its --neutral-60 is #8A8A8A, lighter than
+# dark-cool's own #878D96, so half the ramp reads as dark and the project
+# rightly declines to flip. The 22 it still reports are that artefact and the
+# theme dropdown, which stays black because --input is not part of the ramp.
+# --theme loads the real stylesheet and is the number that means anything.
+#
+# So: six themes that are verified legible, rather than three. Every one of
+# them visibly changes the whole project - Perspective chrome, stock
+# components, and the 3D cell together.
 THEMES = [("dark", "Dark"), ("dark-cool", "Dark cool"),
-          ("dark-warm", "Dark warm")]
+          ("dark-warm", "Dark warm"),
+          ("light", "Light"), ("light-cool", "Light cool"),
+          ("light-warm", "Light warm")]
+# Three to a row on the Setup page - six across is 45px a button at 1024.
+ROWS = [("Themes", THEMES[:3]), ("Themes2", THEMES[3:])]
 
 
 def find(node, name):
@@ -147,8 +170,9 @@ def button(value, label):
             "text": label,
             "style": {"fontSize": "11.5px", "fontWeight": 700,
                       "letterSpacing": "0.4px", "borderRadius": "6px",
-                      "border": "1px solid #2c343d",
-                      "backgroundColor": "#252c34", "color": "#cfd8df",
+                      "border": "1px solid var(--md-line, #2c343d)",
+                      "backgroundColor": "var(--md-face, #252c34)",
+                      "color": "var(--md-ink-body, #cfd8df)",
                       "padding": "0px", "minWidth": "0px",
                       "alignItems": "center", "whiteSpace": "nowrap"},
         },
@@ -177,12 +201,17 @@ for name in sorted(os.listdir(VIEWS)):
     bar = find(view["root"], "TopBar")
     if bar is None or find(view["root"], "Nav") is None:
         continue
-    if find(bar, "Theme") is None:
+    existing = find(bar, "Theme")
+    if existing is None:
         # Between the nav tabs and the user block: it belongs with the other
         # session-level controls, not among the page links.
         names = [c["meta"]["name"] for c in bar["children"]]
         bar["children"].insert(names.index("User") if "User" in names
                                else len(names), dropdown())
+    else:
+        # Already there: refresh the list. Skipping would leave a dropdown
+        # offering yesterday's themes and look exactly like a working one.
+        existing["props"]["options"] = dropdown()["props"]["options"]
     json.dump(view, open(view_file, "w"), indent=2)
     stamp(view_dir)
     touched.append(name)
@@ -197,35 +226,42 @@ if speed is None:
     raise SystemExit("Setup has no Speed panel to sit beside")
 body = find(speed, "Body")
 
-if find(body, "Themes") is None:
-    # The panel was sized for exactly what it held. Six more buttons on two
-    # rows need 68px, and a caption 20px.
-    speed["position"]["basis"] = "262px"
+# Rebuilt every run rather than added once: the row count follows THEMES, and
+# a guard on "is it there" would have left three buttons behind when the list
+# went to six.
+OWNED = ["ThemeK"] + [row for row, _ in ROWS]
+body["children"] = [c for c in body["children"]
+                    if c["meta"]["name"] not in OWNED]
+
+# The panel is sized for exactly what it holds: 206px of speed and simulation
+# rows, a 22px caption, and 34px for each row of theme buttons.
+speed["position"]["basis"] = "%dpx" % (206 + 22 + 34 * len(ROWS))
+body["children"].append({
+    "type": "ia.container.flex", "version": 0,
+    "meta": {"name": "ThemeK"},
+    "position": {"grow": 0, "shrink": 0, "basis": "22px"},
+    "props": {"style": {"minWidth": "0px", "minHeight": "0px"}},
+    "children": [{
+        "type": "ia.display.label", "version": 0, "meta": {"name": "K"},
+        "position": {"grow": 1, "shrink": 1, "basis": "auto"},
+        "props": {"text": "Theme — Perspective and the 3D cell together",
+                  "style": {"fontSize": "10px",
+                            "color": "var(--md-ink-dim, #74808a)",
+                            "letterSpacing": "0.6px",
+                            "whiteSpace": "nowrap", "overflow": "hidden",
+                            "textOverflow": "ellipsis"}},
+    }],
+})
+for row, pairs in ROWS:
     body["children"].append({
         "type": "ia.container.flex", "version": 0,
-        "meta": {"name": "ThemeK"},
-        "position": {"grow": 0, "shrink": 0, "basis": "22px"},
-        "props": {"style": {"minWidth": "0px", "minHeight": "0px"}},
-        "children": [{
-            "type": "ia.display.label", "version": 0, "meta": {"name": "K"},
-            "position": {"grow": 1, "shrink": 1, "basis": "auto"},
-            "props": {"text": "Theme — Perspective and the 3D cell together",
-                      "style": {"fontSize": "10px", "color": "#74808a",
-                                "letterSpacing": "0.6px",
-                                "whiteSpace": "nowrap", "overflow": "hidden",
-                                "textOverflow": "ellipsis"}},
-        }],
+        "meta": {"name": row},
+        "position": {"grow": 0, "shrink": 0, "basis": "34px"},
+        "props": {"direction": "row",
+                  "style": {"gap": "6px", "padding": "0 10px 6px",
+                            "minWidth": "0px", "minHeight": "0px"}},
+        "children": [button(v, l) for v, l in pairs],
     })
-    for row, pairs in (("Themes", THEMES),):
-        body["children"].append({
-            "type": "ia.container.flex", "version": 0,
-            "meta": {"name": row},
-            "position": {"grow": 0, "shrink": 0, "basis": "34px"},
-            "props": {"direction": "row",
-                      "style": {"gap": "6px", "padding": "0 10px 6px",
-                                "minWidth": "0px", "minHeight": "0px"}},
-            "children": [button(v, l) for v, l in pairs],
-        })
 
 json.dump(setup, open(setup_file, "w"), indent=2)
 stamp(setup_dir)

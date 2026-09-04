@@ -30,7 +30,11 @@ VIEW_DIR = os.path.join(HERE, os.pardir, "project",
                         "com.inductiveautomation.perspective", "views", "Machine", "Alarms")
 VIEW = os.path.join(VIEW_DIR, "view.json")
 
-INK, DIM, LINE, PANEL, ACCENT = "#dde4e9", "#8b98a3", "#2c343d", "#1d232a", "#6cc4e8"
+INK = "var(--md-ink, #dde4e9)"
+DIM = "var(--md-ink-quiet, #8b98a3)"
+LINE = "var(--md-line, #2c343d)"
+PANEL = "var(--md-panel, #1d232a)"
+ACCENT = "var(--md-info, #6cc4e8)"
 
 
 def find(node, name):
@@ -74,11 +78,13 @@ body["props"] = {
     "tabStyle": {
         "inactive": {"color": DIM, "backgroundColor": "transparent", "fontWeight": 700,
                      "fontSize": "11px", "letterSpacing": "1.3px", "padding": "0 14px"},
-        "active": {"color": "#cfeafa", "backgroundColor": "#152f3b", "fontWeight": 700,
+        "active": {"color": "var(--md-info-ink-2, #cfeafa)",
+                   "backgroundColor": "var(--md-info-bg, #152f3b)",
+                   "fontWeight": 700,
                    "fontSize": "11px", "letterSpacing": "1.3px", "padding": "0 14px",
                    "borderBottom": "2px solid " + ACCENT},
     },
-    "contentStyle": {"backgroundColor": "#171b20", "minHeight": "0px", "height": "100%"},
+    "contentStyle": {"backgroundColor": "var(--md-bg, #171b20)", "minHeight": "0px", "height": "100%"},
     "style": {"minHeight": "0px", "minWidth": "0px"},
 }
 
