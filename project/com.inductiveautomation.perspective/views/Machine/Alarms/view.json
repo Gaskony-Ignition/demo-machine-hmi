@@ -889,7 +889,7 @@
                               "backgroundColor": "transparent"
                             },
                             "high": {
-                              "color": "var(--md-fault, #f0565e)",
+                              "color": "var(--md-high, #f2884a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
@@ -923,7 +923,7 @@
                               "backgroundColor": "transparent"
                             },
                             "high": {
-                              "color": "var(--md-fault, #f0565e)",
+                              "color": "var(--md-high, #f2884a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
@@ -957,7 +957,7 @@
                               "backgroundColor": "transparent"
                             },
                             "high": {
-                              "color": "var(--md-fault, #f0565e)",
+                              "color": "var(--md-high, #f2884a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
@@ -1025,7 +1025,7 @@
                               "backgroundColor": "transparent"
                             },
                             "high": {
-                              "color": "var(--md-fault, #f0565e)",
+                              "color": "var(--md-high, #f2884a)",
                               "fontWeight": "700",
                               "backgroundColor": "transparent"
                             },
@@ -1502,7 +1502,7 @@
                               "fontWeight": "700"
                             },
                             "high": {
-                              "color": "var(--md-fault, #f0565e)",
+                              "color": "var(--md-high, #f2884a)",
                               "fontWeight": "700"
                             },
                             "medium": {
@@ -1531,7 +1531,7 @@
                               "fontWeight": "700"
                             },
                             "high": {
-                              "color": "var(--md-fault, #f0565e)",
+                              "color": "var(--md-high, #f2884a)",
                               "fontWeight": "700"
                             },
                             "medium": {
@@ -1589,7 +1589,7 @@
                               "fontWeight": "700"
                             },
                             "high": {
-                              "color": "var(--md-fault, #f0565e)",
+                              "color": "var(--md-high, #f2884a)",
                               "fontWeight": "700"
                             },
                             "medium": {

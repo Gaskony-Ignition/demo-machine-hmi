@@ -106,6 +106,7 @@
 	--md-case-line:         #8d6836;  /* carton outline */
 	/* applied by name, not by substituting a literal */
 	--md-arrow:             var(--neutral-60, #74808a); /* conveyor arrow on the mimic floor */
+	--md-high:              #f2884a;  /* high-priority alarm */
 	--md-tab-quiet:         #b7c2ca;  /* inactive alarm-table toolbar tab */
 }
 
@@ -170,6 +171,7 @@
 		--md-info-bg: rgb(from var(--neutral-10, #171b20) calc(21 + clamp(0, (r - 100) / 56, 1) * (214 - 21)) calc(47 + clamp(0, (r - 100) / 56, 1) * (236 - 47)) calc(59 + clamp(0, (r - 100) / 56, 1) * (247 - 59)));
 		--md-info-bg-2: rgb(from var(--neutral-10, #171b20) calc(20 + clamp(0, (r - 100) / 56, 1) * (224 - 20)) calc(49 + clamp(0, (r - 100) / 56, 1) * (240 - 49)) calc(62 + clamp(0, (r - 100) / 56, 1) * (249 - 62)));
 		--md-arrow: rgb(from var(--neutral-60, #74808a) calc(r + clamp(0, (135 - r) / 17, 1) * (77 - r)) calc(g + clamp(0, (135 - r) / 17, 1) * (83 - g)) calc(b + clamp(0, (135 - r) / 17, 1) * (88 - b)));
+		--md-high: rgb(from var(--neutral-10, #171b20) calc(242 + clamp(0, (r - 100) / 56, 1) * (160 - 242)) calc(136 + clamp(0, (r - 100) / 56, 1) * (74 - 136)) calc(74 + clamp(0, (r - 100) / 56, 1) * (5 - 74)));
 		--md-tab-quiet: rgb(from var(--neutral-10, #171b20) calc(183 + clamp(0, (r - 100) / 56, 1) * (77 - 183)) calc(194 + clamp(0, (r - 100) / 56, 1) * (83 - 194)) calc(202 + clamp(0, (r - 100) / 56, 1) * (88 - 202)));
 	}
 }

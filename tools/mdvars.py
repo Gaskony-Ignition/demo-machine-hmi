@@ -207,6 +207,11 @@ SEMANTIC = [
 #
 #   arrow      keeps whatever --neutral-60 gives it in the dark (it is one of
 #              themeify.py's 568 already) and darkens the light end.
+#   high       is NEW. Critical and High both took --md-fault, so the two top
+#              severities were the same red - in the DARK themes too, since
+#              before this change. A priority column that cannot rank its top
+#              two is not colour-coding anything. High is orange now, between
+#              the fault red and the warning amber.
 #   tab-quiet  is #b7c2ca, NOT the #8b98a3 it was first given. That was tuned
 #              against dark-cool, whose toolbar is #343a3f: 4.3:1. The plain
 #              dark theme puts the same tab on #515151, where #8b98a3 is
@@ -214,6 +219,7 @@ SEMANTIC = [
 #              specific, and only measuring all six themes found it.
 BY_HAND = [
     ("#74808a", "arrow",     (60, "#4D5358"), "conveyor arrow on the mimic floor"),
+    ("#f2884a", "high",      "#A04A05",       "high-priority alarm"),
     ("#b7c2ca", "tab-quiet", "#4D5358",       "inactive alarm-table toolbar tab"),
 ]
 
