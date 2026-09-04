@@ -1169,6 +1169,17 @@
       else if (have < want) cs.position.x = Math.min(want, have + step);
     }
 
+    // What the belt is ACTUALLY showing, next to what it was told to show.
+    // Not decoration: the queue is the one thing on this page whose count has
+    // to agree with a number in the tag layer, and a rendered scene is the
+    // hardest thing in the project to assert against. A screenshot cannot be
+    // counted reliably - two frames of a parked queue are pixel-identical
+    // whether the count changed or not - so the page states it, and a test
+    // reads document.body.dataset.infeed instead of guessing from pixels.
+    var drawn = 0;
+    for (var v = 0; v < infeedCases.length; v++) if (infeedCases[v].visible) drawn++;
+    document.body.dataset.infeed = queue + "/" + drawn + "/" + infeedCases.length;
+
     // The rollers turn only while C1 runs. A jam stops the belt; the cartons
     // already standing on it stay where they are.
     var running = !(s.conv && s.conv.c1 === false);
