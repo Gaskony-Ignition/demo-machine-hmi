@@ -33,6 +33,16 @@
           "name": "",
           "state": "",
           "led": "blank"
+        },
+        {
+          "name": "",
+          "state": "",
+          "led": "blank"
+        },
+        {
+          "name": "",
+          "state": "",
+          "led": "blank"
         }
       ]
     }
@@ -580,7 +590,8 @@
               "style": {
                 "gap": "10px",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "overflowY": "auto"
               }
             },
             "position": {
@@ -756,7 +767,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tfrom java.lang import Throwable\n\n\tdef isdict(v):\n\t\ttry:\n\t\t\tv.keys()\n\t\t\treturn True\n\t\texcept Throwable:\n\t\t\treturn False\n\t\texcept:\n\t\t\treturn False\n\n\tdef islist(v):\n\t\tif isdict(v) or isinstance(v, basestring):\n\t\t\treturn False\n\t\ttry:\n\t\t\tlen(v)\n\t\t\titer(v)\n\t\t\treturn True\n\t\texcept:\n\t\t\treturn False\n\n\tdef led(ok):\n\t\tif ok is None:\n\t\t\treturn \"na\"\n\t\tif ok:\n\t\t\treturn \"ok\"\n\t\treturn \"bad\"\n\n\tdef pick(it, keys):\n\t\tfor k in keys:\n\t\t\tv = it.get(k)\n\t\t\tif v is not None and str(v) != \"\":\n\t\t\t\treturn v\n\t\treturn None\n\n\tdef one(it):\n\t\tif isdict(it):\n\t\t\tnm = pick(it, (\"title\", \"name\", \"item\", \"step\", \"label\", \"key\"))\n\t\t\tok = pick(it, (\"ok\", \"present\", \"done\", \"installed\", \"healthy\"))\n\t\t\tst = pick(it, (\"detail\", \"state\", \"status\", \"message\", \"value\"))\n\t\t\tif st is None:\n\t\t\t\tif ok is None:\n\t\t\t\t\tst = \"\"\n\t\t\t\telif ok:\n\t\t\t\t\tst = \"OK\"\n\t\t\t\telse:\n\t\t\t\t\tst = \"MISSING\"\n\t\t\tif nm is None:\n\t\t\t\tnm = \"\"\n\t\t\treturn {\"name\": str(nm), \"state\": str(st), \"led\": led(ok)}\n\t\treturn {\"name\": str(it), \"state\": \"\", \"led\": \"na\"}\n\n\tdef findlist(d, depth):\n\t\tif depth > 4:\n\t\t\treturn None\n\t\tif islist(d):\n\t\t\treturn d\n\t\tif not isdict(d):\n\t\t\treturn None\n\t\tfor k in (\"items\", \"checks\", \"rows\", \"results\", \"steps\"):\n\t\t\tif islist(d.get(k)):\n\t\t\t\treturn d.get(k)\n\t\tfor k in d.keys():\n\t\t\tr = findlist(d.get(k), depth + 1)\n\t\t\tif r is not None:\n\t\t\t\treturn r\n\t\treturn None\n\n\tdef flatten(d):\n\t\trows = []\n\t\tif not isdict(d):\n\t\t\treturn rows\n\t\tkeys = [str(k) for k in d.keys()]\n\t\tkeys.sort()\n\t\tfor k in keys:\n\t\t\tv = d.get(k)\n\t\t\tif isdict(v):\n\t\t\t\trows.extend(flatten(v))\n\t\t\telif islist(v):\n\t\t\t\trows.append({\"name\": k, \"state\": \"%d entries\" % len(v), \"led\": \"na\"})\n\t\t\telse:\n\t\t\t\ttxt = str(v)\n\t\t\t\tok = None\n\t\t\t\tif v is True or txt.lower() in (\"ok\", \"true\", \"yes\", \"ready\", \"installed\"):\n\t\t\t\t\tok = True\n\t\t\t\telif v is False or txt.lower() in (\"false\", \"no\", \"missing\", \"error\", \"failed\"):\n\t\t\t\t\tok = False\n\t\t\t\trows.append({\"name\": k, \"state\": txt, \"led\": led(ok)})\n\t\treturn rows\n\n\tdef rowify(d):\n\t\tlst = findlist(d, 0)\n\t\tif lst:\n\t\t\treturn [one(it) for it in lst]\n\t\treturn flatten(d)\n\n\tout = {\"msg\": \"\", \"raw\": \"\", \"rows\": []}\n\ttry:\n\t\t# In-process, as the logged-in Perspective session: no HTTP hop\n\t\t# back to an open route, so this works with the write route shut.\n\t\t# The encode/decode round trip is deliberate - it hands rowify()\n\t\t# exactly the object the HTTP response used to.\n\t\tdata = system.util.jsonDecode(system.util.jsonEncode({\"ok\": True, \"check\": MachineDemo.setup.check()}))\n\t\tout[\"msg\"] = \"check -> OK\"\n\t\tif data is None:\n\t\t\tout[\"raw\"] = \"\"\n\t\telse:\n\t\t\ttry:\n\t\t\t\tout[\"raw\"] = system.util.jsonEncode(data, 1)[:1400]\n\t\t\texcept:\n\t\t\t\tout[\"raw\"] = str(data)[:1400]\n\t\t\tout[\"rows\"] = rowify(data)\n\texcept Throwable, e:\n\t\tout[\"msg\"] = \"check -> FAILED\"\n\t\tout[\"raw\"] = str(e)[:1400]\n\texcept Exception, e:\n\t\tout[\"msg\"] = \"check -> FAILED\"\n\t\tout[\"raw\"] = str(e)[:1400]\n\trows = out[\"rows\"]\n\twhile len(rows) < 6:\n\t\trows.append({\"name\": \"\", \"state\": \"\", \"led\": \"blank\"})\n\tout[\"rows\"] = rows[:6]\n\tself.view.custom.check = out\n"
+                                    "script": "\tfrom java.lang import Throwable\n\n\tdef isdict(v):\n\t\ttry:\n\t\t\tv.keys()\n\t\t\treturn True\n\t\texcept Throwable:\n\t\t\treturn False\n\t\texcept:\n\t\t\treturn False\n\n\tdef islist(v):\n\t\tif isdict(v) or isinstance(v, basestring):\n\t\t\treturn False\n\t\ttry:\n\t\t\tlen(v)\n\t\t\titer(v)\n\t\t\treturn True\n\t\texcept:\n\t\t\treturn False\n\n\tdef led(ok):\n\t\tif ok is None:\n\t\t\treturn \"na\"\n\t\tif ok:\n\t\t\treturn \"ok\"\n\t\treturn \"bad\"\n\n\tdef pick(it, keys):\n\t\tfor k in keys:\n\t\t\tv = it.get(k)\n\t\t\tif v is not None and str(v) != \"\":\n\t\t\t\treturn v\n\t\treturn None\n\n\tdef one(it):\n\t\tif isdict(it):\n\t\t\tnm = pick(it, (\"title\", \"name\", \"item\", \"step\", \"label\", \"key\"))\n\t\t\tok = pick(it, (\"ok\", \"present\", \"done\", \"installed\", \"healthy\"))\n\t\t\tst = pick(it, (\"detail\", \"state\", \"status\", \"message\", \"value\"))\n\t\t\tif st is None:\n\t\t\t\tif ok is None:\n\t\t\t\t\tst = \"\"\n\t\t\t\telif ok:\n\t\t\t\t\tst = \"OK\"\n\t\t\t\telse:\n\t\t\t\t\tst = \"MISSING\"\n\t\t\tif nm is None:\n\t\t\t\tnm = \"\"\n\t\t\treturn {\"name\": str(nm), \"state\": str(st), \"led\": led(ok)}\n\t\treturn {\"name\": str(it), \"state\": \"\", \"led\": \"na\"}\n\n\tdef findlist(d, depth):\n\t\tif depth > 4:\n\t\t\treturn None\n\t\tif islist(d):\n\t\t\treturn d\n\t\tif not isdict(d):\n\t\t\treturn None\n\t\tfor k in (\"items\", \"checks\", \"rows\", \"results\", \"steps\"):\n\t\t\tif islist(d.get(k)):\n\t\t\t\treturn d.get(k)\n\t\tfor k in d.keys():\n\t\t\tr = findlist(d.get(k), depth + 1)\n\t\t\tif r is not None:\n\t\t\t\treturn r\n\t\treturn None\n\n\tdef flatten(d):\n\t\trows = []\n\t\tif not isdict(d):\n\t\t\treturn rows\n\t\tkeys = [str(k) for k in d.keys()]\n\t\tkeys.sort()\n\t\tfor k in keys:\n\t\t\tv = d.get(k)\n\t\t\tif isdict(v):\n\t\t\t\trows.extend(flatten(v))\n\t\t\telif islist(v):\n\t\t\t\trows.append({\"name\": k, \"state\": \"%d entries\" % len(v), \"led\": \"na\"})\n\t\t\telse:\n\t\t\t\ttxt = str(v)\n\t\t\t\tok = None\n\t\t\t\tif v is True or txt.lower() in (\"ok\", \"true\", \"yes\", \"ready\", \"installed\"):\n\t\t\t\t\tok = True\n\t\t\t\telif v is False or txt.lower() in (\"false\", \"no\", \"missing\", \"error\", \"failed\"):\n\t\t\t\t\tok = False\n\t\t\t\trows.append({\"name\": k, \"state\": txt, \"led\": led(ok)})\n\t\treturn rows\n\n\tdef rowify(d):\n\t\tlst = findlist(d, 0)\n\t\tif lst:\n\t\t\treturn [one(it) for it in lst]\n\t\treturn flatten(d)\n\n\tout = {\"msg\": \"\", \"raw\": \"\", \"rows\": []}\n\ttry:\n\t\t# In-process, as the logged-in Perspective session: no HTTP hop\n\t\t# back to an open route, so this works with the write route shut.\n\t\t# The encode/decode round trip is deliberate - it hands rowify()\n\t\t# exactly the object the HTTP response used to.\n\t\tdata = system.util.jsonDecode(system.util.jsonEncode({\"ok\": True, \"check\": MachineDemo.setup.check()}))\n\t\tout[\"msg\"] = \"check -> OK\"\n\t\tif data is None:\n\t\t\tout[\"raw\"] = \"\"\n\t\telse:\n\t\t\ttry:\n\t\t\t\tout[\"raw\"] = system.util.jsonEncode(data, 1)[:1400]\n\t\t\texcept:\n\t\t\t\tout[\"raw\"] = str(data)[:1400]\n\t\t\tout[\"rows\"] = rowify(data)\n\texcept Throwable, e:\n\t\tout[\"msg\"] = \"check -> FAILED\"\n\t\tout[\"raw\"] = str(e)[:1400]\n\texcept Exception, e:\n\t\tout[\"msg\"] = \"check -> FAILED\"\n\t\tout[\"raw\"] = str(e)[:1400]\n\t# The view carries ROWS fixed rows, so the list is padded to exactly that.\n\t# Truncating in silence is how this screen came to show six of the eight\n\t# checks setup.check() actually runs - the alarm journal and the cell\n\t# simulation fell off the end and nothing said so. If there is ever an\n\t# overflow again it goes in the message rather than into the dark.\n\tROWS = 8\n\trows = out[\"rows\"]\n\textra = len(rows) - ROWS\n\twhile len(rows) < ROWS:\n\t\trows.append({\"name\": \"\", \"state\": \"\", \"led\": \"blank\"})\n\tif extra > 0:\n\t\tout[\"msg\"] = \"%s (+%d not shown)\" % (out[\"msg\"], extra)\n\tout[\"rows\"] = rows[:ROWS]\n\tself.view.custom.check = out\n"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1756,6 +1767,256 @@
                         ]
                       },
                       {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R6"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "9px",
+                            "borderBottom": "1px solid rgba(255,255,255,0.04)",
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          },
+                          "alignItems": "center"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "22px"
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "L"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "width": "10px",
+                                "height": "10px",
+                                "minWidth": "10px",
+                                "borderRadius": "50%",
+                                "backgroundColor": "var(--neutral-40, #3a434b)",
+                                "border": "1px solid rgba(0,0,0,0.35)"
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "10px"
+                            },
+                            "propConfig": {
+                              "props.style.backgroundColor": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.check.rows[6].led} = \"ok\", \"#46d07c\", if({view.custom.check.rows[6].led} = \"bad\", \"#f0565e\", \"#74808a\"))"
+                                  }
+                                }
+                              },
+                              "props.style.opacity": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.check.rows[6].led} = \"blank\", 0, 1)"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "N"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--neutral-90, #dde4e9)",
+                                "whiteSpace": "nowrap",
+                                "overflow": "hidden"
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "126px"
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "{view.custom.check.rows[6].name}"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "S"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
+                                "fontSize": "11px",
+                                "color": "var(--neutral-60, #8b98a3)",
+                                "whiteSpace": "nowrap",
+                                "overflow": "hidden",
+                                "textAlign": "right"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "{view.custom.check.rows[6].state}"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R7"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "9px",
+                            "borderBottom": "1px solid rgba(255,255,255,0.04)",
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          },
+                          "alignItems": "center"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "22px"
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "L"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "width": "10px",
+                                "height": "10px",
+                                "minWidth": "10px",
+                                "borderRadius": "50%",
+                                "backgroundColor": "var(--neutral-40, #3a434b)",
+                                "border": "1px solid rgba(0,0,0,0.35)"
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "10px"
+                            },
+                            "propConfig": {
+                              "props.style.backgroundColor": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.check.rows[7].led} = \"ok\", \"#46d07c\", if({view.custom.check.rows[7].led} = \"bad\", \"#f0565e\", \"#74808a\"))"
+                                  }
+                                }
+                              },
+                              "props.style.opacity": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.check.rows[7].led} = \"blank\", 0, 1)"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "N"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--neutral-90, #dde4e9)",
+                                "whiteSpace": "nowrap",
+                                "overflow": "hidden"
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "126px"
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "{view.custom.check.rows[7].name}"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "S"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
+                                "fontSize": "11px",
+                                "color": "var(--neutral-60, #8b98a3)",
+                                "whiteSpace": "nowrap",
+                                "overflow": "hidden",
+                                "textAlign": "right"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "{view.custom.check.rows[7].state}"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
                         "type": "ia.display.label",
                         "meta": {
                           "name": "Msg"
@@ -1882,9 +2143,9 @@
                   }
                 },
                 "position": {
-                  "grow": 1,
-                  "shrink": 1,
-                  "basis": "290px"
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "330px"
                 },
                 "children": [
                   {
@@ -2628,7 +2889,8 @@
               "style": {
                 "gap": "10px",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "overflowY": "auto"
               }
             },
             "position": {
@@ -2654,9 +2916,9 @@
                   }
                 },
                 "position": {
-                  "grow": 1,
-                  "shrink": 1,
-                  "basis": "0px"
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "410px"
                 },
                 "children": [
                   {
@@ -2772,8 +3034,8 @@
                           "alignItems": "center"
                         },
                         "position": {
-                          "grow": 1,
-                          "shrink": 1,
+                          "grow": 0,
+                          "shrink": 0,
                           "basis": "52px"
                         },
                         "children": [
@@ -3065,8 +3327,8 @@
                           "alignItems": "center"
                         },
                         "position": {
-                          "grow": 1,
-                          "shrink": 1,
+                          "grow": 0,
+                          "shrink": 0,
                           "basis": "52px"
                         },
                         "children": [
@@ -3358,8 +3620,8 @@
                           "alignItems": "center"
                         },
                         "position": {
-                          "grow": 1,
-                          "shrink": 1,
+                          "grow": 0,
+                          "shrink": 0,
                           "basis": "52px"
                         },
                         "children": [
@@ -3651,8 +3913,8 @@
                           "alignItems": "center"
                         },
                         "position": {
-                          "grow": 1,
-                          "shrink": 1,
+                          "grow": 0,
+                          "shrink": 0,
                           "basis": "52px"
                         },
                         "children": [
@@ -3944,8 +4206,8 @@
                           "alignItems": "center"
                         },
                         "position": {
-                          "grow": 1,
-                          "shrink": 1,
+                          "grow": 0,
+                          "shrink": 0,
                           "basis": "52px"
                         },
                         "children": [
