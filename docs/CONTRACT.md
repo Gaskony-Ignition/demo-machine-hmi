@@ -147,6 +147,41 @@ sides share the queue now, so they cannot.
 `ConveyorJam` still latches its eyes rather than following the queue: which
 eyes are made is the diagnosis that says where the carton stopped.
 
+**Which end the queue empties from is the behaviour, and a count does not say
+it.** `infeed.queue` is a number, and the page's first reading of it keyed each
+carton to a fixed index and drew the first *n*. A pick takes a whole column -
+three cases at the default pattern - so the three cartons that disappeared were
+the three furthest **upstream**, while the one standing at the pick point never
+moved. Two symptoms, one line: cartons vanishing at random near the far end of
+the belt, and a robot that picked without anything leaving the queue.
+
+The page holds an ordered list now, index 0 at the stop line. A pick shifts off
+the **front** and the line steps forward one pitch behind it; an arrival pushes
+on at the back.
+
+**And the queue is not the buffer.** `_startCycle` debits `buf` the moment it
+commits, because it has to know it has product before it will move - but the
+cases do not leave the belt until the cups seal, Approach + Descend + a third
+of Grip later, about 3.1 s. Publishing `buf` alone would have deleted the
+cartons before the arm arrived. So `_staged(s)` derives from the phase what a
+cycle has reserved and not yet lifted, and **`infeed.queue` = `buf` +
+`staged`** - the number the page draws and the number `_eyes()` reads. Both
+consumers see what is physically on the belt; `buf` on its own is scheduling.
+
+Two consequences worth keeping:
+
+- An interrupted cycle **gives its cases back** on the homing reset. Before
+  this, every injected fault silently ate a pick's worth of product: debited at
+  `_startCycle`, never placed, never returned.
+- `bufferMax` is a physical length, so staged cases take room in it. Capping
+  arrivals on the logical buffer alone let the belt draw eight cartons in a
+  zone stated to hold six.
+
+The gripper carries `casesPerPick` cases, not one. The head is drawn the length
+of the column it takes, which is the other half of the same disagreement: three
+cartons left the belt, one appeared under the gripper, and three landed on the
+pallet.
+
 ### `Robot` is a UDT instance, and the paths did not change
 
 `_types_/RobotArm` defines the arm once — nineteen members with their

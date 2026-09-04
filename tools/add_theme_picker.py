@@ -61,6 +61,28 @@ VIEWS = os.path.join(HERE, os.pardir, "project",
 # the right target for those, but adopting them also restyles the dark themes,
 # which is a separate decision.
 #
+# RE-MEASURED 04/09/2026, on all six pages, compositing every rgba layer over
+# its real surface rather than reading the top one as opaque:
+#
+#     dark    590 texts,   0 below 3.0   (one exempt: a disabled button)
+#     light   590 texts, 191 below 3.0
+#
+# So the gap is real and it is bigger than an accent fix. The 191 split two
+# ways, and only the first is about colour choice:
+#
+#   * accents on light chrome - #46d07c/#eebf5e/#6cc4e8 on #F0F0F0 at 1.5-1.75
+#   * surfaces that never flip - a card left at a literal #1d232a while its
+#     text follows the token to near-black: 1.06:1, unreadable, and nothing to
+#     do with the accents
+#
+# The second is the work. 1417 literal hex values across the views, 63 of them
+# distinct (568 more are already var()-wrapped). It is a lookup table, not
+# 1417 decisions, and the safe shape is to hoist all 63 into variables whose
+# DARK values are byte-identical to today - so the three shipping themes are
+# provably unchanged - and give the light themes their own. That is a day's
+# work with a contrast gate on the end, not a polish item, and it is why light
+# is still not offered.
+#
 # So: three themes that are verified legible, rather than six of which half
 # are not. Every one of these visibly changes the whole project - Perspective
 # chrome, stock components, and the 3D cell together.
