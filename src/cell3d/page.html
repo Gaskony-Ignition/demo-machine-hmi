@@ -630,6 +630,11 @@
   // ----------------------------------------------------------------------
   var infeed, conveyor, convX0, convX1, rollers, photoEyes, infeedCases;
   var GRID, stations, cups, heldCase, highlights;
+  // The infeed is an ACCUMULATION conveyor: cartons run up to the pick point,
+  // stop, and back up behind each other until the robot takes a set. So each
+  // carton owns a slot in a queue rather than a free-running position -
+  // infeedSlots[i] is how many cartons are in front of carton i.
+  var infeedSlots = [], infeedStopX = 0, infeedPitch = 0.3;
 
   function disposeObject(o) {
     if (o.parent) o.parent.remove(o);
@@ -694,7 +699,11 @@
       var beamMat = new THREE.MeshBasicMaterial({ color: COL.run, transparent: true, opacity: 0.85 });
       var beam = cyl(0.008, 0.008, M.convW + 0.20, beamMat, 6);
       beam.rotation.x = Math.PI / 2;
-      beam.position.set(d.x, M.convY + 0.20, 0);
+      // Just clear of the tallest carton. At a fixed 200mm the beam sat INSIDE
+      // a 220mm case and poked out of both sides of it, which only became
+      // obvious once the belt accumulated and the cartons were nose-to-tail
+      // instead of spaced. Capped so it stays between the two posts.
+      beam.position.set(d.x, M.convY + Math.min(0.30, M.caseH + 0.05), 0);
       beam.castShadow = false;
       g.add(beam);
       infeed.add(g);
@@ -714,12 +723,26 @@
       g.add(seam);
       return g;
     }
+    // Enough cartons to fill the belt at the pattern's own case depth, so a
+    // backed-up infeed looks backed up rather than like six boxes in a row.
+    // Six fixed cartons on a 3.3 m belt left most of it empty and made the
+    // queue read as a gap.
     infeedCases = [];
-    for (var c = 0; c < 6; c++) {
+    infeedSlots = [];
+    infeedStopX = convX0 + 0.35;
+    infeedPitch = M.caseD + 0.05;
+    // Enough meshes for the longest queue the belt could hold. How many are
+    // SHOWN is state.infeed.queue; these are just the pool.
+    var nCases = Math.max(6, Math.min(24,
+      Math.floor((M.convLen - 0.45) / infeedPitch)));
+    for (var c = 0; c < nCases; c++) {
       var cs = makeCase(c % 2 === 1);
-      cs.position.set(convX0 + 0.6 + c * 0.72, M.convY + M.caseH / 2 + 0.045, 0);
+      cs.position.set(infeedStopX + c * infeedPitch,
+                      M.convY + M.caseH / 2 + 0.045, 0);
       infeed.add(cs);
+      cs.visible = false;
       infeedCases.push(cs);
+      infeedSlots.push(c);
     }
 
     // ----------------------------------------------------------------------
@@ -1112,15 +1135,44 @@
       photoEyes[q].mat.opacity = blocked ? 0.95 : 0.55;
     }
 
-    // conveyor cartons move only while the conveyor runs
+    // The infeed accumulates, and HOW MANY cartons are standing on it is the
+    // simulator's number, not this page's. Cartons used to run the length of
+    // the belt and teleport back to the far end - a transfer conveyor, not the
+    // accumulating infeed this cell has - and the page drew a full belt while
+    // the simulator was modelling a queue of six. The photo-eyes read off that
+    // queue, so a page that invented its own carton positions put beams
+    // reading CLEAR underneath boxes.
+    //
+    // Now: state.infeed.queue cartons, parked nose to tail from the stop line
+    // at one case depth plus a gap, exactly the geometry MachineDemo.sim uses
+    // to decide which eyes are blocked. Everything past the queue is upstream
+    // and not drawn. The belt therefore fills as the infeed runs ahead of the
+    // robot and drains when a jam stops it - which is the fault's whole point.
+    var queue = Math.max(0, Math.min(infeedCases.length,
+      (s.infeed && s.infeed.queue != null) ? (s.infeed.queue | 0) : infeedCases.length));
+    var step = dt * 0.55;
+    for (var k = 0; k < infeedCases.length; k++) {
+      var cs = infeedCases[k];
+      var onBelt = k < queue;
+      if (onBelt && !cs.visible) {
+        // Arriving: come in from behind the one it will sit against, so it is
+        // seen to run up rather than to appear.
+        cs.position.x = infeedStopX + (k + 1.4) * infeedPitch;
+        cs.visible = true;
+      } else if (!onBelt) {
+        cs.visible = false;
+        continue;
+      }
+      var want = infeedStopX + k * infeedPitch;
+      var have = cs.position.x;
+      if (have > want) cs.position.x = Math.max(want, have - step);
+      else if (have < want) cs.position.x = Math.min(want, have + step);
+    }
+
+    // The rollers turn only while C1 runs. A jam stops the belt; the cartons
+    // already standing on it stay where they are.
     var running = !(s.conv && s.conv.c1 === false);
     if (running) {
-      for (var k = 0; k < infeedCases.length; k++) {
-        infeedCases[k].position.x -= dt * 0.55;
-        if (infeedCases[k].position.x < convX0 + 0.35) {
-          infeedCases[k].position.x = convX1 - 0.2;
-        }
-      }
       for (var rr = 0; rr < rollers.length; rr++) rollers[rr].rotation.y += dt * 6;
     }
 

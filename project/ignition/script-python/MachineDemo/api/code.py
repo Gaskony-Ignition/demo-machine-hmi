@@ -347,7 +347,18 @@ def state():
 		# in the simulator until a Config tag changes, so the poll pays
 		# nothing for it.
 		"geometry": _geometry(),
+		# Additive: how many cartons are standing on the infeed. The 3D page
+		# draws exactly this many, at the same pitch the simulator blocks its
+		# photo-eyes with, so the beams and the boxes cannot disagree.
+		"infeed": _infeed(),
 	}
+
+
+def _infeed():
+	try:
+		return MachineDemo.sim.infeedInfo()
+	except:
+		return {"queue": 0, "max": 0}
 
 
 def _geometry():

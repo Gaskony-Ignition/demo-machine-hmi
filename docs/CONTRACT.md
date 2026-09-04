@@ -66,6 +66,8 @@ Pallet/Station1/  Present Bool | CasesPlaced Int4 | Layer Int4
 Pallet/Station2/  (identical)
 
 Conveyor/      C1_Run Bool | C2_Run Bool | C3_Run Bool
+               (PE_* below are GEOMETRIC: an eye is blocked when a carton in
+                the accumulation queue stands on it - see "The infeed queue")
                C1_Speed_mpm Float8 | C2_Speed_mpm Float8 | C3_Speed_mpm Float8
                PE_Infeed Bool | PE_Carton Bool | PE_Length1 Bool | PE_Length2 Bool
                PE_InPos1 Bool | PE_InPos2 Bool | PE_Clear Bool
@@ -121,6 +123,29 @@ job. The reach report is what says whether *this* arm can build *this*
 pattern — the default and all three presets solve with 0 mm error; the
 stations moved from 2.2 m to 1.98 m on 03/09/2026 because the first honest
 solve found the far column of a 1.2 m pallet 64 mm beyond a 2.5 m arm.
+
+### The infeed queue — one model, two consumers
+
+The infeed is an **accumulation** conveyor: cartons run to a stop line 350 mm
+back from the near end of the belt and queue nose-to-tail behind each other at
+one case depth plus a 50 mm gap. `MachineDemo.sim` owns the queue length
+(`Line`'s buffer, `bufferMax` = two picks) and the 3D page draws exactly that
+many cartons at exactly that pitch, from the `infeed` block of `?cmd=state`.
+
+**The photo-eyes are decided from that same queue**, in `_eyes()`: an eye is
+blocked when a carton is standing on it, with a tolerance of half the gap so
+that an eye sited on the join between two boxes does not read clear with
+product in front of it. `PE_Clear` is the three eyes along the run, not the two
+staging eyes at the pick point, which are made whenever a set is waiting.
+
+Before 04/09/2026 the eyes were a phase model - each made and broke on a
+fraction of the carton pitch - and the page ran its cartons the length of the
+belt and wrapped them back to the far end. Both looked right in isolation and
+disagreed on screen: beams reading CLEAR with a box sitting in them. The two
+sides share the queue now, so they cannot.
+
+`ConveyorJam` still latches its eyes rather than following the queue: which
+eyes are made is the diagnosis that says where the carton stopped.
 
 ### `Robot` is a UDT instance, and the paths did not change
 
@@ -342,8 +367,10 @@ Designer without a web toolchain.
 }
 ```
 
-`config`, `quality` and `geometry` are **additive** blocks beside the frozen
-shape. `geometry` is what the simulator derived from `config`, cached until a
+`config`, `quality`, `geometry` and `infeed` are **additive** blocks beside the
+frozen shape. `infeed` is the accumulation queue - `{"queue": 4, "max": 6,
+"pitch_mm": 300, "stopGap_mm": 350}` - and the 3D page draws exactly that many
+cartons at that pitch. `geometry` is what the simulator derived from `config`, cached until a
 Config tag changes; the page rebuilds when `config` changes and shows
 `geometry.pattern` and `geometry.reach` on the HUD.
 

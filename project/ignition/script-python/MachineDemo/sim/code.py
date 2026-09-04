@@ -119,6 +119,34 @@ CASE_INSET = 0.94                 # the page draws the pattern 6% inside its spa
 # How far above the tallest stack the wrist travels while it is swinging.
 SAFE_CLEAR_M = 0.35
 
+# Where the cartons stand on the infeed, and where the photo-eyes look.
+#
+# The accumulation queue is ONE model shared with the 3D page: cartons stop at
+# a line 0.35 m from the near end of the belt and back up behind each other at
+# a pitch of one case depth plus a 50 mm gap. The page draws that queue; this
+# module decides which eyes it covers. Both sides have to use the same three
+# numbers or a beam goes green with a carton sitting in it, which is the one
+# thing a photo-eye must never do on a screen a fitter is reading.
+#
+# EYE_OFFSETS is each eye's distance from the stop line, in metres, positive
+# upstream. Four of the six are measured from the FAR end of the belt, so they
+# move when ConvLength does - hence a function of the length rather than a
+# table of constants.
+QUEUE_STOP_GAP_M = 0.35           # stop line, back from the near end
+QUEUE_GAP_M = 0.05                # between one carton and the next
+
+
+def _eyeOffsets(convLen):
+	return {
+		"PE_InPos2": -0.10,
+		"PE_InPos1": 0.25,
+		"PE_Carton": convLen - 3.45,
+		"PE_Length2": convLen - 2.65,
+		"PE_Length1": convLen - 2.05,
+		"PE_Infeed": convLen - 0.70,
+	}
+
+
 # A placement is judged reached if the solved wrist lands within this of where
 # it was asked to go. The arm's joints and column are clamped in _solve(), so
 # anything further out than this is a slot the machine cannot build.
@@ -378,6 +406,17 @@ def _onGeometryChange(s, g):
 	s["buf"] = min(g["bufferMax"], s["buf"])
 	s["safeY"] = _safeWristY(s, s["layer"])
 	s["named"] = False
+
+
+def infeedInfo():
+	"""The accumulation queue, for the 3D page: how many cartons are standing
+	on the belt and the most it holds. The page draws this many, at the pitch
+	in QUEUE_GAP_M, which is the same queue _eyes() blocks its beams with."""
+	s = _state()
+	g = _geo()
+	return {"queue": int(s["buf"]), "max": int(g["bufferMax"]),
+	        "pitch_mm": int(round((g["caseD"] + QUEUE_GAP_M) * 1000.0)),
+	        "stopGap_mm": int(round(QUEUE_STOP_GAP_M * 1000.0))}
 
 
 def geometryInfo():
@@ -971,46 +1010,55 @@ def _material(s, dt, f, held):
 		s["scanOK"] = (s["barcode"] % 37) != 0
 
 
-def _inPosition(s):
-	"""The two 'case set squared up under the gripper' eyes at the pick station.
+def _covered(g, buf, offset):
+	"""Is there a carton standing on this point of the belt?
 
-	They are staging sensors, not a buffer gauge. A set is present until the
-	robot lifts it, then both go dark until the next set has indexed in - so
-	they blink once a cycle, which is what makes them worth putting on a
-	screen, and they stay dark when the infeed has nothing to send.
+	The queue holds `buf` cartons from the stop line back, each one caseD long
+	on a caseD + gap pitch. An eye is blocked when its offset falls inside one
+	of them. This is geometry, not a phase: the beam is red because a box is
+	in front of it, which is what the lamp claims.
 	"""
-	if s["buf"] < _geo()["pick"] or s["idle"]:
-		return False, False
-	name = PHASES[s["phase"]][0]
-	# Dark from the moment the set is lifted until the next one has indexed
-	# in behind it - the lift and the swing away.
-	if name in ("Lift", "Traverse"):
-		return False, False
-	return True, name != "Grip"
+	pitch = g["caseD"] + QUEUE_GAP_M
+	# Half a case, plus half the gap between two of them. A beam has width and
+	# a carton has flaps, and without the tolerance an eye sited exactly on the
+	# join between two boxes - PE_Carton is, on the default belt, by 25 mm -
+	# reads clear for ever with product standing on it.
+	half = g["caseD"] / 2.0 + QUEUE_GAP_M / 2.0
+	for i in range(int(buf)):
+		if abs(offset - i * pitch) <= half:
+			return True
+	return False
 
 
 def _eyes(s, f):
-	"""The seven photo-eyes, as the cartons and the arm actually leave them."""
-	pos1, pos2 = _inPosition(s)
+	"""The six photo-eyes, blocked by the cartons that are actually standing
+	on the belt, plus the derived PE_Clear.
+
+	This used to be a phase model - each eye made and broke on a fraction of
+	the carton pitch, which looked convincing on a belt drawn with gaps
+	between the cartons and became visibly wrong the moment the 3D page drew
+	the queue accumulating: beams reading CLEAR with a carton sitting in
+	them. The eyes are geometry now, off the same queue the page draws.
+	"""
+	g = _geo()
+	buf = s["buf"]
 	if f["ConveyorJam"]:
-		# A jam IS a blocked eye. Latching them is the diagnosis an operator
-		# reads off the panel to find where the carton stopped.
+		# A jam IS a blocked eye, and it latches: which eyes are made is the
+		# diagnosis an operator reads off the panel to find where the carton
+		# stopped, so it must not keep moving with the queue behind it.
 		return {"PE_Infeed": True, "PE_Carton": True, "PE_Length1": True,
 		        "PE_Length2": False, "PE_Clear": False,
-		        "PE_InPos1": pos1, "PE_InPos2": pos2}
-	u = s["carton"] / _geo()["cartonPitch"]
-	carton = 0.18 <= u < 0.46
-	len1 = 0.32 <= u < 0.60
-	len2 = 0.40 <= u < 0.68
-	return {
-		"PE_Infeed": u < 0.26,
-		"PE_Carton": carton,
-		"PE_Length1": len1,
-		"PE_Length2": len2,
-		"PE_Clear": not (carton or len1 or len2),
-		"PE_InPos1": pos1,
-		"PE_InPos2": pos2,
-	}
+		        "PE_InPos1": buf >= 1, "PE_InPos2": buf >= 1}
+	off = _eyeOffsets(g["raw"]["convLength_mm"] / 1000.0)
+	eyes = {}
+	for key, d in off.items():
+		eyes[key] = _covered(g, buf, d)
+	# The three along the run are what "clear" means - the two staging eyes at
+	# the pick point are made whenever a set is waiting, which is most of the
+	# time, and folding them in would make PE_Clear permanently false.
+	eyes["PE_Clear"] = not (eyes["PE_Carton"] or eyes["PE_Length1"]
+	                        or eyes["PE_Length2"])
+	return eyes
 
 
 def _stations(s, dt, f):
