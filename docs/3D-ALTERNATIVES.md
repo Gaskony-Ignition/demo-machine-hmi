@@ -83,6 +83,49 @@ annotation bullets bound to tags, and a NavCube to fly the camera. That is a
 good demo and this module is a reasonable way to build it. It is simply not
 this demo.
 
+## The model pipeline, built and proved
+
+The module needs XKT and this project has no CAD file — the cell is boxes and
+cylinders in JavaScript, which is the point. So the route out is to run the
+real page and read the scene graph it just built:
+
+```
+page.html (live)  ->  _scene.js  ->  scene.json
+                  ->  tools/export_scene.py  ->  cell.gltf + cell.metamodel.json
+                  ->  xeokit-convert         ->  cell.xkt
+```
+
+It works, end to end and offline. Measured on 04/09/2026:
+
+| | |
+| --- | --- |
+| meshes read from the live scene | 396 (331 boxes, 64 cylinders, 1 plane) |
+| unique geometries after dedup | 33 |
+| glTF buffer | 36 KB |
+| XKT | 98.9 KB, 396 drawable objects, 33 geometries, 1374 vertices |
+| metaobjects | 404, in 7 assemblies |
+
+Exporting from the running page rather than re-modelling the cell is what
+keeps it honest: the XKT is the same machine the demo shows, at whatever the
+fifteen Config tags currently hold, instead of a second copy that would drift
+the first time someone changed a case size.
+
+The metamodel states the kinematic chain as containment, which is the tree a
+BIM viewer would show:
+
+```
+cell > Robot > Base > Carriage > Shoulder > Elbow > Wrist
+     > InfeedConveyor
+```
+
+Two honest limits. **It exports one frame** — glTF can carry animation and this
+writer emits none, because the destination cannot play it. And the converter
+reports `Converted metaobjects: 0` even though the file grows by the expected
+5.5 KB when the metamodel is passed; its `triangles` counter also reads 0 on a
+model with 1374 vertices, so the statistics look unreliable on the glTF path
+rather than the metamodel being rejected. **That is not verified either way**,
+and it cannot be until the module is installed and loads the file.
+
 ## Recommendation
 
 **Keep the WebDev + three.js page.** It does the one thing that matters here

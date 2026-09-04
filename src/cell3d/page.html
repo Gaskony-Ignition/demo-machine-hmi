@@ -518,7 +518,7 @@
 
   // Safety fence: posts plus mesh panels. It is what makes the model read as
   // a machine cell at a glance rather than as loose equipment on a floor.
-  var fence = new THREE.Group();
+  var fence = new THREE.Group(); fence.name = "Guarding";
   var fenceMat = mat(COL.fence, { roughness: 0.7 });
   var panelMat = new THREE.MeshStandardMaterial({
     color: 0x9fb6c8, transparent: true, opacity: 0.09,
@@ -561,7 +561,7 @@
   //   j3 elbow about Z, j4 wrist about Y.
   // Each joint is its own Group so the tag value sets exactly one rotation.
   // ----------------------------------------------------------------------
-  var robot = new THREE.Group();
+  var robot = new THREE.Group(); robot.name = "Robot";
   var armMat = mat(0xe8a33d, { metalness: 0.35, roughness: 0.5 });   // machine yellow
   var armDark = mat(0x30383f, { metalness: 0.6, roughness: 0.45 });
 
@@ -569,7 +569,7 @@
   pedestal.position.y = 0.15;
   robot.add(pedestal);
 
-  var baseYaw = new THREE.Group();           // j1
+  var baseYaw = new THREE.Group(); baseYaw.name = "Base";           // j1
   baseYaw.position.y = 0.30;
   robot.add(baseYaw);
 
@@ -583,11 +583,11 @@
     baseYaw.add(guide);
   }
 
-  var carriage = new THREE.Group();          // lift
+  var carriage = new THREE.Group(); carriage.name = "Carriage";          // lift
   baseYaw.add(carriage);
   carriage.add(box(0.46, 0.34, 0.46, armMat, 0, 0, 0));
 
-  var shoulder = new THREE.Group();          // j2
+  var shoulder = new THREE.Group(); shoulder.name = "Shoulder";          // j2
   shoulder.position.set(0.0, 0.0, 0.0);
   carriage.add(shoulder);
 
@@ -598,7 +598,7 @@
   shoulderHub.rotation.x = Math.PI / 2;
   shoulder.add(shoulderHub);
 
-  var elbow = new THREE.Group();             // j3
+  var elbow = new THREE.Group(); elbow.name = "Elbow";             // j3
   elbow.position.set(UPPER, 0, 0);
   shoulder.add(elbow);
   var elbowHub = cyl(0.12, 0.12, 0.28, armDark, 18);
@@ -607,14 +607,14 @@
   var foreArm = box(FORE, 0.19, 0.21, armMat, FORE / 2, 0, 0);
   elbow.add(foreArm);
 
-  var wrist = new THREE.Group();             // j4
+  var wrist = new THREE.Group(); wrist.name = "Wrist";             // j4
   wrist.position.set(FORE, 0, 0);
   elbow.add(wrist);
   wrist.add(cyl(0.10, 0.10, 0.16, armDark, 16));
 
   // Vacuum gripper head: a plate of suction cups, which is what a case
   // palletiser actually carries.
-  var gripper = new THREE.Group();
+  var gripper = new THREE.Group(); gripper.name = "Gripper";
   gripper.position.y = -0.14;
   wrist.add(gripper);
   robot.position.set(0, 0, 0);
@@ -653,8 +653,8 @@
     // ----------------------------------------------------------------------
     // Infeed conveyor, its cartons and its photo-eyes
     // ----------------------------------------------------------------------
-    infeed = new THREE.Group();
-    conveyor = new THREE.Group();
+    infeed = new THREE.Group(); infeed.name = "InfeedConveyor";
+    conveyor = new THREE.Group(); conveyor.name = "ConveyorFrame";
     infeed.add(conveyor);
     var frameMat = mat(COL.steelDark, { roughness: 0.6 });
     var rollerMat = mat(COL.steel, { metalness: 0.85, roughness: 0.35 });
@@ -798,6 +798,7 @@
 
     function makePalletStation(pos, name) {
       var g = new THREE.Group();
+      g.name = name.replace(/\s+/g, "");
       g.position.set(pos.x, 0, pos.z);
 
       var palletMat = mat(COL.pallet, { metalness: 0.02, roughness: 0.95 });
@@ -1518,6 +1519,15 @@
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+
+  // The scene graph, reachable from outside. This page IS the geometry - the
+  // cell is built procedurally here and exists nowhere else, no CAD file and
+  // no model on disk - so anything that wants to export it has to read it from
+  // the running page. tools/export_scene.py walks this to write a glTF.
+  //
+  // Diagnostic only, and the same shape as document.body.dataset.infeed above:
+  // nothing in the page reads it, and removing it changes no behaviour.
+  window.__cellScene = scene;
 
   window.addEventListener("resize", function () {
     camera.aspect = window.innerWidth / window.innerHeight;
