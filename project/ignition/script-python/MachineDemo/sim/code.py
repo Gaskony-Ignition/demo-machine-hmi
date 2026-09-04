@@ -414,7 +414,7 @@ def infeedInfo():
 	in QUEUE_GAP_M, which is the same queue _eyes() blocks its beams with."""
 	s = _state()
 	g = _geo()
-	return {"queue": int(s["buf"]), "max": int(g["bufferMax"]),
+	return {"queue": int(s["buf"] + _staged(s)), "max": int(g["bufferMax"]),
 	        "pitch_mm": int(round((g["caseD"] + QUEUE_GAP_M) * 1000.0)),
 	        "stopGap_mm": int(round(QUEUE_STOP_GAP_M * 1000.0))}
 
@@ -647,6 +647,8 @@ def info():
 		"slot": s["slot"],
 		"layer": s["layer"],
 		"infeedBuffer": s["buf"],
+		"infeedStaged": _staged(s),
+		"infeedOnBelt": s["buf"] + _staged(s),
 		"cycleTime": round(s["cycleTime"], 2),
 		"casesTotal": s["casesTotal"],
 		"cycleCount": s["cycleCount"],
@@ -881,6 +883,11 @@ def _motion(s, dt, f, blocked, robotFault, held):
 		# Coming back from a stop is not instant on a real cell: the robot
 		# re-homes before it will run the pattern again. It is also the only
 		# time the contract's "Homing" state is honest.
+		# The cases this cycle reserved were never picked, so they are still on
+		# the belt and must go back to the buffer. Without this a fault silently
+		# ate a pick's worth of product every time it was injected: debited at
+		# _startCycle, never placed, never returned.
+		s["buf"] = min(_geo()["bufferMax"], s["buf"] + _staged(s))
 		s["wasBlocked"] = False
 		s["homing"] = 2.5
 		s["idle"] = True
@@ -921,6 +928,31 @@ def _motion(s, dt, f, blocked, robotFault, held):
 	s["pose"] = _lerp(s["from"], _target(s, s["phase"]), _smooth(frac))
 	s["frac"] = frac
 	return PHASES[s["phase"]][2]
+
+
+def _staged(s):
+	"""Cases the running cycle has reserved that are STILL on the conveyor.
+
+	_startCycle debits the buffer the moment it commits, because it has to know
+	it has product before it will move. But the cases do not leave the belt until
+	the cups seal, which is Approach + Descend + a third of Grip - about 3.1 s
+	later. Publishing the buffer alone told the 3D page to delete the cartons at
+	cycle start, so the arm descended onto an empty belt and the staging eyes
+	went clear with boxes still sitting in them.
+
+	Derived from the phase rather than stored, so it cannot drift out of step
+	with the arm it describes.
+	"""
+	if s["idle"]:
+		return 0
+	name = PHASES[s["phase"]][0]
+	if name in ("Approach", "Descend"):
+		return _geo()["pick"]
+	if name == "Grip":
+		# The same 0.35 the vacuum seals at: the instant the cups take the cases
+		# is the instant they stop being on the conveyor. Both read it from here.
+		return 0 if s.get("frac", 0.0) > 0.35 else _geo()["pick"]
+	return 0
 
 
 def _endPhase(s):
@@ -1002,7 +1034,13 @@ def _material(s, dt, f, held):
 	while s["carton"] >= g["cartonPitch"] and guard < 20:
 		guard += 1
 		s["carton"] -= g["cartonPitch"]
-		s["buf"] = min(g["bufferMax"], s["buf"] + 1)
+		# bufferMax is how many cases the accumulation zone HOLDS, so cases the
+		# robot has reserved but not yet lifted take up room in it. Capping on
+		# the logical buffer alone let the belt draw eight cartons in a zone
+		# stated to hold six. The barcode still advances either way: the scanner
+		# is at the upstream end, ahead of the zone that is full.
+		if s["buf"] < g["bufferMax"] - _staged(s):
+			s["buf"] += 1
 		s["barcode"] += 1
 		s["lastBarcode"] = "T%05d" % s["barcode"]
 		# One no-read in every 37 cartons. It is not a fault - it is the thing
@@ -1041,7 +1079,9 @@ def _eyes(s, f):
 	them. The eyes are geometry now, off the same queue the page draws.
 	"""
 	g = _geo()
-	buf = s["buf"]
+	# Cases reserved by a cycle that has not lifted them yet are still physically
+	# in the beams, so the eyes count them - the same number the page draws.
+	buf = s["buf"] + _staged(s)
 	if f["ConveyorJam"]:
 		# A jam IS a blocked eye, and it latches: which eyes are made is the
 		# diagnosis an operator reads off the panel to find where the carton

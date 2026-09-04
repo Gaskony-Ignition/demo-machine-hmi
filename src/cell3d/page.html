@@ -629,12 +629,14 @@
   // the job, and they do not move with the tags.
   // ----------------------------------------------------------------------
   var infeed, conveyor, convX0, convX1, rollers, photoEyes, infeedCases;
-  var GRID, stations, cups, heldCase, highlights;
+  var GRID, stations, cups, heldCases, highlights;
   // The infeed is an ACCUMULATION conveyor: cartons run up to the pick point,
-  // stop, and back up behind each other until the robot takes a set. So each
-  // carton owns a slot in a queue rather than a free-running position -
-  // infeedSlots[i] is how many cartons are in front of carton i.
-  var infeedSlots = [], infeedStopX = 0, infeedPitch = 0.3;
+  // stop, and back up behind each other until the robot takes a set.
+  //
+  // infeedCases is the POOL of meshes; infeedQueue is the ordered line
+  // standing on the belt, index 0 at the stop line. The distinction is the
+  // whole behaviour - see the note in applyState.
+  var infeedQueue = [], infeedStopX = 0, infeedPitch = 0.3;
 
   function disposeObject(o) {
     if (o.parent) o.parent.remove(o);
@@ -728,7 +730,7 @@
     // Six fixed cartons on a 3.3 m belt left most of it empty and made the
     // queue read as a gap.
     infeedCases = [];
-    infeedSlots = [];
+    infeedQueue = [];
     infeedStopX = convX0 + 0.35;
     infeedPitch = M.caseD + 0.05;
     // Enough meshes for the longest queue the belt could hold. How many are
@@ -742,7 +744,6 @@
       infeed.add(cs);
       cs.visible = false;
       infeedCases.push(cs);
-      infeedSlots.push(c);
     }
 
     // ----------------------------------------------------------------------
@@ -838,23 +839,35 @@
     stations = [makePalletStation(M.st1, "Station 1"), makePalletStation(M.st2, "Station 2")];
 
 
+    // A pick is a whole COLUMN of the layer - GRID.rows cases - so the head
+    // that takes it has to be that long and has to carry that many. Drawing a
+    // single case while the simulator took three out of the buffer was the
+    // queue bug seen from the other end: three cartons left the belt, one
+    // appeared under the gripper, and three landed on the pallet.
+    var pick = Math.max(1, GRID.rows);
     var plateMat = mat(0x39424b, { metalness: 0.7, roughness: 0.4 });
-    gripper.add(box(M.caseW + 0.06, 0.07, M.caseD + 0.06, plateMat, 0, 0, 0));
+    gripper.add(box(M.caseW + 0.06, 0.07, pick * M.caseD + 0.06, plateMat, 0, 0, 0));
     var cupMat = mat(0x24292f, { metalness: 0.1, roughness: 0.9 });
     cups = [];
-    for (var cx = -1; cx <= 1; cx++) {
-      for (var cz = -1; cz <= 1; cz += 2) {
+    heldCases = [];
+    for (var hc = 0; hc < pick; hc++) {
+      // Cases sit along the head's local Z at the pattern's own case depth,
+      // which is the pitch they queue at on the belt AND the pitch they land
+      // at in a column. The wrist (j4) is what reconciles the two directions.
+      var czc = (hc - (pick - 1) / 2) * M.caseD;
+      for (var cx = -1; cx <= 1; cx += 2) {
         var cup = cyl(0.045, 0.032, 0.06, cupMat, 12);
-        cup.position.set(cx * (M.caseW / 3), -0.06, cz * (M.caseD / 4));
+        cup.position.set(cx * (M.caseW / 3.5), -0.06, czc);
         gripper.add(cup);
         cups.push(cup);
       }
+      // The cases currently held. Parented to the gripper, so they follow it.
+      var held = makeCase(hc % 2 === 1);
+      held.position.set(0, -0.09 - M.caseH / 2, czc);
+      held.visible = false;
+      gripper.add(held);
+      heldCases.push(held);
     }
-    // The case currently held. Parented to the gripper, so it simply follows.
-    heldCase = makeCase(false);
-    heldCase.position.y = -0.09 - M.caseH / 2;
-    heldCase.visible = false;
-    gripper.add(heldCase);
 
 
     // ----------------------------------------------------------------------
@@ -1109,8 +1122,7 @@
     elbow.rotation.z = shown.j3 * D2R;
     wrist.rotation.y = shown.j4 * D2R;
 
-    heldCase.visible = !!r.grip;
-    var cupTarget = r.grip ? 0.045 : 0.06;
+    for (var h = 0; h < heldCases.length; h++) heldCases[h].visible = !!r.grip;
     for (var i = 0; i < cups.length; i++) {
       cups[i].scale.y = damp(cups[i].scale.y, r.grip ? 0.7 : 1.0, dt, 10);
     }
@@ -1150,19 +1162,39 @@
     // robot and drains when a jam stops it - which is the fault's whole point.
     var queue = Math.max(0, Math.min(infeedCases.length,
       (s.infeed && s.infeed.queue != null) ? (s.infeed.queue | 0) : infeedCases.length));
-    var step = dt * 0.55;
-    for (var k = 0; k < infeedCases.length; k++) {
-      var cs = infeedCases[k];
-      var onBelt = k < queue;
-      if (onBelt && !cs.visible) {
-        // Arriving: come in from behind the one it will sit against, so it is
-        // seen to run up rather than to appear.
-        cs.position.x = infeedStopX + (k + 1.4) * infeedPitch;
-        cs.visible = true;
-      } else if (!onBelt) {
-        cs.visible = false;
-        continue;
+
+    // WHICH END the queue changes at is the whole behaviour, and the count on
+    // its own does not say. The first version keyed each carton to a fixed
+    // index and drew `k < queue`, so a pick - which takes a whole column, three
+    // cases at the default pattern - deleted three cartons from the UPSTREAM
+    // end of the belt and left the one at the pick point standing. On screen
+    // that read as two separate bugs: cartons vanishing at random near the far
+    // end, and a robot that picked without anything leaving the queue. One line.
+    //
+    // The queue is an ordered list now, index 0 at the stop line. A pick
+    // SHIFTS off the front - the space closes because the carton is on the
+    // gripper - and an arrival PUSHES on at the back. Each carton then eases
+    // toward the slot its index gives it, so the whole line steps forward one
+    // pitch behind a pick. That is what an accumulation conveyor does, and it
+    // is what makes the photo-eyes downstream mean anything.
+    while (infeedQueue.length > queue) {
+      infeedQueue.shift().visible = false;
+    }
+    while (infeedQueue.length < queue) {
+      var fresh = null;
+      for (var f = 0; f < infeedCases.length; f++) {
+        if (!infeedCases[f].visible) { fresh = infeedCases[f]; break; }
       }
+      if (!fresh) break;               // pool exhausted: draw what we can
+      // Arriving: come in from behind the one it will sit against, so it is
+      // seen to run up rather than to appear.
+      fresh.position.x = infeedStopX + (infeedQueue.length + 1.4) * infeedPitch;
+      fresh.visible = true;
+      infeedQueue.push(fresh);
+    }
+    var step = dt * 0.55;
+    for (var k = 0; k < infeedQueue.length; k++) {
+      var cs = infeedQueue[k];
       var want = infeedStopX + k * infeedPitch;
       var have = cs.position.x;
       if (have > want) cs.position.x = Math.max(want, have - step);
@@ -1179,6 +1211,14 @@
     var drawn = 0;
     for (var v = 0; v < infeedCases.length; v++) if (infeedCases[v].visible) drawn++;
     document.body.dataset.infeed = queue + "/" + drawn + "/" + infeedCases.length;
+    // How far the front carton stands from the stop line, in mm, and how many
+    // cases the head is carrying. A count alone cannot say the line ADVANCED
+    // rather than merely got shorter, and it was exactly that distinction -
+    // which end the queue empties from - that was wrong.
+    document.body.dataset.infeedfront = infeedQueue.length
+      ? Math.round((infeedQueue[0].position.x - infeedStopX) * 1000) : -1;
+    document.body.dataset.held =
+      (r.grip ? heldCases.length : 0) + "/" + heldCases.length;
 
     // The rollers turn only while C1 runs. A jam stops the belt; the cartons
     // already standing on it stay where they are.
