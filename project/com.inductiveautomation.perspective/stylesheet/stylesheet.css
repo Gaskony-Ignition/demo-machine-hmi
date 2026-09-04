@@ -152,9 +152,27 @@
    It follows the same shed order as everything else in the top bar: below
    1120px - the 10in panel - it goes, because an operator at the machine does
    not pick themes and the nav tabs and the alarm chip need the room. The Setup
-   page carries the same six choices as buttons, which is what remains reachable
+   page carries the same three choices as buttons, which is what remains reachable
    at that width. */
 .psc-hdr-theme.psc-hdr-theme { font-size: 12px; }
 @media (max-width: 1119px) {
 	.psc-hdr-theme.psc-hdr-theme { display: none !important; }
+}
+
+
+/* The alarm table's INACTIVE toolbar tab.
+
+   Ignition paints it #697077, which is 2.3:1 on the surface it sits on here -
+   under the 3.0 floor. It is not a disabled control: it carries cursor:pointer
+   and no disabled attribute, and clicking it is how an operator reaches the
+   shelved list. Raised to the project's own secondary text colour, 4.3:1 on
+   the same surface, which keeps it plainly quieter than the active tab
+   (#dde1e6) without being unreadable.
+
+   The disabled Acknowledge button below it measures 2.3:1 too and is left
+   alone deliberately: a disabled control is exempt, and looking dimmed is how
+   it says it is disabled. */
+.psc-alm-table .ia_alarmTableComponent__toolbar__tab:not(.ia_alarmTableComponent__toolbar__tab--active),
+.psc-alm-table .ia_alarmTableComponent__toolbar__tab:not(.ia_alarmTableComponent__toolbar__tab--active) * {
+	color: #8b98a3;
 }
