@@ -6,13 +6,27 @@ tags.*
 
 ## The short answer
 
-**It cannot animate a machine.** It is a BIM/AEC model viewer — a packaging of
-the xeokit SDK — and its entire per-entity API is appearance and camera. There
-is no property, method or event in the shipped code that sets an entity's
-position, rotation or matrix.
+**It does not run on Ignition 8.3.** Installed on the test gateway on
+05/09/2026, certificate trusted and licence accepted through the supported
+Config → Modules flow, the ModuleManager refuses it outright:
 
-That is not a criticism of the module. It is very good at the thing it is for,
-which is a different thing.
+```
+W [ModuleInstance] Module "3D Engine" requires Ignition 8.1.0 (b0)
+  and is not compatible with Ignition 8.3.8 (b2026071409)
+```
+
+`module.xml` declares `<requiredignitionversion>8.1.0</requiredignitionversion>`
+and the artefact was built **09/08/2022**. Version 1.0.1's own documentation
+still shows an `Ignition-windows-x86-64-8.1.16` install path, so the newer
+release is an 8.1 build too. The module is 8.1-only and there is no 8.3 build.
+
+**And even on 8.1 it could not animate a machine.** It is a BIM/AEC model
+viewer — a packaging of the xeokit SDK — and its entire per-entity API is
+appearance and camera. There is no property, method or event in the shipped
+code that sets an entity's position, rotation or matrix.
+
+Either finding alone closes the question. That is not a criticism of the
+module: it is very good at the thing it is for, which is a different thing.
 
 ## What was actually checked
 
@@ -67,11 +81,16 @@ install could be considered.
    page's own link 404s. The vendor's module index builds a *different* path
    and offers **1.0.0 only**.
 2. **The signing certificate expired on 08/11/2024.** The artefact is properly
-   signed — a real Sectigo-chained commercial code-signing cert, so no
-   unsigned-module mode would be needed, and our rule is satisfied in
-   principle. But the leaf expired nearly two years ago and the artefact was
-   signed in 2022. Whether 8.3.8 installs that cleanly was **not tested**, and
-   would not be tested on our gateway without a decision to.
+   signed — a real Sectigo-chained commercial code-signing cert (subject
+   `Axone-io`, issuer `Sectigo Public Code Signing CA R36`, thumbprint
+   `5fbe8d5f…dd6a9c`), so no unsigned-module mode was needed and our rule was
+   satisfied. **8.3.8 accepted it**: the install showed the certificate as
+   CA-signed, and trusting it took the ordinary commissioning step. The expiry
+   is not a blocker to installation. It is still a sign of a dormant product,
+   which the 8.1-only build confirms.
+
+3. **The build is three years old and 8.1-only.** This is the finding that
+   actually decides it — see the short answer above.
 
 ## Where it would genuinely earn its place
 
@@ -82,6 +101,9 @@ with real entity metadata, an IFC containment tree, parts recolouring on alarm,
 annotation bullets bound to tags, and a NavCube to fly the camera. That is a
 good demo and this module is a reasonable way to build it. It is simply not
 this demo.
+
+That remains unverified, and on 8.3 it cannot be verified: the module never
+reaches the point of loading a file. It would need an 8.1 gateway to try.
 
 ## The model pipeline, built and proved
 
@@ -133,9 +155,15 @@ and the module cannot do at all, it costs nothing, it needs no licence, no
 conversion toolchain and no model file, and it already runs air-gapped with the
 library vendored.
 
-If a static plant context is ever wanted alongside the machine, evaluate this
-module again for that job — and open the conversation with the vendor on price,
-the missing 1.0.1 download, and the expired signing certificate.
+If a static plant context is ever wanted alongside the machine, the first
+question for the vendor is whether an **8.3 build exists at all**. Until one
+does, there is nothing to evaluate — followed by price, the missing 1.0.1
+download, and the expired signing certificate.
+
+**The comparison page was not built.** It was the point of the exercise and it
+cannot be done: with the module refusing to load, a page using its component
+would render nothing on this gateway. What the exercise did produce is the
+model pipeline below, which is independently useful and works offline.
 
 For where our own 3D should go next, see
 [3D-AS-PERSPECTIVE.md](3D-AS-PERSPECTIVE.md): the honest gap is that our parts
