@@ -155,10 +155,10 @@ Names are evaluated in order, so a later one may use an earlier one.
 | Piece | State |
 | --- | --- |
 | Schema | this document |
-| `src/cell3d/scene.json` — floor, guarding, robot, conveyor, photo-eyes | 30 parts, 11 materials |
-| `src/cell3d/scene-render.js` | ~290 lines, no `eval` |
-| Parity gate | **passing**, and negative-tested |
-| Config-driven parts | conveyor and photo-eyes done; stations, cartons and gripper head to go |
+| `src/cell3d/scene.json` — floor, guarding, robot, conveyor, photo-eyes, both pallet stations | 37 parts, 13 materials |
+| `src/cell3d/scene-render.js` | ~300 lines, no `eval` |
+| Parity gate | **passing**, and negative-tested three ways |
+| Config-driven parts | conveyor, photo-eyes and stations done; cartons and gripper head to go |
 | Where the document lives | **a view's custom props** (Nigel, 05/09/2026) |
 | Page switched over to the renderer | not yet — the document is proved, not wired in |
 
@@ -171,8 +171,14 @@ material colour and finish, and both shadow flags.
 
 ```
 hand-coded nodes: 56   document nodes: 56
+photo-eyes: page has 6, document builds 6
+  ok   6 of 6 beams own their material
 subtree ConveyorFrame: identical across 32 nodes (excluding animated axes)
   ok   24 rollers are actually spinning
+subtree Station1: identical across 17 nodes
+  ok   180 further nodes on the page are the case stacks
+subtree Station2: identical across 17 nodes
+  ok   180 further nodes on the page are the case stacks
 PARITY: identical across 56 nodes
 ```
 
@@ -216,6 +222,24 @@ A Document tag would have been cheaper and was rejected: those custom props
 *are* the Option B component's props, so building against them rehearses the
 real answer instead of building plumbing that gets thrown away. Editing the
 machine in the property editor is also the thing a customer can be shown.
+
+### What stays in code, and why
+
+The pallet **case stacks** are not in the document and are not going to be.
+Their layout is `layerLayout()`: an interlocked pattern that alternates case
+orientation layer by layer, on a grid derived from `CasesPerLayer` as the factor
+pair closest to square. The page's own comment says the simulator's `_layout()`
+is that loop in Jython and *change one, change both*. Expressing it in JSON
+would make that three places, and would need conditionals and a modulo the
+schema deliberately does not have.
+
+So the station's **structure** is data — deck, bearers, slats, feet, guide
+rails, all sized from the pallet tags — and the stack that sits on it stays an
+algorithm. The gate holds that line honestly: it compares the 17 structural
+nodes exactly and then asserts the remaining 180 are the case stacks and
+nothing else, so a part quietly dropped from the document cannot hide in the
+tail. Dropping one of the five deck slats gives `subtree Station1 #8 MISMATCH`
+and exit 1.
 
 ### `ownMaterial`
 

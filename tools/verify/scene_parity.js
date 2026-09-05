@@ -37,7 +37,16 @@ const SKIP_CHILDREN = ['Gripper'];
 // Subtrees compared on their own, by name, because their siblings inside the
 // same parent are not in the document yet. The infeed group also carries six
 // photo-eyes and a pool of cartons; the frame under it is fully described.
-const SUBTREES = ['ConveyorFrame'];
+// Subtrees compared on their own, by name. `prefix` means the page's group
+// carries more children than the document describes - the pallet stations hold
+// their case stacks, whose layout is the pattern algorithm the simulator also
+// owns - so the document's nodes are compared against the page's first N and
+// the remainder is checked to be exactly those case stacks and nothing else.
+const SUBTREES = [
+  { name: 'ConveyorFrame' },
+  { name: 'Station1', prefix: true },
+  { name: 'Station2', prefix: true }
+];
 
 // The page spins the rollers to show the belt running, so their rotation about
 // the barrel axis is animation, not structure, and the document does not
@@ -228,7 +237,8 @@ const describe = `(root, skip, skipChildren) => {
       config: cfg,
       hand: desc(window.__cellScene, NOT_YET, SKIP_CHILDREN),
       docTree: desc(built.root, NOT_YET, SKIP_CHILDREN),
-      subtrees: SUBTREES.map(name => {
+      subtrees: SUBTREES.map(spec => {
+        const name = spec.name;
         const h = window.__cellScene.getObjectByName(name);
         const c = built.root.getObjectByName(name);
         const an = ANIMATED[name];
@@ -247,7 +257,18 @@ const describe = `(root, skip, skipChildren) => {
         };
         const H = strip(h ? desc(h, [], []) : null);
         const C = strip(c ? desc(c, [], []) : null);
-        return { name, hand: H.list, doc: C.list, spinning: H.spinning };
+        const res = { name, hand: H.list, doc: C.list, spinning: an ? H.spinning : undefined };
+        if (spec.prefix && H.list && C.list) {
+          res.tail = H.list.length - C.list.length;
+          // Everything past the described prefix must be a carton: a group of
+          // a body box and a seam box. Anything else means the document has
+          // dropped a real part rather than stopping where it meant to.
+          const tailNodes = H.list.slice(C.list.length);
+          res.tailOdd = tailNodes.filter(n =>
+            !(n.kind === 'group' || (n.geom && n.geom.indexOf('BoxGeometry') === 0))).length;
+          res.hand = H.list.slice(0, C.list.length);
+        }
+        return res;
       }),
       driven, isolate,
       joints: built.joints.map(j => j.name + ' ' + j.joint.kind + ' ' + j.joint.axis + ' <- ' + j.joint.tag)
@@ -345,6 +366,13 @@ const describe = `(root, skip, skipChildren) => {
     console.log('\nsubtree ' + t.name + ': ' + (sb === 0
       ? 'identical across ' + t.hand.length + ' nodes (excluding animated axes)'
       : sb + ' of ' + m + ' nodes differ'));
+    if (t.tail !== undefined) {
+      const tailOk = t.tail > 0 && t.tailOdd === 0;
+      console.log('  ' + (tailOk ? 'ok  ' : 'FAIL') + ' ' + t.tail +
+                  ' further nodes on the page are the case stacks' +
+                  (t.tailOdd ? ' - but ' + t.tailOdd + ' are not cartons' : ''));
+      if (!tailOk) bad++;
+    }
     if (t.spinning !== undefined) {
       const ok = t.spinning > 0;
       console.log('  ' + (ok ? 'ok  ' : 'FAIL') + ' ' + t.spinning +

@@ -98,6 +98,18 @@
           0.25
         ]
       }
+    ],
+    "stations": [
+      {
+        "id": "Station1",
+        "x": "Config/station1X_mm",
+        "z": "Config/station1Z_mm"
+      },
+      {
+        "id": "Station2",
+        "x": "Config/station2X_mm",
+        "z": "Config/station2Z_mm"
+      }
     ]
   },
   "materials": {
@@ -158,6 +170,16 @@
       "color": "0x46d07c",
       "basic": true,
       "opacity": 0.85
+    },
+    "pallet": {
+      "color": "0x8a6a3a",
+      "metalness": 0.02,
+      "roughness": 0.95
+    },
+    "rail": {
+      "color": "0x59636d",
+      "metalness": 0.55,
+      "roughness": 0.6
     }
   },
   "parts": [
@@ -859,6 +881,258 @@
       "shadow": {
         "cast": false
       }
+    },
+    {
+      "name": "Station",
+      "type": "group",
+      "repeat": {
+        "over": "stations",
+        "as": "st",
+        "nameFrom": "id"
+      },
+      "let": {
+        "palletW": "Config/palletW_mm",
+        "palletD": "Config/palletD_mm",
+        "palletH": "Config/palletH_mm"
+      },
+      "at": [
+        "st.x",
+        0,
+        "st.z"
+      ]
+    },
+    {
+      "name": "deck",
+      "type": "group",
+      "parent": "Station"
+    },
+    {
+      "name": "bearer",
+      "type": "box",
+      "parent": "deck",
+      "material": "pallet",
+      "comment": "Three bottom boards the forks go under.",
+      "repeat": {
+        "count": 3,
+        "as": "b"
+      },
+      "size": [
+        "palletW",
+        0.045,
+        0.1
+      ],
+      "at": [
+        0,
+        [
+          "-",
+          "palletH",
+          0.02
+        ],
+        [
+          "*",
+          [
+            "+",
+            -1,
+            "b"
+          ],
+          [
+            "-",
+            [
+              "*",
+              "palletD",
+              0.5
+            ],
+            0.05
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "slat",
+      "type": "box",
+      "parent": "deck",
+      "material": "pallet",
+      "comment": "Five top slats, evenly spaced across the pallet's width.",
+      "repeat": {
+        "count": 5,
+        "as": "k"
+      },
+      "size": [
+        0.09,
+        0.035,
+        "palletD"
+      ],
+      "at": [
+        [
+          "+",
+          [
+            "neg",
+            [
+              "*",
+              "palletW",
+              0.5
+            ]
+          ],
+          0.045,
+          [
+            "*",
+            "k",
+            [
+              "/",
+              [
+                "-",
+                "palletW",
+                0.09
+              ],
+              4
+            ]
+          ]
+        ],
+        [
+          "+",
+          "palletH",
+          0.02
+        ],
+        0
+      ]
+    },
+    {
+      "name": "foot",
+      "type": "box",
+      "parent": "deck",
+      "material": "pallet",
+      "comment": "Three rows of two blocks between the boards.",
+      "repeat": [
+        {
+          "count": 3,
+          "as": "f"
+        },
+        {
+          "count": 2,
+          "as": "h"
+        }
+      ],
+      "size": [
+        0.1,
+        [
+          "-",
+          "palletH",
+          0.04
+        ],
+        0.1
+      ],
+      "at": [
+        [
+          "*",
+          [
+            "+",
+            -1,
+            [
+              "*",
+              "h",
+              2
+            ]
+          ],
+          [
+            "-",
+            [
+              "*",
+              "palletW",
+              0.5
+            ],
+            0.05
+          ]
+        ],
+        [
+          "*",
+          [
+            "-",
+            "palletH",
+            0.04
+          ],
+          0.5
+        ],
+        [
+          "*",
+          [
+            "+",
+            -1,
+            "f"
+          ],
+          [
+            "-",
+            [
+              "*",
+              "palletD",
+              0.5
+            ],
+            0.05
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "stationRailBack",
+      "type": "box",
+      "parent": "Station",
+      "material": "rail",
+      "comment": "A low guide rail, so an empty station still reads as a station rather than a bare pallet on the floor.",
+      "size": [
+        [
+          "+",
+          "palletW",
+          0.3
+        ],
+        0.06,
+        0.06
+      ],
+      "at": [
+        0,
+        0.1,
+        [
+          "neg",
+          [
+            "+",
+            [
+              "*",
+              "palletD",
+              0.5
+            ],
+            0.16
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "stationRailSide",
+      "type": "box",
+      "parent": "Station",
+      "material": "rail",
+      "size": [
+        0.06,
+        0.06,
+        [
+          "+",
+          "palletD",
+          0.3
+        ]
+      ],
+      "at": [
+        [
+          "neg",
+          [
+            "+",
+            [
+              "*",
+              "palletW",
+              0.5
+            ],
+            0.16
+          ]
+        ],
+        0.1,
+        0
+      ]
     }
   ]
 }

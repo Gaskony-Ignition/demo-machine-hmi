@@ -230,7 +230,21 @@
         if (e.name === "SceneError") throw SceneError('in part "' + part.name + '": ' + e.message.replace(/^scene: /, ""));
         throw e;
       }
-      obj.name = reps[k] ? part.name + "." + k : part.name;
+      // A repeated part is normally name.0, name.1 ... but a row may carry the
+      // name it should have. The two pallet stations are Station1 and Station2
+      // everywhere else in this project - in the tags, in the state route and
+      // in the simulator - and a scene document that called them Station.0 and
+      // Station.1 would have renamed the machine to suit the renderer.
+      var repSpec = Array.isArray(part.repeat) ? null : part.repeat;
+      var explicit = null;
+      if (repSpec && repSpec.nameFrom && reps[k]) {
+        var row = reps[k][repSpec.as];
+        if (row === null || typeof row !== "object" || !(repSpec.nameFrom in row)) {
+          throw SceneError('part "' + part.name + '" names instances from "' + repSpec.nameFrom + '", which that row does not have');
+        }
+        explicit = String(row[repSpec.nameFrom]);
+      }
+      obj.name = explicit || (reps[k] ? part.name + "." + k : part.name);
 
       if (part.joint) {
         var j = part.joint;
