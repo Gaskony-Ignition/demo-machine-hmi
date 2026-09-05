@@ -171,7 +171,7 @@ Names are evaluated in order, so a later one may use an earlier one.
 | Parity gate | **passing**, stable over repeated runs, negative-tested |
 | Every part of the cell | **done** — except the pallet case stacks, deliberately |
 | The `Machine/Scene` view and the route that serves it | **done** — `admin?cmd=scene` |
-| Page switched over to the renderer | not started |
+| Page switched over to the renderer | **done, behind `?scene=document`** — default off |
 | Where the document lives | **a view's custom props** (Nigel, 05/09/2026) |
 | Page switched over to the renderer | not yet — the document is proved, not wired in |
 
@@ -304,6 +304,43 @@ beam's colour is its own tag and one shared material turns them all red
 together. `"ownMaterial": true` gives each instance its own copy. It is the same
 reason the page clones materials before highlighting a faulted group, and the
 gate asserts it: *6 of 6 beams own their material*.
+
+### Running the page off the document
+
+```
+.../cell3d?scene=document
+```
+
+Off, nothing in the renderer runs and the page builds the cell it has always
+built. On, it fetches `admin?cmd=scene`, builds from the parts list, and binds
+the animation's handles to the objects the document made — by name, which is why
+the stations are `Station1` and `Station2` rather than `Station.0`.
+
+The default stays the hand-built path until a person has looked at the other one
+side by side. Two failure paths back it up: a document that will not fetch, and a
+document that will not build, both fall back with the reason in the console. A
+page rendering the cell it has always rendered is a better failure than a page
+rendering nothing, particularly during a demonstration.
+
+`tools/verify/scene_document_mode.js` runs **both** modes and asserts the same
+things move in each — because `scene_parity.js` would pass a cell that was
+structurally perfect and completely still. It samples the page twice, seconds
+apart, alongside the gateway's own account of the plant:
+
+```
+--- document mode ---
+  ok   joints moving: j1, j2, j3
+  ok   rollers spinning: 24
+  ok   photo-eyes disagree while product is on the belt
+  ok   both stations show what the gateway says: 0/0 and 51/51  then  0/0 and 54/54
+  ok   the belt shows what the gateway says: 4/4 then 3/3
+```
+
+Two of those checks started out flaky and were rewritten, which is the same
+lesson as the held-case visibility: *the beams change* only holds if the queue
+happens to move in a seven-second window, and *the stack is not empty* fails on
+a pallet that has just been discharged. Both now assert **agreement with the
+gateway**, which holds in every phase.
 
 ### Two things the work has already settled
 

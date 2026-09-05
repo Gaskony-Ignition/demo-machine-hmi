@@ -18,7 +18,10 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const GW = process.env.GW_URL || 'http://192.168.153.128:8088';
-const PAGE = GW + '/system/webdev/Machine_HMI_Demo/cell3d';
+// PAGE can be pointed at a scratch copy of the resource, so a change to the
+// page can be proved before it goes anywhere near the one the demo serves.
+const PAGE = process.env.PAGE_URL ||
+  (GW + '/system/webdev/Machine_HMI_Demo/' + (process.env.PAGE_RES || 'cell3d'));
 
 // Nodes the document does not claim to build.
 //   - lights and GridHelper are scene furniture, not parts of the machine; a
