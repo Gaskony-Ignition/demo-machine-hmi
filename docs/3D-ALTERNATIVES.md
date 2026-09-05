@@ -72,10 +72,10 @@ Everything else it would cost:
   The files are not saved in the gateway and therefore not redundant by
   Ignition."* No better than our WebDev resource on that count, and no worse.
 
-## Two things a buyer should raise first
+## Three things a buyer should raise first
 
-Neither is a reason to dismiss the module; both need answering before an
-install could be considered.
+The third is decisive on its own. The first two would still need answering
+before an install could be considered on any version.
 
 1. **The documented download is broken and 1.0.1 is not obtainable.** The doc
    page's own link 404s. The vendor's module index builds a *different* path
@@ -88,7 +88,6 @@ install could be considered.
    CA-signed, and trusting it took the ordinary commissioning step. The expiry
    is not a blocker to installation. It is still a sign of a dormant product,
    which the 8.1-only build confirms.
-
 3. **The build is three years old and 8.1-only.** This is the finding that
    actually decides it — see the short answer above.
 
@@ -105,48 +104,35 @@ this demo.
 That remains unverified, and on 8.3 it cannot be verified: the module never
 reaches the point of loading a file. It would need an 8.1 gateway to try.
 
-## The model pipeline, built and proved
+## The model pipeline — built, proved, then removed
 
-The module needs XKT and this project has no CAD file — the cell is boxes and
-cylinders in JavaScript, which is the point. So the route out is to run the
-real page and read the scene graph it just built:
-
-```
-page.html (live)  ->  _scene.js  ->  scene.json
-                  ->  tools/export_scene.py  ->  cell.gltf + cell.metamodel.json
-                  ->  xeokit-convert         ->  cell.xkt
-```
-
-It works, end to end and offline. Measured on 04/09/2026:
-
-| | |
-| --- | --- |
-| meshes read from the live scene | 396 (331 boxes, 64 cylinders, 1 plane) |
-| unique geometries after dedup | 33 |
-| glTF buffer | 36 KB |
-| XKT | 98.9 KB, 396 drawable objects, 33 geometries, 1374 vertices |
-| metaobjects | 404, in 7 assemblies |
-
-Exporting from the running page rather than re-modelling the cell is what
-keeps it honest: the XKT is the same machine the demo shows, at whatever the
-fifteen Config tags currently hold, instead of a second copy that would drift
-the first time someone changed a case size.
-
-The metamodel states the kinematic chain as containment, which is the tree a
-BIM viewer would show:
+The module needs XKT and this project has no CAD file: the cell is boxes and
+cylinders in JavaScript, which is the point. So a pipeline was written that
+runs the real page and reads the scene graph it just built:
 
 ```
-cell > Robot > Base > Carriage > Shoulder > Elbow > Wrist
-     > InfeedConveyor
+page.html (live)  ->  scene.json  ->  cell.gltf + cell.metamodel.json
+                              ->  xeokit-convert  ->  cell.xkt
 ```
 
-Two honest limits. **It exports one frame** — glTF can carry animation and this
-writer emits none, because the destination cannot play it. And the converter
-reports `Converted metaobjects: 0` even though the file grows by the expected
-5.5 KB when the metamodel is passed; its `triangles` counter also reads 0 on a
-model with 1374 vertices, so the statistics look unreliable on the glTF path
-rather than the metamodel being rejected. **That is not verified either way**,
-and it cannot be until the module is installed and loads the file.
+It worked end to end and offline. Measured 04/09/2026: 396 meshes read from the
+live scene (331 boxes, 64 cylinders, 1 plane), 33 unique geometries after
+dedup, a 36 KB glTF buffer, and a 98.9 KB XKT carrying 396 drawable objects and
+404 metaobjects in 7 assemblies. The metamodel stated the kinematic chain as
+containment — `cell > Robot > Base > Carriage > Shoulder > Elbow > Wrist` — which
+is the tree a BIM viewer would show.
+
+**The exporter and its artefacts were deleted on 05/09/2026**, once the module
+was proved not to run on 8.3. They existed only to feed it. The code is in this
+repo's history if the question ever reopens.
+
+Two limits were known before it was removed. It exported **one frame** — glTF
+can carry animation and the writer emitted none, because the destination cannot
+play it. And `xeokit-convert` reported `Converted metaobjects: 0` even though
+the file grew by the expected 5.5 KB when the metamodel was passed, with its
+`triangles` counter also reading 0 on a model with 1374 vertices; the statistics
+looked unreliable rather than the metamodel being rejected. That was never
+settled, and on 8.3 it cannot be.
 
 ## Recommendation
 
