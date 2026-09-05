@@ -1,0 +1,489 @@
+{
+  "units": "m",
+  "consts": {
+    "UPPER": 1.35,
+    "FORE": 1.15,
+    "FX0": -3.1,
+    "FX1": 2.6,
+    "FZ0": -2.75,
+    "FZ1": 2.75
+  },
+  "data": {
+    "_comment": "Rows a repeat can walk. Each fence run is a straight length of guarding; the east side is left open where the infeed passes through, which is what real cell guarding does.",
+    "fenceRuns": [
+      {
+        "x1": -3.1,
+        "z1": -2.75,
+        "x2": 2.6,
+        "z2": -2.75
+      },
+      {
+        "x1": -3.1,
+        "z1": 2.75,
+        "x2": -3.1,
+        "z2": -2.75
+      },
+      {
+        "x1": 2.6,
+        "z1": -2.75,
+        "x2": 2.6,
+        "z2": 2.75
+      },
+      {
+        "x1": -3.1,
+        "z1": 2.75,
+        "x2": 1.15,
+        "z2": 2.75
+      },
+      {
+        "x1": 2.15,
+        "z1": 2.75,
+        "x2": 2.6,
+        "z2": 2.75
+      }
+    ]
+  },
+  "materials": {
+    "floor": {
+      "color": "0x272e35",
+      "roughness": 0.95,
+      "metalness": 0.05
+    },
+    "steel": {
+      "color": "0x8d99a3",
+      "metalness": 0.55,
+      "roughness": 0.55
+    },
+    "steelCap": {
+      "color": "0x8d99a3",
+      "metalness": 0.8,
+      "roughness": 0.3
+    },
+    "fence": {
+      "color": "0x6d7982",
+      "metalness": 0.55,
+      "roughness": 0.7
+    },
+    "fencePanel": {
+      "color": "0x9fb6c8",
+      "metalness": 0.1,
+      "roughness": 0.35,
+      "opacity": 0.09,
+      "side": "double",
+      "depthWrite": false
+    },
+    "arm": {
+      "color": "0xe8a33d",
+      "metalness": 0.35,
+      "roughness": 0.5
+    },
+    "armDark": {
+      "color": "0x30383f",
+      "metalness": 0.6,
+      "roughness": 0.45
+    },
+    "column": {
+      "color": "0x4d5761",
+      "metalness": 0.55,
+      "roughness": 0.5
+    }
+  },
+  "parts": [
+    {
+      "name": "floor",
+      "type": "plane",
+      "size": [
+        30,
+        24
+      ],
+      "rotate": [
+        -1.5707963267948966,
+        0,
+        0
+      ],
+      "material": "floor",
+      "shadow": {
+        "cast": false
+      }
+    },
+    {
+      "name": "Guarding",
+      "type": "group"
+    },
+    {
+      "name": "Robot",
+      "type": "group"
+    },
+    {
+      "name": "pedestal",
+      "type": "cylinder",
+      "parent": "Robot",
+      "radiusTop": 0.42,
+      "radiusBottom": 0.5,
+      "height": 0.3,
+      "segments": 28,
+      "at": [
+        0,
+        0.15,
+        0
+      ],
+      "material": "armDark"
+    },
+    {
+      "name": "Base",
+      "type": "group",
+      "parent": "Robot",
+      "at": [
+        0,
+        0.3,
+        0
+      ],
+      "joint": {
+        "axis": "y",
+        "tag": "Robot/J1_deg",
+        "unit": "deg"
+      }
+    },
+    {
+      "name": "column",
+      "type": "box",
+      "parent": "Base",
+      "size": [
+        0.3,
+        2.35,
+        0.3
+      ],
+      "at": [
+        0,
+        1.175,
+        0
+      ],
+      "material": "column"
+    },
+    {
+      "name": "guide",
+      "type": "cylinder",
+      "parent": "Base",
+      "radiusTop": 0.022,
+      "radiusBottom": 0.022,
+      "height": 2.25,
+      "segments": 10,
+      "material": "steelCap",
+      "repeat": {
+        "count": 2,
+        "as": "i"
+      },
+      "at": [
+        [
+          "+",
+          -0.18,
+          [
+            "*",
+            "i",
+            0.36
+          ]
+        ],
+        1.175,
+        0.09
+      ]
+    },
+    {
+      "name": "Carriage",
+      "type": "group",
+      "parent": "Base",
+      "joint": {
+        "kind": "translate",
+        "axis": "y",
+        "tag": "Robot/Lift_mm"
+      }
+    },
+    {
+      "name": "carriageBody",
+      "type": "box",
+      "parent": "Carriage",
+      "size": [
+        0.46,
+        0.34,
+        0.46
+      ],
+      "material": "arm"
+    },
+    {
+      "name": "Shoulder",
+      "type": "group",
+      "parent": "Carriage",
+      "joint": {
+        "axis": "z",
+        "tag": "Robot/J2_deg",
+        "unit": "deg"
+      }
+    },
+    {
+      "name": "upperArm",
+      "type": "box",
+      "parent": "Shoulder",
+      "size": [
+        "UPPER",
+        0.24,
+        0.26
+      ],
+      "at": [
+        [
+          "*",
+          "UPPER",
+          0.5
+        ],
+        0,
+        0
+      ],
+      "material": "arm"
+    },
+    {
+      "name": "shoulderHub",
+      "type": "cylinder",
+      "parent": "Shoulder",
+      "radiusTop": 0.15,
+      "radiusBottom": 0.15,
+      "height": 0.3,
+      "segments": 18,
+      "rotate": [
+        1.5707963267948966,
+        0,
+        0
+      ],
+      "material": "armDark"
+    },
+    {
+      "name": "Elbow",
+      "type": "group",
+      "parent": "Shoulder",
+      "at": [
+        "UPPER",
+        0,
+        0
+      ],
+      "joint": {
+        "axis": "z",
+        "tag": "Robot/J3_deg",
+        "unit": "deg"
+      }
+    },
+    {
+      "name": "elbowHub",
+      "type": "cylinder",
+      "parent": "Elbow",
+      "radiusTop": 0.12,
+      "radiusBottom": 0.12,
+      "height": 0.28,
+      "segments": 18,
+      "rotate": [
+        1.5707963267948966,
+        0,
+        0
+      ],
+      "material": "armDark"
+    },
+    {
+      "name": "foreArm",
+      "type": "box",
+      "parent": "Elbow",
+      "size": [
+        "FORE",
+        0.19,
+        0.21
+      ],
+      "at": [
+        [
+          "*",
+          "FORE",
+          0.5
+        ],
+        0,
+        0
+      ],
+      "material": "arm"
+    },
+    {
+      "name": "Wrist",
+      "type": "group",
+      "parent": "Elbow",
+      "at": [
+        "FORE",
+        0,
+        0
+      ],
+      "joint": {
+        "axis": "y",
+        "tag": "Robot/J4_deg",
+        "unit": "deg"
+      }
+    },
+    {
+      "name": "wristHub",
+      "type": "cylinder",
+      "parent": "Wrist",
+      "radiusTop": 0.1,
+      "radiusBottom": 0.1,
+      "height": 0.16,
+      "segments": 16,
+      "material": "armDark"
+    },
+    {
+      "name": "Gripper",
+      "type": "group",
+      "parent": "Wrist",
+      "at": [
+        0,
+        -0.14,
+        0
+      ]
+    },
+    {
+      "name": "fenceRun",
+      "type": "group",
+      "parent": "Guarding",
+      "repeat": {
+        "over": "fenceRuns",
+        "as": "r"
+      },
+      "let": {
+        "len": [
+          "hypot",
+          [
+            "-",
+            "r.x2",
+            "r.x1"
+          ],
+          [
+            "-",
+            "r.z2",
+            "r.z1"
+          ]
+        ],
+        "n": [
+          "max",
+          2,
+          [
+            "round",
+            [
+              "/",
+              [
+                "hypot",
+                [
+                  "-",
+                  "r.x2",
+                  "r.x1"
+                ],
+                [
+                  "-",
+                  "r.z2",
+                  "r.z1"
+                ]
+              ],
+              1.5
+            ]
+          ]
+        ]
+      },
+      "at": [
+        "r.x1",
+        0,
+        "r.z1"
+      ],
+      "rotate": [
+        0,
+        [
+          "neg",
+          [
+            "atan2",
+            [
+              "-",
+              "r.z2",
+              "r.z1"
+            ],
+            [
+              "-",
+              "r.x2",
+              "r.x1"
+            ]
+          ]
+        ],
+        0
+      ]
+    },
+    {
+      "name": "fencePanel",
+      "type": "box",
+      "parent": "fenceRun",
+      "material": "fencePanel",
+      "size": [
+        "len",
+        1.85,
+        0.03
+      ],
+      "at": [
+        [
+          "*",
+          "len",
+          0.5
+        ],
+        1.0,
+        0
+      ],
+      "shadow": {
+        "cast": false
+      }
+    },
+    {
+      "name": "fencePost",
+      "type": "cylinder",
+      "parent": "fenceRun",
+      "material": "fence",
+      "radiusTop": 0.035,
+      "radiusBottom": 0.035,
+      "height": 2.0,
+      "segments": 10,
+      "repeat": {
+        "count": [
+          "+",
+          "n",
+          1
+        ],
+        "as": "i"
+      },
+      "at": [
+        [
+          "/",
+          [
+            "*",
+            "len",
+            "i"
+          ],
+          "n"
+        ],
+        1.0,
+        0
+      ]
+    },
+    {
+      "name": "fenceRail",
+      "type": "box",
+      "parent": "fenceRun",
+      "material": "fence",
+      "size": [
+        "len",
+        0.05,
+        0.05
+      ],
+      "at": [
+        [
+          "*",
+          "len",
+          0.5
+        ],
+        1.95,
+        0
+      ]
+    }
+  ]
+}
