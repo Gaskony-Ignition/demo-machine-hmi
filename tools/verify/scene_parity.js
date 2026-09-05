@@ -34,6 +34,18 @@ const NOT_YET = [
 // held cases it carries are sized from the case and the pick count and are not.
 const SKIP_CHILDREN = ['Gripper'];
 
+// Subtrees compared on their own, by name, because their siblings inside the
+// same parent are not in the document yet. The infeed group also carries six
+// photo-eyes and a pool of cartons; the frame under it is fully described.
+const SUBTREES = ['ConveyorFrame'];
+
+// The page spins the rollers to show the belt running, so their rotation about
+// the barrel axis is animation, not structure, and the document does not
+// describe it - the same class of thing as a joint angle. It is excluded from
+// the comparison and then asserted separately, because a roller that had
+// stopped spinning would otherwise pass silently.
+const ANIMATED = { ConveyorFrame: { geom: 'CylinderGeometry', axis: 1 } };
+
 const describe = `(root, skip, skipChildren) => {
   const out = [];
   const r6 = v => Math.round(v * 1e6) / 1e6;
@@ -79,7 +91,7 @@ const describe = `(root, skip, skipChildren) => {
   await p.goto(PAGE, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await p.waitForFunction('window.__cellScene && window.THREE', null, { timeout: 30000 });
 
-  const result = await p.evaluate(async ({ doc, renderer, describe, NOT_YET, SKIP_CHILDREN }) => {
+  const result = await p.evaluate(async ({ doc, renderer, describe, NOT_YET, SKIP_CHILDREN, SUBTREES, ANIMATED }) => {
     // The page's own config, so both trees are built from identical numbers.
     let cfg = {}, st = {};
     try {
@@ -169,10 +181,31 @@ const describe = `(root, skip, skipChildren) => {
       config: cfg,
       hand: desc(window.__cellScene, NOT_YET, SKIP_CHILDREN),
       docTree: desc(built.root, NOT_YET, SKIP_CHILDREN),
+      subtrees: SUBTREES.map(name => {
+        const h = window.__cellScene.getObjectByName(name);
+        const c = built.root.getObjectByName(name);
+        const an = ANIMATED[name];
+        const strip = list => {
+          if (!an || !list) return { list, spinning: 0 };
+          let spinning = 0;
+          const out = list.map(n => {
+            if (n.geom && n.geom.indexOf(an.geom) === 0) {
+              if (Math.abs(n.rot[an.axis]) > 1e-9) spinning++;
+              const r = n.rot.slice(); r[an.axis] = 'animated';
+              return Object.assign({}, n, { rot: r });
+            }
+            return n;
+          });
+          return { list: out, spinning };
+        };
+        const H = strip(h ? desc(h, [], []) : null);
+        const C = strip(c ? desc(c, [], []) : null);
+        return { name, hand: H.list, doc: C.list, spinning: H.spinning };
+      }),
       driven, isolate,
       joints: built.joints.map(j => j.name + ' ' + j.joint.kind + ' ' + j.joint.axis + ' <- ' + j.joint.tag)
     };
-  }, { doc, renderer, describe, NOT_YET, SKIP_CHILDREN });
+  }, { doc, renderer, describe, NOT_YET, SKIP_CHILDREN, SUBTREES, ANIMATED });
 
   await b.close();
 
@@ -215,6 +248,37 @@ const describe = `(root, skip, skipChildren) => {
       bad++;
     }
   }
+  // Named subtrees, compared on their own.
+  result.subtrees.forEach(t => {
+    if (!t.hand || !t.doc) {
+      console.log('\nsubtree ' + t.name + ': MISSING from ' + (t.hand ? 'the document' : 'the page'));
+      bad++;
+      return;
+    }
+    let sb = 0;
+    const m = Math.max(t.hand.length, t.doc.length);
+    for (let i = 0; i < m; i++) {
+      if (key(t.hand[i]) !== key(t.doc[i])) {
+        if (sb < 4) {
+          console.log('\nsubtree ' + t.name + ' #' + i + ' MISMATCH');
+          console.log('  hand: ' + key(t.hand[i]));
+          console.log('  doc : ' + key(t.doc[i]));
+        }
+        sb++;
+      }
+    }
+    console.log('\nsubtree ' + t.name + ': ' + (sb === 0
+      ? 'identical across ' + t.hand.length + ' nodes (excluding animated axes)'
+      : sb + ' of ' + m + ' nodes differ'));
+    if (t.spinning !== undefined) {
+      const ok = t.spinning > 0;
+      console.log('  ' + (ok ? 'ok  ' : 'FAIL') + ' ' + t.spinning +
+                  ' rollers are actually spinning' + (ok ? '' : ' - the belt is not running'));
+      if (!ok) bad++;
+    }
+    bad += sb;
+  });
+
   console.log('\n' + (bad === 0
     ? 'PARITY: identical across ' + a.length + ' nodes'
     : 'PARITY: ' + bad + ' of ' + n + ' nodes differ'));

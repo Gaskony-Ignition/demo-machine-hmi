@@ -6,7 +6,8 @@
     "FX0": -3.1,
     "FX1": 2.6,
     "FZ0": -2.75,
-    "FZ1": 2.75
+    "FZ1": 2.75,
+    "convX0": 2.05
   },
   "data": {
     "_comment": "Rows a repeat can walk. Each fence run is a straight length of guarding; the east side is left open where the infeed passes through, which is what real cell guarding does.",
@@ -86,6 +87,16 @@
       "color": "0x4d5761",
       "metalness": 0.55,
       "roughness": 0.5
+    },
+    "convFrame": {
+      "color": "0x59636d",
+      "metalness": 0.55,
+      "roughness": 0.6
+    },
+    "roller": {
+      "color": "0x8d99a3",
+      "metalness": 0.85,
+      "roughness": 0.35
     }
   },
   "parts": [
@@ -484,6 +495,214 @@
         1.95,
         0
       ]
+    },
+    {
+      "name": "InfeedConveyor",
+      "type": "group",
+      "at": [
+        1.62,
+        0,
+        [
+          "neg",
+          [
+            "+",
+            "convX0",
+            0.35
+          ]
+        ]
+      ],
+      "rotate": [
+        0,
+        -1.5707963267948966,
+        0
+      ]
+    },
+    {
+      "name": "ConveyorFrame",
+      "type": "group",
+      "parent": "InfeedConveyor",
+      "let": {
+        "convLen": "Config/convLength_mm",
+        "convW": "Config/convWidth_mm",
+        "convY": "Config/convHeight_mm",
+        "convX1": [
+          "+",
+          "convX0",
+          "Config/convLength_mm"
+        ],
+        "convMid": [
+          "+",
+          "convX0",
+          [
+            "*",
+            "Config/convLength_mm",
+            0.5
+          ]
+        ]
+      }
+    },
+    {
+      "name": "convRail",
+      "type": "box",
+      "parent": "ConveyorFrame",
+      "material": "convFrame",
+      "repeat": {
+        "count": 2,
+        "as": "s"
+      },
+      "size": [
+        "convLen",
+        0.1,
+        0.06
+      ],
+      "at": [
+        "convMid",
+        [
+          "-",
+          "convY",
+          0.06
+        ],
+        [
+          "*",
+          [
+            "+",
+            -1,
+            [
+              "*",
+              "s",
+              2
+            ]
+          ],
+          [
+            "*",
+            "convW",
+            0.5
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "convLeg",
+      "type": "box",
+      "parent": "ConveyorFrame",
+      "material": "convFrame",
+      "comment": "Three positions along the belt by two sides. The three are evenly spaced between 0.35 in from each end, so they are an arithmetic run, not a list.",
+      "repeat": [
+        {
+          "count": 3,
+          "as": "i"
+        },
+        {
+          "count": 2,
+          "as": "s"
+        }
+      ],
+      "size": [
+        0.07,
+        [
+          "-",
+          "convY",
+          0.12
+        ],
+        0.07
+      ],
+      "at": [
+        [
+          "+",
+          "convX0",
+          0.35,
+          [
+            "*",
+            "i",
+            [
+              "*",
+              [
+                "-",
+                "convLen",
+                0.7
+              ],
+              0.5
+            ]
+          ]
+        ],
+        [
+          "*",
+          [
+            "-",
+            "convY",
+            0.12
+          ],
+          0.5
+        ],
+        [
+          "*",
+          [
+            "+",
+            -1,
+            [
+              "*",
+              "s",
+              2
+            ]
+          ],
+          [
+            "*",
+            "convW",
+            0.5
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "roller",
+      "type": "cylinder",
+      "parent": "ConveyorFrame",
+      "material": "roller",
+      "repeat": {
+        "count": [
+          "ceil",
+          [
+            "/",
+            [
+              "-",
+              "convLen",
+              0.09
+            ],
+            0.135
+          ]
+        ],
+        "as": "k"
+      },
+      "radiusTop": 0.045,
+      "radiusBottom": 0.045,
+      "height": [
+        "-",
+        "convW",
+        0.02
+      ],
+      "segments": 12,
+      "rotate": [
+        1.5707963267948966,
+        0,
+        0
+      ],
+      "at": [
+        [
+          "+",
+          "convX0",
+          0.09,
+          [
+            "*",
+            "k",
+            0.135
+          ]
+        ],
+        "convY",
+        0
+      ],
+      "shadow": {
+        "cast": false
+      }
     }
   ]
 }

@@ -154,9 +154,38 @@
   }
 
   // How many times a part runs, and what each iteration binds.
+  //
+  // `repeat` may be an array, innermost last, which produces the cartesian
+  // product of the bindings - a pallet's rows by columns, or a conveyor's leg
+  // positions by side. Nesting groups to get the same effect would put phantom
+  // transforms in the tree that the machine does not have.
   function iterations(part, ctx) {
     var rep = part.repeat;
     if (!rep) return [null];
+    if (Array.isArray(rep)) {
+      var acc = [{}];
+      for (var r = 0; r < rep.length; r++) {
+        var next = [];
+        for (var a = 0; a < acc.length; a++) {
+          // Outer bindings must be visible while an inner count is evaluated.
+          ctx.scope.push(acc[a]);
+          var inner = oneRepeat(rep[r], part, ctx);
+          ctx.scope.pop();
+          for (var b = 0; b < inner.length; b++) {
+            var merged = {};
+            Object.keys(acc[a]).forEach(function (k) { merged[k] = acc[a][k]; });
+            Object.keys(inner[b]).forEach(function (k) { merged[k] = inner[b][k]; });
+            next.push(merged);
+          }
+        }
+        acc = next;
+      }
+      return acc;
+    }
+    return oneRepeat(rep, part, ctx);
+  }
+
+  function oneRepeat(rep, part, ctx) {
     if (rep.over) {
       var rows = ctx.data[rep.over];
       if (!Array.isArray(rows)) throw SceneError('part "' + part.name + '" repeats over "' + rep.over + '", which is not a table in `data`');

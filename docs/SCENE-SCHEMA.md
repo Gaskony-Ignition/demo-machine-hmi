@@ -155,10 +155,10 @@ Names are evaluated in order, so a later one may use an earlier one.
 | Piece | State |
 | --- | --- |
 | Schema | this document |
-| `src/cell3d/scene.json` — floor, guarding, robot | 26 parts, 8 materials |
-| `src/cell3d/scene-render.js` | ~250 lines, no `eval` |
-| Parity gate | **passing** |
-| Config-driven parts (conveyor, stations, cartons, gripper head) | not started |
+| `src/cell3d/scene.json` — floor, guarding, robot, conveyor frame | 27 parts, 10 materials |
+| `src/cell3d/scene-render.js` | ~280 lines, no `eval` |
+| Parity gate | **passing**, and negative-tested |
+| Config-driven parts | conveyor frame done; stations, cartons, photo-eyes and gripper head to go |
 | Where the document lives (Document tag vs view custom props) | not decided |
 | Page switched over to the renderer | not yet — the document is proved, not wired in |
 
@@ -171,8 +171,19 @@ material colour and finish, and both shadow flags.
 
 ```
 hand-coded nodes: 56   document nodes: 56
+subtree ConveyorFrame: identical across 32 nodes (excluding animated axes)
+  ok   24 rollers are actually spinning
 PARITY: identical across 56 nodes
 ```
+
+The conveyor frame is what proves the **Config-path** half of the schema: its
+rails, legs and roller count all come from `Config/convLength_mm` and its two
+siblings, resolved from the same state the page uses and divided by 1000 by the
+`_mm` rule. Nothing in the static structure exercised that.
+
+A gate that cannot fail is worth nothing, so it was negative-tested: changing
+the upper arm's height from 0.24 to 0.25 in the document — a 10 mm lie —
+produces `PARITY: 1 of 56 nodes differ` and exit 1.
 
 It also drives the joints two ways, because a tree comparison alone would pass
 if **both** scenes sat at zero:
@@ -201,6 +212,11 @@ but less risk — they are already parameterised, just in JavaScript.
 enclosing scope, before the part's names exist. That is not a limitation to work
 around: a count that depends on the part is nearly always a property of its
 *parent* — how many posts this run of guarding carries — and belongs there.
+
+**Animation is not structure.** The page spins the rollers to show the belt
+running, and that spin is no more part of the document than a joint angle is.
+The gate excludes the barrel axis and then asserts separately that the rollers
+*are* turning — otherwise a belt that had stopped would pass in silence.
 
 **Lights and the grid helper are not parts.** They are scene furniture. A parts
 list describing the lighting rig would be a parts list that had stopped being
