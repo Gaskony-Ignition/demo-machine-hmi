@@ -170,7 +170,7 @@ Names are evaluated in order, so a later one may use an earlier one.
 | `src/cell3d/scene-render.js` | ~320 lines, no `eval` |
 | Parity gate | **passing**, stable over repeated runs, negative-tested |
 | Every part of the cell | **done** — except the pallet case stacks, deliberately |
-| The `Machine/Scene` view and the route that serves it | not started |
+| The `Machine/Scene` view and the route that serves it | **done** — `admin?cmd=scene` |
 | Page switched over to the renderer | not started |
 | Where the document lives | **a view's custom props** (Nigel, 05/09/2026) |
 | Page switched over to the renderer | not yet — the document is proved, not wired in |
@@ -225,11 +225,35 @@ chain in it: if the schema could not express a six-group arm whose joints are
 tags, nothing else about it would matter. The config-driven parts are more code
 but less risk — they are already parameterised, just in JavaScript.
 
-### Where the document will live
+### Where the document lives
 
-A `Machine/Scene` view whose `custom.parts` is the document, edited in the
-Designer's property editor with its tree, its add-row buttons and its binding
-dialog. The page reads it through a WebDev route that opens the view resource.
+The `Machine/Scene` view. The document is spread across five custom props —
+`units`, `consts`, `data`, `materials`, `parts` — rather than nested under one,
+so a binding path reads `custom.parts[3].size[0]`, which is exactly what the
+Option B component's `props.parts[3].size[0]` would be.
+
+`tools/build_scene_view.py` generates the view from `src/cell3d/scene.json`, and
+`--extract` goes the other way. The readable file is the source and the view is
+generated, for the same reason `webdev_page.py` splits the 3D page: a `view.json`
+with a 45-part document inlined is not reviewable in git. The same rule applies —
+edit in the Designer, extract before committing.
+
+`MachineDemo.scene.document()` reads the deployed view off disk, resolving the
+gateway's install directory the way the `lib` route already does to serve the
+vendored three.js. It never raises: if the document cannot be read it says why,
+and the page keeps its built-in geometry, because a page rendering the cell it
+has always rendered is a better failure than a page rendering nothing.
+
+**The gate tests the document the gateway SERVES**, not the repo file — and
+reports drift between the two. Testing the file alone would have proved the
+renderer and nothing about the plumbing: a view that failed to deploy, or custom
+props edited in the Designer and never extracted, would both have passed.
+Editing the deployed view's `upperArm` as if someone had typed it in the property
+editor produces both a `DRIFT` line and `PARITY: 1 of 55 nodes differ`.
+
+The drift comparison is canonical, not textual: Jython's `jsonDecode` returns an
+unordered map, so the served key order differs on every read. Array order is
+preserved, because that one is real — it is the child order in the scene graph.
 
 A Document tag would have been cheaper and was rejected: those custom props
 *are* the Option B component's props, so building against them rehearses the

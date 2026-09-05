@@ -12,6 +12,7 @@ def doGet(request, session):
 	    ?cmd=alarms                 this demo's standing alarms
 	    ?cmd=alarmcheck&tag=...     why an alarm is or is not standing
 	    ?cmd=version                which build this gateway is running
+	    ?cmd=scene                  the cell's parts list, from Machine/Scene
 
 	Everything that WRITES - setup, fix, fault, clear, reset, speed, mode,
 	jog, guards - left this route deliberately. An unauthenticated GET that
@@ -28,7 +29,7 @@ def doGet(request, session):
 	import traceback
 
 	READS = ["state", "status", "version", "check", "faults", "alarms",
-	         "alarmcheck"]
+	         "alarmcheck", "scene"]
 	WRITES = ["setup", "fix", "fault", "clear", "reset", "speed", "mode",
 	          "jog", "guards"]
 
@@ -61,6 +62,14 @@ def doGet(request, session):
 			                 'cell': MachineDemo.plant.CELL_NAME,
 			                 'provider': MachineDemo.plant.PROVIDER,
 			                 'project': system.util.getProjectName()}}
+
+		if cmd == 'scene':
+			# The cell as DATA: the parts list held in the Machine/Scene view's
+			# custom properties, where a person edits it in the Designer. Read
+			# by the 3D page at load. It never raises - if the document cannot
+			# be read it says why, and the page falls back to its built-in
+			# geometry rather than rendering nothing.
+			return {'json': MachineDemo.scene.document()}
 
 		if cmd == 'check':
 			return {'json': {'ok': True, 'check': MachineDemo.setup.check()}}

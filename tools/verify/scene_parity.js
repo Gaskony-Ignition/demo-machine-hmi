@@ -125,6 +125,35 @@ const describe = `(root, skip, skipChildren) => {
       geo = st.geometry || {};
     } catch (e) { return { err: 'could not read admin?cmd=state: ' + e }; }
 
+    // The document the GATEWAY serves, out of the Machine/Scene view's custom
+    // properties - which is what the page will actually render. Testing the
+    // repo file alone would prove the renderer and nothing about the plumbing:
+    // a view that failed to deploy, or custom props edited in the Designer and
+    // never extracted, would both pass.
+    let served = null, serveErr = null;
+    try {
+      const r2 = await fetch('admin?cmd=scene', { cache: 'no-store' });
+      const j = await r2.json();
+      if (j && j.ok) served = j.scene;
+      else serveErr = (j && j.error) || 'admin?cmd=scene did not answer ok';
+    } catch (e) { serveErr = String(e); }
+    // Compare canonically. Jython's jsonDecode hands back an unordered map, so
+    // the served document's keys come out in a different order every time -
+    // which is not drift. Array order IS meaningful (it is the child order in
+    // the scene graph) and is preserved.
+    const canon = v => {
+      if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']';
+      if (v && typeof v === 'object') {
+        return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + canon(v[k])).join(',') + '}';
+      }
+      return JSON.stringify(v);
+    };
+    const drift = served ? (canon(served) !== canon(doc)) : null;
+    // Build from what the gateway serves when it is available. If it is not,
+    // say so loudly and fall back to the repo file rather than reporting a
+    // pass that was never about the deployed thing.
+    if (served) doc = served;
+
     (0, eval)(renderer);
     let built, err = null;
     try { built = window.buildScene(doc, cfg, window.THREE, geo); }
@@ -249,6 +278,7 @@ const describe = `(root, skip, skipChildren) => {
 
     const desc = (0, eval)('(' + describe + ')');
     return {
+      serveErr, drift, servedParts: served ? served.parts.length : null,
       eyes,
       config: cfg,
       hand: desc(window.__cellScene, NOT_YET, SKIP_CHILDREN),
@@ -358,6 +388,14 @@ const describe = `(root, skip, skipChildren) => {
 
   if (result.err) { console.log('RENDERER ERROR: ' + result.err); process.exit(1); }
   if (errs.length) console.log('page errors: ' + errs.join(' | '));
+
+  if (result.serveErr) {
+    console.log('SCENE ROUTE: ' + result.serveErr);
+    console.log('  the gateway is not serving the document; what follows tested the REPO FILE only');
+  } else {
+    console.log('scene route: gateway serves ' + result.servedParts + ' parts from Machine/Scene' +
+                (result.drift ? '  DRIFT - it differs from src/cell3d/scene.json' : ', identical to src/cell3d/scene.json'));
+  }
 
   const key = n => JSON.stringify(n);
   const a = result.hand, c = result.docTree;
@@ -481,7 +519,7 @@ const describe = `(root, skip, skipChildren) => {
     ? 'PARITY: identical across ' + a.length + ' nodes'
     : 'PARITY: ' + bad + ' of ' + n + ' nodes differ'));
   if (jointBad) console.log('JOINTS: ' + jointBad + ' did not take their tag value');
-  process.exit(bad === 0 && jointBad === 0 && !errs.length ? 0 : 1);
+  process.exit(bad === 0 && jointBad === 0 && !errs.length && !result.serveErr && !result.drift ? 0 : 1);
 })();
 
 // Run:
