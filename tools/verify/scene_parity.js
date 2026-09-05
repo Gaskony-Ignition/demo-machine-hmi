@@ -176,8 +176,55 @@ const describe = `(root, skip, skipChildren) => {
                got: target[jd.axis], moved, others };
     });
 
+    // Photo-eyes, matched as a SET rather than by tree position: the page does
+    // not name them, and the gate must not deploy a renamed page to a shared
+    // gateway just to make itself easier to write. An eye is a group of two
+    // posts and a beam, so that is how they are found on the hand side. Beam
+    // COLOUR is a live tag and is excluded; that each beam owns its material
+    // is asserted instead, which is the property that matters.
+    const eyeShape = g => {
+      if (!g.isGroup && g.type !== 'Group') return null;
+      const boxes = g.children.filter(c => c.isMesh && c.geometry.type === 'BoxGeometry');
+      const cyls = g.children.filter(c => c.isMesh && c.geometry.type === 'CylinderGeometry');
+      if (boxes.length !== 2 || cyls.length !== 1 || g.children.length !== 3) return null;
+      const r6 = v => Math.round(v * 1e6) / 1e6;
+      const beam = cyls[0];
+      return {
+        posts: boxes.map(b => [r6(b.position.x), r6(b.position.y), r6(b.position.z)]).sort(),
+        beam: [r6(beam.position.x), r6(beam.position.y), r6(beam.position.z)],
+        beamLen: r6(beam.geometry.parameters.height),
+        beamSeg: beam.geometry.parameters.radialSegments,
+        beamRot: [r6(beam.rotation.x), r6(beam.rotation.y), r6(beam.rotation.z)],
+        matType: beam.material.type
+      };
+    };
+    const collectEyes = root => {
+      const out = [];
+      root.traverse(o => { const e = eyeShape(o); if (e) out.push({ e, mat: o.children.find(c => c.geometry && c.geometry.type === 'CylinderGeometry').material }); });
+      out.sort((a, b) => a.e.beam[0] - b.e.beam[0]);
+      return out;
+    };
+    const handInfeed = window.__cellScene.getObjectByName('InfeedConveyor');
+    const docInfeed = built.root.getObjectByName('InfeedConveyor');
+    const he = handInfeed ? collectEyes(handInfeed) : [];
+    const de = docInfeed ? collectEyes(docInfeed) : [];
+    const eyes = {
+      handCount: he.length,
+      docCount: de.length,
+      shapes: de.map((d, i) => ({ doc: d.e, hand: he[i] ? he[i].e : null })),
+      // Six beams must be six DIFFERENT materials, or one blocked eye would
+      // turn them all red together.
+      distinctMaterials: new Set(de.map(d => d.mat)).size,
+      // Beam opacity is animated - the page pulses it - so it is excluded from
+      // the shape comparison above and checked here instead: the live beams must
+      // show more than one value, or the pulse has stopped.
+      handOpacities: he.map(d => Math.round(d.mat.opacity * 1000) / 1000),
+      docOpacity: de.length ? Math.round(de[0].mat.opacity * 1000) / 1000 : null
+    };
+
     const desc = (0, eval)('(' + describe + ')');
     return {
+      eyes,
       config: cfg,
       hand: desc(window.__cellScene, NOT_YET, SKIP_CHILDREN),
       docTree: desc(built.root, NOT_YET, SKIP_CHILDREN),
@@ -248,6 +295,34 @@ const describe = `(root, skip, skipChildren) => {
       bad++;
     }
   }
+  // Photo-eyes.
+  const E = result.eyes;
+  console.log('\nphoto-eyes: page has ' + E.handCount + ', document builds ' + E.docCount);
+  if (E.handCount !== E.docCount) { console.log('  FAIL count differs'); bad++; }
+  let eyeBad = 0;
+  E.shapes.forEach((s2, i) => {
+    if (key(s2.doc) !== key(s2.hand)) {
+      if (eyeBad < 3) {
+        console.log('  #' + i + ' MISMATCH\n    hand: ' + key(s2.hand) + '\n    doc : ' + key(s2.doc));
+      }
+      eyeBad++;
+    }
+  });
+  console.log('  ' + (eyeBad === 0 ? 'ok   every eye matches in posts, beam and material type'
+                                   : 'FAIL ' + eyeBad + ' differ'));
+  const opacities = [...new Set(E.handOpacities)];
+  const pulsing = opacities.length > 1;
+  console.log('  ' + (pulsing ? 'ok  ' : 'FAIL') + ' beam opacity is animated on the page (' +
+              opacities.join(', ') + '), document builds them at ' + E.docOpacity +
+              (pulsing ? '' : ' - the pulse has stopped'));
+  if (!pulsing) bad++;
+
+  const distinctOk = E.distinctMaterials === E.docCount;
+  console.log('  ' + (distinctOk ? 'ok  ' : 'FAIL') + ' ' + E.distinctMaterials + ' of ' +
+              E.docCount + ' beams own their material' +
+              (distinctOk ? '' : ' - one blocked eye would recolour them all'));
+  bad += eyeBad + (distinctOk ? 0 : 1);
+
   // Named subtrees, compared on their own.
   result.subtrees.forEach(t => {
     if (!t.hand || !t.doc) {

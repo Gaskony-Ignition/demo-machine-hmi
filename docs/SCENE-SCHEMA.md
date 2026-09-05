@@ -155,11 +155,11 @@ Names are evaluated in order, so a later one may use an earlier one.
 | Piece | State |
 | --- | --- |
 | Schema | this document |
-| `src/cell3d/scene.json` — floor, guarding, robot, conveyor frame | 27 parts, 10 materials |
-| `src/cell3d/scene-render.js` | ~280 lines, no `eval` |
+| `src/cell3d/scene.json` — floor, guarding, robot, conveyor, photo-eyes | 30 parts, 11 materials |
+| `src/cell3d/scene-render.js` | ~290 lines, no `eval` |
 | Parity gate | **passing**, and negative-tested |
-| Config-driven parts | conveyor frame done; stations, cartons, photo-eyes and gripper head to go |
-| Where the document lives (Document tag vs view custom props) | not decided |
+| Config-driven parts | conveyor and photo-eyes done; stations, cartons and gripper head to go |
+| Where the document lives | **a view's custom props** (Nigel, 05/09/2026) |
 | Page switched over to the renderer | not yet — the document is proved, not wired in |
 
 ### What the gate proves
@@ -206,6 +206,26 @@ chain in it: if the schema could not express a six-group arm whose joints are
 tags, nothing else about it would matter. The config-driven parts are more code
 but less risk — they are already parameterised, just in JavaScript.
 
+### Where the document will live
+
+A `Machine/Scene` view whose `custom.parts` is the document, edited in the
+Designer's property editor with its tree, its add-row buttons and its binding
+dialog. The page reads it through a WebDev route that opens the view resource.
+
+A Document tag would have been cheaper and was rejected: those custom props
+*are* the Option B component's props, so building against them rehearses the
+real answer instead of building plumbing that gets thrown away. Editing the
+machine in the property editor is also the thing a customer can be shown.
+
+### `ownMaterial`
+
+Materials are shared by name — which is what you want for sixty identical
+cartons and exactly what you do not want for six photo-eye beams, because each
+beam's colour is its own tag and one shared material turns them all red
+together. `"ownMaterial": true` gives each instance its own copy. It is the same
+reason the page clones materials before highlighting a faulted group, and the
+gate asserts it: *6 of 6 beams own their material*.
+
 ### Two things the work has already settled
 
 **`repeat.count` cannot see the part's own `let`.** It is evaluated in the
@@ -213,10 +233,11 @@ enclosing scope, before the part's names exist. That is not a limitation to work
 around: a count that depends on the part is nearly always a property of its
 *parent* — how many posts this run of guarding carries — and belongs there.
 
-**Animation is not structure.** The page spins the rollers to show the belt
-running, and that spin is no more part of the document than a joint angle is.
-The gate excludes the barrel axis and then asserts separately that the rollers
-*are* turning — otherwise a belt that had stopped would pass in silence.
+**Animation is not structure.** The page spins the rollers and pulses the
+photo-eye beams' opacity; neither is more part of the document than a joint
+angle is. The gate excludes both and then asserts each is still happening — 24
+rollers turning, beam opacity showing more than one value — because a belt that
+had stopped, or a pulse that had died, would otherwise pass in silence.
 
 **Lights and the grid helper are not parts.** They are scene furniture. A parts
 list describing the lighting rig would be a parts list that had stopped being

@@ -49,7 +49,11 @@
       if (row === null || typeof row !== "object" || !(field in row)) {
         throw SceneError('"' + name + '" - no field "' + field + '" on that row');
       }
-      return row[field];
+      // A row's fields may themselves be expressions, evaluated in the scope
+      // the repeat runs in - so a table of photo-eye positions can be written
+      // as distances back from the end of a conveyor whose length is a tag.
+      var val = row[field];
+      return typeof val === "number" ? val : evaluate(val, ctx);
     }
     for (var i = ctx.scope.length - 1; i >= 0; i--) {
       if (Object.prototype.hasOwnProperty.call(ctx.scope[i], name)) return ctx.scope[i][name];
@@ -118,6 +122,13 @@
     if (part.material) {
       mat = ctx.materials[part.material];
       if (!mat) throw SceneError('part "' + part.name + '" wants material "' + part.material + '", which is not defined');
+      // Materials are shared by name, which is what you want for sixty
+      // identical cartons and exactly what you do not want for six photo-eye
+      // beams: each beam's colour is its own tag, and one shared material
+      // would turn them all red together. `ownMaterial` gives each instance
+      // its own copy - the same reason the page clones materials before it
+      // highlights a faulted group.
+      if (part.ownMaterial) mat = mat.clone();
     }
     var o;
     switch (part.type) {

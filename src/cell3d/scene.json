@@ -42,6 +42,62 @@
         "x2": 2.6,
         "z2": 2.75
       }
+    ],
+    "photoEyes": [
+      {
+        "key": "infeed",
+        "label": "PE Infeed",
+        "x": [
+          "-",
+          "convX1",
+          0.35
+        ]
+      },
+      {
+        "key": "len1",
+        "label": "PE Length 1",
+        "x": [
+          "-",
+          "convX1",
+          1.7
+        ]
+      },
+      {
+        "key": "len2",
+        "label": "PE Length 2",
+        "x": [
+          "-",
+          "convX1",
+          2.3
+        ]
+      },
+      {
+        "key": "carton",
+        "label": "PE Carton",
+        "x": [
+          "-",
+          "convX1",
+          3.1
+        ]
+      },
+      {
+        "key": "inpos1",
+        "label": "PE In-Pos 1",
+        "x": [
+          "+",
+          "convX0",
+          0.6
+        ]
+      },
+      {
+        "key": "inpos2",
+        "label": "PE In-Pos 2",
+        "x": [
+          "+",
+          "convX0",
+          0.25
+        ]
+      }
     ]
   },
   "materials": {
@@ -97,6 +153,11 @@
       "color": "0x8d99a3",
       "metalness": 0.85,
       "roughness": 0.35
+    },
+    "beam": {
+      "color": "0x46d07c",
+      "basic": true,
+      "opacity": 0.85
     }
   },
   "parts": [
@@ -515,12 +576,7 @@
         0,
         -1.5707963267948966,
         0
-      ]
-    },
-    {
-      "name": "ConveyorFrame",
-      "type": "group",
-      "parent": "InfeedConveyor",
+      ],
       "let": {
         "convLen": "Config/convLength_mm",
         "convW": "Config/convWidth_mm",
@@ -538,8 +594,14 @@
             "Config/convLength_mm",
             0.5
           ]
-        ]
+        ],
+        "caseH": "Config/caseH_mm"
       }
+    },
+    {
+      "name": "ConveyorFrame",
+      "type": "group",
+      "parent": "InfeedConveyor"
     },
     {
       "name": "convRail",
@@ -698,6 +760,100 @@
           ]
         ],
         "convY",
+        0
+      ],
+      "shadow": {
+        "cast": false
+      }
+    },
+    {
+      "name": "PhotoEye",
+      "type": "group",
+      "parent": "InfeedConveyor",
+      "repeat": {
+        "over": "photoEyes",
+        "as": "e"
+      }
+    },
+    {
+      "name": "pePost",
+      "type": "box",
+      "parent": "PhotoEye",
+      "material": "convFrame",
+      "repeat": {
+        "count": 2,
+        "as": "s"
+      },
+      "size": [
+        0.05,
+        0.34,
+        0.05
+      ],
+      "at": [
+        "e.x",
+        [
+          "+",
+          "convY",
+          0.17
+        ],
+        [
+          "*",
+          [
+            "+",
+            -1,
+            [
+              "*",
+              "s",
+              2
+            ]
+          ],
+          [
+            "+",
+            [
+              "*",
+              "convW",
+              0.5
+            ],
+            0.1
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "peBeam",
+      "type": "cylinder",
+      "parent": "PhotoEye",
+      "material": "beam",
+      "ownMaterial": true,
+      "comment": "Each beam's colour is its own tag, so each needs its own material. Height is capped just clear of the tallest carton: at a fixed 200 mm the beam sat inside a 220 mm case and poked out both sides.",
+      "radiusTop": 0.008,
+      "radiusBottom": 0.008,
+      "height": [
+        "+",
+        "convW",
+        0.2
+      ],
+      "segments": 6,
+      "rotate": [
+        1.5707963267948966,
+        0,
+        0
+      ],
+      "at": [
+        "e.x",
+        [
+          "+",
+          "convY",
+          [
+            "min",
+            0.3,
+            [
+              "+",
+              "caseH",
+              0.05
+            ]
+          ]
+        ],
         0
       ],
       "shadow": {
