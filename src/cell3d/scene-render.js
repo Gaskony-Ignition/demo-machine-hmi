@@ -29,6 +29,7 @@
     "round": function (a) { return Math.round(a[0]); },
     "sqrt": function (a) { return Math.sqrt(a[0]); },
     "atan2": function (a) { return Math.atan2(a[0], a[1]); },
+    "mod": function (a) { return ((a[0] % a[1]) + a[1]) % a[1]; },
     "hypot": function (a) { return Math.sqrt(a.reduce(function (s, v) { return s + v * v; }, 0)); }
   };
 
@@ -59,15 +60,23 @@
       if (Object.prototype.hasOwnProperty.call(ctx.scope[i], name)) return ctx.scope[i][name];
     }
     if (Object.prototype.hasOwnProperty.call(ctx.consts, name)) return ctx.consts[name];
-    if (name.indexOf("Config/") === 0) {
-      var key = name.slice(7);
-      if (!Object.prototype.hasOwnProperty.call(ctx.config, key)) {
-        throw SceneError('"' + name + '" - not in the config');
-      }
-      var v = ctx.config[key];
-      return /_mm$/.test(key) ? v / 1000 : v;
+    if (name.indexOf("Config/") === 0) return fromBag(name, name.slice(7), ctx.config, "config");
+    // Values the gateway DERIVES and publishes, rather than raw config: the
+    // pallet pattern's rows and columns come from an algorithm the simulator
+    // owns, so the document reads the answer instead of recomputing it and
+    // getting a different one.
+    if (name.indexOf("Geometry/") === 0) return fromBag(name, name.slice(9), ctx.geometry, "geometry");
+    throw SceneError('"' + name + '" is not a const, a loop variable, or a Config/ or Geometry/ path');
+  }
+
+  function fromBag(name, key, bag, what) {
+    if (!Object.prototype.hasOwnProperty.call(bag, key)) {
+      throw SceneError('"' + name + '" - not in the ' + what);
     }
-    throw SceneError('"' + name + '" is not a const, a loop variable or a Config path');
+    var v = bag[key];
+    // Every dimension in this project is named in millimetres and the page
+    // works in metres, so the conversion lives here rather than in every part.
+    return /_mm$/.test(key) ? v / 1000 : v;
   }
 
   function evaluate(node, ctx) {
@@ -120,8 +129,19 @@
   function makeObject(part, ctx, THREE) {
     var mat = null;
     if (part.material) {
-      mat = ctx.materials[part.material];
-      if (!mat) throw SceneError('part "' + part.name + '" wants material "' + part.material + '", which is not defined');
+      // A material may be named outright, or chosen from a list by an
+      // expression - which is how cartons alternate colour down a stack. That
+      // is an index into data, not a branch: there is still no `if` here.
+      var wanted = part.material;
+      if (typeof wanted === "object") {
+        var idx = evaluate(wanted.index, ctx);
+        if (!(idx >= 0 && idx < wanted.oneOf.length)) {
+          throw SceneError('part "' + part.name + '" picked material ' + idx + ' of ' + wanted.oneOf.length);
+        }
+        wanted = wanted.oneOf[idx];
+      }
+      mat = ctx.materials[wanted];
+      if (!mat) throw SceneError('part "' + part.name + '" wants material "' + wanted + '", which is not defined');
       // Materials are shared by name, which is what you want for sixty
       // identical cartons and exactly what you do not want for six photo-eye
       // beams: each beam's colour is its own tag, and one shared material
@@ -273,15 +293,17 @@
   // --------------------------------------------------------------------
   // doc     - the scene document
   // config  - the flat config bag the page already builds from Config tags
+  // geometry- the derived block the gateway publishes (pattern rows/cols etc.)
   // THREE   - the three.js namespace
   // returns { root, byName, joints, materials }
-  function buildScene(doc, config, THREE) {
+  function buildScene(doc, config, THREE, geometry) {
     if (!doc || !Array.isArray(doc.parts)) throw SceneError("document has no `parts` array");
 
     var ctx = {
       consts: doc.consts || {},
       data: doc.data || {},
       config: config || {},
+      geometry: geometry || {},
       materials: buildMaterials(doc.materials, THREE),
       scope: [],
       childrenOf: {}

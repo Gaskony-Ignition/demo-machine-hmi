@@ -180,6 +180,31 @@
       "color": "0x59636d",
       "metalness": 0.55,
       "roughness": 0.6
+    },
+    "plate": {
+      "color": "0x39424b",
+      "metalness": 0.7,
+      "roughness": 0.4
+    },
+    "cup": {
+      "color": "0x24292f",
+      "metalness": 0.1,
+      "roughness": 0.9
+    },
+    "caseA": {
+      "color": "0xc08a4a",
+      "metalness": 0.05,
+      "roughness": 0.85
+    },
+    "caseB": {
+      "color": "0xa9773d",
+      "metalness": 0.05,
+      "roughness": 0.85
+    },
+    "seam": {
+      "color": "0x6b4a22",
+      "metalness": 0,
+      "roughness": 1
     }
   },
   "parts": [
@@ -430,7 +455,17 @@
         0,
         -0.14,
         0
-      ]
+      ],
+      "let": {
+        "pick": [
+          "max",
+          1,
+          "Geometry/rows"
+        ],
+        "caseW": "Config/caseW_mm",
+        "caseD": "Config/caseD_mm",
+        "caseH": "Config/caseH_mm"
+      }
     },
     {
       "name": "fenceRun",
@@ -1133,6 +1168,180 @@
         0.1,
         0
       ]
+    },
+    {
+      "name": "headPlate",
+      "type": "box",
+      "parent": "Gripper",
+      "material": "plate",
+      "size": [
+        [
+          "+",
+          "caseW",
+          0.06
+        ],
+        0.07,
+        [
+          "+",
+          [
+            "*",
+            "pick",
+            "caseD"
+          ],
+          0.06
+        ]
+      ]
+    },
+    {
+      "name": "cup",
+      "type": "cylinder",
+      "parent": "Gripper",
+      "material": "cup",
+      "comment": "Two suction cups per case in the pick. Cases sit along the head's local Z at the pattern's own case depth - the pitch they queue at on the belt AND land at in a column.",
+      "repeat": [
+        {
+          "count": "pick",
+          "as": "hc"
+        },
+        {
+          "count": 2,
+          "as": "cx"
+        }
+      ],
+      "radiusTop": 0.045,
+      "radiusBottom": 0.032,
+      "height": 0.06,
+      "segments": 12,
+      "at": [
+        [
+          "*",
+          [
+            "+",
+            -1,
+            [
+              "*",
+              "cx",
+              2
+            ]
+          ],
+          [
+            "/",
+            "caseW",
+            3.5
+          ]
+        ],
+        -0.06,
+        [
+          "*",
+          [
+            "-",
+            "hc",
+            [
+              "*",
+              [
+                "-",
+                "pick",
+                1
+              ],
+              0.5
+            ]
+          ],
+          "caseD"
+        ]
+      ]
+    },
+    {
+      "name": "heldCase",
+      "type": "group",
+      "parent": "Gripper",
+      "comment": "The cases currently held. Parented to the gripper so they follow it; the page shows and hides them as the cycle runs.",
+      "repeat": {
+        "count": "pick",
+        "as": "hc"
+      },
+      "visible": false,
+      "at": [
+        0,
+        [
+          "-",
+          -0.09,
+          [
+            "*",
+            "caseH",
+            0.5
+          ]
+        ],
+        [
+          "*",
+          [
+            "-",
+            "hc",
+            [
+              "*",
+              [
+                "-",
+                "pick",
+                1
+              ],
+              0.5
+            ]
+          ],
+          "caseD"
+        ]
+      ]
+    },
+    {
+      "name": "heldBody",
+      "type": "box",
+      "parent": "heldCase",
+      "material": {
+        "oneOf": [
+          "caseA",
+          "caseB"
+        ],
+        "index": [
+          "mod",
+          "hc",
+          2
+        ]
+      },
+      "size": [
+        "caseW",
+        "caseH",
+        "caseD"
+      ]
+    },
+    {
+      "name": "heldSeam",
+      "type": "box",
+      "parent": "heldCase",
+      "material": "seam",
+      "comment": "A seam line so a stack of cases does not read as one solid block.",
+      "size": [
+        [
+          "+",
+          "caseW",
+          0.004
+        ],
+        0.006,
+        [
+          "*",
+          "caseD",
+          0.02
+        ]
+      ],
+      "at": [
+        0,
+        0,
+        [
+          "*",
+          "caseD",
+          0.5
+        ]
+      ],
+      "shadow": {
+        "cast": false
+      }
     }
   ]
 }

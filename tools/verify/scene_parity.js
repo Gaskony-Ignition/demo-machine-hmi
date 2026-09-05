@@ -26,13 +26,13 @@ const PAGE = GW + '/system/webdev/Machine_HMI_Demo/cell3d';
 //   - the rest are built from Config tags and are the next tranche
 const NOT_YET = [
   'HemisphereLight', 'AmbientLight', 'DirectionalLight', 'GridHelper',
-  'InfeedConveyor', 'Station1', 'Station2'
+  'InfeedConveyor', 'Station1', 'Station2', 'Gripper'
 ];
 
 // Parts the document DOES create but whose contents are still built from Config
 // tags: the gripper group is in scene.json, the head plate, suction cups and
 // held cases it carries are sized from the case and the pick count and are not.
-const SKIP_CHILDREN = ['Gripper'];
+const SKIP_CHILDREN = [];
 
 // Subtrees compared on their own, by name, because their siblings inside the
 // same parent are not in the document yet. The infeed group also carries six
@@ -45,7 +45,11 @@ const SKIP_CHILDREN = ['Gripper'];
 const SUBTREES = [
   { name: 'ConveyorFrame' },
   { name: 'Station1', prefix: true },
-  { name: 'Station2', prefix: true }
+  { name: 'Station2', prefix: true },
+  // The held cases are shown and hidden as the cycle runs, so their visibility
+  // is state, not structure. Comparing it made this gate depend on where the
+  // arm happened to be when it ran - passing or failing on the same code.
+  { name: 'Gripper', unordered: true, stateVisible: 'group' }
 ];
 
 // The page spins the rollers to show the belt running, so their rotation about
@@ -102,16 +106,17 @@ const describe = `(root, skip, skipChildren) => {
 
   const result = await p.evaluate(async ({ doc, renderer, describe, NOT_YET, SKIP_CHILDREN, SUBTREES, ANIMATED }) => {
     // The page's own config, so both trees are built from identical numbers.
-    let cfg = {}, st = {};
+    let cfg = {}, st = {}, geo = {};
     try {
       const r = await fetch('admin?cmd=state', { cache: 'no-store' });
       st = await r.json();
       cfg = st.config || {};
+      geo = st.geometry || {};
     } catch (e) { return { err: 'could not read admin?cmd=state: ' + e }; }
 
     (0, eval)(renderer);
     let built, err = null;
-    try { built = window.buildScene(doc, cfg, window.THREE); }
+    try { built = window.buildScene(doc, cfg, window.THREE, geo); }
     catch (e) { err = String(e && e.message || e); }
     if (err) return { err };
 
@@ -146,7 +151,7 @@ const describe = `(root, skip, skipChildren) => {
       'Robot/J3_deg': st.robot && st.robot.j3, 'Robot/J4_deg': st.robot && st.robot.j4,
       'Robot/Lift_mm': st.robot && st.robot.lift
     };
-    const probe = window.buildScene(doc, cfg, window.THREE);
+    const probe = window.buildScene(doc, cfg, window.THREE, geo);
     window.applyJoints(probe, live);
     const driven = probe.joints.map(j => {
       const jd = j.joint;
@@ -163,7 +168,7 @@ const describe = `(root, skip, skipChildren) => {
     // for. So drive each joint on its own with a distinctive value and assert
     // two things: the named axis takes it, and the other two do NOT move.
     const isolate = built.joints.map((j, idx) => {
-      const fresh = window.buildScene(doc, cfg, window.THREE);
+      const fresh = window.buildScene(doc, cfg, window.THREE, geo);
       const jd = fresh.joints[idx].joint;
       const obj = fresh.joints[idx].object;
       const sent = 11 + idx * 7;                 // distinct, non-zero, non-round
@@ -176,7 +181,7 @@ const describe = `(root, skip, skipChildren) => {
         : (jd.unit === 'rad' ? sent : sent * Math.PI / 180);
       // The part's own resting transform is the baseline; a joint adds to
       // nothing, it SETS one axis. Others must read what the document gave them.
-      const rest = window.buildScene(doc, cfg, window.THREE).joints[idx].object;
+      const rest = window.buildScene(doc, cfg, window.THREE, geo).joints[idx].object;
       const restT = jd.kind === 'translate' ? rest.position : rest.rotation;
       const moved = Math.abs(target[jd.axis] - want) < 1e-9;
       const others = axes.filter(a => a !== jd.axis)
@@ -255,9 +260,33 @@ const describe = `(root, skip, skipChildren) => {
           });
           return { list: out, spinning };
         };
-        const H = strip(h ? desc(h, [], []) : null);
-        const C = strip(c ? desc(c, [], []) : null);
+        // desc() walks a node's CHILDREN, so describing a subtree by its root
+        // would leave the root's own transform unchecked - and these roots are
+        // exactly where the tag-driven placement lives: the pallet stations sit
+        // at Config/station1X_mm, the gripper hangs at -0.14 off the wrist.
+        // Wrapping in a synthetic parent brings the root itself into the diff.
+        const withSelf = n => (n ? desc({ children: [n] }, [], []) : null);
+        const hideState = l => (!spec.stateVisible || !l) ? l : l.map(n =>
+          n.kind === spec.stateVisible ? Object.assign({}, n, { vis: 'state' }) : n);
+        const H = strip(hideState(withSelf(h)));
+        const C = strip(hideState(withSelf(c)));
         const res = { name, hand: H.list, doc: C.list, spinning: an ? H.spinning : undefined };
+        if (spec.unordered && H.list && C.list) {
+          // Sibling order carries no meaning here, so compare as a multiset.
+          const norm = l => l.map(n => JSON.stringify(Object.assign({}, n, { depth: n.depth }))).sort();
+          res.hand = norm(H.list).map(x => JSON.parse(x));
+          res.doc = norm(C.list).map(x => JSON.parse(x));
+          res.unordered = true;
+        }
+        if (spec.stateVisible && c) {
+          // Excluding a property is only safe if the thing it was protecting is
+          // asserted another way: the document must still BUILD the held cases
+          // hidden, or a fresh page would open with three cartons in mid-air.
+          const held = [];
+          c.traverse(o => { if (o.name && o.name.indexOf('heldCase') === 0) held.push(o); });
+          res.held = held.length;
+          res.heldHidden = held.filter(o => o.visible === false).length;
+        }
         if (spec.prefix && H.list && C.list) {
           res.tail = H.list.length - C.list.length;
           // Everything past the described prefix must be a carton: a group of
@@ -364,8 +393,17 @@ const describe = `(root, skip, skipChildren) => {
       }
     }
     console.log('\nsubtree ' + t.name + ': ' + (sb === 0
-      ? 'identical across ' + t.hand.length + ' nodes (excluding animated axes)'
+      ? 'identical across ' + t.hand.length + ' nodes' +
+        (t.unordered ? ' (as a set)' : '') + ' (excluding animated axes)'
       : sb + ' of ' + m + ' nodes differ'));
+    if (t.held !== undefined) {
+      const ok = t.held > 0 && t.heldHidden === t.held;
+      console.log('  ' + (ok ? 'ok  ' : 'FAIL') + ' ' + t.heldHidden + ' of ' + t.held +
+                  ' held cases are built hidden' +
+                  (ok ? ' (visibility itself is state, excluded above)'
+                      : ' - a fresh page would open with cartons in mid-air'));
+      if (!ok) bad++;
+    }
     if (t.tail !== undefined) {
       const tailOk = t.tail > 0 && t.tailOdd === 0;
       console.log('  ' + (tailOk ? 'ok  ' : 'FAIL') + ' ' + t.tail +

@@ -73,6 +73,17 @@ which is how the carriage lift works.
 One joint per part, deliberately. Two rotations on one node is how a chain
 becomes unreadable; nest another group instead, which is what a real axis is.
 
+### Two value bags, not one
+
+`Config/` reaches the raw tag values. `Geometry/` reaches what the **gateway
+derives and publishes** — the pattern's `rows` and `cols`, `casesPerPick`.
+
+That split matters. The gripper head has to be as long as one pick, and a pick
+is a column of the layer, so its size depends on the rows in the pattern — which
+come from an algorithm that finds the factor pair of `CasesPerLayer` closest to
+square. The document reads the published answer instead of recomputing it,
+because a second implementation is a second chance to disagree.
+
 ### Values are expressions
 
 Anywhere a number is expected, three forms are accepted:
@@ -155,10 +166,11 @@ Names are evaluated in order, so a later one may use an earlier one.
 | Piece | State |
 | --- | --- |
 | Schema | this document |
-| `src/cell3d/scene.json` — floor, guarding, robot, conveyor, photo-eyes, both pallet stations | 37 parts, 13 materials |
-| `src/cell3d/scene-render.js` | ~300 lines, no `eval` |
-| Parity gate | **passing**, and negative-tested three ways |
-| Config-driven parts | conveyor, photo-eyes and stations done; cartons and gripper head to go |
+| `src/cell3d/scene.json` | 42 parts, 18 materials |
+| `src/cell3d/scene-render.js` | ~320 lines, no `eval` |
+| Parity gate | **passing**, stable over repeated runs, negative-tested |
+| Config-driven parts | conveyor, photo-eyes, stations and gripper head done; only the belt's carton pool to go |
+| The `Machine/Scene` view and the route that serves it | not started |
 | Where the document lives | **a view's custom props** (Nigel, 05/09/2026) |
 | Page switched over to the renderer | not yet — the document is proved, not wired in |
 
@@ -222,6 +234,23 @@ A Document tag would have been cheaper and was rejected: those custom props
 *are* the Option B component's props, so building against them rehearses the
 real answer instead of building plumbing that gets thrown away. Editing the
 machine in the property editor is also the thing a customer can be shown.
+
+### Excluding a property is only safe if something else asserts it
+
+Three properties are excluded from the comparison because they are **state**,
+not structure — and each one is then asserted another way, because an exclusion
+with nothing behind it is just a blind spot:
+
+| Excluded | Asserted instead |
+| --- | --- |
+| roller spin | 24 rollers are actually turning |
+| photo-eye beam opacity | the page shows more than one value, so the pulse is alive |
+| held-case visibility | the document builds all 3 hidden, so a fresh page has no cartons in mid-air |
+
+The last one was found the hard way. Comparing held-case visibility made the
+gate **depend on where the arm was when it ran** — the same code passed or
+failed depending on whether the gripper was carrying. A flaky gate is worse than
+no gate, because it teaches you to re-run it until it goes green.
 
 ### What stays in code, and why
 
