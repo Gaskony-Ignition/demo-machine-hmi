@@ -166,11 +166,12 @@ Names are evaluated in order, so a later one may use an earlier one.
 | Piece | State |
 | --- | --- |
 | Schema | this document |
-| `src/cell3d/scene.json` | 42 parts, 18 materials |
+| `src/cell3d/scene.json` | 45 parts, 18 materials |
 | `src/cell3d/scene-render.js` | ~320 lines, no `eval` |
 | Parity gate | **passing**, stable over repeated runs, negative-tested |
-| Config-driven parts | conveyor, photo-eyes, stations and gripper head done; only the belt's carton pool to go |
+| Every part of the cell | **done** — except the pallet case stacks, deliberately |
 | The `Machine/Scene` view and the route that serves it | not started |
+| Page switched over to the renderer | not started |
 | Where the document lives | **a view's custom props** (Nigel, 05/09/2026) |
 | Page switched over to the renderer | not yet — the document is proved, not wired in |
 
@@ -244,8 +245,9 @@ with nothing behind it is just a blind spot:
 | Excluded | Asserted instead |
 | --- | --- |
 | roller spin | 24 rollers are actually turning |
-| photo-eye beam opacity | the page shows more than one value, so the pulse is alive |
-| held-case visibility | the document builds all 3 hidden, so a fresh page has no cartons in mid-air |
+| photo-eye beam colour and opacity | the page shows more than one opacity, so the pulse is alive; each beam owns its material, so one blocked eye cannot recolour the rest |
+| held-case and carton visibility | the document builds all 12 hidden, so a fresh page shows no product that is not there |
+| carton position on the belt | the pool is evenly pitched at 0.3 m on one level — where a carton *is* is state, where the pool *sits* is structure |
 
 The last one was found the hard way. Comparing held-case visibility made the
 gate **depend on where the arm was when it ran** — the same code passed or

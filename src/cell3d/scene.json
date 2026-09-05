@@ -652,7 +652,19 @@
             0.5
           ]
         ],
-        "caseH": "Config/caseH_mm"
+        "caseH": "Config/caseH_mm",
+        "caseD": "Config/caseD_mm",
+        "caseW": "Config/caseW_mm",
+        "pitch": [
+          "+",
+          "Config/caseD_mm",
+          0.05
+        ],
+        "stopX": [
+          "+",
+          "convX0",
+          0.35
+        ]
       }
     },
     {
@@ -1317,6 +1329,110 @@
       "parent": "heldCase",
       "material": "seam",
       "comment": "A seam line so a stack of cases does not read as one solid block.",
+      "size": [
+        [
+          "+",
+          "caseW",
+          0.004
+        ],
+        0.006,
+        [
+          "*",
+          "caseD",
+          0.02
+        ]
+      ],
+      "at": [
+        0,
+        0,
+        [
+          "*",
+          "caseD",
+          0.5
+        ]
+      ],
+      "shadow": {
+        "cast": false
+      }
+    },
+    {
+      "name": "infeedCase",
+      "type": "group",
+      "parent": "InfeedConveyor",
+      "comment": "The POOL of cartons the belt can hold, not the queue standing on it - the page shows and hides them as state.infeed.queue moves. Enough for the longest queue the belt could hold at the pattern's own case depth: six fixed cartons on a 3.3 m belt left most of it empty and made the queue read as a gap.",
+      "repeat": {
+        "count": [
+          "max",
+          6,
+          [
+            "min",
+            24,
+            [
+              "floor",
+              [
+                "/",
+                [
+                  "-",
+                  "convLen",
+                  0.45
+                ],
+                "pitch"
+              ]
+            ]
+          ]
+        ],
+        "as": "c"
+      },
+      "visible": false,
+      "at": [
+        [
+          "+",
+          "stopX",
+          [
+            "*",
+            "c",
+            "pitch"
+          ]
+        ],
+        [
+          "+",
+          "convY",
+          [
+            "*",
+            "caseH",
+            0.5
+          ],
+          0.045
+        ],
+        0
+      ]
+    },
+    {
+      "name": "infeedBody",
+      "type": "box",
+      "parent": "infeedCase",
+      "material": {
+        "oneOf": [
+          "caseA",
+          "caseB"
+        ],
+        "index": [
+          "mod",
+          "c",
+          2
+        ]
+      },
+      "size": [
+        "caseW",
+        "caseH",
+        "caseD"
+      ]
+    },
+    {
+      "name": "infeedSeam",
+      "type": "box",
+      "parent": "infeedCase",
+      "material": "seam",
       "size": [
         [
           "+",

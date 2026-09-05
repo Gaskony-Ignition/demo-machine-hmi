@@ -43,7 +43,7 @@ const SKIP_CHILDREN = [];
 // owns - so the document's nodes are compared against the page's first N and
 // the remainder is checked to be exactly those case stacks and nothing else.
 const SUBTREES = [
-  { name: 'ConveyorFrame' },
+  { name: 'InfeedConveyor', stateVisible: 'group' },
   { name: 'Station1', prefix: true },
   { name: 'Station2', prefix: true },
   // The held cases are shown and hidden as the cycle runs, so their visibility
@@ -57,7 +57,18 @@ const SUBTREES = [
 // describe it - the same class of thing as a joint angle. It is excluded from
 // the comparison and then asserted separately, because a roller that had
 // stopped spinning would otherwise pass silently.
-const ANIMATED = { ConveyorFrame: { geom: 'CylinderGeometry', axis: 1 } };
+const ANIMATED = {
+  InfeedConveyor: {
+    geom: 'CylinderGeometry', axis: 1,   // roller spin
+    // A photo-eye beam's colour AND opacity are its live tag - green clear,
+    // red blocked, pulsing. Neither is structure.
+    matStateOf: 'MeshBasicMaterial',
+    // The cartons shuffle down the belt as the queue moves, so where one IS
+    // is state. Where the POOL sits - count, pitch, start - is structure, and
+    // is asserted directly below instead.
+    statePosOf: 'infeedCase'
+  }
+};
 
 const describe = `(root, skip, skipChildren) => {
   const out = [];
@@ -251,12 +262,18 @@ const describe = `(root, skip, skipChildren) => {
           if (!an || !list) return { list, spinning: 0 };
           let spinning = 0;
           const out = list.map(n => {
+            let out = n;
             if (n.geom && n.geom.indexOf(an.geom) === 0) {
               if (Math.abs(n.rot[an.axis]) > 1e-9) spinning++;
               const r = n.rot.slice(); r[an.axis] = 'animated';
-              return Object.assign({}, n, { rot: r });
+              out = Object.assign({}, out, { rot: r });
             }
-            return n;
+            if (an.matStateOf && n.mat && n.mat.indexOf(an.matStateOf) === 0) {
+              out = Object.assign({}, out, {
+                mat: n.mat.replace(/op=[\d.]+/, 'op=state').replace(/#[0-9a-f]{6}/, '#state')
+              });
+            }
+            return out;
           });
           return { list: out, spinning };
         };
@@ -268,8 +285,28 @@ const describe = `(root, skip, skipChildren) => {
         const withSelf = n => (n ? desc({ children: [n] }, [], []) : null);
         const hideState = l => (!spec.stateVisible || !l) ? l : l.map(n =>
           n.kind === spec.stateVisible ? Object.assign({}, n, { vis: 'state' }) : n);
-        const H = strip(hideState(withSelf(h)));
-        const C = strip(hideState(withSelf(c)));
+        // Carton POSITION is state. Blank it on the nodes that are cartons -
+        // found by shape, a group of a body box and a thin seam box - on both
+        // sides, so neither tree can hide a wrong one behind the other.
+        const isCarton = (l, i) => {
+          const n = l[i];
+          if (!n || n.kind !== 'group') return false;
+          const kids = [];
+          for (let k = i + 1; k < l.length && l[k].depth > n.depth; k++) {
+            if (l[k].depth === n.depth + 1) kids.push(l[k]);
+          }
+          // A carton is a body box with a thin seam box on its face. Keyed on
+          // the SHAPE rather than on the seam's exact height, so editing that
+          // dimension in the document does not quietly stop the detector
+          // recognising cartons and blow up the diff somewhere else.
+          if (kids.length !== 2 || !kids.every(x => x.geom && x.geom.indexOf('BoxGeometry') === 0)) return false;
+          const h = kids.map(x => parseFloat((x.geom.match(/height=([\d.]+)/) || [])[1]));
+          return Math.min(...h) < 0.02 && Math.max(...h) > 0.05;
+        };
+        const blankCartonPos = l => (!(an && an.statePosOf) || !l) ? l :
+          l.map((n, i) => isCarton(l, i) ? Object.assign({}, n, { pos: 'state' }) : n);
+        const H = strip(blankCartonPos(hideState(withSelf(h))));
+        const C = strip(blankCartonPos(hideState(withSelf(c))));
         const res = { name, hand: H.list, doc: C.list, spinning: an ? H.spinning : undefined };
         if (spec.unordered && H.list && C.list) {
           // Sibling order carries no meaning here, so compare as a multiset.
@@ -283,9 +320,22 @@ const describe = `(root, skip, skipChildren) => {
           // asserted another way: the document must still BUILD the held cases
           // hidden, or a fresh page would open with three cartons in mid-air.
           const held = [];
-          c.traverse(o => { if (o.name && o.name.indexOf('heldCase') === 0) held.push(o); });
+          c.traverse(o => {
+            if (o.name && (o.name.indexOf('heldCase') === 0 || o.name.indexOf('infeedCase') === 0)) held.push(o);
+          });
           res.held = held.length;
           res.heldHidden = held.filter(o => o.visible === false).length;
+          res.heldWhat = c.name === 'Gripper' ? 'held cases' : 'cartons';
+          const pool = held.filter(o => o.name.indexOf('infeedCase') === 0)
+                           .sort((a2, b2) => a2.position.x - b2.position.x);
+          if (pool.length > 2) {
+            const gaps = [];
+            for (let i = 1; i < pool.length; i++) {
+              gaps.push(Math.round((pool[i].position.x - pool[i - 1].position.x) * 1e6) / 1e6);
+            }
+            res.pitchSet = [...new Set(gaps)];
+            res.poolY = [...new Set(pool.map(o => Math.round(o.position.y * 1e6) / 1e6))];
+          }
         }
         if (spec.prefix && H.list && C.list) {
           res.tail = H.list.length - C.list.length;
@@ -399,9 +449,16 @@ const describe = `(root, skip, skipChildren) => {
     if (t.held !== undefined) {
       const ok = t.held > 0 && t.heldHidden === t.held;
       console.log('  ' + (ok ? 'ok  ' : 'FAIL') + ' ' + t.heldHidden + ' of ' + t.held +
-                  ' held cases are built hidden' +
+                  ' ' + t.heldWhat + ' are built hidden' +
                   (ok ? ' (visibility itself is state, excluded above)'
-                      : ' - a fresh page would open with cartons in mid-air'));
+                      : ' - a fresh page would open showing product that is not there'));
+      if (!ok) bad++;
+    }
+    if (t.pitchSet) {
+      const ok = t.pitchSet.length === 1 && t.pitchSet[0] > 0 && t.poolY.length === 1;
+      console.log('  ' + (ok ? 'ok  ' : 'FAIL') + ' the pool is evenly pitched at ' +
+                  t.pitchSet.join('/') + ' m on one level' +
+                  (ok ? '' : ' - pitch or height is not uniform'));
       if (!ok) bad++;
     }
     if (t.tail !== undefined) {
