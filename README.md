@@ -55,6 +55,7 @@ information**.*
 | **3D model rendering** | A palletising cell — robot, infeed, two pallet stations, guarding — animated from live tags. Camera presets, orbit and pinch-zoom for a touch panel, faults highlighted on the geometry itself. |
 | **Access control by security zone** | The same Manual screen is fully live for maintenance and visibly read-only for an operator, with the reason stated on screen rather than silently disabled. |
 | **Alarming** | Alarm status and journal tables on the demo's own tag provider, its own SQLite connection and its own journal profile — acknowledge and shelve included. The alarm page shows this machine only, and the history lives in the demo's own file with its own retention. |
+| **Your own CAD on a screen** | A second, separate page loads plain **STL** files straight off the gateway and lets an operator orbit, zoom, pan and click a part to identify it — no module, no licence, no internet. Drop the files in the project's `cad` resource folder and rescan; see [docs/CAD-VIEWER.md](docs/CAD-VIEWER.md). |
 | **Operator control** | Hold-to-run jog, a permissive list that answers "why won't it move?", service routines, and per-zone start/stop. |
 
 ## Install
@@ -77,6 +78,11 @@ actually do:
   alarm journal is configured as Edge's own **LOCAL** profile: alarms are
   still journalled and the Alarms screen still has history to show, with no
   datasource anywhere.
+
+On **Edge** the demo adopts what Edge already has rather than creating its own:
+Edge permits exactly one tag provider and one alarm journal, so setup uses
+them and says so. Measured against a real Edge Panel gateway — see
+[docs/CONTRACT.md](docs/CONTRACT.md).
 
 All of it through `system.config` and `system.tag.configure`, so there is no
 config scan, no restart and no credential: SQLite (where it is used at all)
@@ -272,6 +278,11 @@ These are checked, not assumed — each was tested against the running gateway:
 | The zip actually imports | `tools/package.sh` gates on archive integrity, a file count against the tree, and a resource-manifest pass (valid JSON, `lastModification` present, `files[]` matching the directory) — the three ways a project imports "successfully" with a resource the gateway silently never scans. |
 
 ## Licensing
+
+The seven sample UR5 meshes in the CAD viewer are from
+[ros-industrial/universal_robot](https://github.com/ros-industrial/universal_robot)
+and are **BSD-3-Clause**. Delete them and drop your own in — nothing refers to
+them by name. Note that package's UR20/UR30/UR15/UR18 meshes are **not** BSD.
 
 **This is built to run unlicensed, on the two-hour trial, by design.** Nothing here
 needs a licence and none of it is worth licensing a gateway for — it is a

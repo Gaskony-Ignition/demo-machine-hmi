@@ -1,0 +1,23 @@
+{
+  "scope": "G",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "base.stl",
+    "config.json",
+    "doGet.py",
+    "forearm.stl",
+    "shoulder.stl",
+    "upperarm.stl",
+    "wrist1.stl",
+    "wrist2.stl",
+    "wrist3.stl"
+  ],
+  "attributes": {
+    "lastModification": {
+      "actor": "external",
+      "timestamp": "2026-09-09T02:45:00Z"
+    }
+  }
+}
