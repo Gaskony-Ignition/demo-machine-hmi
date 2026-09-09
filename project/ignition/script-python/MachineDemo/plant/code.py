@@ -9,7 +9,7 @@ The provider name appears in exactly one place - PROVIDER - because a demo that
 spells it out in forty bindings is a demo that cannot be renamed.
 """
 
-VERSION = "1.14.1"
+VERSION = "1.14.2"
 
 PROVIDER = "MachineDemo"
 

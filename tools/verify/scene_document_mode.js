@@ -9,6 +9,12 @@
 // the same things move in each: the joints, the photo-eye colours, the carton
 // queue and the pallet stacks.
 const { chromium } = require('playwright');
+
+// The project name differs between the two builds: the standard zip imports as
+// Machine_HMI_Demo, the Edge one lands in Edge's own single project. Override
+// with MHD_PROJECT so this gate can be run against either.
+const PROJECT = process.env.MHD_PROJECT || 'Machine_HMI_Demo';
+
 const GW = process.env.GW_URL || 'http://192.168.153.128:8088';
 const RES = process.env.PAGE_RES || 'cell3d';
 const GAP = 7000;
@@ -54,7 +60,7 @@ async function run(mode) {
   const p = await (await b.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
   const errs = [];
   p.on('pageerror', e => errs.push(String(e).slice(0, 160)));
-  const url = GW + '/system/webdev/Machine_HMI_Demo/' + RES + (mode === 'document' ? '?scene=document' : '');
+  const url = GW + '/system/webdev/${PROJECT}/' + RES + (mode === 'document' ? '?scene=document' : '');
   await p.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await p.waitForFunction('window.__cellScene', null, { timeout: 30000 });
   await p.waitForTimeout(3000);

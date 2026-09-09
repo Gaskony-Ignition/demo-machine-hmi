@@ -13,6 +13,12 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+
+// The project name differs between the two builds: the standard zip imports as
+// Machine_HMI_Demo, the Edge one lands in Edge's own single project. Override
+// with MHD_PROJECT so this gate can be run against either.
+const PROJECT = process.env.MHD_PROJECT || 'Machine_HMI_Demo';
+
 const BASE = process.argv[2] || 'http://localhost:8088';
 const DARK = ['dark', 'dark-cool', 'dark-warm'];
 const LIGHT = ['light', 'light-cool', 'light-warm'];
@@ -29,7 +35,7 @@ const NORM = `(s => {
 (async () => {
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1366, height: 768 } });
-  await p.goto(`${BASE}/data/perspective/client/Machine_HMI_Demo/`,
+  await p.goto(`${BASE}/data/perspective/client/${PROJECT}/`,
                { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
   await p.waitForTimeout(3000);
 

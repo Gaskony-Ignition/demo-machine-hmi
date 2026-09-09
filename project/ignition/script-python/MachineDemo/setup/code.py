@@ -249,20 +249,32 @@ def _hasDatabaseModule():
 def _isEdgeGateway():
 	"""Is this an Ignition Edge gateway?
 
-	The same structural question as _hasDatabaseModule, asked of a type only
-	Edge registers: ('ignition', 'edge-system-properties'), which backs the
-	Config -> Ignition Edge page. Measured on a real Edge 8.3.8 gateway
-	09/09/2026 - 55 resource types, including 'edge-system-properties' and
-	'edge-sync-settings', and NOT 'database-connection'.
+	The same structural question as _hasDatabaseModule, asked of the ONE type
+	only Edge registers: ('ignition', 'edge-sync-settings').
+
+	It is NOT 'edge-system-properties'. That was the first answer here and it
+	was wrong: a standard gateway registers it too, so every Edge branch in
+	this module ran on standard - the journal was never created there and the
+	provider row gave Edge advice on a gateway that is not one. Caught
+	09/09/2026 only by installing the standard build on a standard gateway
+	after the Edge one passed.
+
+	Measured the same day by diffing both editions on 8.3.8:
+
+	    standard  60 types    edge  55 types
+	    only on standard  database-connection, database-driver,
+	                      database-translator, cobranding,
+	                      sfc/chart-settings, sip-notification/script-settings
+	    only on Edge      edge-sync-settings
 
 	'alarm-journal' is registered on Edge too, so the journal cannot be
-	detected the way the database is - the type is there and the CREATE is
-	what gets refused, with java.lang.UnsupportedOperationException("Cannot
-	create Alarm Journal on Edge").
+	detected this way either - the type is there and the CREATE is what gets
+	refused, with java.lang.UnsupportedOperationException("Cannot create Alarm
+	Journal on Edge").
 	"""
 	from java.lang import Throwable as JThrowable
 	try:
-		return ("ignition", "edge-system-properties") in \
+		return ("ignition", "edge-sync-settings") in \
 		       system.config.getResourceTypes()
 	except (JThrowable, Exception):
 		return False

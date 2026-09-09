@@ -28,6 +28,12 @@
 //                  --success/--error - without a session or a designer. This
 //                  is the honest measurement; --light is the historical one.
 const { chromium } = require('playwright');
+
+// The project name differs between the two builds: the standard zip imports as
+// Machine_HMI_Demo, the Edge one lands in Edge's own single project. Override
+// with MHD_PROJECT so this gate can be run against either.
+const PROJECT = process.env.MHD_PROJECT || 'Machine_HMI_Demo';
+
 const BASE = process.argv[2] || 'http://localhost:8088';
 const LIGHT = process.argv.includes('--light');
 const ti = process.argv.indexOf('--theme');
@@ -96,7 +102,7 @@ const PROBE = `(() => {
   let total = 0; const fails = [];
   for (const pg of PAGES) {
     const p = await b.newPage({ viewport: { width: 1366, height: 768 } });
-    await p.goto(`${BASE}/data/perspective/client/Machine_HMI_Demo/${pg}`,
+    await p.goto(`${BASE}/data/perspective/client/${PROJECT}/${pg}`,
                  { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
     await p.waitForTimeout(3200);
     if (THEME) {

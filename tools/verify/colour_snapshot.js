@@ -118,6 +118,12 @@ function diff(aList, bList) {
 if (process.argv[2] === '--diff') { diff(process.argv[3], process.argv[4]); return; }
 
 const { chromium } = require('playwright');
+
+// The project name differs between the two builds: the standard zip imports as
+// Machine_HMI_Demo, the Edge one lands in Edge's own single project. Override
+// with MHD_PROJECT so this gate can be run against either.
+const PROJECT = process.env.MHD_PROJECT || 'Machine_HMI_Demo';
+
 const BASE = process.argv[2];
 const OUT = process.argv[3];
 const ti = process.argv.indexOf('--theme');
@@ -131,7 +137,7 @@ const THEME = ti > 0 ? process.argv[ti + 1] : null;
     const p = await b.newPage({ viewport: { width: 1366, height: 768 } });
     p.on('pageerror', e => errors.push(`${pg || '/'}: ${e.message}`));
     p.on('console', m => { if (m.type() === 'error') errors.push(`${pg || '/'} console: ${m.text()}`); });
-    await p.goto(`${BASE}/data/perspective/client/Machine_HMI_Demo/${pg}` +
+    await p.goto(`${BASE}/data/perspective/client/${PROJECT}/${pg}` +
                  (THEME ? `?theme=${THEME}` : ''),
                  { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
     await p.waitForTimeout(3500);

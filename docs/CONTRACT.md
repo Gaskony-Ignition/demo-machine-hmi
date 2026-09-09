@@ -284,8 +284,23 @@ on an Edge. It has now, on a fresh one, and the eight rows read green from one
 press of RUN SETUP.
 
 - `_hasDatabaseModule()` was right: a real Edge registers **55** resource types
-  (a standard 8.3.8 registers 57) and `database-connection` is genuinely not
-  among them. The `database` row reads "not applicable on this edition".
+  and `database-connection` is genuinely not among them (a standard gateway
+  registers more - 60 on a stock 8.3.8, and the number moves with the installed
+  modules, so only the presence of the type is a sound test). The `database`
+  row reads "not applicable on this edition".
+
+- **Edge is detected by `edge-sync-settings`, not `edge-system-properties`.**
+  The first answer used the latter and was wrong: a standard gateway registers
+  it too, so every Edge branch fired on standard - the journal was never
+  created there. Diffing both editions gives exactly one Edge-exclusive type:
+
+      only on standard   database-connection, database-driver,
+                         database-translator, cobranding,
+                         sfc/chart-settings, sip-notification/script-settings
+      only on Edge       edge-sync-settings
+
+  Found only by installing the standard build on a standard gateway after the
+  Edge one had passed. One edition passing proves nothing about the other.
 - **The `tagProvider` row was a false green.** Edge permits exactly one realtime
   tag provider. A second written through `system.config` is accepted as a
   resource and then refused at startup - `Unable to start provider:

@@ -13,6 +13,12 @@
 // playwright lives in the toolkit's verify-view tool dir; NODE_PATH points there
 // (see the run line at the bottom of this file).
 const { chromium } = require('playwright');
+
+// The project name differs between the two builds: the standard zip imports as
+// Machine_HMI_Demo, the Edge one lands in Edge's own single project. Override
+// with MHD_PROJECT so this gate can be run against either.
+const PROJECT = process.env.MHD_PROJECT || 'Machine_HMI_Demo';
+
 const fs = require('fs');
 const path = require('path');
 
@@ -21,7 +27,7 @@ const GW = process.env.GW_URL || 'http://192.168.153.128:8088';
 // PAGE can be pointed at a scratch copy of the resource, so a change to the
 // page can be proved before it goes anywhere near the one the demo serves.
 const PAGE = process.env.PAGE_URL ||
-  (GW + '/system/webdev/Machine_HMI_Demo/' + (process.env.PAGE_RES || 'cell3d'));
+  (GW + '/system/webdev/${PROJECT}/' + (process.env.PAGE_RES || 'cell3d'));
 
 // Nodes the document does not claim to build.
 //   - lights and GridHelper are scene furniture, not parts of the machine; a
