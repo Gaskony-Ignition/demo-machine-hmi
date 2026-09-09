@@ -86,30 +86,43 @@ if [[ $EDGE -eq 1 ]]; then
   find "$SRC" -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
   find "$SRC" -name '*.pyc' -delete 2>/dev/null || true
 
-  # Only two things carry the provider name, and both are unambiguous:
+  # THREE functional forms carry the provider name, and 1.14.0 shipped with
+  # only the first substituted - which left the Alarms journal table filtering
+  # on prov:MachineDemo:/tag:* against a provider called `edge`, so it matched
+  # nothing and the history read empty. The bracket form is the obvious one and
+  # was never the whole story.
   #
-  #   [MachineDemo]  - a bracketed tag path. 395 of them across six views, the
-  #                    3D page and three script modules.
-  #   PROVIDER       - the one constant every script derives from, including the
-  #                    alarm source filter (prov:<provider>:/tag:*).
+  #   [MachineDemo]        a tag path                       (396 of them)
+  #   prov:MachineDemo:    an alarm source filter           (2, both in Alarms)
+  #   PROVIDER = "..."     the constant every script derives from
   #
-  # The bare word MachineDemo is the SCRIPT PACKAGE (MachineDemo.setup, and
-  # friends) and must survive untouched - which is why the match is on the
-  # bracket, never on the word.
+  # Plus two cosmetic ones: the journal table's literal `name` default, and a
+  # label that prints the provider to the operator.
+  #
+  # The bare word MachineDemo is ALSO the script package (MachineDemo.setup)
+  # and the SQLite connection (MachineDemoDB), so a blanket substitution is
+  # wrong - which is why each form is matched explicitly and anything left over
+  # is reported below rather than assumed harmless.
   EDGE_PROVIDER="edge"
   find "$SRC" -type f \( -name '*.json' -o -name '*.py' \) -print0 \
-    | xargs -0 sed -i "s/\[MachineDemo\]/[${EDGE_PROVIDER}]/g"
+    | xargs -0 sed -i \
+        -e "s/\[MachineDemo\]/[${EDGE_PROVIDER}]/g" \
+        -e "s/prov:MachineDemo:/prov:${EDGE_PROVIDER}:/g" \
+        -e "s/\"name\": \"MachineDemo\"/\"name\": \"${EDGE_PROVIDER}\"/g" \
+        -e "s/\xc2\xb7 MachineDemo \xc2\xb7/\xc2\xb7 ${EDGE_PROVIDER} \xc2\xb7/g"
   sed -i "s/^PROVIDER = \"MachineDemo\"/PROVIDER = \"${EDGE_PROVIDER}\"/" \
     "$SRC/ignition/script-python/MachineDemo/plant/code.py"
 
-  # Prove the substitution actually happened and left nothing behind: a silent
-  # no-op here ships a zip that looks right and reads no tags on the target.
-  LEFT="$(grep -rl '\[MachineDemo\]' "$SRC" || true)"
-  if [[ -n "$LEFT" ]]; then
-    echo "package: these still carry [MachineDemo] after the Edge substitution:" >&2
-    printf '%s\n' "$LEFT" | sed "s|$SRC|  project|" >&2
-    exit 1
-  fi
+  # Prove the functional forms are gone. A silent no-op here ships a zip that
+  # looks right and reads no tags - or worse, reads tags and shows no alarms.
+  for form in '\[MachineDemo\]' 'prov:MachineDemo:'; do
+    LEFT="$(grep -rl "$form" "$SRC" || true)"
+    if [[ -n "$LEFT" ]]; then
+      echo "package: these still carry $form after the Edge substitution:" >&2
+      printf '%s\n' "$LEFT" | sed "s|$SRC|  project|" >&2
+      exit 1
+    fi
+  done
   if ! grep -q "^PROVIDER = \"${EDGE_PROVIDER}\"" \
        "$SRC/ignition/script-python/MachineDemo/plant/code.py"; then
     echo "package: the Edge build did not rewrite PROVIDER" >&2
@@ -119,6 +132,20 @@ if [[ $EDGE -eq 1 ]]; then
     echo "package: the Edge substitution ate the MachineDemo script package" >&2
     exit 1
   fi
+
+  # Everything else that still says MachineDemo. Expected: the script package
+  # (MachineDemo.api and friends) and MachineDemoDB. Anything ELSE here is a
+  # provider reference nobody has classified yet - report it, because that is
+  # exactly the class of miss that shipped in 1.14.0.
+  STRAY="$(grep -rho 'MachineDemo[A-Za-z]*' "$SRC" 2>/dev/null \
+           | grep -v '^MachineDemoDB$' | grep -v '^MachineDemo$' | sort -u || true)"
+  UNCLASSIFIED="$(grep -rn 'MachineDemo' "$SRC" --include='*.json' 2>/dev/null \
+                  | grep -v 'MachineDemo\.' | grep -v 'MachineDemoDB' || true)"
+  if [[ -n "$UNCLASSIFIED" ]]; then
+    echo "package: WARNING - unclassified provider references left in the Edge build:" >&2
+    printf '%s\n' "$UNCLASSIFIED" | sed "s|$SRC|project|" | head -20 >&2
+  fi
+
   echo "         Edge build: tag provider -> [${EDGE_PROVIDER}]"
 fi
 

@@ -304,10 +304,22 @@ Edge is detected structurally, the same way the database is:
 Edge. `alarm-journal` is registered on Edge too, so the journal cannot be
 detected that way - the type is there and the CREATE is what fails.
 
-**Known limitation.** On Edge the Alarms HISTORICAL tab shows no rows. The
-profile is configured correctly and `system.alarm.queryJournal` returns events
-from it, but the Perspective alarm journal table does not read Edge's LOCAL
-profile. The ACTIVE tab is unaffected.
+**Edge journals alarms perfectly well**, and an earlier note here claiming
+otherwise was wrong twice over. Edge cannot use an EXTERNAL database for the
+journal, and its internal store is bounded (about 35 days) - that is the whole
+of the difference. The HISTORICAL tab reading empty was two defects of ours:
+
+- The journal table's `name` was bound with a `type: "tag"` binding, an idiom
+  this project uses nowhere else. It silently did not apply, so the prop fell
+  back to its literal default - and querying a journal profile that does not
+  exist THROWS, which the component renders as an empty table with no error.
+  It is an expression binding now, the same `{[provider]Path}` form as the
+  other 396 bindings in the project.
+- The Edge build substituted `[MachineDemo]` but not `prov:MachineDemo:`, so
+  the table's source filter named a provider that did not exist there.
+
+Verified on a real Edge: inject a fault and the events appear with their state
+transitions.
 
 ## WebDev routes — project `Machine_HMI_Demo`
 

@@ -1686,10 +1686,9 @@
                       "props.name": {
                         "binding": {
                           "config": {
-                            "mode": "direct",
-                            "tagPath": "[MachineDemo]Line/JournalName"
+                            "expression": "{[MachineDemo]Line/JournalName}"
                           },
-                          "type": "tag"
+                          "type": "expr"
                         }
                       }
                     }
