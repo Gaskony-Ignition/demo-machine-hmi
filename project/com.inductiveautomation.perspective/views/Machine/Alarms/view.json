@@ -85,7 +85,7 @@
                   "name": "T"
                 },
                 "props": {
-                  "text": "Alarms \u2014 this machine",
+                  "text": "Alarms — this machine",
                   "style": {
                     "fontWeight": 700,
                     "color": "var(--neutral-90, #dde4e9)",
@@ -131,7 +131,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "\"This machine only \u00b7 MachineDemo \u00b7 \" + dateFormat(now(1000), \"HH:mm:ss\")"
+                        "expression": "\"This machine only · MachineDemo · \" + dateFormat(now(1000), \"HH:mm:ss\")"
                       }
                     }
                   }
@@ -785,7 +785,7 @@
                       "name": "H"
                     },
                     "props": {
-                      "text": "Active alarms \u2014 and those cleared but not yet acknowledged",
+                      "text": "Active alarms — and those cleared but not yet acknowledged",
                       "style": {
                         "fontSize": "11px",
                         "fontWeight": 700,
@@ -814,7 +814,7 @@
                       "name": "Hint"
                     },
                     "props": {
-                      "text": "source filter prov:MachineDemo:/tag:* \u00b7 select a row, then use the toolbar",
+                      "text": "source filter prov:MachineDemo:/tag:* · select a row, then use the toolbar",
                       "style": {
                         "fontSize": "11px",
                         "color": "var(--neutral-60, #74808a)",
@@ -1304,7 +1304,7 @@
                       "name": "H"
                     },
                     "props": {
-                      "text": "Historical \u2014 the alarm journal",
+                      "text": "Historical — the alarm journal",
                       "style": {
                         "fontSize": "11px",
                         "fontWeight": 700,
@@ -1681,6 +1681,17 @@
                       "grow": 1,
                       "shrink": 1,
                       "basis": "0px"
+                    },
+                    "propConfig": {
+                      "props.name": {
+                        "binding": {
+                          "config": {
+                            "mode": "direct",
+                            "tagPath": "[MachineDemo]Line/JournalName"
+                          },
+                          "type": "tag"
+                        }
+                      }
                     }
                   }
                 ]

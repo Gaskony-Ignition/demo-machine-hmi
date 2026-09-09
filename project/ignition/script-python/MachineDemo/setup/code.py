@@ -140,6 +140,7 @@ DB_CONFIG = {
 # That is the whole point: alone in this file, alarm_events is this demo's
 # alarm history and nobody else's, and it can be deleted by deleting a file.
 JOURNAL = PROVIDER
+JOURNAL_NAME_TAG = "Line/JournalName"
 JOURNAL_TABLE = "alarm_events"
 JOURNAL_DATA_TABLE = "alarm_event_data"
 
@@ -245,6 +246,45 @@ def _hasDatabaseModule():
 		return False
 
 
+def _isEdgeGateway():
+	"""Is this an Ignition Edge gateway?
+
+	The same structural question as _hasDatabaseModule, asked of a type only
+	Edge registers: ('ignition', 'edge-system-properties'), which backs the
+	Config -> Ignition Edge page. Measured on a real Edge 8.3.8 gateway
+	09/09/2026 - 55 resource types, including 'edge-system-properties' and
+	'edge-sync-settings', and NOT 'database-connection'.
+
+	'alarm-journal' is registered on Edge too, so the journal cannot be
+	detected the way the database is - the type is there and the CREATE is
+	what gets refused, with java.lang.UnsupportedOperationException("Cannot
+	create Alarm Journal on Edge").
+	"""
+	from java.lang import Throwable as JThrowable
+	try:
+		return ("ignition", "edge-system-properties") in \
+		       system.config.getResourceTypes()
+	except (JThrowable, Exception):
+		return False
+
+
+def journalName():
+	"""The alarm journal this gateway actually keeps history in.
+
+	Edge has exactly one, made by the platform (EdgeJournal, unless a site
+	renamed it) and unremovable; everywhere else it is this demo's own,
+	named for it. The Alarms screen binds its table to this rather than to a
+	constant, because a journal table pointed at a profile that does not
+	exist shows an empty history and no error.
+	"""
+	if not _isEdgeGateway():
+		return JOURNAL
+	have = _names("alarm-journal")
+	if JOURNAL in have:
+		return JOURNAL
+	return have[0] if have else JOURNAL
+
+
 # One tag from each end of the tree and several from the middle. Reading all of
 # them is how "the tags are there" is told apart from "the first folder wrote
 # and then it failed", which is what a half-configured provider looks like and
@@ -331,12 +371,44 @@ def _upsert(typeId, name, config, description):
 
 
 def _providerCheck():
+	"""The provider exists AND is running.
+
+	The config resource existing is not enough. Edge permits exactly one
+	realtime provider, and a second one written through system.config is
+	accepted as a resource and then refused at startup - "Unable to start
+	provider: 'MachineDemo', an Edge Gateway Provider is already registered"
+	in the log, nothing raised at the caller. This row read green while all
+	113 tags failed with Bad_NotFound underneath it, which is the one thing
+	it exists to prevent. Browsing is what tells them apart.
+	"""
 	if _resource("tag-provider", PROVIDER) is None:
+		if _isEdgeGateway():
+			return False, (u"tag provider '%s' does not exist. Edge keeps "
+			               u"exactly ONE realtime provider and will not "
+			               u"start a second - name it '%s' under Config -> "
+			               u"Ignition Edge -> Tag Provider (this gateway "
+			               u"has: %s)"
+			               % (PROVIDER, PROVIDER,
+			                  u", ".join(_names("tag-provider"))))
 		return False, u"tag provider '%s' does not exist" % PROVIDER
-	return True, u"tag provider '%s' exists" % PROVIDER
+	from java.lang import Throwable as JThrowable
+	try:
+		system.tag.browse("[%s]" % PROVIDER)
+	except (JThrowable, Exception):
+		return False, (u"tag provider '%s' is configured but not running - "
+		               u"on Edge that means a second provider was written "
+		               u"and refused at startup; rename Edge's own provider "
+		               u"to '%s' instead" % (PROVIDER, PROVIDER))
+	return True, u"tag provider '%s' exists and is running" % PROVIDER
 
 
 def _providerFix():
+	if _isEdgeGateway() and _resource("tag-provider", PROVIDER) is None:
+		# Writing one here would be accepted and then never started, leaving
+		# the row green and every tag write failing underneath it.
+		return (u"not created - Edge permits one realtime provider. Set "
+		        u"Config -> Ignition Edge -> Tag Provider to '%s' and save; "
+		        u"the rename is live, no restart." % PROVIDER)
 	what = _upsert("tag-provider", PROVIDER, TAG_PROVIDER_CONFIG,
 	               "Palletising cell demo tag provider - the cell's folders "
 	               "live at the provider root")
@@ -766,6 +838,17 @@ def _journalCheck():
 	a profile left over from a database this edition no longer has (or never
 	had) journals nothing, silently, the same way.
 	"""
+	if _isEdgeGateway():
+		if not _names("alarm-journal"):
+			return False, u"this Edge gateway has no alarm journal at all"
+		ok, why = _journalTagCheck()
+		if not ok:
+			return False, why
+		return True, (u"'%s' is Edge's own journal - Edge keeps exactly one "
+		              u"and will not accept a second, so this demo uses it "
+		              u"rather than creating its own, and %s carries the name"
+		              % (journalName(), JOURNAL_NAME_TAG))
+
 	res = _resource("alarm-journal", JOURNAL)
 	if res is None:
 		have = _names("alarm-journal")
@@ -800,8 +883,27 @@ def _journalCheck():
 	if ds != DB:
 		return False, (u"profile '%s' writes to '%s', not this demo's '%s'"
 		               % (JOURNAL, ds, DB))
+	ok, why = _journalTagCheck()
+	if not ok:
+		return False, why
 	return True, u"profile '%s' writes %s on '%s'" % (JOURNAL, JOURNAL_TABLE,
 	                                                  DB)
+
+
+def _journalTagCheck():
+	"""The Alarms screen's journal-name tag agrees with this gateway.
+
+	The screen binds its journal table to this tag, so a stale value is an
+	empty history with nothing anywhere saying why.
+	"""
+	want = journalName()
+	qv = system.tag.readBlocking(["[%s]%s" % (PROVIDER, JOURNAL_NAME_TAG)])[0]
+	have = unicode(qv.value) if qv.quality.isGood() else None
+	if have != want:
+		return False, (u"%s reads '%s', not '%s' - the Alarms screen binds "
+		               u"its journal table to it" % (JOURNAL_NAME_TAG,
+		                                             have, want))
+	return True, u""
 
 
 def _journalFix():
@@ -812,6 +914,14 @@ def _journalFix():
 	being replaced by a LOCAL one or vice versa, it just needs the current
 	signature to replace against.
 	"""
+	_journalTagFix()
+	if _isEdgeGateway():
+		# system.config.create for typeId "alarm-journal" throws
+		# java.lang.UnsupportedOperationException("Cannot create Alarm Journal
+		# on Edge") - measured 09/09/2026. There is nothing to create.
+		return u"alarm journal '%s' is Edge's own and already exists - " \
+		       u"nothing created, %s written" % (journalName(),
+		                                         JOURNAL_NAME_TAG)
 	if not _hasDatabaseModule():
 		what = _upsert("alarm-journal", JOURNAL, JOURNAL_CONFIG_LOCAL,
 		               "Machine HMI Demo's own alarm journal - this edition "
@@ -826,6 +936,11 @@ def _journalFix():
 	               "own connection, sharing them with nothing")
 	return u"alarm journal profile '%s' %s, pointed at '%s'" % (JOURNAL, what,
 	                                                            DB)
+
+
+def _journalTagFix():
+	system.tag.writeBlocking(["[%s]%s" % (PROVIDER, JOURNAL_NAME_TAG)],
+	                         [journalName()])
 
 
 # ---------------------------------------------------------------------------

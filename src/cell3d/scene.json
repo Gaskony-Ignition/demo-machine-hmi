@@ -1,0 +1,1463 @@
+{
+  "units": "m",
+  "consts": {
+    "UPPER": 1.35,
+    "FORE": 1.15,
+    "FX0": -3.1,
+    "FX1": 2.6,
+    "FZ0": -2.75,
+    "FZ1": 2.75,
+    "convX0": 2.05
+  },
+  "data": {
+    "_comment": "Rows a repeat can walk. Each fence run is a straight length of guarding; the east side is left open where the infeed passes through, which is what real cell guarding does.",
+    "fenceRuns": [
+      {
+        "x1": -3.1,
+        "z1": -2.75,
+        "x2": 2.6,
+        "z2": -2.75
+      },
+      {
+        "x1": -3.1,
+        "z1": 2.75,
+        "x2": -3.1,
+        "z2": -2.75
+      },
+      {
+        "x1": 2.6,
+        "z1": -2.75,
+        "x2": 2.6,
+        "z2": 2.75
+      },
+      {
+        "x1": -3.1,
+        "z1": 2.75,
+        "x2": 1.15,
+        "z2": 2.75
+      },
+      {
+        "x1": 2.15,
+        "z1": 2.75,
+        "x2": 2.6,
+        "z2": 2.75
+      }
+    ],
+    "photoEyes": [
+      {
+        "key": "infeed",
+        "label": "PE Infeed",
+        "x": [
+          "-",
+          "convX1",
+          0.35
+        ]
+      },
+      {
+        "key": "len1",
+        "label": "PE Length 1",
+        "x": [
+          "-",
+          "convX1",
+          1.7
+        ]
+      },
+      {
+        "key": "len2",
+        "label": "PE Length 2",
+        "x": [
+          "-",
+          "convX1",
+          2.3
+        ]
+      },
+      {
+        "key": "carton",
+        "label": "PE Carton",
+        "x": [
+          "-",
+          "convX1",
+          3.1
+        ]
+      },
+      {
+        "key": "inpos1",
+        "label": "PE In-Pos 1",
+        "x": [
+          "+",
+          "convX0",
+          0.6
+        ]
+      },
+      {
+        "key": "inpos2",
+        "label": "PE In-Pos 2",
+        "x": [
+          "+",
+          "convX0",
+          0.25
+        ]
+      }
+    ],
+    "stations": [
+      {
+        "id": "Station1",
+        "x": "Config/station1X_mm",
+        "z": "Config/station1Z_mm"
+      },
+      {
+        "id": "Station2",
+        "x": "Config/station2X_mm",
+        "z": "Config/station2Z_mm"
+      }
+    ]
+  },
+  "materials": {
+    "floor": {
+      "color": "0x272e35",
+      "roughness": 0.95,
+      "metalness": 0.05
+    },
+    "steel": {
+      "color": "0x8d99a3",
+      "metalness": 0.55,
+      "roughness": 0.55
+    },
+    "steelCap": {
+      "color": "0x8d99a3",
+      "metalness": 0.8,
+      "roughness": 0.3
+    },
+    "fence": {
+      "color": "0x6d7982",
+      "metalness": 0.55,
+      "roughness": 0.7
+    },
+    "fencePanel": {
+      "color": "0x9fb6c8",
+      "metalness": 0.1,
+      "roughness": 0.35,
+      "opacity": 0.09,
+      "side": "double",
+      "depthWrite": false
+    },
+    "arm": {
+      "color": "0xe8a33d",
+      "metalness": 0.35,
+      "roughness": 0.5
+    },
+    "armDark": {
+      "color": "0x30383f",
+      "metalness": 0.6,
+      "roughness": 0.45
+    },
+    "column": {
+      "color": "0x4d5761",
+      "metalness": 0.55,
+      "roughness": 0.5
+    },
+    "convFrame": {
+      "color": "0x59636d",
+      "metalness": 0.55,
+      "roughness": 0.6
+    },
+    "roller": {
+      "color": "0x8d99a3",
+      "metalness": 0.85,
+      "roughness": 0.35
+    },
+    "beam": {
+      "color": "0x46d07c",
+      "basic": true,
+      "opacity": 0.85
+    },
+    "pallet": {
+      "color": "0x8a6a3a",
+      "metalness": 0.02,
+      "roughness": 0.95
+    },
+    "rail": {
+      "color": "0x59636d",
+      "metalness": 0.55,
+      "roughness": 0.6
+    },
+    "plate": {
+      "color": "0x39424b",
+      "metalness": 0.7,
+      "roughness": 0.4
+    },
+    "cup": {
+      "color": "0x24292f",
+      "metalness": 0.1,
+      "roughness": 0.9
+    },
+    "caseA": {
+      "color": "0xc08a4a",
+      "metalness": 0.05,
+      "roughness": 0.85
+    },
+    "caseB": {
+      "color": "0xa9773d",
+      "metalness": 0.05,
+      "roughness": 0.85
+    },
+    "seam": {
+      "color": "0x6b4a22",
+      "metalness": 0,
+      "roughness": 1
+    }
+  },
+  "parts": [
+    {
+      "name": "floor",
+      "type": "plane",
+      "size": [
+        30,
+        24
+      ],
+      "rotate": [
+        -1.5707963267948966,
+        0,
+        0
+      ],
+      "material": "floor",
+      "shadow": {
+        "cast": false
+      }
+    },
+    {
+      "name": "Guarding",
+      "type": "group"
+    },
+    {
+      "name": "Robot",
+      "type": "group"
+    },
+    {
+      "name": "pedestal",
+      "type": "cylinder",
+      "parent": "Robot",
+      "radiusTop": 0.42,
+      "radiusBottom": 0.5,
+      "height": 0.3,
+      "segments": 28,
+      "at": [
+        0,
+        0.15,
+        0
+      ],
+      "material": "armDark"
+    },
+    {
+      "name": "Base",
+      "type": "group",
+      "parent": "Robot",
+      "at": [
+        0,
+        0.3,
+        0
+      ],
+      "joint": {
+        "axis": "y",
+        "tag": "Robot/J1_deg",
+        "unit": "deg"
+      }
+    },
+    {
+      "name": "column",
+      "type": "box",
+      "parent": "Base",
+      "size": [
+        0.3,
+        2.35,
+        0.3
+      ],
+      "at": [
+        0,
+        1.175,
+        0
+      ],
+      "material": "column"
+    },
+    {
+      "name": "guide",
+      "type": "cylinder",
+      "parent": "Base",
+      "radiusTop": 0.022,
+      "radiusBottom": 0.022,
+      "height": 2.25,
+      "segments": 10,
+      "material": "steelCap",
+      "repeat": {
+        "count": 2,
+        "as": "i"
+      },
+      "at": [
+        [
+          "+",
+          -0.18,
+          [
+            "*",
+            "i",
+            0.36
+          ]
+        ],
+        1.175,
+        0.09
+      ]
+    },
+    {
+      "name": "Carriage",
+      "type": "group",
+      "parent": "Base",
+      "joint": {
+        "kind": "translate",
+        "axis": "y",
+        "tag": "Robot/Lift_mm"
+      }
+    },
+    {
+      "name": "carriageBody",
+      "type": "box",
+      "parent": "Carriage",
+      "size": [
+        0.46,
+        0.34,
+        0.46
+      ],
+      "material": "arm"
+    },
+    {
+      "name": "Shoulder",
+      "type": "group",
+      "parent": "Carriage",
+      "joint": {
+        "axis": "z",
+        "tag": "Robot/J2_deg",
+        "unit": "deg"
+      }
+    },
+    {
+      "name": "upperArm",
+      "type": "box",
+      "parent": "Shoulder",
+      "size": [
+        "UPPER",
+        0.24,
+        0.26
+      ],
+      "at": [
+        [
+          "*",
+          "UPPER",
+          0.5
+        ],
+        0,
+        0
+      ],
+      "material": "arm"
+    },
+    {
+      "name": "shoulderHub",
+      "type": "cylinder",
+      "parent": "Shoulder",
+      "radiusTop": 0.15,
+      "radiusBottom": 0.15,
+      "height": 0.3,
+      "segments": 18,
+      "rotate": [
+        1.5707963267948966,
+        0,
+        0
+      ],
+      "material": "armDark"
+    },
+    {
+      "name": "Elbow",
+      "type": "group",
+      "parent": "Shoulder",
+      "at": [
+        "UPPER",
+        0,
+        0
+      ],
+      "joint": {
+        "axis": "z",
+        "tag": "Robot/J3_deg",
+        "unit": "deg"
+      }
+    },
+    {
+      "name": "elbowHub",
+      "type": "cylinder",
+      "parent": "Elbow",
+      "radiusTop": 0.12,
+      "radiusBottom": 0.12,
+      "height": 0.28,
+      "segments": 18,
+      "rotate": [
+        1.5707963267948966,
+        0,
+        0
+      ],
+      "material": "armDark"
+    },
+    {
+      "name": "foreArm",
+      "type": "box",
+      "parent": "Elbow",
+      "size": [
+        "FORE",
+        0.19,
+        0.21
+      ],
+      "at": [
+        [
+          "*",
+          "FORE",
+          0.5
+        ],
+        0,
+        0
+      ],
+      "material": "arm"
+    },
+    {
+      "name": "Wrist",
+      "type": "group",
+      "parent": "Elbow",
+      "at": [
+        "FORE",
+        0,
+        0
+      ],
+      "joint": {
+        "axis": "y",
+        "tag": "Robot/J4_deg",
+        "unit": "deg"
+      }
+    },
+    {
+      "name": "wristHub",
+      "type": "cylinder",
+      "parent": "Wrist",
+      "radiusTop": 0.1,
+      "radiusBottom": 0.1,
+      "height": 0.16,
+      "segments": 16,
+      "material": "armDark"
+    },
+    {
+      "name": "Gripper",
+      "type": "group",
+      "parent": "Wrist",
+      "at": [
+        0,
+        -0.14,
+        0
+      ],
+      "let": {
+        "pick": [
+          "max",
+          1,
+          "Geometry/rows"
+        ],
+        "caseW": "Config/caseW_mm",
+        "caseD": "Config/caseD_mm",
+        "caseH": "Config/caseH_mm"
+      }
+    },
+    {
+      "name": "fenceRun",
+      "type": "group",
+      "parent": "Guarding",
+      "repeat": {
+        "over": "fenceRuns",
+        "as": "r"
+      },
+      "let": {
+        "len": [
+          "hypot",
+          [
+            "-",
+            "r.x2",
+            "r.x1"
+          ],
+          [
+            "-",
+            "r.z2",
+            "r.z1"
+          ]
+        ],
+        "n": [
+          "max",
+          2,
+          [
+            "round",
+            [
+              "/",
+              [
+                "hypot",
+                [
+                  "-",
+                  "r.x2",
+                  "r.x1"
+                ],
+                [
+                  "-",
+                  "r.z2",
+                  "r.z1"
+                ]
+              ],
+              1.5
+            ]
+          ]
+        ]
+      },
+      "at": [
+        "r.x1",
+        0,
+        "r.z1"
+      ],
+      "rotate": [
+        0,
+        [
+          "neg",
+          [
+            "atan2",
+            [
+              "-",
+              "r.z2",
+              "r.z1"
+            ],
+            [
+              "-",
+              "r.x2",
+              "r.x1"
+            ]
+          ]
+        ],
+        0
+      ]
+    },
+    {
+      "name": "fencePanel",
+      "type": "box",
+      "parent": "fenceRun",
+      "material": "fencePanel",
+      "size": [
+        "len",
+        1.85,
+        0.03
+      ],
+      "at": [
+        [
+          "*",
+          "len",
+          0.5
+        ],
+        1.0,
+        0
+      ],
+      "shadow": {
+        "cast": false
+      }
+    },
+    {
+      "name": "fencePost",
+      "type": "cylinder",
+      "parent": "fenceRun",
+      "material": "fence",
+      "radiusTop": 0.035,
+      "radiusBottom": 0.035,
+      "height": 2.0,
+      "segments": 10,
+      "repeat": {
+        "count": [
+          "+",
+          "n",
+          1
+        ],
+        "as": "i"
+      },
+      "at": [
+        [
+          "/",
+          [
+            "*",
+            "len",
+            "i"
+          ],
+          "n"
+        ],
+        1.0,
+        0
+      ]
+    },
+    {
+      "name": "fenceRail",
+      "type": "box",
+      "parent": "fenceRun",
+      "material": "fence",
+      "size": [
+        "len",
+        0.05,
+        0.05
+      ],
+      "at": [
+        [
+          "*",
+          "len",
+          0.5
+        ],
+        1.95,
+        0
+      ]
+    },
+    {
+      "name": "InfeedConveyor",
+      "type": "group",
+      "at": [
+        1.62,
+        0,
+        [
+          "neg",
+          [
+            "+",
+            "convX0",
+            0.35
+          ]
+        ]
+      ],
+      "rotate": [
+        0,
+        -1.5707963267948966,
+        0
+      ],
+      "let": {
+        "convLen": "Config/convLength_mm",
+        "convW": "Config/convWidth_mm",
+        "convY": "Config/convHeight_mm",
+        "convX1": [
+          "+",
+          "convX0",
+          "Config/convLength_mm"
+        ],
+        "convMid": [
+          "+",
+          "convX0",
+          [
+            "*",
+            "Config/convLength_mm",
+            0.5
+          ]
+        ],
+        "caseH": "Config/caseH_mm",
+        "caseD": "Config/caseD_mm",
+        "caseW": "Config/caseW_mm",
+        "pitch": [
+          "+",
+          "Config/caseD_mm",
+          0.05
+        ],
+        "stopX": [
+          "+",
+          "convX0",
+          0.35
+        ]
+      }
+    },
+    {
+      "name": "ConveyorFrame",
+      "type": "group",
+      "parent": "InfeedConveyor"
+    },
+    {
+      "name": "convRail",
+      "type": "box",
+      "parent": "ConveyorFrame",
+      "material": "convFrame",
+      "repeat": {
+        "count": 2,
+        "as": "s"
+      },
+      "size": [
+        "convLen",
+        0.1,
+        0.06
+      ],
+      "at": [
+        "convMid",
+        [
+          "-",
+          "convY",
+          0.06
+        ],
+        [
+          "*",
+          [
+            "+",
+            -1,
+            [
+              "*",
+              "s",
+              2
+            ]
+          ],
+          [
+            "*",
+            "convW",
+            0.5
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "convLeg",
+      "type": "box",
+      "parent": "ConveyorFrame",
+      "material": "convFrame",
+      "comment": "Three positions along the belt by two sides. The three are evenly spaced between 0.35 in from each end, so they are an arithmetic run, not a list.",
+      "repeat": [
+        {
+          "count": 3,
+          "as": "i"
+        },
+        {
+          "count": 2,
+          "as": "s"
+        }
+      ],
+      "size": [
+        0.07,
+        [
+          "-",
+          "convY",
+          0.12
+        ],
+        0.07
+      ],
+      "at": [
+        [
+          "+",
+          "convX0",
+          0.35,
+          [
+            "*",
+            "i",
+            [
+              "*",
+              [
+                "-",
+                "convLen",
+                0.7
+              ],
+              0.5
+            ]
+          ]
+        ],
+        [
+          "*",
+          [
+            "-",
+            "convY",
+            0.12
+          ],
+          0.5
+        ],
+        [
+          "*",
+          [
+            "+",
+            -1,
+            [
+              "*",
+              "s",
+              2
+            ]
+          ],
+          [
+            "*",
+            "convW",
+            0.5
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "roller",
+      "type": "cylinder",
+      "parent": "ConveyorFrame",
+      "material": "roller",
+      "repeat": {
+        "count": [
+          "ceil",
+          [
+            "/",
+            [
+              "-",
+              "convLen",
+              0.09
+            ],
+            0.135
+          ]
+        ],
+        "as": "k"
+      },
+      "radiusTop": 0.045,
+      "radiusBottom": 0.045,
+      "height": [
+        "-",
+        "convW",
+        0.02
+      ],
+      "segments": 12,
+      "rotate": [
+        1.5707963267948966,
+        0,
+        0
+      ],
+      "at": [
+        [
+          "+",
+          "convX0",
+          0.09,
+          [
+            "*",
+            "k",
+            0.135
+          ]
+        ],
+        "convY",
+        0
+      ],
+      "shadow": {
+        "cast": false
+      }
+    },
+    {
+      "name": "PhotoEye",
+      "type": "group",
+      "parent": "InfeedConveyor",
+      "repeat": {
+        "over": "photoEyes",
+        "as": "e"
+      }
+    },
+    {
+      "name": "pePost",
+      "type": "box",
+      "parent": "PhotoEye",
+      "material": "convFrame",
+      "repeat": {
+        "count": 2,
+        "as": "s"
+      },
+      "size": [
+        0.05,
+        0.34,
+        0.05
+      ],
+      "at": [
+        "e.x",
+        [
+          "+",
+          "convY",
+          0.17
+        ],
+        [
+          "*",
+          [
+            "+",
+            -1,
+            [
+              "*",
+              "s",
+              2
+            ]
+          ],
+          [
+            "+",
+            [
+              "*",
+              "convW",
+              0.5
+            ],
+            0.1
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "peBeam",
+      "type": "cylinder",
+      "parent": "PhotoEye",
+      "material": "beam",
+      "ownMaterial": true,
+      "comment": "Each beam's colour is its own tag, so each needs its own material. Height is capped just clear of the tallest carton: at a fixed 200 mm the beam sat inside a 220 mm case and poked out both sides.",
+      "radiusTop": 0.008,
+      "radiusBottom": 0.008,
+      "height": [
+        "+",
+        "convW",
+        0.2
+      ],
+      "segments": 6,
+      "rotate": [
+        1.5707963267948966,
+        0,
+        0
+      ],
+      "at": [
+        "e.x",
+        [
+          "+",
+          "convY",
+          [
+            "min",
+            0.3,
+            [
+              "+",
+              "caseH",
+              0.05
+            ]
+          ]
+        ],
+        0
+      ],
+      "shadow": {
+        "cast": false
+      }
+    },
+    {
+      "name": "Station",
+      "type": "group",
+      "repeat": {
+        "over": "stations",
+        "as": "st",
+        "nameFrom": "id"
+      },
+      "let": {
+        "palletW": "Config/palletW_mm",
+        "palletD": "Config/palletD_mm",
+        "palletH": "Config/palletH_mm"
+      },
+      "at": [
+        "st.x",
+        0,
+        "st.z"
+      ]
+    },
+    {
+      "name": "deck",
+      "type": "group",
+      "parent": "Station"
+    },
+    {
+      "name": "bearer",
+      "type": "box",
+      "parent": "deck",
+      "material": "pallet",
+      "comment": "Three bottom boards the forks go under.",
+      "repeat": {
+        "count": 3,
+        "as": "b"
+      },
+      "size": [
+        "palletW",
+        0.045,
+        0.1
+      ],
+      "at": [
+        0,
+        [
+          "-",
+          "palletH",
+          0.02
+        ],
+        [
+          "*",
+          [
+            "+",
+            -1,
+            "b"
+          ],
+          [
+            "-",
+            [
+              "*",
+              "palletD",
+              0.5
+            ],
+            0.05
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "slat",
+      "type": "box",
+      "parent": "deck",
+      "material": "pallet",
+      "comment": "Five top slats, evenly spaced across the pallet's width.",
+      "repeat": {
+        "count": 5,
+        "as": "k"
+      },
+      "size": [
+        0.09,
+        0.035,
+        "palletD"
+      ],
+      "at": [
+        [
+          "+",
+          [
+            "neg",
+            [
+              "*",
+              "palletW",
+              0.5
+            ]
+          ],
+          0.045,
+          [
+            "*",
+            "k",
+            [
+              "/",
+              [
+                "-",
+                "palletW",
+                0.09
+              ],
+              4
+            ]
+          ]
+        ],
+        [
+          "+",
+          "palletH",
+          0.02
+        ],
+        0
+      ]
+    },
+    {
+      "name": "foot",
+      "type": "box",
+      "parent": "deck",
+      "material": "pallet",
+      "comment": "Three rows of two blocks between the boards.",
+      "repeat": [
+        {
+          "count": 3,
+          "as": "f"
+        },
+        {
+          "count": 2,
+          "as": "h"
+        }
+      ],
+      "size": [
+        0.1,
+        [
+          "-",
+          "palletH",
+          0.04
+        ],
+        0.1
+      ],
+      "at": [
+        [
+          "*",
+          [
+            "+",
+            -1,
+            [
+              "*",
+              "h",
+              2
+            ]
+          ],
+          [
+            "-",
+            [
+              "*",
+              "palletW",
+              0.5
+            ],
+            0.05
+          ]
+        ],
+        [
+          "*",
+          [
+            "-",
+            "palletH",
+            0.04
+          ],
+          0.5
+        ],
+        [
+          "*",
+          [
+            "+",
+            -1,
+            "f"
+          ],
+          [
+            "-",
+            [
+              "*",
+              "palletD",
+              0.5
+            ],
+            0.05
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "stationRailBack",
+      "type": "box",
+      "parent": "Station",
+      "material": "rail",
+      "comment": "A low guide rail, so an empty station still reads as a station rather than a bare pallet on the floor.",
+      "size": [
+        [
+          "+",
+          "palletW",
+          0.3
+        ],
+        0.06,
+        0.06
+      ],
+      "at": [
+        0,
+        0.1,
+        [
+          "neg",
+          [
+            "+",
+            [
+              "*",
+              "palletD",
+              0.5
+            ],
+            0.16
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "stationRailSide",
+      "type": "box",
+      "parent": "Station",
+      "material": "rail",
+      "size": [
+        0.06,
+        0.06,
+        [
+          "+",
+          "palletD",
+          0.3
+        ]
+      ],
+      "at": [
+        [
+          "neg",
+          [
+            "+",
+            [
+              "*",
+              "palletW",
+              0.5
+            ],
+            0.16
+          ]
+        ],
+        0.1,
+        0
+      ]
+    },
+    {
+      "name": "headPlate",
+      "type": "box",
+      "parent": "Gripper",
+      "material": "plate",
+      "size": [
+        [
+          "+",
+          "caseW",
+          0.06
+        ],
+        0.07,
+        [
+          "+",
+          [
+            "*",
+            "pick",
+            "caseD"
+          ],
+          0.06
+        ]
+      ]
+    },
+    {
+      "name": "cup",
+      "type": "cylinder",
+      "parent": "Gripper",
+      "material": "cup",
+      "comment": "Two suction cups per case in the pick. Cases sit along the head's local Z at the pattern's own case depth - the pitch they queue at on the belt AND land at in a column.",
+      "repeat": [
+        {
+          "count": "pick",
+          "as": "hc"
+        },
+        {
+          "count": 2,
+          "as": "cx"
+        }
+      ],
+      "radiusTop": 0.045,
+      "radiusBottom": 0.032,
+      "height": 0.06,
+      "segments": 12,
+      "at": [
+        [
+          "*",
+          [
+            "+",
+            -1,
+            [
+              "*",
+              "cx",
+              2
+            ]
+          ],
+          [
+            "/",
+            "caseW",
+            3.5
+          ]
+        ],
+        -0.06,
+        [
+          "*",
+          [
+            "-",
+            "hc",
+            [
+              "*",
+              [
+                "-",
+                "pick",
+                1
+              ],
+              0.5
+            ]
+          ],
+          "caseD"
+        ]
+      ]
+    },
+    {
+      "name": "heldCase",
+      "type": "group",
+      "parent": "Gripper",
+      "comment": "The cases currently held. Parented to the gripper so they follow it; the page shows and hides them as the cycle runs.",
+      "repeat": {
+        "count": "pick",
+        "as": "hc"
+      },
+      "visible": false,
+      "at": [
+        0,
+        [
+          "-",
+          -0.09,
+          [
+            "*",
+            "caseH",
+            0.5
+          ]
+        ],
+        [
+          "*",
+          [
+            "-",
+            "hc",
+            [
+              "*",
+              [
+                "-",
+                "pick",
+                1
+              ],
+              0.5
+            ]
+          ],
+          "caseD"
+        ]
+      ]
+    },
+    {
+      "name": "heldBody",
+      "type": "box",
+      "parent": "heldCase",
+      "material": {
+        "oneOf": [
+          "caseA",
+          "caseB"
+        ],
+        "index": [
+          "mod",
+          "hc",
+          2
+        ]
+      },
+      "size": [
+        "caseW",
+        "caseH",
+        "caseD"
+      ]
+    },
+    {
+      "name": "heldSeam",
+      "type": "box",
+      "parent": "heldCase",
+      "material": "seam",
+      "comment": "A seam line so a stack of cases does not read as one solid block.",
+      "size": [
+        [
+          "+",
+          "caseW",
+          0.004
+        ],
+        0.006,
+        [
+          "*",
+          "caseD",
+          0.02
+        ]
+      ],
+      "at": [
+        0,
+        0,
+        [
+          "*",
+          "caseD",
+          0.5
+        ]
+      ],
+      "shadow": {
+        "cast": false
+      }
+    },
+    {
+      "name": "infeedCase",
+      "type": "group",
+      "parent": "InfeedConveyor",
+      "comment": "The POOL of cartons the belt can hold, not the queue standing on it - the page shows and hides them as state.infeed.queue moves. Enough for the longest queue the belt could hold at the pattern's own case depth: six fixed cartons on a 3.3 m belt left most of it empty and made the queue read as a gap.",
+      "repeat": {
+        "count": [
+          "max",
+          6,
+          [
+            "min",
+            24,
+            [
+              "floor",
+              [
+                "/",
+                [
+                  "-",
+                  "convLen",
+                  0.45
+                ],
+                "pitch"
+              ]
+            ]
+          ]
+        ],
+        "as": "c"
+      },
+      "visible": false,
+      "at": [
+        [
+          "+",
+          "stopX",
+          [
+            "*",
+            "c",
+            "pitch"
+          ]
+        ],
+        [
+          "+",
+          "convY",
+          [
+            "*",
+            "caseH",
+            0.5
+          ],
+          0.045
+        ],
+        0
+      ]
+    },
+    {
+      "name": "infeedBody",
+      "type": "box",
+      "parent": "infeedCase",
+      "material": {
+        "oneOf": [
+          "caseA",
+          "caseB"
+        ],
+        "index": [
+          "mod",
+          "c",
+          2
+        ]
+      },
+      "size": [
+        "caseW",
+        "caseH",
+        "caseD"
+      ]
+    },
+    {
+      "name": "infeedSeam",
+      "type": "box",
+      "parent": "infeedCase",
+      "material": "seam",
+      "size": [
+        [
+          "+",
+          "caseW",
+          0.004
+        ],
+        0.006,
+        [
+          "*",
+          "caseD",
+          0.02
+        ]
+      ],
+      "at": [
+        0,
+        0,
+        [
+          "*",
+          "caseD",
+          0.5
+        ]
+      ],
+      "shadow": {
+        "cast": false
+      }
+    }
+  ]
+}

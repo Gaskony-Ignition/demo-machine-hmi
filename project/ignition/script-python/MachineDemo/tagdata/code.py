@@ -136,6 +136,12 @@ def _line():
 		# than held in module state, for the same reason the pallet counts are:
 		# a project scan drops the globals and the demo has to survive one.
 		_int("ShiftIndex", -1),
+		# The alarm journal the Alarms screen reads. A tag rather than a
+		# constant in the view because the answer is per-EDITION: this demo's
+		# own profile everywhere else, Edge's single unremovable EdgeJournal
+		# on Edge. MachineDemo.setup writes it; a view bound to the wrong
+		# profile name shows an empty history and no error.
+		_str("JournalName", ""),
 	])
 
 
