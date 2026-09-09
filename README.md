@@ -120,12 +120,35 @@ edition-appropriate configuration is actually missing or wrong — a stray
 `DATASOURCE` journal left on an Edge gateway (or a `LOCAL` one on a gateway
 that does have a database) reports red until `fix` runs again.
 
-This has been proven two ways. The with-database branch runs for real, against
-a standard Ignition gateway. Ignition Edge Panel
-has not been touched — the no-database branch is instead proven by forcing
-`MachineDemo.setup`'s capability check to answer "no database" on that same
-standard gateway and confirming the resulting rows, fixes and `check()` output
-match the table above, then reverting it to its real, live-detected answer.
+Both are measured. The with-database branch runs against a standard Ignition
+gateway; the no-database branch was measured on a **real Edge Panel gateway** on
+09/09/2026, where the eight rows read green from one press of RUN SETUP.
+
+## Installing on Edge
+
+There are **two release zips**. Edge permits exactly one realtime tag provider
+and it is called `edge` out of the box, so the Edge build is the same project
+with the provider name substituted at build time — it adopts what Edge already
+has instead of renaming anything on the gateway.
+
+| Gateway | Zip |
+| --- | --- |
+| Standard Ignition, Maker | `Machine_HMI_Demo-<version>.zip` |
+| Ignition Edge Panel | `Machine_HMI_Demo_Edge-<version>.zip` |
+
+**There is no project import on Edge** — the button renders, and
+`POST /data/api/v1/projects/import/...` answers **403** with nothing in the log.
+Install by copying the unzipped project over Edge's own project folder
+(`data/projects/Edge/` by default), `chown` it to the gateway user, then
+Config → Platform → Projects → **Scan File System**.
+
+One gateway setting has to change first, and it cannot be done from the project:
+Config → Platform → **Ignition Edge** → **Visualization Module** ships set to
+**Vision**, and until it is Perspective no Perspective session will open at all.
+
+Then open the Setup page and press **RUN SETUP**. Nothing else — no provider
+rename, no restart, no config-resource editing. Verified on a fresh Edge
+gateway, including across a restart.
 
 ## Driving it in a meeting
 

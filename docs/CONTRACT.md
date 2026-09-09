@@ -274,14 +274,40 @@ confirms SQL Bridge is `ACTIVE`.
   byte-for-byte. Alarms are still journalled; only the storage mechanism
   changes.
 
-Both branches keep the row count at eight — nothing is added or removed, only
-what `database`/`journal` report and what their `fix` does. This project has
-never run against a real Edge Panel gateway; the no-database branch is proven
-by forcing `_hasDatabaseModule()` to answer `False` on the standard
-module-testing gateway (a module-level `_FORCE_NO_DB` override, `None` in
-every shipped build) and confirming the rows, the `fix` messages and a
-restore back to `DATASOURCE` all behave as described above — not by measuring
-a real Edge gateway.
+Both branches keep the row count at eight - nothing is added or removed, only
+what `database`/`journal` report and what their `fix` does.
+
+**Measured on a real Edge Panel gateway, 09/09/2026.** Everything above was
+reasoned until then; three of those claims turned out to be wrong, and the
+paragraph that used to sit here said in writing that this project had never run
+on an Edge. It has now, on a fresh one, and the eight rows read green from one
+press of RUN SETUP.
+
+- `_hasDatabaseModule()` was right: a real Edge registers **55** resource types
+  (a standard 8.3.8 registers 57) and `database-connection` is genuinely not
+  among them. The `database` row reads "not applicable on this edition".
+- **The `tagProvider` row was a false green.** Edge permits exactly one realtime
+  tag provider. A second written through `system.config` is accepted as a
+  resource and then refused at startup - `Unable to start provider:
+  'MachineDemo', an Edge Gateway Provider is already registered` - so the row
+  reported the resource existed while all 113 tags failed underneath it with
+  `Bad_NotFound`. It now browses the provider instead of trusting the resource.
+- **The LOCAL journal branch does not exist on Edge.** `system.config.create`
+  for typeId `alarm-journal` throws `java.lang.UnsupportedOperationException:
+  Cannot create Alarm Journal on Edge`. Edge keeps exactly one, `EdgeJournal`,
+  and setup adopts it. The LOCAL profile was "confirmed live" on a STANDARD
+  gateway, where the restriction is simply absent - which is how a reasoned
+  claim survived looking measured.
+
+Edge is detected structurally, the same way the database is:
+`('ignition', 'edge-system-properties')` is in `getResourceTypes()` only on
+Edge. `alarm-journal` is registered on Edge too, so the journal cannot be
+detected that way - the type is there and the CREATE is what fails.
+
+**Known limitation.** On Edge the Alarms HISTORICAL tab shows no rows. The
+profile is configured correctly and `system.alarm.queryJournal` returns events
+from it, but the Perspective alarm journal table does not read Edge's LOCAL
+profile. The ACTIVE tab is unaffected.
 
 ## WebDev routes — project `Machine_HMI_Demo`
 
