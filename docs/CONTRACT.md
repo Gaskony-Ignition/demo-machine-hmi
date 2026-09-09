@@ -9,7 +9,10 @@ Gateway: Ignition 8.3.8 in Docker. The container name, projects directory and
 URL are per-person and live in the gitignored `tools/env.local.sh` — copy
 `tools/env.example.sh`. Nothing in this document should name a host.
 
-Project name: **`Machine_HMI_Demo`** (never change the name — it breaks URLs).
+Project name: **`Machine_HMI_Demo`** for the standard build. It is NOT fixed:
+the Edge build lands in whatever single project that Edge runs, and a Designer
+import lets the operator type any name at all — so nothing in the project may
+hard-code it. See "WebDev routes" below.
 Title/description carry the version, stamped by `tools/package.sh` from
 `MachineDemo.plant.VERSION`: title `Machine HMI Demo <version>`, description
 ending `· v<version>` (or `(dev)` and `· dev` for a development build).
@@ -25,7 +28,10 @@ ending `· v<version>` (or `(dev)` and `· dev` for a development build).
 - Project declares `color-scheme` in the stylesheet.
 - Perspective app bar hidden (`appBar.togglePosition: hidden`).
 - Tab-indented, pure-ASCII Python in script resources.
-- Files written into the container as uid 1000 must be `chown -R root:root`ed after.
+- Files copied into the container must be chowned to **the account the gateway
+  runs as** — `ignition:ignition` on both rigs in `dockers/`. A wrong owner
+  stops the scan silently. Chown ONLY the project folder you wrote, never
+  `data/projects` itself.
 
 ## Tag contract — provider `MachineDemo` (STANDARD, created by setup)
 
@@ -241,6 +247,24 @@ that writes the tree — they are separate rows because a tree that wrote its
 values while dropping its UDT, its geometry or its alarms looks perfect from
 every screen and reports nothing.
 
+### Edge Panel permits ONE concurrent Perspective session
+
+Measured 09/09/2026 on 8.3.8 Edge Panel. A second session is served Ignition's
+**Sessions Exceeded** page:
+
+    Sessions Exceeded
+    The number of running client sessions has exceeded the permitted number.
+
+It is an ordinary HTML page with a 200, no Perspective components and no error
+in the gateway log, so a headless check that opens a browser context per page
+measures it happily and reports a pass. Both sweeps in `tools/verify` therefore
+use ONE page for the whole run and refuse to measure a document with zero
+`[data-component]` elements. The session also outlives the page that opened it
+by about a minute, so consecutive gate runs against an Edge need a gap.
+
+For the demo itself this means: on Edge, the HMI is open on one screen at a
+time. That is the edition, not the project.
+
 ### `database` and `journal` are edition-aware, not unconditional
 
 This demo argues for Ignition Edge Panel on a builder's small,
@@ -336,10 +360,28 @@ of the difference. The HISTORICAL tab reading empty was two defects of ours:
 Verified on a real Edge: inject a fault and the events appear with their state
 transitions.
 
-## WebDev routes — project `Machine_HMI_Demo`
+## WebDev routes — the project name is NOT fixed
 
-Base: `<gateway>/system/webdev/Machine_HMI_Demo/<name>` (`$GW_URL` from
-`tools/env.local.sh`)
+Base: `<gateway>/system/webdev/<project>/<name>` (`$GW_URL` from
+`tools/env.local.sh`). `<project>` is whatever the project is CALLED on that
+gateway — `Machine_HMI_Demo` for the standard zip, the Edge gateway's single
+project name for the Edge one, and anything at all if it was imported through
+the Designer, where the operator types the name.
+
+**Nothing in the project may hard-code it.** The Perspective views that embed
+these pages resolve it at runtime:
+
+```
+"/system/webdev/" + runScript("system.project.getProjectName()") + "/cell3d?..."
+```
+
+There is no session property for it — `session.props` has no `projectName` — so
+`runScript` is the mechanism, and it is verified against a copy imported under a
+different name. A literal here produced
+`HTTP ERROR 404 Project "Machine_HMI_Demo" not found` on a customer's gateway
+while every other screen in the project worked, because only the 3D and CAD
+pages leave Perspective. Inside a page, every asset URL is RELATIVE
+(`lib?f=three`, `admin?cmd=state`) and so is unaffected.
 
 | Resource | Method | Route | Purpose |
 | --- | --- | --- | --- |
@@ -348,6 +390,10 @@ Base: `<gateway>/system/webdev/Machine_HMI_Demo/<name>` (`$GW_URL` from
 | `admin` | GET | any write `cmd` | **405** — refused, tag untouched |
 | `admin` | POST | anything | **405** — refused; the write path is gone |
 | `cell3d` | GET | (no query) | the 3D palletising cell page, served as HTML |
+| `cell3d` | GET | `?scene=document` | the same cell, built from `Machine/Scene`'s parts list |
+| `cadview` | GET | (no query) | the CAD viewer — every STL in the `cad` folder |
+| `cad` | GET | (no query) | the STL file list, as JSON |
+| `cad` | GET | `?f=<name>.stl` | one STL, as bytes |
 | `lib` | GET | `?f=three` | vendored three.js (proves it works with no internet) |
 
 ### HTTP is read-only. Writes go through the session or the console.
@@ -476,7 +522,10 @@ next run:
 | --- | --- |
 | `com.inductiveautomation.webdev/resources/cell3d` | `tools/webdev_page.py build` (source: `src/cell3d/page.html`) |
 | `perspective/views/Machine/Cell3D` | `tools/build_cell3d_view.py` |
+| `perspective/views/Machine/SceneDoc` | `tools/build_cell3d_view.py --scenedoc` |
 | `perspective/views/Machine/Cell2D` | `tools/build_cell2d_view.py` |
+| `perspective/views/Machine/CadModel` | `tools/build_cad_view.py` (reads Cell3D) |
+| the nav bar in every view that has one | `tools/add_nav_tab.py` |
 | `project.json` title and description | `tools/package.sh` |
 
 `tools/webdev_page.py extract` brings a Designer edit of the 3D page back into

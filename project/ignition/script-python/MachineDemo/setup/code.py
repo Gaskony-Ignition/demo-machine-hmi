@@ -37,9 +37,12 @@ demo's own provider.
 
 and the same three from a terminal:
 
-    curl ".../system/webdev/Machine_HMI_Demo/admin?cmd=check"
-    curl ".../system/webdev/Machine_HMI_Demo/admin?cmd=setup"
-    curl ".../system/webdev/Machine_HMI_Demo/admin?cmd=fix&name=tags"
+    curl ".../system/webdev/<project>/admin?cmd=check"
+    curl ".../system/webdev/<project>/admin?cmd=setup"
+    curl ".../system/webdev/<project>/admin?cmd=fix&name=tags"
+
+<project> is whatever this project is called on the gateway - Machine_HMI_Demo
+for the standard build, the Edge gateway's own project name for the Edge one.
 
 EVERY CHECK IS INDEPENDENT AND NONE OF THEM STOPS AT THE FIRST FAILURE.
 "The provider exists but the tags are missing", "the tags are there but the

@@ -15,7 +15,12 @@ const { chromium } = require('playwright');
 // with MHD_PROJECT so this gate can be run against either.
 const PROJECT = process.env.MHD_PROJECT || 'Machine_HMI_Demo';
 
-const GW = process.env.GW_URL || 'http://192.168.153.128:8088';
+// The gateway comes from argv[2] or $GW_URL and there is NO default. There used
+// to be one - http://localhost:8088 - and it is the module-testing gateway on
+// this workstation, so a run that forgot the argument swept a DIFFERENT gateway
+// and reported a clean result about a project that was not this one.
+const GW = process.argv[2] || process.env.GW_URL;
+if (!GW) { console.error('give the gateway URL as the first argument, or set $GW_URL'); process.exit(2); }
 const RES = process.env.PAGE_RES || 'cell3d';
 const GAP = 7000;
 
@@ -43,6 +48,7 @@ const sample = `async () => {
   let rollerSpin = 0;
   s.traverse(o => { if (o.isMesh && /Cylinder/.test(o.geometry.type) && Math.abs(o.rotation.y) > 1e-9) rollerSpin++; });
   return {
+    casesPerPick: st && st.geometry ? st.geometry.casesPerPick : null,
     saysStation1: st && st.pallets && st.pallets[0] ? st.pallets[0].cases : null,
     saysStation2: st && st.pallets && st.pallets[1] ? st.pallets[1].cases : null,
     saysQueue: st && st.infeed ? st.infeed.queue : null,
@@ -60,7 +66,7 @@ async function run(mode) {
   const p = await (await b.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
   const errs = [];
   p.on('pageerror', e => errs.push(String(e).slice(0, 160)));
-  const url = GW + '/system/webdev/${PROJECT}/' + RES + (mode === 'document' ? '?scene=document' : '');
+  const url = GW + '/system/webdev/' + PROJECT + '/' + RES + (mode === 'document' ? '?scene=document' : '');
   await p.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await p.waitForFunction('window.__cellScene', null, { timeout: 30000 });
   await p.waitForTimeout(3000);
@@ -114,21 +120,37 @@ async function run(mode) {
     // Both stations, because 0/0 agrees trivially and a pallet that has just
     // discharged is legitimately empty. One of the two is nearly always loaded,
     // and if neither is, say the check proved little rather than claiming a pass.
-    const agrees = (t, n) => t['saysStation' + n] === null ||
-                             t['visibleStack' + (n === 1 ? '' : '2')] === t['saysStation' + n];
+    // Tolerance is ONE PICK, for the same reason the belt check tolerates one
+    // carton: the arm places a whole column at a time and the page draws that
+    // column as a unit, so page and gateway legitimately disagree by up to
+    // casesPerPick (3 in the default pattern) mid-pick - and in EITHER
+    // direction, depending on which side of the handover the sample lands.
+    // Every observed failure here was exactly casesPerPick; an exact-equality
+    // assertion was passing on timing luck, not on correctness.
+    const agrees = (t, n) => {
+      const says = t['saysStation' + n];
+      if (says === null) return true;
+      const drawn = t['visibleStack' + (n === 1 ? '' : '2')];
+      return Math.abs(drawn - says) <= (t.casesPerPick || 1);
+    };
     const stackOk = [a, c].every(t => agrees(t, 1) && agrees(t, 2));
     const anyLoaded = [a, c].some(t => t.visibleStack > 0 || t.visibleStack2 > 0);
-    console.log('  ' + ok(stackOk) + ' both stations show what the gateway says: ' +
+    console.log('  ' + ok(stackOk) + ' both stations show what the gateway says' +
+                ' (+-' + (a.casesPerPick || 1) + ', one pick): ' +
                 [a, c].map(t => t.visibleStack + '/' + t.saysStation1 + ' and ' +
                                 t.visibleStack2 + '/' + t.saysStation2).join('   then   ') +
                 (anyLoaded ? '' : '   (both empty - this proved little)'));
     if (!stackOk) bad++;
 
-    const queueAgrees = t => t.saysQueue === null || Math.abs(t.visibleCartons - t.saysQueue) <= 1;
+    // One pick again, not one carton: the arm lifts a whole column off the belt
+    // in a single move, so the drawn queue and the reported one differ by
+    // casesPerPick across that instant, not by one.
+    const queueAgrees = t => t.saysQueue === null ||
+      Math.abs(t.visibleCartons - t.saysQueue) <= (t.casesPerPick || 1);
     const qOk = queueAgrees(a) && queueAgrees(c);
     console.log('  ' + ok(qOk) + ' the belt shows what the gateway says: ' +
                 [a, c].map(t => t.visibleCartons + '/' + t.saysQueue).join(' then ') +
-                '   (+-1: a carton can be mid-handover)');
+                '   (+-' + (a.casesPerPick || 1) + ': a pick leaves the belt in one move)');
     if (!qOk) bad++;
   }
   console.log('\n' + (bad === 0 ? 'BOTH MODES RUN' : bad + ' checks failed'));

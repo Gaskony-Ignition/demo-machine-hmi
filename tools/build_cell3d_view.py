@@ -43,20 +43,40 @@ risk here (the whole point is a runtime-supplied camera/hud/header), so this
 generator's caller MUST verify the rendered `src` attribute in the live DOM
 before calling the work done - do not trust the JSON alone.
 
-Run: python3 tools/build_cell3d_view.py
+Run: python3 tools/build_cell3d_view.py              -> Machine/Cell3D
+     python3 tools/build_cell3d_view.py --scenedoc  -> Machine/SceneDoc
 """
 
 import datetime
 import json
 import os
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, os.pardir, "project",
-                   "com.inductiveautomation.perspective", "views",
-                   "Machine", "Cell3D")
+VIEWS = os.path.join(HERE, os.pardir, "project",
+                     "com.inductiveautomation.perspective", "views", "Machine")
+
+# Two views come out of this one generator. They differ ONLY in which of the
+# page's two cell builders runs - the hand-written JavaScript, or the parts
+# list held in Machine/Scene's custom props - so generating them separately
+# would be 500 lines of duplication kept in step by hand.
+SCENEDOC = "--scenedoc" in sys.argv
+OUT = os.path.join(VIEWS, "SceneDoc" if SCENEDOC else "Cell3D")
 
 COL_BG = "var(--md-bg, #171b20)"
-WEBDEV_PATH = "/system/webdev/Machine_HMI_Demo/cell3d"
+
+# The project NAME is not knowable at build time. The standard zip imports as
+# Machine_HMI_Demo, the Edge one lands in whatever single project that Edge is
+# configured to run, and a Designer import lets the operator type anything at
+# all - which is exactly how this page came to 404 on a customer's gateway
+# ("Project \"Machine_HMI_Demo\" not found"). So the project segment is
+# resolved at RUNTIME, in the binding, by the session's own project.
+#
+# There is no session prop for it - session.props has no projectName - so this
+# is runScript() against system.project.getProjectName(). Verified resolving on
+# a copy imported under a different name; see docs/CONTRACT.md.
+WEBDEV_PROJECT = 'runScript("system.project.getProjectName()")'
+WEBDEV_RES = "cell3d"
 PROVIDER = "MachineDemo"
 
 
@@ -111,7 +131,8 @@ header = {
                     "type": "ia.display.label",
                     "meta": {"name": "t1"},
                     "props": {
-                        "text": "Zone 2 · Robot Cell 2 — Live 3D",
+                        "text": "Zone 2 · Robot Cell 2 — Live 3D"
+                                + (" (scene document)" if SCENEDOC else ""),
                         "style": {
                             "fontSize": "16px",
                             "color": "var(--md-ink-max, #f2f6f8)",
@@ -124,7 +145,9 @@ header = {
                     "type": "ia.display.label",
                     "meta": {"name": "t2"},
                     "props": {
-                        "text": "Model driven by the same [MachineDemo] tags as every other screen",
+                        "text": ("Built from the parts list in Machine/Scene's custom props"
+                                 if SCENEDOC else
+                                 "Model driven by the same [MachineDemo] tags as every other screen"),
                         "style": {
                             "fontSize": "11.5px",
                             "color": "var(--md-ink-quiet, #8b98a3)",
@@ -271,7 +294,10 @@ cell_iframe = {
     "meta": {"name": "Cell3D"},
     "position": {"grow": 1, "basis": "0px"},
     "props": {
-        "src": WEBDEV_PATH,
+        # Left empty on purpose: the binding below is the only thing that ever
+        # produces a working URL, and a plausible-looking literal here would
+        # just be a second project name to get wrong.
+        "src": "",
         "style": {
             "height": "100%",
             "width": "100%",
@@ -283,10 +309,11 @@ cell_iframe = {
 bind(
     cell_iframe,
     "props.src",
-    '"' + WEBDEV_PATH + '?camera=" + {view.params.camera}'
+    '"/system/webdev/" + ' + WEBDEV_PROJECT + ' + "/' + WEBDEV_RES + '?camera=" + {view.params.camera}'
     ' + "&hud=" + if({view.params.hud}, "1", "0")'
     ' + "&theme=" + {view.params.theme}'
-    ' + "&watermark=" + if({view.params.watermark}, "1", "0")',
+    ' + "&watermark=" + if({view.params.watermark}, "1", "0")'
+    ' + if({view.params.scene} = "", "", "&scene=" + {view.params.scene})',
 )
 
 # --- the geometry panel ------------------------------------------------------
@@ -522,6 +549,10 @@ view = {
         # worth printing on it. Off for a clean screenshot, or when the view is
         # embedded somewhere the distinction has already been made.
         "watermark": True,
+        # "" builds the cell from the page's own JavaScript; "document" builds
+        # it from Machine/Scene's parts list instead. tools/verify/scene_parity.js
+        # asserts the two produce the same objects.
+        "scene": "document" if SCENEDOC else "",
     },
     # A view's declared params are just default values unless each one is ALSO
     # marked paramDirection "input" here - the Designer does this invisibly
@@ -547,6 +578,7 @@ view = {
             "binding": expr_binding("{session.props.theme}"),
         },
         "params.watermark": {"paramDirection": "input", "persistent": True},
+        "params.scene": {"paramDirection": "input", "persistent": True},
     },
     "props": {"defaultSize": {"width": 1366, "height": 768}},
     "root": {

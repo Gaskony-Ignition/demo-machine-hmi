@@ -19,7 +19,12 @@ const { chromium } = require('playwright');
 // with MHD_PROJECT so this gate can be run against either.
 const PROJECT = process.env.MHD_PROJECT || 'Machine_HMI_Demo';
 
-const BASE = process.argv[2] || 'http://localhost:8088';
+// The gateway comes from argv[2] or $GW_URL and there is NO default. There used
+// to be one - http://localhost:8088 - and it is the module-testing gateway on
+// this workstation, so a run that forgot the argument swept a DIFFERENT gateway
+// and reported a clean result about a project that was not this one.
+const BASE = process.argv[2] || process.env.GW_URL;
+if (!BASE) { console.error('give the gateway URL as the first argument, or set $GW_URL'); process.exit(2); }
 const DARK = ['dark', 'dark-cool', 'dark-warm'];
 const LIGHT = ['light', 'light-cool', 'light-warm'];
 

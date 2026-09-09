@@ -34,11 +34,16 @@ const { chromium } = require('playwright');
 // with MHD_PROJECT so this gate can be run against either.
 const PROJECT = process.env.MHD_PROJECT || 'Machine_HMI_Demo';
 
-const BASE = process.argv[2] || 'http://localhost:8088';
+// The gateway comes from argv[2] or $GW_URL and there is NO default. There used
+// to be one - http://localhost:8088 - and it is the module-testing gateway on
+// this workstation, so a run that forgot the argument swept a DIFFERENT gateway
+// and reported a clean result about a project that was not this one.
+const BASE = process.argv[2] || process.env.GW_URL;
+if (!BASE) { console.error('give the gateway URL as the first argument, or set $GW_URL'); process.exit(2); }
 const LIGHT = process.argv.includes('--light');
 const ti = process.argv.indexOf('--theme');
 const THEME = ti > 0 ? process.argv[ti + 1] : null;
-const PAGES = ['', 'cell3d', 'cell2d', 'manual', 'alarms', 'setup'];
+const PAGES = ['', 'cell3d', 'scenedoc', 'cell2d', 'cad', 'manual', 'alarms', 'setup'];
 // Ignition's light ramp is the dark one inverted.
 const RAMP = {'--neutral-10':'#FAFAFA','--neutral-20':'#F0F0F0','--neutral-30':'#E4E4E4',
   '--neutral-40':'#D0D0D0','--neutral-50':'#B0B0B0','--neutral-60':'#8A8A8A',
@@ -97,14 +102,31 @@ const PROBE = `(() => {
   return out;
 })()`;
 
+// Edge Panel permits exactly ONE concurrent Perspective session. A page-per-route
+// browser therefore gets "Sessions Exceeded" on every route after the first -
+// a page that renders, measures clean and is not the project at all. One page,
+// navigated between routes, plus this guard, which turns that silent false green
+// into a failure.
+async function mustBeTheProject(p, pg) {
+  const state = await p.evaluate(`(() => ({
+    components: document.querySelectorAll('[data-component]').length,
+    text: document.body.innerText.slice(0, 120)
+  }))()`);
+  if (state.components === 0) {
+    console.error(`page /${pg || ''} did not render the project: ${JSON.stringify(state.text)}`);
+    process.exit(1);
+  }
+}
+
 (async () => {
   const b = await chromium.launch();
   let total = 0; const fails = [];
+  const p = await b.newPage({ viewport: { width: 1366, height: 768 } });
   for (const pg of PAGES) {
-    const p = await b.newPage({ viewport: { width: 1366, height: 768 } });
     await p.goto(`${BASE}/data/perspective/client/${PROJECT}/${pg}`,
                  { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
     await p.waitForTimeout(3200);
+    await mustBeTheProject(p, pg);
     if (THEME) {
       await p.evaluate(t => {
         const l = document.querySelector('link[href*="/data/perspective/themes/"]');
@@ -123,7 +145,6 @@ const PROBE = `(() => {
       if (x.exempt) continue;
       if (x.ratio < 3.0) fails.push({ pg: pg || '/', ...x });
     }
-    await p.close();
   }
   await b.close();
   console.log(`ramp=${LIGHT ? 'light' : 'dark'}  theme=${THEME || 'session default'}` +

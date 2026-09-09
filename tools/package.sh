@@ -97,7 +97,10 @@ if [[ $EDGE -eq 1 ]]; then
   #   PROVIDER = "..."     the constant every script derives from
   #
   # Plus two cosmetic ones: the journal table's literal `name` default, and a
-  # label that prints the provider to the operator.
+  # label that prints the provider to the operator. That label needs BOTH
+  # middle-dot forms: json.dump writes the separator as the escape \u00b7, so
+  # the raw-byte pattern alone matched nothing and the Edge build shipped an
+  # Alarms header reading "This machine only . MachineDemo ." until 1.15.0.
   #
   # The bare word MachineDemo is ALSO the script package (MachineDemo.setup)
   # and the SQLite connection (MachineDemoDB), so a blanket substitution is
@@ -109,7 +112,8 @@ if [[ $EDGE -eq 1 ]]; then
         -e "s/\[MachineDemo\]/[${EDGE_PROVIDER}]/g" \
         -e "s/prov:MachineDemo:/prov:${EDGE_PROVIDER}:/g" \
         -e "s/\"name\": \"MachineDemo\"/\"name\": \"${EDGE_PROVIDER}\"/g" \
-        -e "s/\xc2\xb7 MachineDemo \xc2\xb7/\xc2\xb7 ${EDGE_PROVIDER} \xc2\xb7/g"
+        -e "s/\xc2\xb7 MachineDemo \xc2\xb7/\xc2\xb7 ${EDGE_PROVIDER} \xc2\xb7/g" \
+        -e "s/\\\\u00b7 MachineDemo \\\\u00b7/\\\\u00b7 ${EDGE_PROVIDER} \\\\u00b7/g"
   sed -i "s/^PROVIDER = \"MachineDemo\"/PROVIDER = \"${EDGE_PROVIDER}\"/" \
     "$SRC/ignition/script-python/MachineDemo/plant/code.py"
 

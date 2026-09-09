@@ -8,7 +8,7 @@
     "header": true,
     "theme": "dark-cool",
     "watermark": true,
-    "scene": ""
+    "scene": "document"
   },
   "propConfig": {
     "params.camera": {
@@ -115,7 +115,7 @@
                       "name": "t1"
                     },
                     "props": {
-                      "text": "Zone 2 \u00b7 Robot Cell 2 \u2014 Live 3D",
+                      "text": "Zone 2 \u00b7 Robot Cell 2 \u2014 Live 3D (scene document)",
                       "style": {
                         "fontSize": "16px",
                         "color": "var(--md-ink-max, #f2f6f8)",
@@ -132,7 +132,7 @@
                       "name": "t2"
                     },
                     "props": {
-                      "text": "Model driven by the same [MachineDemo] tags as every other screen",
+                      "text": "Built from the parts list in Machine/Scene's custom props",
                       "style": {
                         "fontSize": "11.5px",
                         "color": "var(--md-ink-quiet, #8b98a3)",

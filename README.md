@@ -55,8 +55,25 @@ information**.*
 | **3D model rendering** | A palletising cell — robot, infeed, two pallet stations, guarding — animated from live tags. Camera presets, orbit and pinch-zoom for a touch panel, faults highlighted on the geometry itself. |
 | **Access control by security zone** | The same Manual screen is fully live for maintenance and visibly read-only for an operator, with the reason stated on screen rather than silently disabled. |
 | **Alarming** | Alarm status and journal tables on the demo's own tag provider, its own SQLite connection and its own journal profile — acknowledge and shelve included. The alarm page shows this machine only, and the history lives in the demo's own file with its own retention. |
-| **Your own CAD on a screen** | A second, separate page loads plain **STL** files straight off the gateway and lets an operator orbit, zoom, pan and click a part to identify it — no module, no licence, no internet. Drop the files in the project's `cad` resource folder and rescan; see [docs/CAD-VIEWER.md](docs/CAD-VIEWER.md). |
+| **Your own CAD on a screen** | The **CAD** tab loads plain **STL** files straight off the gateway and lets an operator orbit, zoom, pan and click a part to identify it — no module, no licence, no internet. Drop the files in the project's `cad` resource folder and rescan; see [docs/CAD-VIEWER.md](docs/CAD-VIEWER.md). |
 | **Operator control** | Hold-to-run jog, a permissive list that answers "why won't it move?", service routines, and per-zone start/stop. |
+
+## The screens
+
+| Tab | What it is |
+| --- | --- |
+| **OVERVIEW** | The line: eight zones, the mimic, per-zone start/stop and the alarm strip. |
+| **3D CELL** | The cell in WebGL, animated from live tags, with the Geometry panel. |
+| **SCENE** | The same cell, built instead from the parts list held in `Machine/Scene`'s custom props — the shape as *data a person edits in the Designer*. `tools/verify/scene_parity.js` asserts the two build the same objects. |
+| **2D CELL** | The same cell again, drawn with stock Perspective components only. |
+| **CAD** | The customer's own STL, orbit/zoom/pan/pick. |
+| **MANUAL** | Jog, permissives, service routines, access by security zone. |
+| **ALARMS** | Status and journal, this machine only. |
+| **SETUP** | One-button install, health checks, and the presenter console. |
+
+The three middle tabs are the same machine drawn three ways. That is the point
+of them: a machine builder asking "can Perspective do 3D" is really asking
+which of those trade-offs they are buying.
 
 ## Install
 
@@ -256,6 +273,34 @@ projects directory, which stops every scan silently.
 Pull the gateway's copy back over `project/` before editing — the gateway is the
 source of truth and a local mirror is stale by default.
 
+Two throwaway gateways, one per edition, live in `dockers/` — a change verified
+on only one of them is not verified. Bring them up with `docker compose up -d`
+from `dockers/edge/` (:8388) or `dockers/standard/` (:8488).
+
+The gates take the gateway URL as their first argument and the project name in
+`$MHD_PROJECT`, because the Edge build lands in a project with a different name:
+
+```bash
+node tools/verify/nav_fit.js            http://host:8488
+node tools/verify/contrast_sweep.js     http://host:8488
+node tools/verify/colour_snapshot.js    http://host:8488 out.json
+node tools/verify/scene_parity.js       http://host:8488
+node tools/verify/scene_document_mode.js http://host:8488
+MHD_PROJECT=Edge node tools/verify/nav_fit.js http://host:8388   # the Edge rig
+```
+
+**On Edge, run them one at a time and leave a minute between runs.** Edge Panel
+permits exactly ONE concurrent Perspective session; a second one is served
+*Sessions Exceeded*, which renders as a page, measures clean and is not the
+project. Every gate now refuses to measure a page with no Perspective
+components rather than reporting a pass — a contrast sweep of the Edge build
+read "145 texts, 0 below 3.0" while actually measuring that error page seven
+times out of eight.
+
+The scene gates need the cell **running** — a stopped line legitimately has no
+rollers turning, and they say so rather than passing. Press RESET DEMO on the
+Setup page first.
+
 ## What "its own resources" does and does not mean
 
 The demo creates three named things and owns all of them: the `MachineDemo` tag
@@ -298,6 +343,7 @@ These are checked, not assumed — each was tested against the running gateway:
 | It works on the panels it targets | HUD checked for overlap and overflow at 1024×600, 1280×800 and 1920×1080. |
 | It survives a gateway restart unattended | The gateway was restarted out from under the demo mid-session (not by this project). It came back with the whole tag tree and its alarms present, `?cmd=check` green on all eight rows, the simulator resumed on its own at 13.6 cases/min, the pallets kept their progress, and the 3D page reconnected to live tags with no intervention. Nothing has to be re-run after a restart. |
 | Colour is spent only on the abnormal | Measured from the rendered page, not the code. In the normal state the Overview carries no large saturated areas: running zones read grey with a small green LED, and the per-zone STOP buttons are neutral with red text rather than red fills. Inject a fault and the faulted zone is the only saturated thing on screen. The alarm strip distinguishes three states — active is red `#ff8d92`, cleared-but-unacknowledged is amber `#eebf5e`, acknowledged is grey — so a page with zero active alarms never reads as an emergency. |
+| The 3D and CAD pages survive being renamed | The project was imported a second time as `Palletiser_Demo` on the same gateway; both pages resolved their own project at runtime and rendered (`/system/webdev/Palletiser_Demo/cell3d?...`). Before v1.15.0 the URL was a literal and the page returned `HTTP ERROR 404 Project "Machine_HMI_Demo" not found` on any gateway that called the project anything else — including every Edge, where the project name is a gateway setting. |
 | The zip actually imports | `tools/package.sh` gates on archive integrity, a file count against the tree, and a resource-manifest pass (valid JSON, `lastModification` present, `files[]` matching the directory) — the three ways a project imports "successfully" with a resource the gateway silently never scans. |
 
 ## Licensing

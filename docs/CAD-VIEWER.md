@@ -7,6 +7,9 @@ connection.
 It is deliberately **not** the palletising cell page. That one is a machine
 that moves, driven by tags. This one just shows a model and lets you look at it.
 
+It has its own tab — **CAD** — on the project's nav bar, and its own page route
+`/cad`. Directly, it is:
+
     http://<gateway>/system/webdev/<project>/cadview
 
 ## Putting your own model in
@@ -19,8 +22,15 @@ that moves, driven by tags. This one just shows a model and lets you look at it.
 4. Open the page. Whatever STLs are in the folder are the model; there is no
    list to maintain in the code.
 
-To put it on a screen, drop an `ia.display.iframe` into a Perspective view with
-that URL as its `src`.
+To put it on a screen of your own, drop an `ia.display.iframe` into a
+Perspective view with that URL as its `src` — and build the URL the way
+`Machine/CadModel` does, so it keeps working when the project is called
+something else:
+
+    "/system/webdev/" + runScript("system.project.getProjectName()") + "/cadview"
+
+A literal project name in that `src` is the one mistake that turns this page
+into `HTTP ERROR 404 Project "..." not found` on somebody else's gateway.
 
 The filename becomes the part name shown when someone clicks it.
 

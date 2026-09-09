@@ -363,7 +363,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid var(--md-line, #2c343d)",
-                    "color": "var(--neutral-60, #8b98a3)",
+                    "color": "var(--md-ink-quiet, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -388,6 +388,45 @@
               {
                 "type": "ia.display.label",
                 "meta": {
+                  "name": "N_SCENEDOC"
+                },
+                "props": {
+                  "text": "SCENE",
+                  "style": {
+                    "fontSize": "10.5px",
+                    "fontWeight": 700,
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
+                    "lineHeight": "26px",
+                    "borderRadius": "5px",
+                    "whiteSpace": "nowrap",
+                    "cursor": "pointer",
+                    "border": "1px solid var(--md-line, #2c343d)",
+                    "color": "var(--md-ink-quiet, #8b98a3)",
+                    "backgroundColor": "transparent",
+                    "classes": "nav-tab"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "events": {
+                  "dom": {
+                    "onClick": {
+                      "config": {
+                        "page": "/scenedoc"
+                      },
+                      "scope": "C",
+                      "type": "nav"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
                   "name": "N_CELL2D"
                 },
                 "props": {
@@ -402,7 +441,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid var(--md-line, #2c343d)",
-                    "color": "var(--neutral-60, #8b98a3)",
+                    "color": "var(--md-ink-quiet, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -427,6 +466,45 @@
               {
                 "type": "ia.display.label",
                 "meta": {
+                  "name": "N_CAD"
+                },
+                "props": {
+                  "text": "CAD",
+                  "style": {
+                    "fontSize": "10.5px",
+                    "fontWeight": 700,
+                    "letterSpacing": "0.6px",
+                    "padding": "0 8px",
+                    "lineHeight": "26px",
+                    "borderRadius": "5px",
+                    "whiteSpace": "nowrap",
+                    "cursor": "pointer",
+                    "border": "1px solid var(--md-line, #2c343d)",
+                    "color": "var(--md-ink-quiet, #8b98a3)",
+                    "backgroundColor": "transparent",
+                    "classes": "nav-tab"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                },
+                "events": {
+                  "dom": {
+                    "onClick": {
+                      "config": {
+                        "page": "/cad"
+                      },
+                      "scope": "C",
+                      "type": "nav"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
                   "name": "N_MANUAL"
                 },
                 "props": {
@@ -441,7 +519,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid var(--md-line, #2c343d)",
-                    "color": "var(--neutral-60, #8b98a3)",
+                    "color": "var(--md-ink-quiet, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -480,7 +558,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid var(--md-line, #2c343d)",
-                    "color": "var(--neutral-60, #8b98a3)",
+                    "color": "var(--md-ink-quiet, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }
@@ -519,7 +597,7 @@
                     "whiteSpace": "nowrap",
                     "cursor": "pointer",
                     "border": "1px solid var(--md-line, #2c343d)",
-                    "color": "var(--neutral-60, #8b98a3)",
+                    "color": "var(--md-ink-quiet, #8b98a3)",
                     "backgroundColor": "transparent",
                     "classes": "nav-tab"
                   }

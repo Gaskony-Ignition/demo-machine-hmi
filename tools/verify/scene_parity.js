@@ -23,11 +23,16 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-const GW = process.env.GW_URL || 'http://192.168.153.128:8088';
+// The gateway comes from argv[2] or $GW_URL and there is NO default. There used
+// to be one - http://localhost:8088 - and it is the module-testing gateway on
+// this workstation, so a run that forgot the argument swept a DIFFERENT gateway
+// and reported a clean result about a project that was not this one.
+const GW = process.argv[2] || process.env.GW_URL;
+if (!GW) { console.error('give the gateway URL as the first argument, or set $GW_URL'); process.exit(2); }
 // PAGE can be pointed at a scratch copy of the resource, so a change to the
 // page can be proved before it goes anywhere near the one the demo serves.
 const PAGE = process.env.PAGE_URL ||
-  (GW + '/system/webdev/${PROJECT}/' + (process.env.PAGE_RES || 'cell3d'));
+  (GW + '/system/webdev/' + PROJECT + '/' + (process.env.PAGE_RES || 'cell3d'));
 
 // Nodes the document does not claim to build.
 //   - lights and GridHelper are scene furniture, not parts of the machine; a

@@ -21,7 +21,7 @@
 // Run from the verify-view tool directory (that is where playwright lives).
 const fs = require('fs');
 
-const PAGES = ['', 'cell3d', 'cell2d', 'manual', 'alarms', 'setup'];
+const PAGES = ['', 'cell3d', 'scenedoc', 'cell2d', 'cad', 'manual', 'alarms', 'setup'];
 
 const PROBE = `(() => {
   const out = [];
@@ -124,25 +124,49 @@ const { chromium } = require('playwright');
 // with MHD_PROJECT so this gate can be run against either.
 const PROJECT = process.env.MHD_PROJECT || 'Machine_HMI_Demo';
 
-const BASE = process.argv[2];
+// The gateway comes from argv[2] or $GW_URL and there is NO default. There used
+// to be one - http://localhost:8088 - and it is the module-testing gateway on
+// this workstation, so a run that forgot the argument swept a DIFFERENT gateway
+// and reported a clean result about a project that was not this one.
+const BASE = process.argv[2] || process.env.GW_URL;
+if (!BASE) { console.error('give the gateway URL as the first argument, or set $GW_URL'); process.exit(2); }
 const OUT = process.argv[3];
+if (!OUT) { console.error('give an output file: colour_snapshot.js <gateway-url> <out.json>'); process.exit(2); }
 const ti = process.argv.indexOf('--theme');
 const THEME = ti > 0 ? process.argv[ti + 1] : null;
+
+// Edge Panel permits exactly ONE concurrent Perspective session. A page-per-route
+// browser therefore gets "Sessions Exceeded" on every route after the first -
+// a page that renders, measures clean and is not the project at all. One page,
+// navigated between routes, plus this guard, which turns that silent false green
+// into a failure.
+async function mustBeTheProject(p, pg) {
+  const state = await p.evaluate(`(() => ({
+    components: document.querySelectorAll('[data-component]').length,
+    text: document.body.innerText.slice(0, 120)
+  }))()`);
+  if (state.components === 0) {
+    console.error(`page /${pg || ''} did not render the project: ${JSON.stringify(state.text)}`);
+    process.exit(1);
+  }
+}
 
 (async () => {
   const b = await chromium.launch();
   const all = {};
   const errors = [];
+  const p = await b.newPage({ viewport: { width: 1366, height: 768 } });
+  let current = '';
+  p.on('pageerror', e => errors.push(`${current || '/'}: ${e.message}`));
+  p.on('console', m => { if (m.type() === 'error') errors.push(`${current || '/'} console: ${m.text()}`); });
   for (const pg of PAGES) {
-    const p = await b.newPage({ viewport: { width: 1366, height: 768 } });
-    p.on('pageerror', e => errors.push(`${pg || '/'}: ${e.message}`));
-    p.on('console', m => { if (m.type() === 'error') errors.push(`${pg || '/'} console: ${m.text()}`); });
+    current = pg;
     await p.goto(`${BASE}/data/perspective/client/${PROJECT}/${pg}` +
                  (THEME ? `?theme=${THEME}` : ''),
                  { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
     await p.waitForTimeout(3500);
+    await mustBeTheProject(p, pg);
     all[pg] = await p.evaluate(PROBE);
-    await p.close();
   }
   await b.close();
   fs.writeFileSync(OUT, JSON.stringify(all, null, 1));
