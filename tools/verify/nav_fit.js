@@ -1,8 +1,8 @@
 // Does the nav bar fit, on every view that carries it, at every width a panel
 // is likely to have?
 //
-// The bar went from six tabs to eight in 1.15.0. Eight is enough that "it looked
-// fine on my monitor" stops being evidence: the header also holds the line
+// The bar is seven tabs. That is enough that "it looked fine on my monitor"
+// stops being evidence: the header also holds the line
 // title, three status chips, a theme picker and the sign-in block, and the tabs
 // are the part that gives. The failure is not a crash - it is a tab that wraps
 // to a second row, or sits past the right edge where nobody scrolls to find it.
@@ -16,11 +16,11 @@ const BASE = process.argv[2] || process.env.GW_URL;
 if (!BASE) { console.error('give the gateway URL as the first argument, or set $GW_URL'); process.exit(2); }
 
 // 1280 is the narrowest panel this demo targets; 1366 is the view's own
-// defaultSize. Cell3D, SceneDoc, Cell2D and CadModel are full-bleed model
+// defaultSize. Cell3D, Cell2D and CadModel are full-bleed model
 // screens with a Back button instead of the bar, so they are not listed.
 const WIDTHS = [1280, 1366, 1600, 1920];
 const PAGES = ['', 'manual', 'alarms', 'setup'];
-const EXPECTED = ['OVERVIEW', '3D CELL', 'SCENE', '2D CELL', 'CAD', 'MANUAL', 'ALARMS', 'SETUP'];
+const EXPECTED = ['OVERVIEW', '3D CELL', '2D CELL', 'CAD', 'MANUAL', 'ALARMS', 'SETUP'];
 
 // Perspective prefixes a project style class with psc-, so the class in the DOM
 // is psc-nav-tab, not nav-tab. Matching on the bare name finds nothing and the

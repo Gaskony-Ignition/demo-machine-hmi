@@ -309,7 +309,13 @@
   // in the Machine/Scene view's custom properties, served by admin?cmd=scene,
   // instead of from the JavaScript below. Off by default: the demo renders the
   // path it has always rendered until this has been looked at by a human.
-  var SCENE_DOC = urlParams.get("scene") === "document";
+  // The cell is built from the SCENE DOCUMENT - the parts list held in
+  // Machine/Scene's custom properties - because that is the thing a machine
+  // builder can edit in the Designer without touching this file. ?scene=code
+  // selects the hand-written JavaScript build instead; it exists so
+  // tools/verify/scene_parity.js can prove the two produce the same cell, and
+  // as the fallback if the document ever fails to build.
+  var SCENE_DOC = urlParams.get("scene") !== "code";
   var SCENE_DOCUMENT = null;
   var CAMERA_SLUGS = {
     overview: "Overview", robot: "Robot", pallet1: "Pallet 1",
@@ -1336,27 +1342,46 @@
     });
   }
 
-  // One path or the other builds the cell. The hand-built one is what ships;
-  // the document one is proved identical to it by tools/verify/scene_parity.js.
+  // The document owns the whole cell, so a rebuild has to throw ALL of it away
+  // and build again - not just the parts buildCell() happens to own. Keeping
+  // the root here is what makes that possible; without it a geometry change
+  // left the document's robot and guarding standing while the conveyor and the
+  // stations came back hand-built, and the two paths render identically so
+  // nothing looked wrong.
+  var docRoot = null;
+
+  function buildFromDocument(cfg, geo) {
+    if (docRoot) disposeObject(docRoot);
+    var built = buildScene(SCENE_DOCUMENT, cfg || {}, THREE, geo || {});
+    docRoot = built.root;
+    var h = bindFromDocument(built, SCENE_DOCUMENT);
+    robot = h.robot; baseYaw = h.baseYaw; carriage = h.carriage;
+    shoulder = h.shoulder; elbow = h.elbow; wrist = h.wrist; gripper = h.gripper;
+  }
+
+  // A document that cannot be built is a bad document, not a bad page. Say so
+  // where a person will see it and fall back, rather than showing an empty cell
+  // during a demonstration.
+  function fallBackToCode(err) {
+    console.error("cell3d: the scene document failed to build - falling back " +
+                  "to the built-in geometry", err);
+    die("The scene document could not be built", String(err && err.message || err));
+    SCENE_DOC = false;
+    docRoot = null;
+    if (!scene.getObjectByName("Robot")) { scene.add(floor); scene.add(fence); scene.add(robot); }
+    buildCell();
+  }
+
+  // One path or the other builds the cell. The DOCUMENT one is what ships; the
+  // hand-built one is proved identical to it by tools/verify/scene_parity.js
+  // and is the fallback above.
   if (SCENE_DOC && SCENE_DOCUMENT) {
     try {
-      var built = buildScene(SCENE_DOCUMENT, config || {}, THREE,
-                             (initialState && initialState.geometry) || {});
-      var h = bindFromDocument(built, SCENE_DOCUMENT);
-      robot = h.robot; baseYaw = h.baseYaw; carriage = h.carriage;
-      shoulder = h.shoulder; elbow = h.elbow; wrist = h.wrist; gripper = h.gripper;
+      buildFromDocument(config, initialState && initialState.geometry);
       console.info("cell3d: built from the scene document, " +
                    SCENE_DOCUMENT.parts.length + " parts");
     } catch (err) {
-      // A document that cannot be built is a bad document, not a bad page.
-      // Say so where a person will see it and fall back, rather than showing
-      // an empty cell during a demonstration.
-      console.error("cell3d: the scene document failed to build - falling back " +
-                    "to the built-in geometry", err);
-      die("The scene document could not be built", String(err && err.message || err));
-      SCENE_DOC = false;
-      if (!scene.getObjectByName("Robot")) { scene.add(floor); scene.add(fence); scene.add(robot); }
-      buildCell();
+      fallBackToCode(err);
     }
   } else {
     buildCell();
@@ -1391,7 +1416,12 @@
     M = metricsFromConfig(newConfig);
     builtConfig = newConfig;
     builtKey = configKey(newConfig);
-    buildCell();
+    if (SCENE_DOC && SCENE_DOCUMENT) {
+      try { buildFromDocument(newConfig, geometry); }
+      catch (err) { fallBackToCode(err); }
+    } else {
+      buildCell();
+    }
     buildPalletDom();
 
     var reach = geometry && geometry.reach;

@@ -24,10 +24,6 @@
       "title": "Manual Control",
       "viewPath": "Machine/Manual"
     },
-    "/scenedoc": {
-      "title": "3D Cell (scene document)",
-      "viewPath": "Machine/SceneDoc"
-    },
     "/setup": {
       "title": "Setup",
       "viewPath": "Machine/Setup"

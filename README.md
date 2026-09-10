@@ -52,7 +52,7 @@ information**.*
 
 | | |
 | --- | --- |
-| **3D model rendering** | A palletising cell — robot, infeed, two pallet stations, guarding — animated from live tags. Camera presets, orbit and pinch-zoom for a touch panel, faults highlighted on the geometry itself. |
+| **3D model rendering** | A palletising cell — robot, infeed, two pallet stations, guarding — animated from live tags. Camera presets, orbit and pinch-zoom for a touch panel, faults highlighted on the geometry itself. **The machine's shape is a parts list a person edits in the Designer**, not code: 45 parts in `Machine/Scene`'s custom properties, rebuilt live when a Config tag changes. |
 | **Access control by security zone** | The same Manual screen is fully live for maintenance and visibly read-only for an operator, with the reason stated on screen rather than silently disabled. |
 | **Alarming** | Alarm status and journal tables on the demo's own tag provider, its own SQLite connection and its own journal profile — acknowledge and shelve included. The alarm page shows this machine only, and the history lives in the demo's own file with its own retention. |
 | **Your own CAD on a screen** | The **CAD** tab loads plain **STL** files straight off the gateway and lets an operator orbit, zoom, pan and click a part to identify it — no module, no licence, no internet. Drop the files in the project's `cad` resource folder and rescan; see [docs/CAD-VIEWER.md](docs/CAD-VIEWER.md). |
@@ -63,17 +63,13 @@ information**.*
 | Tab | What it is |
 | --- | --- |
 | **OVERVIEW** | The line: eight zones, the mimic, per-zone start/stop and the alarm strip. |
-| **3D CELL** | The cell in WebGL, animated from live tags, with the Geometry panel. |
-| **SCENE** | The same cell, built instead from the parts list held in `Machine/Scene`'s custom props — the shape as *data a person edits in the Designer*. `tools/verify/scene_parity.js` asserts the two build the same objects. |
-| **2D CELL** | The same cell again, drawn with stock Perspective components only. |
+| **3D CELL** | The cell in WebGL, animated from live tags, with the Geometry panel. Its shape comes from the parts list in `Machine/Scene`'s custom properties — **data edited in the Designer**, not code. |
+| **2D CELL** | The same cell, drawn with stock Perspective components only. |
 | **CAD** | The customer's own STL, orbit/zoom/pan/pick. |
 | **MANUAL** | Jog, permissives, service routines, access by security zone. |
 | **ALARMS** | Status and journal, this machine only. |
 | **SETUP** | One-button install, health checks, and the presenter console. |
 
-The three middle tabs are the same machine drawn three ways. That is the point
-of them: a machine builder asking "can Perspective do 3D" is really asking
-which of those trade-offs they are buying.
 
 ## Install
 

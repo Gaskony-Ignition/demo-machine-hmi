@@ -389,8 +389,8 @@ pages leave Perspective. Inside a page, every asset URL is RELATIVE
 | `admin` | GET | `?cmd=status\|version\|check\|faults\|alarms\|alarmcheck&tag=` | read the cell, change nothing |
 | `admin` | GET | any write `cmd` | **405** — refused, tag untouched |
 | `admin` | POST | anything | **405** — refused; the write path is gone |
-| `cell3d` | GET | (no query) | the 3D palletising cell page, served as HTML |
-| `cell3d` | GET | `?scene=document` | the same cell, built from `Machine/Scene`'s parts list |
+| `cell3d` | GET | (no query) | the 3D palletising cell, built from `Machine/Scene`'s parts list |
+| `cell3d` | GET | `?scene=code` | the same cell, built from the page's own JavaScript |
 | `cadview` | GET | (no query) | the CAD viewer — every STL in the `cad` folder |
 | `cad` | GET | (no query) | the STL file list, as JSON |
 | `cad` | GET | `?f=<name>.stl` | one STL, as bytes |
@@ -434,6 +434,30 @@ Why not authenticated POST: WebDev authentication on 8.3.8 is HTTP Basic against
 that ships one gateway's source name answers `500 No user source for project` on
 every other gateway. Dropping the path was chosen over shipping a name
 (decision 02/09/2026).
+
+### The cell is built from the SCENE DOCUMENT, not from the page's JavaScript
+
+Since 1.16.0 the shipped path is the document: 45 parts in `Machine/Scene`'s
+custom properties, served by `admin?cmd=scene` and assembled by `buildScene()`.
+`?scene=code` selects the hand-written `buildCell()` instead. It is kept for two
+reasons and neither is "in case we change our minds":
+
+- **`tools/verify/scene_parity.js` needs it as the control.** That gate builds
+  the expected tree itself from `src/cell3d/scene.json` + `scene-render.js` and
+  compares it to what the page rendered, so the page must render the *other*
+  path or the comparison is the document against itself. The gate therefore
+  loads `?scene=code` explicitly.
+- **It is the fallback.** A document that fails to build says so on screen and
+  the page falls back to code, rather than showing an empty cell in front of a
+  customer.
+
+**A geometry change has to rebuild through the DOCUMENT too.** `rebuildCell()`
+used to call `buildCell()` unconditionally, which in document mode disposed the
+document's conveyor and pallet stations and replaced them with hand-built ones —
+leaving the document's robot and guarding standing. Nothing looked wrong,
+because the two paths render identically by design, so the cell quietly became a
+hybrid on the first Config edit. The whole document root is now torn down and
+rebuilt.
 
 ### `cell3d` is a Text Resource, and that is deliberate
 
@@ -522,7 +546,6 @@ next run:
 | --- | --- |
 | `com.inductiveautomation.webdev/resources/cell3d` | `tools/webdev_page.py build` (source: `src/cell3d/page.html`) |
 | `perspective/views/Machine/Cell3D` | `tools/build_cell3d_view.py` |
-| `perspective/views/Machine/SceneDoc` | `tools/build_cell3d_view.py --scenedoc` |
 | `perspective/views/Machine/Cell2D` | `tools/build_cell2d_view.py` |
 | `perspective/views/Machine/CadModel` | `tools/build_cad_view.py` (reads Cell3D) |
 | the nav bar in every view that has one | `tools/add_nav_tab.py` |

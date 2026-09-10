@@ -43,25 +43,17 @@ risk here (the whole point is a runtime-supplied camera/hud/header), so this
 generator's caller MUST verify the rendered `src` attribute in the live DOM
 before calling the work done - do not trust the JSON alone.
 
-Run: python3 tools/build_cell3d_view.py              -> Machine/Cell3D
-     python3 tools/build_cell3d_view.py --scenedoc  -> Machine/SceneDoc
+Run: python3 tools/build_cell3d_view.py
 """
 
 import datetime
 import json
 import os
-import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 VIEWS = os.path.join(HERE, os.pardir, "project",
                      "com.inductiveautomation.perspective", "views", "Machine")
-
-# Two views come out of this one generator. They differ ONLY in which of the
-# page's two cell builders runs - the hand-written JavaScript, or the parts
-# list held in Machine/Scene's custom props - so generating them separately
-# would be 500 lines of duplication kept in step by hand.
-SCENEDOC = "--scenedoc" in sys.argv
-OUT = os.path.join(VIEWS, "SceneDoc" if SCENEDOC else "Cell3D")
+OUT = os.path.join(VIEWS, "Cell3D")
 
 COL_BG = "var(--md-bg, #171b20)"
 
@@ -131,8 +123,7 @@ header = {
                     "type": "ia.display.label",
                     "meta": {"name": "t1"},
                     "props": {
-                        "text": "Zone 2 · Robot Cell 2 — Live 3D"
-                                + (" (scene document)" if SCENEDOC else ""),
+                        "text": "Zone 2 · Robot Cell 2 — Live 3D",
                         "style": {
                             "fontSize": "16px",
                             "color": "var(--md-ink-max, #f2f6f8)",
@@ -145,9 +136,7 @@ header = {
                     "type": "ia.display.label",
                     "meta": {"name": "t2"},
                     "props": {
-                        "text": ("Built from the parts list in Machine/Scene's custom props"
-                                 if SCENEDOC else
-                                 "Model driven by the same [MachineDemo] tags as every other screen"),
+                        "text": "Built from the parts list in Machine/Scene\u2019s custom props, driven by the same [MachineDemo] tags as every other screen",
                         "style": {
                             "fontSize": "11.5px",
                             "color": "var(--md-ink-quiet, #8b98a3)",
@@ -549,10 +538,12 @@ view = {
         # worth printing on it. Off for a clean screenshot, or when the view is
         # embedded somewhere the distinction has already been made.
         "watermark": True,
-        # "" builds the cell from the page's own JavaScript; "document" builds
-        # it from Machine/Scene's parts list instead. tools/verify/scene_parity.js
-        # asserts the two produce the same objects.
-        "scene": "document" if SCENEDOC else "",
+        # "" leaves the page on its own default, which is the scene document -
+        # the parts list in Machine/Scene's custom props, the one a machine
+        # builder can edit in the Designer. "code" selects the hand-written
+        # JavaScript build instead; tools/verify/scene_parity.js asserts the
+        # two produce the same objects.
+        "scene": "",
     },
     # A view's declared params are just default values unless each one is ALSO
     # marked paramDirection "input" here - the Designer does this invisibly

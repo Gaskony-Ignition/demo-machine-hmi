@@ -7,7 +7,7 @@ styling and - more importantly - the exact event shape. A nav action with a
 missing "scope" key returns HTTP 500 on EVERY page of the project while the scan
 still reports success, so the safe move is never to hand-author one.
 
-Cell3D, SceneDoc, Cell2D and CadModel deliberately have NO nav bar: they are
+Cell3D, Cell2D and CadModel deliberately have NO nav bar: they are
 full-bleed model screens with a Back button in their header instead. They are
 skipped here, and they are the reason the list below has more entries than the
 bar has room to lose.
@@ -24,12 +24,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 VIEWS = os.path.join(HERE, os.pardir, "project",
                      "com.inductiveautomation.perspective", "views", "Machine")
 
-# The bar, in order. Three of these are the same machine drawn three ways, which
-# is the demo's whole argument, so they sit together in the middle.
+# The bar, in order. A tab is removed by deleting its line: the rewrite below
+# replaces the whole Nav container, so an old tab does not linger in a view
+# nobody thought to open.
 TABS = [
     ("N_OVERVIEW", "OVERVIEW", "/"),
     ("N_3DCELL",   "3D CELL",  "/cell3d"),
-    ("N_SCENEDOC", "SCENE",    "/scenedoc"),
     ("N_CELL2D",   "2D CELL",  "/cell2d"),
     ("N_CAD",      "CAD",      "/cad"),
     ("N_MANUAL",   "MANUAL",   "/manual"),

@@ -43,7 +43,7 @@ if (!BASE) { console.error('give the gateway URL as the first argument, or set $
 const LIGHT = process.argv.includes('--light');
 const ti = process.argv.indexOf('--theme');
 const THEME = ti > 0 ? process.argv[ti + 1] : null;
-const PAGES = ['', 'cell3d', 'scenedoc', 'cell2d', 'cad', 'manual', 'alarms', 'setup'];
+const PAGES = ['', 'cell3d', 'cell2d', 'cad', 'manual', 'alarms', 'setup'];
 // Ignition's light ramp is the dark one inverted.
 const RAMP = {'--neutral-10':'#FAFAFA','--neutral-20':'#F0F0F0','--neutral-30':'#E4E4E4',
   '--neutral-40':'#D0D0D0','--neutral-50':'#B0B0B0','--neutral-60':'#8A8A8A',

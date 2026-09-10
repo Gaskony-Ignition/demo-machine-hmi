@@ -132,7 +132,7 @@
                       "name": "t2"
                     },
                     "props": {
-                      "text": "Model driven by the same [MachineDemo] tags as every other screen",
+                      "text": "Built from the parts list in Machine/Scene\u2019s custom props, driven by the same [MachineDemo] tags as every other screen",
                       "style": {
                         "fontSize": "11.5px",
                         "color": "var(--md-ink-quiet, #8b98a3)",

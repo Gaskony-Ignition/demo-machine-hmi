@@ -31,8 +31,15 @@ const GW = process.argv[2] || process.env.GW_URL;
 if (!GW) { console.error('give the gateway URL as the first argument, or set $GW_URL'); process.exit(2); }
 // PAGE can be pointed at a scratch copy of the resource, so a change to the
 // page can be proved before it goes anywhere near the one the demo serves.
+//
+// ?scene=code is REQUIRED, not incidental. This gate builds the expected tree
+// itself from scene.json + scene-render.js and compares it to what the page
+// rendered - so the page has to render the HAND-BUILT cell for the comparison
+// to mean anything. Since the page's default became the document, a run
+// without this param compares the document against itself and passes for free.
 const PAGE = process.env.PAGE_URL ||
-  (GW + '/system/webdev/' + PROJECT + '/' + (process.env.PAGE_RES || 'cell3d'));
+  (GW + '/system/webdev/' + PROJECT + '/' + (process.env.PAGE_RES || 'cell3d')
+      + '?scene=code');
 
 // Nodes the document does not claim to build.
 //   - lights and GridHelper are scene furniture, not parts of the machine; a

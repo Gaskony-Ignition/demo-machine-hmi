@@ -21,7 +21,7 @@
 // Run from the verify-view tool directory (that is where playwright lives).
 const fs = require('fs');
 
-const PAGES = ['', 'cell3d', 'scenedoc', 'cell2d', 'cad', 'manual', 'alarms', 'setup'];
+const PAGES = ['', 'cell3d', 'cell2d', 'cad', 'manual', 'alarms', 'setup'];
 
 const PROBE = `(() => {
   const out = [];

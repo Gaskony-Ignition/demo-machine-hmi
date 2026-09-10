@@ -66,7 +66,7 @@ async function run(mode) {
   const p = await (await b.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
   const errs = [];
   p.on('pageerror', e => errs.push(String(e).slice(0, 160)));
-  const url = GW + '/system/webdev/' + PROJECT + '/' + RES + (mode === 'document' ? '?scene=document' : '');
+  const url = GW + '/system/webdev/' + PROJECT + '/' + RES + '?scene=' + mode;
   await p.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await p.waitForFunction('window.__cellScene', null, { timeout: 30000 });
   await p.waitForTimeout(3000);
@@ -79,7 +79,10 @@ async function run(mode) {
 
 (async () => {
   let bad = 0;
-  for (const mode of ['default', 'document']) {
+  // 'document' is what the page does by default and what ships; 'code' is the
+  // hand-written build, kept as the fallback and as parity's control. Both are
+  // named explicitly so neither depends on which one is currently the default.
+  for (const mode of ['document', 'code']) {
     const { a, c, errs } = await run(mode);
     console.log('\n--- ' + mode + ' mode ---');
     if (!a || !c) { console.log('  FAIL the scene never appeared'); bad++; continue; }
