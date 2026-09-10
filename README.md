@@ -344,6 +344,10 @@ These are checked, not assumed — each was tested against the running gateway:
 
 ## Licensing
 
+This project is licensed **Apache-2.0** — see [LICENSE](LICENSE). It vendors two
+third-party works whose own licences are reproduced in [NOTICE](NOTICE):
+`three.min.js` (MIT) and the sample UR5 meshes (BSD-3-Clause).
+
 The seven sample UR5 meshes in the CAD viewer are from
 [ros-industrial/universal_robot](https://github.com/ros-industrial/universal_robot)
 and are **BSD-3-Clause**. Delete them and drop your own in — nothing refers to
