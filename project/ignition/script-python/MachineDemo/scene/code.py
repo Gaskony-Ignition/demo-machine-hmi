@@ -46,6 +46,30 @@ def _candidates():
 	return out
 
 
+# The path costs four os.path.exists() calls to resolve, and revision() is asked
+# for it four times a second. Resolved once, then reused.
+_resolved = [None]
+
+
+def revision():
+	"""A cheap token that changes when the view file changes. Never raises.
+
+	The Designer writes view.json when the project is saved, so mtime and size
+	are the whole signal - no parse, no read. Returns "" when the file cannot be
+	found, which the page reads as "nothing to watch" rather than as a change.
+	"""
+	paths = [_resolved[0]] if _resolved[0] else _candidates()
+	for path in paths:
+		try:
+			st = os.stat(path)
+		except Exception:
+			continue
+		_resolved[0] = path
+		return "%d-%d" % (st.st_mtime, st.st_size)
+	_resolved[0] = None
+	return ""
+
+
 def document():
 	"""The scene document, or a dict saying why there isn't one.
 

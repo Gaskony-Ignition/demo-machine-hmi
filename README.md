@@ -52,7 +52,7 @@ information**.*
 
 | | |
 | --- | --- |
-| **3D model rendering** | A palletising cell — robot, infeed, two pallet stations, guarding — animated from live tags. Camera presets, orbit and pinch-zoom for a touch panel, faults highlighted on the geometry itself. **The machine's shape is a parts list a person edits in the Designer**, not code: 45 parts in `Machine/Scene`'s custom properties, rebuilt live when a Config tag changes. |
+| **3D model rendering** | A palletising cell — robot, infeed, two pallet stations, guarding — animated from live tags. Camera presets, orbit and pinch-zoom for a touch panel, faults highlighted on the geometry itself. **The machine's shape is a parts list a person edits in the Designer**, not code: 45 parts in `Machine/Scene`'s custom properties. Edit one, save, and every open session rebuilds within a second — no page reload, no restart. |
 | **Access control by security zone** | The same Manual screen is fully live for maintenance and visibly read-only for an operator, with the reason stated on screen rather than silently disabled. |
 | **Alarming** | Alarm status and journal tables on the demo's own tag provider, its own SQLite connection and its own journal profile — acknowledge and shelve included. The alarm page shows this machine only, and the history lives in the demo's own file with its own retention. |
 | **Your own CAD on a screen** | The **CAD** tab loads plain **STL** files straight off the gateway and lets an operator orbit, zoom, pan and click a part to identify it — no module, no licence, no internet. Drop the files in the project's `cad` resource folder and rescan; see [docs/CAD-VIEWER.md](docs/CAD-VIEWER.md). |

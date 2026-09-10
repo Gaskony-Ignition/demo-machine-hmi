@@ -305,10 +305,6 @@
   // Unknown values fall back silently.
   // ----------------------------------------------------------------------
   var urlParams = new URLSearchParams(window.location.search);
-  // Option A. With ?scene=document the cell is built from the parts list held
-  // in the Machine/Scene view's custom properties, served by admin?cmd=scene,
-  // instead of from the JavaScript below. Off by default: the demo renders the
-  // path it has always rendered until this has been looked at by a human.
   // The cell is built from the SCENE DOCUMENT - the parts list held in
   // Machine/Scene's custom properties - because that is the thing a machine
   // builder can edit in the Designer without touching this file. ?scene=code
@@ -1081,7 +1077,7 @@
   // Bind the module's animation handles to the objects the document made. Every
   // name here is one the document assigns, and the parity gate proves the
   // objects behind them are the same objects the hand-built path makes.
-  function bindFromDocument(built, doc) {
+  function bindFromDocument(built, doc, dryRun) {
     var by = built.byName;
     function need(name) {
       var o = by[name];
@@ -1094,11 +1090,27 @@
       return out;
     }
 
-    scene.add(built.root);
-
+    // EVERY need() first, before anything is mutated. A document that has lost
+    // a part must fail here, with the old cell still standing and every module
+    // variable still pointing at it - which is what lets checkSceneRevision
+    // keep showing the previous cell instead of half-swapping to a broken one.
     var docRobot   = need("Robot");
     var docGripper = need("Gripper");
     var docInfeed  = need("InfeedConveyor");
+    var docStation1 = need("Station1");
+    var docStation2 = need("Station2");
+    var docConveyor = need("ConveyorFrame");
+    var docBase     = need("Base");
+    var docCarriage = need("Carriage");
+    var docShoulder = need("Shoulder");
+    var docElbow    = need("Elbow");
+    var docWrist    = need("Wrist");
+    var docUpperArm = need("upperArm");
+    var docForeArm  = need("foreArm");
+    var docColumn   = need("column");
+    if (dryRun) return null;
+
+    scene.add(built.root);
 
     rollers      = series("roller");
     infeedCases  = series("infeedCase");
@@ -1119,26 +1131,25 @@
 
     // The stacks are not in the document by design - see addPalletStacks.
     stations = [
-      { group: need("Station1"), name: "Station 1", pos: M.st1, cases: addPalletStacks(need("Station1")) },
-      { group: need("Station2"), name: "Station 2", pos: M.st2, cases: addPalletStacks(need("Station2")) }
+      { group: docStation1, name: "Station 1", pos: M.st1, cases: addPalletStacks(docStation1) },
+      { group: docStation2, name: "Station 2", pos: M.st2, cases: addPalletStacks(docStation2) }
     ];
 
     infeed    = docInfeed;
-    conveyor  = need("ConveyorFrame");
+    conveyor  = docConveyor;
     convX0    = doc.consts.convX0;
     convX1    = convX0 + M.convLen;
     infeedStopX = convX0 + 0.35;
     infeedPitch = M.caseD + 0.05;
     infeedQueue = [];
 
-    wireHighlights(need("upperArm"), need("foreArm"), need("column"),
-                   docGripper, docInfeed);
+    wireHighlights(docUpperArm, docForeArm, docColumn, docGripper, docInfeed);
 
     // The animation drives these five by name, through the joints the document
     // declared, so applyState needs no knowledge of which path built the cell.
     return {
-      robot: docRobot, baseYaw: need("Base"), carriage: need("Carriage"),
-      shoulder: need("Shoulder"), elbow: need("Elbow"), wrist: need("Wrist"),
+      robot: docRobot, baseYaw: docBase, carriage: docCarriage,
+      shoulder: docShoulder, elbow: docElbow, wrist: docWrist,
       gripper: docGripper
     };
   }
@@ -1351,8 +1362,18 @@
   var docRoot = null;
 
   function buildFromDocument(cfg, geo) {
-    if (docRoot) disposeObject(docRoot);
+    // Build and VALIDATE the replacement before touching what is on screen.
+    // The dry run resolves every part bindFromDocument will ask for, so a
+    // document missing one throws while the standing cell is still whole.
     var built = buildScene(SCENE_DOCUMENT, cfg || {}, THREE, geo || {});
+    try {
+      bindFromDocument(built, SCENE_DOCUMENT, true);
+    } catch (err) {
+      disposeObject(built.root);      // never reached the scene; free it anyway
+      throw err;
+    }
+
+    if (docRoot) disposeObject(docRoot);
     docRoot = built.root;
     var h = bindFromDocument(built, SCENE_DOCUMENT);
     robot = h.robot; baseYaw = h.baseYaw; carriage = h.carriage;
@@ -1405,6 +1426,52 @@
   var geoEl = document.getElementById("geo");
   var geoTimer = null;
 
+  // One toast, used by every "the machine just changed under you" message, so
+  // a geometry edit and a parts-list edit look the same to whoever is watching.
+  function banner(html, bad) {
+    geoEl.innerHTML = html;
+    geoEl.className = "show" + (bad ? " bad" : "");
+    clearTimeout(geoTimer);
+    geoTimer = setTimeout(function () { geoEl.className = ""; }, 7000);
+  }
+
+  // Whatever revision the cell currently standing was built from. Set on the
+  // first poll rather than at boot, because the boot fetch of the document and
+  // the boot fetch of the state are one Promise.all and neither can name the
+  // other's answer.
+  var builtSceneRev = null;
+  var sceneReloading = false;
+
+  function checkSceneRevision(rev, cfg, geo) {
+    if (!SCENE_DOC) return;                    // the code build ignores it
+    if (builtSceneRev === null) { builtSceneRev = rev; return; }
+    if (rev === builtSceneRev || sceneReloading) return;
+    sceneReloading = true;
+    fetch("admin?cmd=scene", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        if (!j || !j.ok) throw new Error((j && j.error) || "admin?cmd=scene did not answer ok");
+        var was = SCENE_DOCUMENT ? SCENE_DOCUMENT.parts.length : 0;
+        SCENE_DOCUMENT = j.scene;
+        buildFromDocument(cfg || builtConfig, geo);
+        buildPalletDom();
+        builtSceneRev = rev;
+        banner("Scene document reloaded from <b>Machine/Scene</b> &middot; " +
+               (was === SCENE_DOCUMENT.parts.length
+                 ? SCENE_DOCUMENT.parts.length + " parts"
+                 : was + " &rarr; <b>" + SCENE_DOCUMENT.parts.length + "</b> parts"));
+      })
+      .catch(function (err) {
+        // A bad edit must not take the cell down mid-demonstration: say what
+        // happened, keep the cell that is standing, and accept the revision so
+        // the same broken document is not re-fetched four times a second.
+        console.error("cell3d: the edited scene document could not be used", err);
+        banner("Scene document could not be reloaded &middot; showing the previous cell", true);
+        builtSceneRev = rev;
+      })
+      .then(function () { sceneReloading = false; });
+  }
+
   function rebuildCell(newConfig, geometry) {
     var changes = [];
     Object.keys(CONFIG_TAGS).forEach(function (k) {
@@ -1430,10 +1497,7 @@
       msg += " &middot; " + geometry.pattern + ", " + geometry.casesPerPallet + " a pallet";
     }
     if (reach && reach.ok === false) msg += " &middot; " + reach.note;
-    geoEl.innerHTML = msg;
-    geoEl.className = "show" + (reach && reach.ok === false ? " bad" : "");
-    clearTimeout(geoTimer);
-    geoTimer = setTimeout(function () { geoEl.className = ""; }, 7000);
+    banner(msg, reach && reach.ok === false);
   }
 
   // ----------------------------------------------------------------------
@@ -1552,6 +1616,11 @@
         // A Config tag changed: same numbers the simulator just re-derived
         // its pattern from, so rebuild the picture to match.
         if (j.config && configKey(j.config) !== builtKey) rebuildCell(j.config, j.geometry);
+        // The PARTS LIST changed - somebody edited Machine/Scene in the
+        // Designer and saved. Re-fetch it and rebuild the cell from the new
+        // document, so a shape edit lands in a running session the same way a
+        // tag edit does.
+        if (j.sceneRev) checkSceneRevision(j.sceneRev, j.config, j.geometry);
       })
       .catch(function () { linkOK = false; });
   }

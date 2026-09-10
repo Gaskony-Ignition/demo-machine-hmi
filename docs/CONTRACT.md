@@ -451,6 +451,26 @@ reasons and neither is "in case we change our minds":
   the page falls back to code, rather than showing an empty cell in front of a
   customer.
 
+**An edit to the document reaches a running session.** `?cmd=state` carries
+`sceneRev` — mtime and size of `Machine/Scene`'s `view.json`, a `stat` not a
+read, so the 4 Hz poll pays almost nothing for it. When it moves, the page
+re-fetches `?cmd=scene`, rebuilds and says so on the toast the geometry changes
+already use. The granularity is a **Designer save**, because that is when the
+gateway writes the file.
+
+`MachineDemo.scene` reads that file DIRECTLY rather than through the project
+resource system, so a document change needs no project scan — but it also means
+the file is the source of truth, not the gateway's in-memory project.
+
+**A bad edit must not take the cell down mid-demonstration.** `bindFromDocument`
+resolves every part it needs BEFORE it mutates anything, and
+`buildFromDocument` runs it as a dry run against the new build first. A document
+that has lost a part therefore fails while the old cell is still whole: the page
+says "showing the previous cell", keeps the one that is standing, and accepts
+the revision so the same broken document is not re-fetched four times a second.
+Measured by renaming `Shoulder` under a running page — 396 meshes before and
+after, joints still moving.
+
 **A geometry change has to rebuild through the DOCUMENT too.** `rebuildCell()`
 used to call `buildCell()` unconditionally, which in document mode disposed the
 document's conveyor and pallet stations and replaced them with hand-built ones —
@@ -525,8 +545,8 @@ Designer without a web toolchain.
 }
 ```
 
-`config`, `quality`, `geometry` and `infeed` are **additive** blocks beside the
-frozen shape. `infeed` is the accumulation queue - `{"queue": 4, "max": 6,
+`config`, `quality`, `geometry`, `infeed` and `sceneRev` are **additive** beside
+the frozen shape. `infeed` is the accumulation queue - `{"queue": 4, "max": 6,
 "pitch_mm": 300, "stopGap_mm": 350}` - and the 3D page draws exactly that many
 cartons at that pitch. `geometry` is what the simulator derived from `config`, cached until a
 Config tag changes; the page rebuilds when `config` changes and shows

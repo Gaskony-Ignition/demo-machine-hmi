@@ -351,7 +351,20 @@ def state():
 		# draws exactly this many, at the same pitch the simulator blocks its
 		# photo-eyes with, so the beams and the boxes cannot disagree.
 		"infeed": _infeed(),
+		# Additive: mtime-and-size of the view file the scene document lives in.
+		# The page compares it with the one it built from and rebuilds when it
+		# moves, so an edit to the parts list in the Designer reaches a running
+		# session on Save - no page reload, no restart. A stat, not a read: this
+		# is on the 4 Hz poll.
+		"sceneRev": _sceneRev(),
 	}
+
+
+def _sceneRev():
+	try:
+		return MachineDemo.scene.revision()
+	except:
+		return ""
 
 
 def _infeed():
