@@ -1,0 +1,2143 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Palletising Cell — live 3D</title>
+<style>
+  /* Everything here is deliberately self-contained. No web fonts, no CDN:
+     the page has to render identically on a machine with no internet, which
+     is the normal condition for the panel this is designed for. */
+  :root {
+    /* Defaults match the gateway's dark-cool theme, today's session default -
+       applyTheme() overwrites every one of these (colour-scheme included) as
+       an inline style on :root before the scene is built, from ?theme= or the
+       Perspective session's own theme name when this page is embedded. These
+       ten are the only source of truth for the page's colour; nothing below
+       this block should ever hard-code one of them again. */
+    color-scheme: dark;
+    --bg: #171b20;
+    --panel: rgba(29,35,42,.92);
+    --line: #2c343d;
+    --ink: #dde4e9;
+    --dim: #8b98a3;
+    --run: #46d07c;
+    --fault: #f0565e;
+    --warn: #eebf5e;
+    --info: #6cc4e8;
+    --mono: "DejaVu Sans Mono", "Liberation Mono", Consolas, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; background: var(--bg); }
+  body {
+    font-family: "Noto Sans", "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+  canvas {
+    display: block; touch-action: none;
+    filter: grayscale(0) brightness(1) saturate(1);
+    transition: filter .5s ease;
+  }
+  /* Bad/stale quality: the model itself goes flat and dark rather than
+     showing a bright, saturated picture of a machine that has stopped
+     reporting. This is orthogonal to the fetch-failed fallback below - that
+     case never sets this class (see qualityBad's guard in updateHUD). */
+  body.quality-bad canvas { filter: grayscale(.85) brightness(.55) saturate(.4); }
+
+  .hud { position: fixed; z-index: 5; }
+  /* ?hud=0: the overlay cards and the camera row disappear (an embedded
+     Perspective panel wants the model, not the chrome). The fault banner,
+     the link pill and the 3D-anchored labels are not in this class, on
+     purpose, and stay. !important because #cams sets its own `display: flex`
+     in an ID rule, which otherwise outranks a plain class selector here. */
+  html.hud-off .hud { display: none !important; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    backdrop-filter: blur(6px);
+  }
+  .card-h {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--dim); padding: 8px 12px 6px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-b { padding: 9px 12px 11px; }
+
+  /* ---- top-left: line state ---- */
+  #state { top: 12px; left: 12px; width: 252px; }
+  .row { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; font-size: 12.5px; }
+  .row .k { color: var(--dim); flex: 1; }
+  .row .v { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 14px; color: var(--ink); }
+  .row .v.acc { color: #7ee2d2; }
+  .big { font-size: 19px !important; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 4px; padding: 3px 9px; border: 1px solid;
+  }
+  .pill.run   { background: #10331e; color: var(--run);   border-color: #1d5c35; }
+  .pill.idle  { background: #23292f; color: var(--dim);   border-color: #38424c; }
+  .pill.flt   { background: #3d1518; color: #ff8d92;      border-color: #7a2a2f; }
+  .pill.mode  { background: #14313e; color: var(--info);  border-color: #1e546c; }
+
+  /* ---- top-right: safety + faults ---- */
+  #safety { top: 12px; right: 12px; width: 232px; }
+  .sig { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: #b7c2ca; padding: 3.5px 0; }
+  .led { width: 10px; height: 10px; border-radius: 50%; flex: none; background: #3a434b; }
+  .led.on  { background: var(--run);   box-shadow: 0 0 6px rgba(70,208,124,.75); }
+  .led.bad { background: var(--fault); box-shadow: 0 0 7px rgba(240,86,94,.85); }
+  .led.wrn { background: var(--warn);  box-shadow: 0 0 6px rgba(238,191,94,.7); }
+
+  #faultbanner {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 8; display: none; align-items: center; gap: 11px;
+    background: rgba(61,21,24,.95); border: 1px solid #8c2830; border-radius: 9px;
+    padding: 10px 18px; color: #ffc2c5; font-size: 14px; font-weight: 600;
+    box-shadow: 0 6px 26px rgba(0,0,0,.5);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  #faultbanner.show { display: flex; }
+  @keyframes pulse { 0%,100% { border-color:#8c2830 } 50% { border-color:#f0565e } }
+  @media (prefers-reduced-motion: reduce) { #faultbanner { animation: none } }
+
+  /* Same mechanics as #faultbanner (fixed, centred, a .show class flipping
+     display, a pulsing border) - amber rather than red, because "the data
+     might be lying to you" is a different, calmer-but-more-fundamental alarm
+     than "the machine has a fault". A real fault reported on FROZEN data is
+     itself untrustworthy, so this sits above the fault banner and pushes it
+     down (body.quality-bad #faultbanner, below) rather than the two
+     overlapping. */
+  #qualitybanner {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 9; display: none; align-items: center; gap: 11px;
+    background: rgba(61,48,15,.95); border: 1px solid #8c6b20; border-radius: 9px;
+    padding: 10px 18px; color: #ffdf9e; font-size: 14px; font-weight: 600;
+    box-shadow: 0 6px 26px rgba(0,0,0,.5);
+    animation: qpulse 1.6s ease-in-out infinite;
+  }
+  #qualitybanner.show { display: flex; }
+  @keyframes qpulse { 0%,100% { border-color:#8c6b20 } 50% { border-color:#eebf5e } }
+  @media (prefers-reduced-motion: reduce) { #qualitybanner { animation: none } }
+  body.quality-bad #faultbanner { top: 64px; }
+
+  /* ---- bottom-right: pallet build ---- */
+  #pallets { bottom: 12px; right: 12px; width: 252px; }
+  .pal { padding: 7px 0; }
+  .pal + .pal { border-top: 1px solid var(--line); }
+  .pal-h { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; margin-bottom: 6px; }
+  .pal-h b { font-weight: 700; }
+  .pal-h .n { margin-left: auto; font-family: var(--mono); font-variant-numeric: tabular-nums; color: #7ee2d2; font-size: 14px; }
+  .bar { height: 7px; border-radius: 4px; background: #12161a; border: 1px solid var(--line); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: linear-gradient(90deg,#2c7a4a,#46d07c); transition: width .35s ease; }
+  .layers { display: flex; gap: 3px; margin-top: 6px; }
+  .layers span { flex: 1; height: 5px; border-radius: 2px; background: #262e36; }
+  .layers span.done { background: var(--run); }
+  .layers span.part { background: var(--warn); }
+
+  /* ---- bottom-left: camera presets ---- */
+  /* 60vw was room for the six presets on a desktop and not on a 10in panel,
+     where they wrapped onto a second row - straight underneath the link pill,
+     which then swallowed the clicks on two of them. Measured 04/09/2026 at
+     1024x600: two buttons unpressable. The row needs the width it needs. */
+  #cams { bottom: 12px; left: 12px; display: flex; gap: 8px; flex-wrap: wrap; max-width: calc(100vw - 24px); }
+  .cam {
+    font: inherit; font-size: 12.5px; font-weight: 700; color: #cdd6dd;
+    background: rgba(38,46,54,.92); border: 1px solid #38424c; border-radius: 8px;
+    padding: 11px 15px; cursor: pointer; min-height: 42px;
+  }
+  .cam:hover { background: rgba(48,58,68,.95); }
+  .cam.active { background: #14313e; border-color: #1e546c; color: #9fdcf5; }
+  .cam:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+
+  /* ---- anchored 3D labels ---- */
+  .tag3d {
+    position: fixed; z-index: 4; transform: translate(-50%,-50%);
+    background: rgba(23,27,32,.86); border: 1px solid var(--line); border-radius: 6px;
+    padding: 4px 9px; font-size: 11.5px; color: #c8d2d9; white-space: nowrap;
+    pointer-events: none; font-variant-numeric: tabular-nums;
+  }
+  .tag3d b { font-family: var(--mono); color: #7ee2d2; font-weight: 400; }
+  .tag3d.bad { border-color: #7a2a2f; background: rgba(45,18,21,.9); color: #ffc2c5; }
+  .tag3d.bad b { color: #ff8d92; }
+
+  /* ---- what this page IS ----
+     Every other screen in this project is Perspective. This one is a WebGL
+     page that Ignition's WebDev module serves, shown in an iframe. In a
+     demonstration that difference matters and is invisible - the page is
+     styled to match the rest of the project precisely so that it does not
+     look bolted on, which is exactly what makes the mechanism worth saying
+     out loud. Quiet: it labels the page, it does not compete with the HUD.
+     ?watermark=0 removes it for screenshots. */
+  #wm {
+    position: fixed; z-index: 6; top: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--dim); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px;
+    pointer-events: none; opacity: .85; white-space: nowrap;
+  }
+  #wm b { color: var(--info); font-weight: 700; }
+  #wm .sep { opacity: .5; font-weight: 400; letter-spacing: 0; }
+  /* The state card is 252px wide and the safety card sits opposite it. Below
+     about 900px the three would meet, and the label is the one that gives way
+     - it is for the person being shown the page, not the person using it. */
+  @media (max-width: 900px) { #wm { display: none; } }
+
+  /* ---- link state ---- */
+  #link {
+    position: fixed; z-index: 6; bottom: 12px; left: 50%; transform: translateX(-50%);
+    font-size: 11.5px; color: var(--dim); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px;
+    display: flex; align-items: center; gap: 8px;
+    /* A status readout, not a control. Anything it lands on top of must stay
+       pressable - see the camera row above. */
+    pointer-events: none;
+  }
+  #link.stale { color: var(--warn); border-color: #6e5520; }
+  #link.qbad  { color: var(--warn); border-color: #6e5520; }
+  .row .v.warn { color: var(--warn); }
+  .row .v.ok   { color: var(--run); }
+
+  /* ---- geometry changed ----
+     Shown for a few seconds when a [MachineDemo]Config tag changes and the
+     cell has been rebuilt from it: which tag, what it was, what it is now,
+     and what the simulator derived. This is the moment the demo is FOR - a
+     number typed into a Perspective field beside this page, and the machine
+     redrawn - so it is said out loud rather than left for the eye to notice.
+     Sits under the watermark; the fault banner outranks it. */
+  #geo {
+    position: fixed; z-index: 7; top: 46px; left: 50%; transform: translateX(-50%);
+    display: none; align-items: center; gap: 10px; max-width: 70vw;
+    background: rgba(20,49,62,.95); border: 1px solid #1e546c; border-radius: 9px;
+    padding: 9px 16px; color: #bfe6f7; font-size: 12.5px; font-weight: 600;
+    box-shadow: 0 6px 26px rgba(0,0,0,.45); white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #geo.show { display: flex; }
+  #geo.bad { background: rgba(61,48,15,.95); border-color: #8c6b20; color: #ffdf9e; }
+  #geo b { font-family: var(--mono); font-weight: 400; color: #7ee2d2; }
+  #geo.bad b { color: #ffdf9e; }
+
+  /* A 10in panel is 1024x600, and at that width the camera row and the link
+     pill both want the bottom of the screen. Lift the pill above the row --
+     measured, not guessed: the buttons occupy the bottom 56 px. */
+  @media (max-width: 1120px) {
+    #link { bottom: 66px; }
+    .cam { padding: 10px 12px; font-size: 12px; }
+    #state, #pallets { width: 216px; }
+    #safety { width: 200px; }
+  }
+
+  #boot {
+    position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
+    background: var(--bg); color: var(--dim); font-size: 14px; flex-direction: column; gap: 12px;
+  }
+  #boot.err { color: #ff8d92; }
+  #boot code { font-family: var(--mono); font-size: 12px; color: var(--dim); max-width: 70ch; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="boot">Loading cell model…</div>
+
+<div id="qualitybanner"><span>&#9679;</span><span id="qualitytext"></span></div>
+<div id="faultbanner"><span>&#9888;</span><span id="faulttext"></span></div>
+
+<div class="hud card" id="state">
+  <div class="card-h">Palletising cell <span id="statepill" class="pill idle" style="margin-left:auto">—</span></div>
+  <div class="card-b">
+    <div class="row"><span class="k">Robot</span><span class="v" id="v-robot">—</span></div>
+    <div class="row"><span class="k">Cases placed</span><span class="v acc big" id="v-cases">—</span></div>
+    <div class="row"><span class="k">Rate</span><span class="v" id="v-cpm">—</span></div>
+    <div class="row"><span class="k">Cycle</span><span class="v" id="v-cycle">—</span></div>
+    <div class="row"><span class="k">Lift</span><span class="v" id="v-lift">—</span></div>
+    <div class="row"><span class="k">Vacuum</span><span class="v" id="v-vac">—</span></div>
+    <div class="row"><span class="k">Pattern</span><span class="v" id="v-pattern">—</span></div>
+    <div class="row"><span class="k">Reach</span><span class="v" id="v-reach">—</span></div>
+  </div>
+</div>
+
+<div class="hud card" id="safety">
+  <div class="card-h">Safety &amp; interlocks</div>
+  <div class="card-b" id="safety-b">
+    <div class="sig"><span class="led" id="l-estop"></span>Emergency stops</div>
+    <div class="sig"><span class="led" id="l-guards"></span>Guards closed</div>
+    <div class="sig"><span class="led" id="l-air"></span>Air supply</div>
+    <div class="sig"><span class="led" id="l-int"></span>Interfaces</div>
+  </div>
+</div>
+
+<div class="hud card" id="pallets">
+  <div class="card-h">Pallet build</div>
+  <div class="card-b" id="pallets-b"></div>
+</div>
+
+<div class="hud" id="cams"></div>
+<div id="geo"></div>
+<div id="wm"><b>Ignition WebDev</b><span class="sep">·</span>three.js<span class="sep">·</span>not a Perspective component</div>
+<div id="link"><span class="led" id="l-link"></span><span id="linktext">connecting…</span></div>
+
+<script src="lib?f=three"></script>
+<script>
+(function () {
+  "use strict";
+
+  var boot = document.getElementById("boot");
+  function die(msg, detail) {
+    boot.className = "err";
+    boot.innerHTML = "<div>" + msg + "</div><code>" + (detail || "") + "</code>";
+  }
+  if (!window.THREE) {
+    die("3D library did not load.",
+        "Expected it at &hellip;/system/webdev/Machine_HMI_Demo/lib?f=three — check the WebDev resource is deployed and scanned.");
+    return;
+  }
+
+  // ----------------------------------------------------------------------
+  // URL params. ?camera= picks the starting preset by slug; ?hud=0 hides the
+  // overlay cards and the camera row (an embedded Perspective panel wants the
+  // model, not the chrome) while leaving the 3D-anchored labels and the fault
+  // pulse on the model itself untouched. ?theme= picks the colour set (below).
+  // Unknown values fall back silently.
+  // ----------------------------------------------------------------------
+  var urlParams = new URLSearchParams(window.location.search);
+  // The cell is built from the SCENE DOCUMENT - the parts list held in
+  // Machine/Scene's custom properties - because that is the thing a machine
+  // builder can edit in the Designer without touching this file. ?scene=code
+  // selects the hand-written JavaScript build instead; it exists so
+  // tools/verify/scene_parity.js can prove the two produce the same cell, and
+  // as the fallback if the document ever fails to build.
+  var SCENE_DOC = urlParams.get("scene") !== "code";
+  var SCENE_DOCUMENT = null;
+  var CAMERA_SLUGS = {
+    overview: "Overview", robot: "Robot", pallet1: "Pallet 1",
+    pallet2: "Pallet 2", infeed: "Infeed", top: "Top"
+  };
+  var startCameraName = CAMERA_SLUGS[(urlParams.get("camera") || "").toLowerCase()] || "Overview";
+  var hudOn = urlParams.get("hud") !== "0";
+  // Same shape as hud: present unless explicitly turned off.
+  if (urlParams.get("watermark") === "0") {
+    var wm = document.getElementById("wm");
+    if (wm) wm.style.display = "none";
+  }
+  // Every HUD card and the camera row carry class "hud" (the fault banner,
+  // the link pill and the 3D-anchored labels deliberately do not), so hiding
+  // that one class is exactly "the overlay cards and the camera buttons" -
+  // nothing else moves.
+  document.documentElement.classList.toggle("hud-off", !hudOn);
+
+  // ----------------------------------------------------------------------
+  // ?theme= - the Perspective session's theme name (Cell3D's view binds it
+  // to {session.props.theme}; an embedder can override it). Six named sets
+  // tuned for Ignition's stock themes; anything else is one of this estate's
+  // ten custom gateway themes, and degrades by PREFIX - "light..." gets the
+  // light set, everything else the dark set - rather than breaking. Applied
+  // as inline styles on :root, which is the only thing that outranks the
+  // static :root block above without touching it.
+  // ----------------------------------------------------------------------
+  var THEME_DARK = {
+    bg: "#171b20", panel: "rgba(29,35,42,.92)", line: "#2c343d",
+    ink: "#dde4e9", dim: "#8b98a3", run: "#46d07c", fault: "#f0565e",
+    warn: "#eebf5e", info: "#6cc4e8", scheme: "dark"
+  };
+  var THEME_LIGHT = {
+    bg: "#eef1f4", panel: "rgba(255,255,255,.92)", line: "#c7cfd6",
+    ink: "#1c232a", dim: "#5b6b78", run: "#1f8a4c", fault: "#c93341",
+    warn: "#9c6b00", info: "#0f7aa8", scheme: "light"
+  };
+  var THEME_SETS = {
+    "dark": THEME_DARK,
+    "dark-cool": {
+      bg: "#141a22", panel: "rgba(23,31,41,.92)", line: "#263140",
+      ink: "#dbe6ee", dim: "#8796a5", run: "#3ecf8e", fault: "#f15b6c",
+      warn: "#e8b95c", info: "#5cc8f0", scheme: "dark"
+    },
+    "dark-warm": {
+      bg: "#201a16", panel: "rgba(39,32,26,.92)", line: "#3a2e24",
+      ink: "#efe6dd", dim: "#a89584", run: "#5ecf7a", fault: "#f2725c",
+      warn: "#f0b24e", info: "#e8935c", scheme: "dark"
+    },
+    "light": THEME_LIGHT,
+    "light-cool": {
+      bg: "#eaf1f6", panel: "rgba(255,255,255,.94)", line: "#c1d2dc",
+      ink: "#152530", dim: "#4f6672", run: "#1a8f60", fault: "#c9394a",
+      warn: "#93600b", info: "#0d76aa", scheme: "light"
+    },
+    "light-warm": {
+      bg: "#f6f1e9", panel: "rgba(255,255,255,.94)", line: "#ddd0bd",
+      ink: "#2b2118", dim: "#75695a", run: "#3f7a2f", fault: "#b8422f",
+      warn: "#8a5a00", info: "#8a5210", scheme: "light"
+    }
+  };
+  function resolveTheme(name) {
+    var key = (name || "dark-cool").toLowerCase();
+    if (THEME_SETS[key]) return THEME_SETS[key];
+    return key.indexOf("light") === 0 ? THEME_LIGHT : THEME_DARK;
+  }
+  var THEME = resolveTheme(urlParams.get("theme"));
+  (function applyTheme(t) {
+    var root = document.documentElement.style;
+    root.setProperty("--bg", t.bg);
+    root.setProperty("--panel", t.panel);
+    root.setProperty("--line", t.line);
+    root.setProperty("--ink", t.ink);
+    root.setProperty("--dim", t.dim);
+    root.setProperty("--run", t.run);
+    root.setProperty("--fault", t.fault);
+    root.setProperty("--warn", t.warn);
+    root.setProperty("--info", t.info);
+    // Sets the actual color-scheme property (not a custom property) so it
+    // beats the static :root rule the same way the vars above do - without
+    // this, Chrome's auto-dark-mode repaints canvas/SVG content on a light
+    // theme even though every one of the vars above reads correctly; see
+    // knowledge/reference-chrome-auto-dark-svg.md.
+    root.setProperty("color-scheme", t.scheme);
+  })(THEME);
+
+  // ----------------------------------------------------------------------
+  // Cell geometry. [MachineDemo]Config/* through ?cmd=state, in millimetres;
+  // converted to metres here because every measurement below this point is in
+  // metres. Read at load to build the cell, and again on EVERY poll: when the
+  // config block changes - somebody wrote a Config tag - buildCell() below
+  // tears the geometry down and rebuilds it from the new numbers, inside the
+  // 250 ms poll. The simulator reads the same tags on its own tick, so the arm
+  // is placing to the new pattern by the time the picture shows it.
+  //
+  // A tag that is missing - or the whole fetch failing - falls back to the
+  // defaults from MachineDemo.plant.GEOMETRY: the page must never see a hole,
+  // and must never be a blank screen just because the fetch raced the gateway.
+  // ----------------------------------------------------------------------
+  function metricsFromConfig(cfg) {
+    cfg = cfg || {};
+    function n(key, def) {
+      var v = cfg[key];
+      return (typeof v === "number" && isFinite(v)) ? v : def;
+    }
+    var m = {
+      caseW: n("caseW_mm", 300) / 1000, caseD: n("caseD_mm", 250) / 1000, caseH: n("caseH_mm", 220) / 1000,
+      palletW: n("palletW_mm", 1200) / 1000, palletD: n("palletD_mm", 1000) / 1000, palletH: n("palletH_mm", 140) / 1000,
+      perLayer: n("casesPerLayer", 12), layers: n("layers", 5),
+      convY: n("convHeight_mm", 900) / 1000, convLen: n("convLength_mm", 3300) / 1000, convW: n("convWidth_mm", 620) / 1000,
+      // Whether the arm can reach every placement of the pattern on these
+      // stations is the simulator's call, not this page's: it solves each
+      // one and publishes the answer in the state's `geometry.reach` block,
+      // which the HUD shows. The defaults here are known to solve.
+      st1: { x: n("station1X_mm", -1300) / 1000, z: n("station1Z_mm", -1500) / 1000 },
+      st2: { x: n("station2X_mm", -1300) / 1000, z: n("station2Z_mm", 1500) / 1000 }
+    };
+    m.perPallet = m.perLayer * m.layers;
+    return m;
+  }
+
+  // Everything from here down used to run top-to-bottom at load. It is now
+  // main(), called once the starting geometry is known (fetched, or the
+  // built-in defaults if the fetch failed), so the scene is only ever built
+  // once and never against a hole.
+  function main(config, initialState) {
+  var M = metricsFromConfig(config);
+
+  var COL = {
+    steel: 0x8d99a3, steelDark: 0x59636d, floor: 0x272e35,
+    grid: 0x39434c, fence: 0x6d7982, glass: 0x6cc4e8,
+    caseA: 0xc08a4a, caseB: 0xa9773d, pallet: 0x8a6a3a,
+    run: 0x46d07c, fault: 0xf0565e, warn: 0xeebf5e, info: 0x6cc4e8
+  };
+
+  // ----------------------------------------------------------------------
+  // Renderer, scene, camera
+  // ----------------------------------------------------------------------
+  var renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.body.appendChild(renderer.domElement);
+
+  var scene = new THREE.Scene();
+  // The wall behind the machine follows the theme's background - a light
+  // theme's HUD cards floating over the old dark fog looked like a bug, not
+  // a choice. The machine's own materials (steel, floor, cases) do not
+  // follow the theme: they are the physical colours of the equipment, not
+  // page chrome.
+  scene.background = new THREE.Color(THEME.bg);
+  scene.fog = new THREE.Fog(THEME.bg, 14, 30);
+
+  var camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 200);
+
+  scene.add(new THREE.HemisphereLight(0xbcd2e2, 0x2c343c, 1.15));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.28));
+  var key = new THREE.DirectionalLight(0xffffff, 1.35);
+  key.position.set(5.5, 8.5, 4.5);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.camera.near = 1; key.shadow.camera.far = 30;
+  key.shadow.camera.left = -9; key.shadow.camera.right = 9;
+  key.shadow.camera.top = 9;   key.shadow.camera.bottom = -9;
+  key.shadow.bias = -0.0012;
+  scene.add(key);
+  var fill = new THREE.DirectionalLight(0x8fb4d0, 0.35);
+  fill.position.set(-6, 4, -5);
+  scene.add(fill);
+
+  // ----------------------------------------------------------------------
+  // Helpers
+  // ----------------------------------------------------------------------
+  function mat(color, opts) {
+    opts = opts || {};
+    return new THREE.MeshStandardMaterial({
+      color: color,
+      metalness: opts.metalness !== undefined ? opts.metalness : 0.55,
+      roughness: opts.roughness !== undefined ? opts.roughness : 0.55,
+      transparent: !!opts.opacity,
+      opacity: opts.opacity !== undefined ? opts.opacity : 1
+    });
+  }
+  function box(w, h, d, material, x, y, z) {
+    var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+    m.position.set(x || 0, y || 0, z || 0);
+    m.castShadow = true; m.receiveShadow = true;
+    return m;
+  }
+  function cyl(rt, rb, h, material, seg) {
+    var m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg || 20), material);
+    m.castShadow = true; m.receiveShadow = true;
+    return m;
+  }
+
+  // ----------------------------------------------------------------------
+  // Floor and cell fence
+  // ----------------------------------------------------------------------
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(30, 24),
+    new THREE.MeshStandardMaterial({ color: COL.floor, roughness: 0.95, metalness: 0.05 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  if (!SCENE_DOC) scene.add(floor);   // the document owns the floor in that mode
+
+  var grid = new THREE.GridHelper(30, 30, COL.grid, COL.grid);
+  grid.position.y = 0.004;
+  grid.material.opacity = 0.5; grid.material.transparent = true;
+  scene.add(grid);
+
+  // Safety fence: posts plus mesh panels. It is what makes the model read as
+  // a machine cell at a glance rather than as loose equipment on a floor.
+  var fence = new THREE.Group(); fence.name = "Guarding";
+  var fenceMat = mat(COL.fence, { roughness: 0.7 });
+  var panelMat = new THREE.MeshStandardMaterial({
+    color: 0x9fb6c8, transparent: true, opacity: 0.09,
+    roughness: 0.35, metalness: 0.1, side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  function fenceRun(x1, z1, x2, z2) {
+    var dx = x2 - x1, dz = z2 - z1;
+    var len = Math.sqrt(dx * dx + dz * dz);
+    var g = new THREE.Group();
+    g.position.set(x1, 0, z1);
+    g.rotation.y = -Math.atan2(dz, dx);
+    var panel = box(len, 1.85, 0.03, panelMat, len / 2, 1.0, 0);
+    panel.castShadow = false;
+    g.add(panel);
+    var n = Math.max(2, Math.round(len / 1.5));
+    for (var i = 0; i <= n; i++) {
+      var p = cyl(0.035, 0.035, 2.0, fenceMat, 10);
+      p.position.set(len * i / n, 1.0, 0);
+      g.add(p);
+    }
+    var rail = box(len, 0.05, 0.05, fenceMat, len / 2, 1.95, 0);
+    g.add(rail);
+    return g;
+  }
+  // A tight cell, sized to the equipment inside it. The east side is left open
+  // where the infeed conveyor passes through, which is what the guarding on a
+  // real cell does.
+  var FX0 = -3.1, FX1 = 2.6, FZ0 = -2.75, FZ1 = 2.75;
+  fence.add(fenceRun(FX0, FZ0, FX1, FZ0));
+  fence.add(fenceRun(FX0, FZ1, FX0, FZ0));
+  fence.add(fenceRun(FX1, FZ0, FX1, FZ1));
+  fence.add(fenceRun(FX0, FZ1, 1.15, FZ1));
+  fence.add(fenceRun(2.15, FZ1, FX1, FZ1));
+  if (!SCENE_DOC) scene.add(fence);   // the document owns the guarding in that mode
+
+  // ----------------------------------------------------------------------
+  // The robot. Joint convention is the one frozen in the build contract:
+  //   j1 base about Y, lift raises the carriage, j2 shoulder about Z,
+  //   j3 elbow about Z, j4 wrist about Y.
+  // Each joint is its own Group so the tag value sets exactly one rotation.
+  // ----------------------------------------------------------------------
+  var robot = new THREE.Group(); robot.name = "Robot";
+  var armMat = mat(0xe8a33d, { metalness: 0.35, roughness: 0.5 });   // machine yellow
+  var armDark = mat(0x30383f, { metalness: 0.6, roughness: 0.45 });
+
+  var pedestal = cyl(0.42, 0.50, 0.30, armDark, 28);
+  pedestal.position.y = 0.15;
+  robot.add(pedestal);
+
+  var baseYaw = new THREE.Group(); baseYaw.name = "Base";           // j1
+  baseYaw.position.y = 0.30;
+  robot.add(baseYaw);
+
+  var columnMat = mat(0x4d5761, { metalness: 0.55, roughness: 0.5 });
+  var column = box(0.30, 2.35, 0.30, columnMat, 0, 1.175, 0);
+  baseYaw.add(column);
+  var colCapMat = mat(COL.steel, { metalness: 0.8, roughness: 0.3 });
+  for (var cg = -1; cg <= 1; cg += 2) {
+    var guide = cyl(0.022, 0.022, 2.25, colCapMat, 10);
+    guide.position.set(cg * 0.18, 1.175, 0.09);
+    baseYaw.add(guide);
+  }
+
+  var carriage = new THREE.Group(); carriage.name = "Carriage";          // lift
+  baseYaw.add(carriage);
+  carriage.add(box(0.46, 0.34, 0.46, armMat, 0, 0, 0));
+
+  var shoulder = new THREE.Group(); shoulder.name = "Shoulder";          // j2
+  shoulder.position.set(0.0, 0.0, 0.0);
+  carriage.add(shoulder);
+
+  var UPPER = 1.35, FORE = 1.15;
+  var upperArm = box(UPPER, 0.24, 0.26, armMat, UPPER / 2, 0, 0);
+  shoulder.add(upperArm);
+  var shoulderHub = cyl(0.15, 0.15, 0.30, armDark, 18);
+  shoulderHub.rotation.x = Math.PI / 2;
+  shoulder.add(shoulderHub);
+
+  var elbow = new THREE.Group(); elbow.name = "Elbow";             // j3
+  elbow.position.set(UPPER, 0, 0);
+  shoulder.add(elbow);
+  var elbowHub = cyl(0.12, 0.12, 0.28, armDark, 18);
+  elbowHub.rotation.x = Math.PI / 2;
+  elbow.add(elbowHub);
+  var foreArm = box(FORE, 0.19, 0.21, armMat, FORE / 2, 0, 0);
+  elbow.add(foreArm);
+
+  var wrist = new THREE.Group(); wrist.name = "Wrist";             // j4
+  wrist.position.set(FORE, 0, 0);
+  elbow.add(wrist);
+  wrist.add(cyl(0.10, 0.10, 0.16, armDark, 16));
+
+  // Vacuum gripper head: a plate of suction cups, which is what a case
+  // palletiser actually carries.
+  var gripper = new THREE.Group(); gripper.name = "Gripper";
+  gripper.position.y = -0.14;
+  wrist.add(gripper);
+  robot.position.set(0, 0, 0);
+  if (!SCENE_DOC) scene.add(robot);   // the document owns the robot in that mode
+
+  // ----------------------------------------------------------------------
+  // Everything whose SIZE or PLACE is a Config tag: the infeed conveyor and
+  // what rides on it, the two pallet stations and their cases, the gripper
+  // head (sized to the case), and the fault highlights that point at them.
+  // Built once here and rebuilt by rebuildCell() whenever the polled config
+  // changes. The robot arm above is not in here - its links are the arm, not
+  // the job, and they do not move with the tags.
+  // ----------------------------------------------------------------------
+  var infeed, conveyor, convX0, convX1, rollers, photoEyes, infeedCases;
+  var GRID, stations, cups, heldCases, highlights;
+  // The infeed is an ACCUMULATION conveyor: cartons run up to the pick point,
+  // stop, and back up behind each other until the robot takes a set.
+  //
+  // infeedCases is the POOL of meshes; infeedQueue is the ordered line
+  // standing on the belt, index 0 at the stop line. The distinction is the
+  // whole behaviour - see the note in applyState.
+  var infeedQueue = [], infeedStopX = 0, infeedPitch = 0.3;
+
+  function disposeObject(o) {
+    if (o.parent) o.parent.remove(o);
+    o.traverse(function (m) {
+      if (m.isMesh && m.geometry) m.geometry.dispose();
+    });
+  }
+
+  // The carton, and the pallet stack it goes into, are the two things the
+  // scene document deliberately does not describe: the stack's interlocked
+  // layer pattern is an algorithm the simulator owns a copy of, and a JSON
+  // dialect that could express it would have become a bad programming
+  // language. They live here, at main() scope, so BOTH the hand-built path and
+  // the scene-document path use exactly this one implementation.
+  var caseMatA = mat(COL.caseA, { metalness: 0.05, roughness: 0.85 });
+  var caseMatB = mat(COL.caseB, { metalness: 0.05, roughness: 0.85 });
+  function makeCase(alt) {
+    var g = new THREE.Group();
+    var body = box(M.caseW, M.caseH, M.caseD, alt ? caseMatB : caseMatA, 0, 0, 0);
+    g.add(body);
+    // A seam line so a stack of cases does not read as one solid block.
+    var seam = box(M.caseW + 0.004, 0.006, M.caseD * 0.02, mat(0x6b4a22, { metalness: 0, roughness: 1 }), 0, 0, M.caseD / 2);
+    seam.castShadow = false;
+    g.add(seam);
+    return g;
+  }
+
+  // rows x cols for one layer, derived from CasesPerLayer as the factor pair
+  // closest to square. The gateway publishes the same answer in the state's
+  // geometry block, which is what the scene document reads rather than working
+  // it out again and getting a chance to disagree.
+  GRID = (function () {
+    var count = M.perLayer;
+    if (!(count > 0)) {
+      console.warn("cell3d: CasesPerLayer (" + count + ") is not a positive number - falling back to the 4x3 layout");
+      return { rows: 3, cols: 4 };
+    }
+    var a = 1;
+    for (var d = 1; d * d <= count; d++) {
+      if (count % d === 0) a = d;
+    }
+    return { rows: a, cols: count / a };
+  })();
+
+  function layerLayout(layerIndex) {
+    // Alternating case orientation on the same grid, layer to layer: a real
+    // interlocked pattern, and visibly different layer to layer on the model.
+    var rot = layerIndex % 2 === 1;
+    var cw = rot ? M.caseD : M.caseW;
+    var cd = rot ? M.caseW : M.caseD;
+    var cols = GRID.cols;
+    var rows = GRID.rows;
+    var spanX = cols * cw, spanZ = rows * cd;
+    var out = [];
+    // Column by column - the ORDER the cases appear is the order the arm
+    // places them, and a pick is one column (`rows` cases in a line), so the
+    // simulator's slot k is exactly cases k*rows .. k*rows+rows-1 here. The
+    // simulator's _layout() is this loop in Jython; change one, change both.
+    for (var q = 0; q < cols; q++) {
+      for (var r = 0; r < rows; r++) {
+        var inset = 0.94;
+        out.push({
+          x: (-spanX / 2 + cw * (q + 0.5)) * inset,
+          z: (-spanZ / 2 + cd * (r + 0.5)) * inset,
+          rot: rot ? Math.PI / 2 : 0
+        });
+      }
+    }
+    return out;
+  }
+
+  // The stack that sits on a pallet station: `layers` interlocked layers,
+  // built hidden and revealed as the count moves. Called by both build paths
+  // against whichever group is the station - the hand-built one, or the one
+  // the scene document made.
+  function addPalletStacks(g) {
+    var cases = [];
+    for (var L = 0; L < M.layers; L++) {
+      var lay = layerLayout(L);
+      for (var n = 0; n < lay.length; n++) {
+        var cm = makeCase((L + n) % 2 === 1);
+        cm.position.set(lay[n].x, M.palletH + M.caseH * (L + 0.5) + 0.02, lay[n].z);
+        cm.rotation.y = lay[n].rot;
+        cm.visible = false;
+        g.add(cm);
+        cases.push(cm);
+      }
+    }
+    return cases;
+  }
+
+  // ----------------------------------------------------------------------
+  // The scene document renderer (Option A).
+  //
+  // Identical to src/cell3d/scene-render.js, which is where it is developed and
+  // where tools/verify/scene_parity.js tests it against this page. It is copied
+  // in rather than fetched because this page has to render on a gateway with no
+  // internet and one fewer request at load is one fewer thing to fail.
+  //
+  // Reached only with ?scene=document. Off, none of it runs.
+  // ----------------------------------------------------------------------
+  var OPS = {
+    "+": function (a) { return a.reduce(function (x, y) { return x + y; }, 0); },
+    "*": function (a) { return a.reduce(function (x, y) { return x * y; }, 1); },
+    "-": function (a) { return a.length === 1 ? -a[0] : a.slice(1).reduce(function (x, y) { return x - y; }, a[0]); },
+    "/": function (a) { return a.slice(1).reduce(function (x, y) { return x / y; }, a[0]); },
+    "neg": function (a) { return -a[0]; },
+    "abs": function (a) { return Math.abs(a[0]); },
+    "min": function (a) { return Math.min.apply(Math, a); },
+    "max": function (a) { return Math.max.apply(Math, a); },
+    "floor": function (a) { return Math.floor(a[0]); },
+    "ceil": function (a) { return Math.ceil(a[0]); },
+    "round": function (a) { return Math.round(a[0]); },
+    "sqrt": function (a) { return Math.sqrt(a[0]); },
+    "atan2": function (a) { return Math.atan2(a[0], a[1]); },
+    "mod": function (a) { return ((a[0] % a[1]) + a[1]) % a[1]; },
+    "hypot": function (a) { return Math.sqrt(a.reduce(function (s, v) { return s + v * v; }, 0)); }
+  };
+
+  function SceneError(msg) {
+    var e = new Error("scene: " + msg);
+    e.name = "SceneError";
+    return e;
+  }
+
+  // A name resolves against the scope chain, then consts, then config. A
+  // config path ending _mm is millimetres and the page works in metres, so it
+  // is divided here rather than in every part that mentions one.
+  function lookup(name, ctx) {
+    var dot = name.indexOf(".");
+    if (dot > 0) {
+      var row = lookup(name.slice(0, dot), ctx);
+      var field = name.slice(dot + 1);
+      if (row === null || typeof row !== "object" || !(field in row)) {
+        throw SceneError('"' + name + '" - no field "' + field + '" on that row');
+      }
+      // A row's fields may themselves be expressions, evaluated in the scope
+      // the repeat runs in - so a table of photo-eye positions can be written
+      // as distances back from the end of a conveyor whose length is a tag.
+      var val = row[field];
+      return typeof val === "number" ? val : evaluate(val, ctx);
+    }
+    for (var i = ctx.scope.length - 1; i >= 0; i--) {
+      if (Object.prototype.hasOwnProperty.call(ctx.scope[i], name)) return ctx.scope[i][name];
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.consts, name)) return ctx.consts[name];
+    if (name.indexOf("Config/") === 0) return fromBag(name, name.slice(7), ctx.config, "config");
+    // Values the gateway DERIVES and publishes, rather than raw config: the
+    // pallet pattern's rows and columns come from an algorithm the simulator
+    // owns, so the document reads the answer instead of recomputing it and
+    // getting a different one.
+    if (name.indexOf("Geometry/") === 0) return fromBag(name, name.slice(9), ctx.geometry, "geometry");
+    throw SceneError('"' + name + '" is not a const, a loop variable, or a Config/ or Geometry/ path');
+  }
+
+  function fromBag(name, key, bag, what) {
+    if (!Object.prototype.hasOwnProperty.call(bag, key)) {
+      throw SceneError('"' + name + '" - not in the ' + what);
+    }
+    var v = bag[key];
+    // Every dimension in this project is named in millimetres and the page
+    // works in metres, so the conversion lives here rather than in every part.
+    return /_mm$/.test(key) ? v / 1000 : v;
+  }
+
+  function evaluate(node, ctx) {
+    if (typeof node === "number") return node;
+    if (typeof node === "string") {
+      var v = lookup(node, ctx);
+      if (typeof v !== "number") throw SceneError('"' + node + '" is not a number');
+      return v;
+    }
+    if (Array.isArray(node)) {
+      var op = OPS[node[0]];
+      if (!op) throw SceneError('unknown operator "' + node[0] + '"');
+      var args = [];
+      for (var i = 1; i < node.length; i++) args.push(evaluate(node[i], ctx));
+      return op(args);
+    }
+    throw SceneError("cannot evaluate " + JSON.stringify(node));
+  }
+
+  function vec(node, ctx, len, what) {
+    if (!Array.isArray(node)) throw SceneError(what + " must be an array of " + len);
+    if (node.length !== len) throw SceneError(what + " needs " + len + " values, got " + node.length);
+    return node.map(function (n) { return evaluate(n, ctx); });
+  }
+
+  // --------------------------------------------------------------------
+  // Materials
+  // --------------------------------------------------------------------
+  function buildMaterials(defs, THREE) {
+    var out = {};
+    Object.keys(defs || {}).forEach(function (name) {
+      var d = defs[name];
+      var opts = {
+        color: typeof d.color === "string" ? parseInt(d.color, 16) : d.color,
+        metalness: d.metalness !== undefined ? d.metalness : 0.55,
+        roughness: d.roughness !== undefined ? d.roughness : 0.55
+      };
+      if (d.opacity !== undefined) { opts.transparent = true; opts.opacity = d.opacity; }
+      if (d.side === "double") opts.side = THREE.DoubleSide;
+      if (d.depthWrite === false) opts.depthWrite = false;
+      out[name] = d.basic ? new THREE.MeshBasicMaterial(opts)
+                          : new THREE.MeshStandardMaterial(opts);
+    });
+    return out;
+  }
+
+  // --------------------------------------------------------------------
+  // Parts
+  // --------------------------------------------------------------------
+  function makeObject(part, ctx, THREE) {
+    var mat = null;
+    if (part.material) {
+      // A material may be named outright, or chosen from a list by an
+      // expression - which is how cartons alternate colour down a stack. That
+      // is an index into data, not a branch: there is still no `if` here.
+      var wanted = part.material;
+      if (typeof wanted === "object") {
+        var idx = evaluate(wanted.index, ctx);
+        if (!(idx >= 0 && idx < wanted.oneOf.length)) {
+          throw SceneError('part "' + part.name + '" picked material ' + idx + ' of ' + wanted.oneOf.length);
+        }
+        wanted = wanted.oneOf[idx];
+      }
+      mat = ctx.materials[wanted];
+      if (!mat) throw SceneError('part "' + part.name + '" wants material "' + wanted + '", which is not defined');
+      // Materials are shared by name, which is what you want for sixty
+      // identical cartons and exactly what you do not want for six photo-eye
+      // beams: each beam's colour is its own tag, and one shared material
+      // would turn them all red together. `ownMaterial` gives each instance
+      // its own copy - the same reason the page clones materials before it
+      // highlights a faulted group.
+      if (part.ownMaterial) mat = mat.clone();
+    }
+    var o;
+    switch (part.type) {
+      case "group":
+        o = new THREE.Group();
+        break;
+      case "box":
+        var s = vec(part.size, ctx, 3, '"' + part.name + '".size');
+        o = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1], s[2]), mat);
+        break;
+      case "plane":
+        var p = vec(part.size, ctx, 2, '"' + part.name + '".size');
+        o = new THREE.Mesh(new THREE.PlaneGeometry(p[0], p[1]), mat);
+        break;
+      case "cylinder":
+        o = new THREE.Mesh(new THREE.CylinderGeometry(
+          evaluate(part.radiusTop, ctx), evaluate(part.radiusBottom, ctx),
+          evaluate(part.height, ctx), part.segments || 20), mat);
+        break;
+      default:
+        throw SceneError('part "' + part.name + '" has unknown type "' + part.type + '"');
+    }
+
+    if (part.at) { var a = vec(part.at, ctx, 3, '"' + part.name + '".at'); o.position.set(a[0], a[1], a[2]); }
+    if (part.rotate) { var r = vec(part.rotate, ctx, 3, '"' + part.name + '".rotate'); o.rotation.set(r[0], r[1], r[2]); }
+    if (part.visible === false) o.visible = false;
+
+    if (o.isMesh) {
+      var sh = part.shadow || {};
+      o.castShadow = sh.cast !== false;
+      o.receiveShadow = sh.receive !== false;
+    }
+    return o;
+  }
+
+  // How many times a part runs, and what each iteration binds.
+  //
+  // `repeat` may be an array, innermost last, which produces the cartesian
+  // product of the bindings - a pallet's rows by columns, or a conveyor's leg
+  // positions by side. Nesting groups to get the same effect would put phantom
+  // transforms in the tree that the machine does not have.
+  function iterations(part, ctx) {
+    var rep = part.repeat;
+    if (!rep) return [null];
+    if (Array.isArray(rep)) {
+      var acc = [{}];
+      for (var r = 0; r < rep.length; r++) {
+        var next = [];
+        for (var a = 0; a < acc.length; a++) {
+          // Outer bindings must be visible while an inner count is evaluated.
+          ctx.scope.push(acc[a]);
+          var inner = oneRepeat(rep[r], part, ctx);
+          ctx.scope.pop();
+          for (var b = 0; b < inner.length; b++) {
+            var merged = {};
+            Object.keys(acc[a]).forEach(function (k) { merged[k] = acc[a][k]; });
+            Object.keys(inner[b]).forEach(function (k) { merged[k] = inner[b][k]; });
+            next.push(merged);
+          }
+        }
+        acc = next;
+      }
+      return acc;
+    }
+    return oneRepeat(rep, part, ctx);
+  }
+
+  function oneRepeat(rep, part, ctx) {
+    if (rep.over) {
+      var rows = ctx.data[rep.over];
+      if (!Array.isArray(rows)) throw SceneError('part "' + part.name + '" repeats over "' + rep.over + '", which is not a table in `data`');
+      return rows.map(function (row, i) { var b = {}; b[rep.as] = row; b[rep.as + "_i"] = i; return b; });
+    }
+    var n = evaluate(rep.count, ctx);
+    if (!(n >= 0) || Math.floor(n) !== n) throw SceneError('part "' + part.name + '" repeat count is ' + n + ', which is not a whole number >= 0');
+    var out = [];
+    for (var i = 0; i < n; i++) { var bind = {}; bind[rep.as] = i; out.push(bind); }
+    return out;
+  }
+
+  function buildPart(part, parentObj, ctx, THREE, sink) {
+    var reps = iterations(part, ctx);
+    for (var k = 0; k < reps.length; k++) {
+      ctx.scope.push(reps[k] || {});
+
+      // `let` names are evaluated in order, each visible to the next.
+      var lets = {};
+      if (part["let"]) {
+        ctx.scope.push(lets);
+        Object.keys(part["let"]).forEach(function (name) {
+          lets[name] = evaluate(part["let"][name], ctx);
+        });
+      }
+
+      var obj;
+      try {
+        obj = makeObject(part, ctx, THREE);
+      } catch (e) {
+        if (e.name === "SceneError") throw SceneError('in part "' + part.name + '": ' + e.message.replace(/^scene: /, ""));
+        throw e;
+      }
+      // A repeated part is normally name.0, name.1 ... but a row may carry the
+      // name it should have. The two pallet stations are Station1 and Station2
+      // everywhere else in this project - in the tags, in the state route and
+      // in the simulator - and a scene document that called them Station.0 and
+      // Station.1 would have renamed the machine to suit the renderer.
+      var repSpec = Array.isArray(part.repeat) ? null : part.repeat;
+      var explicit = null;
+      if (repSpec && repSpec.nameFrom && reps[k]) {
+        var row = reps[k][repSpec.as];
+        if (row === null || typeof row !== "object" || !(repSpec.nameFrom in row)) {
+          throw SceneError('part "' + part.name + '" names instances from "' + repSpec.nameFrom + '", which that row does not have');
+        }
+        explicit = String(row[repSpec.nameFrom]);
+      }
+      obj.name = explicit || (reps[k] ? part.name + "." + k : part.name);
+
+      if (part.joint) {
+        var j = part.joint;
+        obj.userData.joint = {
+          kind: j.kind === "translate" ? "translate" : "rotate",
+          axis: j.axis, tag: j.tag,
+          unit: j.unit || (j.kind === "translate" ? "mm" : "deg")
+        };
+        sink.joints.push({ name: obj.name, object: obj, joint: obj.userData.joint });
+      }
+
+      parentObj.add(obj);
+      sink.byName[obj.name] = obj;
+
+      // Children repeat with their parent, seeing its loop variable and lets.
+      var kids = ctx.childrenOf[part.name] || [];
+      for (var c = 0; c < kids.length; c++) buildPart(kids[c], obj, ctx, THREE, sink);
+
+      if (part["let"]) ctx.scope.pop();
+      ctx.scope.pop();
+    }
+  }
+
+  // --------------------------------------------------------------------
+  // Entry point
+  // --------------------------------------------------------------------
+  // doc     - the scene document
+  // config  - the flat config bag the page already builds from Config tags
+  // geometry- the derived block the gateway publishes (pattern rows/cols etc.)
+  // THREE   - the three.js namespace
+  // returns { root, byName, joints, materials }
+  function buildScene(doc, config, THREE, geometry) {
+    if (!doc || !Array.isArray(doc.parts)) throw SceneError("document has no `parts` array");
+
+    var ctx = {
+      consts: doc.consts || {},
+      data: doc.data || {},
+      config: config || {},
+      geometry: geometry || {},
+      materials: buildMaterials(doc.materials, THREE),
+      scope: [],
+      childrenOf: {}
+    };
+
+    var seen = {};
+    doc.parts.forEach(function (p) {
+      if (!p.name) throw SceneError("every part needs a name");
+      if (seen[p.name]) throw SceneError('two parts are called "' + p.name + '"');
+      seen[p.name] = true;
+    });
+    doc.parts.forEach(function (p) {
+      if (!p.parent) return;
+      if (!seen[p.parent]) throw SceneError('part "' + p.name + '" names parent "' + p.parent + '", which does not exist');
+      (ctx.childrenOf[p.parent] = ctx.childrenOf[p.parent] || []).push(p);
+    });
+
+    var root = new THREE.Group();
+    root.name = "SceneRoot";
+    var sink = { byName: {}, joints: [] };
+    doc.parts.filter(function (p) { return !p.parent; })
+             .forEach(function (p) { buildPart(p, root, ctx, THREE, sink); });
+
+    return { root: root, byName: sink.byName, joints: sink.joints, materials: ctx.materials };
+  }
+
+  // Drive the joints from a state bag: { "Robot/J1_deg": 12.5, ... }
+  function applyJoints(built, values) {
+    built.joints.forEach(function (j) {
+      var v = values[j.joint.tag];
+      if (typeof v !== "number") return;
+      if (j.joint.kind === "translate") {
+        j.object.position[j.joint.axis] = j.joint.unit === "mm" ? v / 1000 : v;
+      } else {
+        j.object.rotation[j.joint.axis] = j.joint.unit === "rad" ? v : v * Math.PI / 180;
+      }
+    });
+  }
+
+  // Bind the module's animation handles to the objects the document made. Every
+  // name here is one the document assigns, and the parity gate proves the
+  // objects behind them are the same objects the hand-built path makes.
+  function bindFromDocument(built, doc, dryRun) {
+    var by = built.byName;
+    function need(name) {
+      var o = by[name];
+      if (!o) throw new Error('scene document has no part named "' + name + '"');
+      return o;
+    }
+    function series(prefix) {
+      var out = [], i = 0;
+      while (by[prefix + "." + i]) { out.push(by[prefix + "." + i]); i++; }
+      return out;
+    }
+
+    // EVERY need() first, before anything is mutated. A document that has lost
+    // a part must fail here, with the old cell still standing and every module
+    // variable still pointing at it - which is what lets checkSceneRevision
+    // keep showing the previous cell instead of half-swapping to a broken one.
+    var docRobot   = need("Robot");
+    var docGripper = need("Gripper");
+    var docInfeed  = need("InfeedConveyor");
+    var docStation1 = need("Station1");
+    var docStation2 = need("Station2");
+    var docConveyor = need("ConveyorFrame");
+    var docBase     = need("Base");
+    var docCarriage = need("Carriage");
+    var docShoulder = need("Shoulder");
+    var docElbow    = need("Elbow");
+    var docWrist    = need("Wrist");
+    var docUpperArm = need("upperArm");
+    var docForeArm  = need("foreArm");
+    var docColumn   = need("column");
+    if (dryRun) return null;
+
+    scene.add(built.root);
+
+    rollers      = series("roller");
+    infeedCases  = series("infeedCase");
+    cups         = series("cup");
+    heldCases    = series("heldCase");
+
+    // The eyes keep the keys and labels the state route uses; the document's
+    // own data table is where they come from, in the order it lists them.
+    var beams = series("PhotoEye").map(function (g) {
+      return g.children.filter(function (c) { return c.name.indexOf("peBeam") === 0; })[0];
+    });
+    photoEyes = (doc.data.photoEyes || []).map(function (row, i) {
+      var beam = beams[i];
+      return { key: row.key, label: row.label, beam: beam,
+               mat: beam ? beam.material : null,
+               x: beam ? beam.position.x : 0 };
+    }).filter(function (e) { return !!e.beam; });
+
+    // The stacks are not in the document by design - see addPalletStacks.
+    stations = [
+      { group: docStation1, name: "Station 1", pos: M.st1, cases: addPalletStacks(docStation1) },
+      { group: docStation2, name: "Station 2", pos: M.st2, cases: addPalletStacks(docStation2) }
+    ];
+
+    infeed    = docInfeed;
+    conveyor  = docConveyor;
+    convX0    = doc.consts.convX0;
+    convX1    = convX0 + M.convLen;
+    infeedStopX = convX0 + 0.35;
+    infeedPitch = M.caseD + 0.05;
+    infeedQueue = [];
+
+    wireHighlights(docUpperArm, docForeArm, docColumn, docGripper, docInfeed);
+
+    // The animation drives these five by name, through the joints the document
+    // declared, so applyState needs no knowledge of which path built the cell.
+    return {
+      robot: docRobot, baseYaw: docBase, carriage: docCarriage,
+      shoulder: docShoulder, elbow: docElbow, wrist: docWrist,
+      gripper: docGripper
+    };
+  }
+
+  function buildCell() {
+    if (infeed) disposeObject(infeed);
+    if (stations) stations.forEach(function (st) { disposeObject(st.group); });
+    while (gripper.children.length) disposeObject(gripper.children[0]);
+
+    // ----------------------------------------------------------------------
+    // Infeed conveyor, its cartons and its photo-eyes
+    // ----------------------------------------------------------------------
+    infeed = new THREE.Group(); infeed.name = "InfeedConveyor";
+    conveyor = new THREE.Group(); conveyor.name = "ConveyorFrame";
+    infeed.add(conveyor);
+    var frameMat = mat(COL.steelDark, { roughness: 0.6 });
+    var rollerMat = mat(COL.steel, { metalness: 0.85, roughness: 0.35 });
+
+    convX0 = 2.05; convX1 = convX0 + M.convLen;
+    var convMid = (convX0 + convX1) / 2;
+    conveyor.add(box(M.convLen, 0.10, 0.06, frameMat, convMid, M.convY - 0.06, -M.convW / 2));
+    conveyor.add(box(M.convLen, 0.10, 0.06, frameMat, convMid, M.convY - 0.06,  M.convW / 2));
+    var legXs = [convX0 + 0.35, convMid, convX1 - 0.35];
+    for (var i = 0; i < legXs.length; i++) {
+      for (var s = -1; s <= 1; s += 2) {
+        conveyor.add(box(0.07, M.convY - 0.12, 0.07, frameMat, legXs[i], (M.convY - 0.12) / 2, s * M.convW / 2));
+      }
+    }
+    rollers = [];
+    for (var rx = convX0 + 0.09; rx < convX1; rx += 0.135) {
+      var r = cyl(0.045, 0.045, M.convW - 0.02, rollerMat, 12);
+      r.rotation.x = Math.PI / 2;
+      r.position.set(rx, M.convY, 0);
+      r.castShadow = false;
+      conveyor.add(r);
+      rollers.push(r);
+    }
+    infeed.rotation.y = -Math.PI / 2;
+    infeed.position.set(1.62, 0, -(convX0 + 0.35));
+    scene.add(infeed);
+
+    // Photo-eyes. Each is an emitter, a receiver and a beam whose colour is the
+    // live tag: a fitter can see WHICH eye is blocked and where to walk.
+    var peDefs = [
+      { key: "infeed",  x: convX1 - 0.35, label: "PE Infeed"  },
+      { key: "len1",    x: convX1 - 1.70, label: "PE Length 1" },
+      { key: "len2",    x: convX1 - 2.30, label: "PE Length 2" },
+      { key: "carton",  x: convX1 - 3.10, label: "PE Carton"  },
+      { key: "inpos1",  x: convX0 + 0.60, label: "PE In-Pos 1" },
+      { key: "inpos2",  x: convX0 + 0.25, label: "PE In-Pos 2" }
+    ];
+    photoEyes = [];
+    peDefs.forEach(function (d) {
+      var g = new THREE.Group();
+      var post = box(0.05, 0.34, 0.05, frameMat, d.x, M.convY + 0.17, -M.convW / 2 - 0.10);
+      var post2 = box(0.05, 0.34, 0.05, frameMat, d.x, M.convY + 0.17, M.convW / 2 + 0.10);
+      g.add(post); g.add(post2);
+      var beamMat = new THREE.MeshBasicMaterial({ color: COL.run, transparent: true, opacity: 0.85 });
+      var beam = cyl(0.008, 0.008, M.convW + 0.20, beamMat, 6);
+      beam.rotation.x = Math.PI / 2;
+      // Just clear of the tallest carton. At a fixed 200mm the beam sat INSIDE
+      // a 220mm case and poked out of both sides of it, which only became
+      // obvious once the belt accumulated and the cartons were nose-to-tail
+      // instead of spaced. Capped so it stays between the two posts.
+      beam.position.set(d.x, M.convY + Math.min(0.30, M.caseH + 0.05), 0);
+      beam.castShadow = false;
+      g.add(beam);
+      infeed.add(g);
+      photoEyes.push({ key: d.key, label: d.label, beam: beam, mat: beamMat, x: d.x });
+    });
+
+    // Cartons riding the infeed.
+    // Enough cartons to fill the belt at the pattern's own case depth, so a
+    // backed-up infeed looks backed up rather than like six boxes in a row.
+    // Six fixed cartons on a 3.3 m belt left most of it empty and made the
+    // queue read as a gap.
+    infeedCases = [];
+    infeedQueue = [];
+    infeedStopX = convX0 + 0.35;
+    infeedPitch = M.caseD + 0.05;
+    // Enough meshes for the longest queue the belt could hold. How many are
+    // SHOWN is state.infeed.queue; these are just the pool.
+    var nCases = Math.max(6, Math.min(24,
+      Math.floor((M.convLen - 0.45) / infeedPitch)));
+    for (var c = 0; c < nCases; c++) {
+      var cs = makeCase(c % 2 === 1);
+      cs.position.set(infeedStopX + c * infeedPitch,
+                      M.convY + M.caseH / 2 + 0.045, 0);
+      infeed.add(cs);
+      cs.visible = false;
+      infeedCases.push(cs);
+    }
+
+    // ----------------------------------------------------------------------
+    // Pallet stations. Cases are pre-built and shown/hidden as the count moves,
+    // so a growing stack costs no allocation at run time.
+    // ----------------------------------------------------------------------
+    // rows x cols for one layer, derived from CasesPerLayer as the factor pair
+    // closest to square (the larger factor goes to X, the wider pallet
+    // dimension in every geometry this demo ships - today's 12 gives the same
+    // 4 wide x 3 deep grid the page always had). A count with no clean factor
+    // pair under it (a prime, or <1) falls back to the original 4x3 with a
+    // console warning rather than guessing at a layout that cannot tile.
+    function makePalletStation(pos, name) {
+      var g = new THREE.Group();
+      g.name = name.replace(/\s+/g, "");
+      g.position.set(pos.x, 0, pos.z);
+
+      var palletMat = mat(COL.pallet, { metalness: 0.02, roughness: 0.95 });
+      var deck = new THREE.Group();
+      for (var b = -1; b <= 1; b++) {
+        deck.add(box(M.palletW, 0.045, 0.10, palletMat, 0, M.palletH - 0.02, b * (M.palletD / 2 - 0.05)));
+      }
+      for (var k = 0; k < 5; k++) {
+        deck.add(box(0.09, 0.035, M.palletD, palletMat, -M.palletW / 2 + 0.045 + k * (M.palletW - 0.09) / 4, M.palletH + 0.02, 0));
+      }
+      for (var f = -1; f <= 1; f += 1) {
+        for (var h = -1; h <= 1; h += 2) {
+          deck.add(box(0.10, M.palletH - 0.04, 0.10, palletMat, h * (M.palletW / 2 - 0.05), (M.palletH - 0.04) / 2, f * (M.palletD / 2 - 0.05)));
+        }
+      }
+      g.add(deck);
+
+      // Station frame: a low guide rail, so an empty station still looks like
+      // a station rather than a bare pallet on the floor.
+      var railMat = mat(COL.steelDark, { roughness: 0.6 });
+      g.add(box(M.palletW + 0.30, 0.06, 0.06, railMat, 0, 0.10, -(M.palletD / 2 + 0.16)));
+      g.add(box(0.06, 0.06, M.palletD + 0.30, railMat, -(M.palletW / 2 + 0.16), 0.10, 0));
+
+      var cases = addPalletStacks(g);
+      scene.add(g);
+      return { group: g, cases: cases, name: name, pos: pos };
+    }
+    stations = [makePalletStation(M.st1, "Station 1"), makePalletStation(M.st2, "Station 2")];
+
+
+    // A pick is a whole COLUMN of the layer - GRID.rows cases - so the head
+    // that takes it has to be that long and has to carry that many. Drawing a
+    // single case while the simulator took three out of the buffer was the
+    // queue bug seen from the other end: three cartons left the belt, one
+    // appeared under the gripper, and three landed on the pallet.
+    var pick = Math.max(1, GRID.rows);
+    var plateMat = mat(0x39424b, { metalness: 0.7, roughness: 0.4 });
+    gripper.add(box(M.caseW + 0.06, 0.07, pick * M.caseD + 0.06, plateMat, 0, 0, 0));
+    var cupMat = mat(0x24292f, { metalness: 0.1, roughness: 0.9 });
+    cups = [];
+    heldCases = [];
+    for (var hc = 0; hc < pick; hc++) {
+      // Cases sit along the head's local Z at the pattern's own case depth,
+      // which is the pitch they queue at on the belt AND the pitch they land
+      // at in a column. The wrist (j4) is what reconciles the two directions.
+      var czc = (hc - (pick - 1) / 2) * M.caseD;
+      for (var cx = -1; cx <= 1; cx += 2) {
+        var cup = cyl(0.045, 0.032, 0.06, cupMat, 12);
+        cup.position.set(cx * (M.caseW / 3.5), -0.06, czc);
+        gripper.add(cup);
+        cups.push(cup);
+      }
+      // The cases currently held. Parented to the gripper, so they follow it.
+      var held = makeCase(hc % 2 === 1);
+      held.position.set(0, -0.09 - M.caseH / 2, czc);
+      held.visible = false;
+      gripper.add(held);
+      heldCases.push(held);
+    }
+
+
+    // ----------------------------------------------------------------------
+    // Fault highlighting. A faulted group pulses; the eye finds it immediately,
+    // which is the entire reason for showing a machine in 3D rather than a list.
+    // ----------------------------------------------------------------------
+    wireHighlights(upperArm, foreArm, column, gripper, infeed);
+  }
+
+  // Which groups pulse when which fault stands. Split out of buildCell so the
+  // scene-document path wires exactly the same three, against the objects the
+  // document made rather than the ones the code above made.
+  function wireHighlights(upperArm, foreArm, column, gripper, infeed) {
+    highlights = [
+      { key: "RobotAxisFault", objs: [upperArm, foreArm, column], base: [] },
+      { key: "VacuumLow",      objs: [gripper],                   base: [] },
+      { key: "ConveyorJam",    objs: [infeed],                    base: [] }
+    ];
+    function collectMeshes(obj, out) {
+      // Materials are shared between meshes by design (every carton uses the same
+      // one), so writing .emissive on a highlighted mesh would tint every object
+      // that happens to share its material - which turned the pallet stacks red
+      // whenever the conveyor faulted. Give each highlightable mesh its own copy.
+      obj.traverse(function (o) {
+        if (o.isMesh && o.material && o.material.emissive) {
+          o.material = o.material.clone();
+          out.push(o);
+        }
+      });
+      return out;
+    }
+    highlights.forEach(function (h) {
+      var meshes = [];
+      h.objs.forEach(function (o) { collectMeshes(o, meshes); });
+      h.meshes = meshes;
+    });
+  }
+
+  // The document owns the whole cell, so a rebuild has to throw ALL of it away
+  // and build again - not just the parts buildCell() happens to own. Keeping
+  // the root here is what makes that possible; without it a geometry change
+  // left the document's robot and guarding standing while the conveyor and the
+  // stations came back hand-built, and the two paths render identically so
+  // nothing looked wrong.
+  var docRoot = null;
+
+  function buildFromDocument(cfg, geo) {
+    // Build and VALIDATE the replacement before touching what is on screen.
+    // The dry run resolves every part bindFromDocument will ask for, so a
+    // document missing one throws while the standing cell is still whole.
+    var built = buildScene(SCENE_DOCUMENT, cfg || {}, THREE, geo || {});
+    try {
+      bindFromDocument(built, SCENE_DOCUMENT, true);
+    } catch (err) {
+      disposeObject(built.root);      // never reached the scene; free it anyway
+      throw err;
+    }
+
+    if (docRoot) disposeObject(docRoot);
+    docRoot = built.root;
+    var h = bindFromDocument(built, SCENE_DOCUMENT);
+    robot = h.robot; baseYaw = h.baseYaw; carriage = h.carriage;
+    shoulder = h.shoulder; elbow = h.elbow; wrist = h.wrist; gripper = h.gripper;
+  }
+
+  // A document that cannot be built is a bad document, not a bad page. Say so
+  // where a person will see it and fall back, rather than showing an empty cell
+  // during a demonstration.
+  function fallBackToCode(err) {
+    console.error("cell3d: the scene document failed to build - falling back " +
+                  "to the built-in geometry", err);
+    die("The scene document could not be built", String(err && err.message || err));
+    SCENE_DOC = false;
+    docRoot = null;
+    if (!scene.getObjectByName("Robot")) { scene.add(floor); scene.add(fence); scene.add(robot); }
+    buildCell();
+  }
+
+  // One path or the other builds the cell. The DOCUMENT one is what ships; the
+  // hand-built one is proved identical to it by tools/verify/scene_parity.js
+  // and is the fallback above.
+  if (SCENE_DOC && SCENE_DOCUMENT) {
+    try {
+      buildFromDocument(config, initialState && initialState.geometry);
+      console.info("cell3d: built from the scene document, " +
+                   SCENE_DOCUMENT.parts.length + " parts");
+    } catch (err) {
+      fallBackToCode(err);
+    }
+  } else {
+    buildCell();
+  }
+
+  // The tag names behind the response keys, for the "what changed" toast.
+  var CONFIG_TAGS = {
+    caseW_mm: "CaseW_mm", caseD_mm: "CaseD_mm", caseH_mm: "CaseH_mm",
+    palletW_mm: "PalletW_mm", palletD_mm: "PalletD_mm", palletH_mm: "PalletH_mm",
+    casesPerLayer: "CasesPerLayer", layers: "Layers",
+    convHeight_mm: "ConvHeight_mm", convLength_mm: "ConvLength_mm", convWidth_mm: "ConvWidth_mm",
+    station1X_mm: "Station1_X_mm", station1Z_mm: "Station1_Z_mm",
+    station2X_mm: "Station2_X_mm", station2Z_mm: "Station2_Z_mm"
+  };
+  function configKey(c) {
+    if (!c) return "";
+    return Object.keys(c).sort().map(function (k) { return k + "=" + c[k]; }).join(",");
+  }
+  var builtConfig = config || null;
+  var builtKey = configKey(builtConfig);
+  var geoEl = document.getElementById("geo");
+  var geoTimer = null;
+
+  // One toast, used by every "the machine just changed under you" message, so
+  // a geometry edit and a parts-list edit look the same to whoever is watching.
+  function banner(html, bad) {
+    geoEl.innerHTML = html;
+    geoEl.className = "show" + (bad ? " bad" : "");
+    clearTimeout(geoTimer);
+    geoTimer = setTimeout(function () { geoEl.className = ""; }, 7000);
+  }
+
+  // Whatever revision the cell currently standing was built from. Set on the
+  // first poll rather than at boot, because the boot fetch of the document and
+  // the boot fetch of the state are one Promise.all and neither can name the
+  // other's answer.
+  var builtSceneRev = null;
+  var sceneReloading = false;
+
+  function checkSceneRevision(rev, cfg, geo) {
+    if (!SCENE_DOC) return;                    // the code build ignores it
+    if (builtSceneRev === null) { builtSceneRev = rev; return; }
+    if (rev === builtSceneRev || sceneReloading) return;
+    sceneReloading = true;
+    fetch("admin?cmd=scene", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        if (!j || !j.ok) throw new Error((j && j.error) || "admin?cmd=scene did not answer ok");
+        var was = SCENE_DOCUMENT ? SCENE_DOCUMENT.parts.length : 0;
+        SCENE_DOCUMENT = j.scene;
+        buildFromDocument(cfg || builtConfig, geo);
+        buildPalletDom();
+        builtSceneRev = rev;
+        banner("Scene document reloaded from <b>Machine/Scene</b> &middot; " +
+               (was === SCENE_DOCUMENT.parts.length
+                 ? SCENE_DOCUMENT.parts.length + " parts"
+                 : was + " &rarr; <b>" + SCENE_DOCUMENT.parts.length + "</b> parts"));
+      })
+      .catch(function (err) {
+        // A bad edit must not take the cell down mid-demonstration: say what
+        // happened, keep the cell that is standing, and accept the revision so
+        // the same broken document is not re-fetched four times a second.
+        console.error("cell3d: the edited scene document could not be used", err);
+        banner("Scene document could not be reloaded &middot; showing the previous cell", true);
+        builtSceneRev = rev;
+      })
+      .then(function () { sceneReloading = false; });
+  }
+
+  function rebuildCell(newConfig, geometry) {
+    var changes = [];
+    Object.keys(CONFIG_TAGS).forEach(function (k) {
+      var was = builtConfig ? builtConfig[k] : undefined;
+      if (was !== newConfig[k]) {
+        changes.push("<b>" + CONFIG_TAGS[k] + "</b> " + (was === undefined ? "?" : was) + " &rarr; <b>" + newConfig[k] + "</b>");
+      }
+    });
+    M = metricsFromConfig(newConfig);
+    builtConfig = newConfig;
+    builtKey = configKey(newConfig);
+    if (SCENE_DOC && SCENE_DOCUMENT) {
+      try { buildFromDocument(newConfig, geometry); }
+      catch (err) { fallBackToCode(err); }
+    } else {
+      buildCell();
+    }
+    buildPalletDom();
+
+    var reach = geometry && geometry.reach;
+    var msg = "Machine geometry changed from [MachineDemo]Config &middot; " + changes.join(" &middot; ");
+    if (geometry && geometry.pattern) {
+      msg += " &middot; " + geometry.pattern + ", " + geometry.casesPerPallet + " a pallet";
+    }
+    if (reach && reach.ok === false) msg += " &middot; " + reach.note;
+    banner(msg, reach && reach.ok === false);
+  }
+
+  // ----------------------------------------------------------------------
+  // Camera: presets plus touch-friendly orbit. OrbitControls is a separate
+  // three.js example file; a small implementation here keeps the page to one
+  // vendored dependency and behaves properly under a finger on a panel.
+  // ----------------------------------------------------------------------
+  // Presets that reference a station read the geometry as it is when the
+  // button is pressed - a function, because the stations move with the tags.
+  var PRESETS = [
+    { name: "Overview", r: 8.8,  theta: -0.30, phi: 0.90, t: [-0.20, 0.95, 0.15] },
+    { name: "Robot",    r: 4.6,  theta: -0.55, phi: 1.08, t: [0.0, 1.40, 0] },
+    { name: "Pallet 1", r: 3.3,  theta: -2.05, phi: 1.14, t: function () { return [M.st1.x, 0.80, M.st1.z]; } },
+    { name: "Pallet 2", r: 3.3,  theta: -2.60, phi: 1.14, t: function () { return [M.st2.x, 0.80, M.st2.z]; } },
+    { name: "Infeed",   r: 4.4,  theta: -0.10, phi: 1.14, t: [1.62, 1.15, 0.85] },
+    { name: "Top",      r: 7.6,  theta: -1.30, phi: 0.28, t: [-0.45, 0.60, 0] }
+  ];
+  // ?camera= (parsed at the top, before main()) picks which preset the page
+  // opens on; an unknown slug already fell back to "Overview" there.
+  function presetT(p) { return typeof p.t === "function" ? p.t() : p.t; }
+  var startPreset = PRESETS.filter(function (p) { return p.name === startCameraName; })[0] || PRESETS[0];
+  var startT = presetT(startPreset);
+  var target = new THREE.Vector3(startT[0], startT[1], startT[2]);
+  var sph = { r: startPreset.r, theta: startPreset.theta, phi: startPreset.phi };
+  var want = { r: sph.r, theta: sph.theta, phi: sph.phi, target: target.clone() };
+
+  var camsEl = document.getElementById("cams");
+  var camButtons = [];
+  PRESETS.forEach(function (p, idx) {
+    var b = document.createElement("button");
+    b.className = "cam" + (p === startPreset ? " active" : "");
+    b.type = "button";
+    b.textContent = p.name;
+    b.addEventListener("click", function () {
+      want.r = p.r; want.theta = p.theta; want.phi = p.phi;
+      var t = presetT(p);
+      want.target.set(t[0], t[1], t[2]);
+      camButtons.forEach(function (o) { o.classList.remove("active"); });
+      b.classList.add("active");
+    });
+    camsEl.appendChild(b);
+    camButtons.push(b);
+  });
+  function clearPreset() { camButtons.forEach(function (o) { o.classList.remove("active"); }); }
+
+  var drag = null;
+  var el = renderer.domElement;
+  el.addEventListener("pointerdown", function (e) {
+    el.setPointerCapture(e.pointerId);
+    drag = { x: e.clientX, y: e.clientY, pan: e.button === 2 || e.shiftKey };
+  });
+  el.addEventListener("pointermove", function (e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    drag.x = e.clientX; drag.y = e.clientY;
+    if (drag.pan) {
+      var right = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 0);
+      var up = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 1);
+      var k = want.r * 0.0016;
+      want.target.addScaledVector(right, -dx * k).addScaledVector(up, dy * k);
+    } else {
+      want.theta -= dx * 0.006;
+      want.phi = Math.max(0.12, Math.min(1.52, want.phi - dy * 0.006));
+    }
+    clearPreset();
+  });
+  function endDrag() { drag = null; }
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", endDrag);
+  el.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  el.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    want.r = Math.max(2.2, Math.min(24, want.r * (1 + Math.sign(e.deltaY) * 0.12)));
+    clearPreset();
+  }, { passive: false });
+
+  // Pinch to zoom, because this runs on a touch panel.
+  var pinch = null;
+  el.addEventListener("touchstart", function (e) {
+    if (e.touches.length === 2) {
+      pinch = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                         e.touches[0].clientY - e.touches[1].clientY);
+    }
+  }, { passive: true });
+  el.addEventListener("touchmove", function (e) {
+    if (e.touches.length === 2 && pinch) {
+      var d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                         e.touches[0].clientY - e.touches[1].clientY);
+      want.r = Math.max(2.2, Math.min(24, want.r * (pinch / d)));
+      pinch = d;
+      clearPreset();
+    }
+  }, { passive: true });
+  el.addEventListener("touchend", function () { pinch = null; }, { passive: true });
+
+  // ----------------------------------------------------------------------
+  // Live data. The page polls the same WebDev endpoint the HMI screens use.
+  // If it cannot reach it, the cell keeps moving on a local cycle and SAYS SO
+  // rather than freezing — a dead 3D view in front of a customer is worse
+  // than an honest one.
+  // ----------------------------------------------------------------------
+  // The initial fetch that provided the geometry doubles as the first frame
+  // of live data when it succeeded, so the model does not blank out for one
+  // extra round trip before the poll below lands.
+  var live = initialState || null;
+  var lastGood = initialState ? performance.now() : 0;
+  var linkOK = !!initialState, usingFallback = false;
+  var sim = { t: 0 };
+
+  function poll() {
+    fetch("admin?cmd=state", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        if (!j || j.ok === false) throw new Error("bad payload");
+        live = j; lastGood = performance.now(); linkOK = true; usingFallback = false;
+        // A Config tag changed: same numbers the simulator just re-derived
+        // its pattern from, so rebuild the picture to match.
+        if (j.config && configKey(j.config) !== builtKey) rebuildCell(j.config, j.geometry);
+        // The PARTS LIST changed - somebody edited Machine/Scene in the
+        // Designer and saved. Re-fetch it and rebuild the cell from the new
+        // document, so a shape edit lands in a running session the same way a
+        // tag edit does.
+        if (j.sceneRev) checkSceneRevision(j.sceneRev, j.config, j.geometry);
+      })
+      .catch(function () { linkOK = false; });
+  }
+  setInterval(poll, 250);
+
+  // Local fallback motion, so the model is never a still image.
+  function fallbackState(dt) {
+    sim.t += dt;
+    var cyc = (sim.t % 6) / 6;
+    var placing = cyc > 0.5;
+    var e = placing ? (cyc - 0.5) * 2 : cyc * 2;
+    var ease = 0.5 - 0.5 * Math.cos(e * Math.PI);
+    var n = Math.floor(sim.t / 1.5) % (M.perPallet + 6);
+    return {
+      line: { running: true, mode: "Auto", cpm: 14.2, cycle: 6.0,
+              cases: Math.floor(sim.t / 1.5), target: 0 },
+      robot: {
+        state: placing ? "Placing" : "Picking",
+        j1: placing ? (10 - 150 * ease) : (-140 + 150 * ease),
+        j2: 18 + 26 * Math.sin(ease * Math.PI),
+        j3: -58 - 22 * Math.sin(ease * Math.PI),
+        j4: 0, lift: 260 + 520 * Math.sin(ease * Math.PI),
+        grip: placing ? ease < 0.86 : ease > 0.9,
+        vac: placing ? -62 : 0, cycles: 0, fault: false, faultText: ""
+      },
+      pallets: [
+        { present: true, cases: Math.min(n, M.perPallet), layer: Math.floor(Math.min(n, M.perPallet) / M.perLayer), complete: n >= M.perPallet, pattern: "4x3 interlock" },
+        { present: true, cases: Math.max(0, Math.min(M.perPallet, n - 14)), layer: 0, complete: false, pattern: "4x3 interlock" }
+      ],
+      conv: { c1: true, c2: true, c3: true,
+              pe: { infeed: true, carton: false, len1: true, len2: false, inpos1: true, inpos2: false, clear: true },
+              gate1: false, gate2: true, clamp: true, barcode: "—", scanOK: true },
+      safety: { estop: true, guards: true, air: true, interfaces: true },
+      faults: {}, zones: []
+    };
+  }
+
+  // ----------------------------------------------------------------------
+  // Applying state to the model
+  // ----------------------------------------------------------------------
+  var shown = { j1: 0, j2: 0, j3: 0, j4: 0, lift: 0 };
+  var D2R = Math.PI / 180;
+
+  function damp(cur, goal, dt, rate) {
+    return cur + (goal - cur) * (1 - Math.exp(-rate * dt));
+  }
+
+  function applyState(s, dt) {
+    var r = s.robot || {};
+    shown.j1 = damp(shown.j1, r.j1 || 0, dt, 7);
+    shown.j2 = damp(shown.j2, r.j2 || 0, dt, 7);
+    shown.j3 = damp(shown.j3, r.j3 || 0, dt, 7);
+    shown.j4 = damp(shown.j4, r.j4 || 0, dt, 7);
+    shown.lift = damp(shown.lift, r.lift || 0, dt, 7);
+
+    baseYaw.rotation.y = shown.j1 * D2R;
+    carriage.position.y = 0.34 + (shown.lift / 1000);
+    shoulder.rotation.z = shown.j2 * D2R;
+    elbow.rotation.z = shown.j3 * D2R;
+    wrist.rotation.y = shown.j4 * D2R;
+
+    for (var h = 0; h < heldCases.length; h++) heldCases[h].visible = !!r.grip;
+    for (var i = 0; i < cups.length; i++) {
+      cups[i].scale.y = damp(cups[i].scale.y, r.grip ? 0.7 : 1.0, dt, 10);
+    }
+
+    // pallets
+    var pl = s.pallets || [];
+    for (var p = 0; p < stations.length; p++) {
+      var st = stations[p];
+      var d = pl[p] || { cases: 0 };
+      var n = Math.max(0, Math.min(M.perPallet, d.cases | 0));
+      for (var c = 0; c < st.cases.length; c++) {
+        st.cases[c].visible = c < n;
+      }
+      st.group.visible = d.present !== false;
+    }
+
+    // photo-eyes: blocked reads red, clear reads green
+    var pe = (s.conv && s.conv.pe) || {};
+    for (var q = 0; q < photoEyes.length; q++) {
+      var blocked = !!pe[photoEyes[q].key];
+      photoEyes[q].mat.color.setHex(blocked ? COL.fault : COL.run);
+      photoEyes[q].mat.opacity = blocked ? 0.95 : 0.55;
+    }
+
+    // The infeed accumulates, and HOW MANY cartons are standing on it is the
+    // simulator's number, not this page's. Cartons used to run the length of
+    // the belt and teleport back to the far end - a transfer conveyor, not the
+    // accumulating infeed this cell has - and the page drew a full belt while
+    // the simulator was modelling a queue of six. The photo-eyes read off that
+    // queue, so a page that invented its own carton positions put beams
+    // reading CLEAR underneath boxes.
+    //
+    // Now: state.infeed.queue cartons, parked nose to tail from the stop line
+    // at one case depth plus a gap, exactly the geometry MachineDemo.sim uses
+    // to decide which eyes are blocked. Everything past the queue is upstream
+    // and not drawn. The belt therefore fills as the infeed runs ahead of the
+    // robot and drains when a jam stops it - which is the fault's whole point.
+    var queue = Math.max(0, Math.min(infeedCases.length,
+      (s.infeed && s.infeed.queue != null) ? (s.infeed.queue | 0) : infeedCases.length));
+
+    // WHICH END the queue changes at is the whole behaviour, and the count on
+    // its own does not say. The first version keyed each carton to a fixed
+    // index and drew `k < queue`, so a pick - which takes a whole column, three
+    // cases at the default pattern - deleted three cartons from the UPSTREAM
+    // end of the belt and left the one at the pick point standing. On screen
+    // that read as two separate bugs: cartons vanishing at random near the far
+    // end, and a robot that picked without anything leaving the queue. One line.
+    //
+    // The queue is an ordered list now, index 0 at the stop line. A pick
+    // SHIFTS off the front - the space closes because the carton is on the
+    // gripper - and an arrival PUSHES on at the back. Each carton then eases
+    // toward the slot its index gives it, so the whole line steps forward one
+    // pitch behind a pick. That is what an accumulation conveyor does, and it
+    // is what makes the photo-eyes downstream mean anything.
+    while (infeedQueue.length > queue) {
+      infeedQueue.shift().visible = false;
+    }
+    while (infeedQueue.length < queue) {
+      var fresh = null;
+      for (var f = 0; f < infeedCases.length; f++) {
+        if (!infeedCases[f].visible) { fresh = infeedCases[f]; break; }
+      }
+      if (!fresh) break;               // pool exhausted: draw what we can
+      // Arriving: come in from behind the one it will sit against, so it is
+      // seen to run up rather than to appear.
+      fresh.position.x = infeedStopX + (infeedQueue.length + 1.4) * infeedPitch;
+      fresh.visible = true;
+      infeedQueue.push(fresh);
+    }
+    var step = dt * 0.55;
+    for (var k = 0; k < infeedQueue.length; k++) {
+      var cs = infeedQueue[k];
+      var want = infeedStopX + k * infeedPitch;
+      var have = cs.position.x;
+      if (have > want) cs.position.x = Math.max(want, have - step);
+      else if (have < want) cs.position.x = Math.min(want, have + step);
+    }
+
+    // What the belt is ACTUALLY showing, next to what it was told to show.
+    // Not decoration: the queue is the one thing on this page whose count has
+    // to agree with a number in the tag layer, and a rendered scene is the
+    // hardest thing in the project to assert against. A screenshot cannot be
+    // counted reliably - two frames of a parked queue are pixel-identical
+    // whether the count changed or not - so the page states it, and a test
+    // reads document.body.dataset.infeed instead of guessing from pixels.
+    var drawn = 0;
+    for (var v = 0; v < infeedCases.length; v++) if (infeedCases[v].visible) drawn++;
+    document.body.dataset.infeed = queue + "/" + drawn + "/" + infeedCases.length;
+    // How far the front carton stands from the stop line, in mm, and how many
+    // cases the head is carrying. A count alone cannot say the line ADVANCED
+    // rather than merely got shorter, and it was exactly that distinction -
+    // which end the queue empties from - that was wrong.
+    document.body.dataset.infeedfront = infeedQueue.length
+      ? Math.round((infeedQueue[0].position.x - infeedStopX) * 1000) : -1;
+    document.body.dataset.held =
+      (r.grip ? heldCases.length : 0) + "/" + heldCases.length;
+
+    // The rollers turn only while C1 runs. A jam stops the belt; the cartons
+    // already standing on it stay where they are.
+    var running = !(s.conv && s.conv.c1 === false);
+    if (running) {
+      for (var rr = 0; rr < rollers.length; rr++) rollers[rr].rotation.y += dt * 6;
+    }
+
+    // fault pulse
+    var faults = s.faults || {};
+    var pulse = 0.5 + 0.5 * Math.sin(performance.now() / 190);
+    highlights.forEach(function (h) {
+      var on = !!faults[h.key];
+      h.meshes.forEach(function (m) {
+        m.material.emissive.setHex(on ? COL.fault : 0x000000);
+        m.material.emissiveIntensity = on ? 0.25 + 0.55 * pulse : 0;
+      });
+    });
+  }
+
+  // ----------------------------------------------------------------------
+  // HUD
+  // ----------------------------------------------------------------------
+  var els = {
+    pill: document.getElementById("statepill"),
+    robot: document.getElementById("v-robot"),
+    cases: document.getElementById("v-cases"),
+    cpm: document.getElementById("v-cpm"),
+    cycle: document.getElementById("v-cycle"),
+    lift: document.getElementById("v-lift"),
+    vac: document.getElementById("v-vac"),
+    pattern: document.getElementById("v-pattern"),
+    reach: document.getElementById("v-reach"),
+    estop: document.getElementById("l-estop"),
+    guards: document.getElementById("l-guards"),
+    air: document.getElementById("l-air"),
+    int: document.getElementById("l-int"),
+    pallets: document.getElementById("pallets-b"),
+    banner: document.getElementById("faultbanner"),
+    bannerText: document.getElementById("faulttext"),
+    qbanner: document.getElementById("qualitybanner"),
+    qbannerText: document.getElementById("qualitytext"),
+    link: document.getElementById("link"),
+    linkLed: document.getElementById("l-link"),
+    linkText: document.getElementById("linktext")
+  };
+
+  var FAULT_LABELS = {
+    WrapperFilmFeed: "Wrapper — film feed torque high",
+    ConveyorJam: "Infeed conveyor — carton jam at the measuring station",
+    VacuumLow: "Gripper — vacuum below threshold",
+    GuardOpen: "Guard circuit open — motion inhibited",
+    RobotAxisFault: "Robot — axis fault, reset required"
+  };
+
+  function setLed(node, ok, warn) {
+    node.className = "led " + (ok ? "on" : (warn ? "wrn" : "bad"));
+  }
+
+  var palletDom = null;
+  function buildPalletDom() {
+    els.pallets.innerHTML = "";
+    palletDom = stations.map(function (st, i) {
+      var wrap = document.createElement("div");
+      wrap.className = "pal";
+      wrap.innerHTML =
+        '<div class="pal-h"><b>' + st.name + '</b><span class="pat"></span><span class="n"></span></div>' +
+        '<div class="bar"><i style="width:0%"></i></div>' +
+        '<div class="layers"></div>';
+      var lay = wrap.querySelector(".layers");
+      for (var L = 0; L < M.layers; L++) lay.appendChild(document.createElement("span"));
+      els.pallets.appendChild(wrap);
+      return {
+        n: wrap.querySelector(".n"),
+        bar: wrap.querySelector(".bar i"),
+        pat: wrap.querySelector(".pat"),
+        layers: lay.querySelectorAll("span")
+      };
+    });
+  }
+  buildPalletDom();
+
+  function updateHUD(s) {
+    var r = s.robot || {}, ln = s.line || {}, sf = s.safety || {}, fl = s.faults || {};
+
+    var anyFault = Object.keys(fl).some(function (k) { return fl[k]; }) || r.fault;
+    var pillCls = anyFault ? "flt" : (ln.running ? "run" : "idle");
+    var pillTxt = anyFault ? "Fault" : (ln.running ? "Running" : "Stopped");
+    els.pill.className = "pill " + pillCls;
+    els.pill.textContent = pillTxt;
+
+    els.robot.textContent = r.state || "—";
+    els.cases.textContent = (ln.cases != null ? ln.cases : 0) +
+      (ln.target ? " / " + ln.target : "");
+    els.cpm.textContent = (ln.cpm != null ? ln.cpm.toFixed(1) : "—") + " /min";
+    els.cycle.textContent = (ln.cycle != null ? ln.cycle.toFixed(2) : "—") + " s";
+    els.lift.textContent = (r.lift != null ? r.lift.toFixed(0) : "—") + " mm";
+    els.vac.textContent = (r.vac != null ? r.vac.toFixed(1) : "—") + " kPa";
+
+    // What the simulator derived from the Config tags. `geometry` is only on
+    // a real payload - the fallback motion has no opinion about reach.
+    var g = s.geometry || {};
+    els.pattern.textContent = g.pattern || (M.layers + " x " + M.perLayer);
+    var reach = g.reach;
+    if (!reach) {
+      els.reach.textContent = "—"; els.reach.className = "v";
+    } else if (reach.ok === false) {
+      els.reach.textContent = reach.unreachable + " short"; els.reach.className = "v warn";
+      els.reach.title = reach.note || "";
+    } else {
+      els.reach.textContent = "OK"; els.reach.className = "v ok";
+      els.reach.title = reach.note || "";
+    }
+
+    setLed(els.estop, sf.estop !== false);
+    setLed(els.guards, sf.guards !== false);
+    setLed(els.air, sf.air !== false);
+    setLed(els.int, sf.interfaces !== false);
+
+    var pl = s.pallets || [];
+    palletDom.forEach(function (d, i) {
+      var p = pl[i] || { cases: 0, layer: 0 };
+      var n = Math.max(0, Math.min(M.perPallet, p.cases | 0));
+      d.n.textContent = n + " / " + M.perPallet;
+      d.bar.style.width = (100 * n / M.perPallet).toFixed(1) + "%";
+      d.pat.textContent = p.pattern || "";
+      d.pat.style.cssText = "color:#8b98a3;font-size:11px";
+      for (var L = 0; L < d.layers.length; L++) {
+        var full = (L + 1) * M.perLayer <= n;
+        var part = !full && L * M.perLayer < n;
+        d.layers[L].className = full ? "done" : (part ? "part" : "");
+      }
+    });
+
+    var msgs = Object.keys(fl).filter(function (k) { return fl[k]; })
+                    .map(function (k) { return FAULT_LABELS[k] || k; });
+    if (r.fault && r.faultText) msgs.unshift(r.faultText);
+    if (msgs.length) {
+      els.banner.classList.add("show");
+      els.bannerText.textContent = msgs[0] + (msgs.length > 1 ? "  (+" + (msgs.length - 1) + " more)" : "");
+    } else {
+      els.banner.classList.remove("show");
+    }
+
+    // ------------------------------------------------------------------
+    // Tag quality: bad/stale tags on a payload the fetch actually got back.
+    // This is deliberately a DIFFERENT state from the link being down below
+    // - the tag server answered fine (?cmd=state always answers "ok":true),
+    // it is just reporting values nobody trusts. s.quality only exists on a
+    // real payload from the route - fallbackState() never sets it - so this
+    // can never fire while the page is showing fabricated fallback motion.
+    // Clears itself the next tick quality.ok goes back to true, same as the
+    // fault banner above.
+    // ------------------------------------------------------------------
+    var q = s.quality;
+    var qualityBad = !!(q && q.ok === false);
+    document.body.classList.toggle("quality-bad", qualityBad);
+    if (qualityBad) {
+      var qmsgs = [];
+      if (q.stale) qmsgs.push("no fresh data for over 5s");
+      if (q.bad && q.bad.length) {
+        qmsgs.push(q.bad.length + " tag" + (q.bad.length > 1 ? "s" : "") +
+          " bad quality (" + q.worst + ")");
+      }
+      els.qbanner.classList.add("show");
+      els.qbannerText.textContent = "MACHINE DATA NOT LIVE" +
+        (qmsgs.length ? " — " + qmsgs.join(", ") : "");
+    } else {
+      els.qbanner.classList.remove("show");
+    }
+
+    if (!linkOK) {
+      // Fetch itself failing: the page is on fabricated fallback motion.
+      els.link.className = "stale";
+      els.linkLed.className = "led wrn";
+      els.linkText.textContent = "no tag data — showing local motion";
+    } else if (qualityBad) {
+      // Fetch is fine; what it returned is not live. Different wording, same
+      // amber tone as the fault banner's, because both mean "do not trust
+      // the picture" even though the causes are unrelated.
+      els.link.className = "qbad";
+      els.linkLed.className = "led wrn";
+      els.linkText.textContent = "tag data not live — see banner";
+    } else {
+      els.link.className = "";
+      els.linkLed.className = "led on";
+      els.linkText.textContent = "live from [MachineDemo] tags";
+    }
+  }
+
+  // ----------------------------------------------------------------------
+  // Anchored labels: HTML positioned at projected 3D points. Cheaper and far
+  // sharper than texture labels, and they stay readable at any zoom.
+  // ----------------------------------------------------------------------
+  var labelDefs = [
+    { id: "lbl-grip", anchor: function () {
+        var v = new THREE.Vector3(); gripper.getWorldPosition(v); v.y -= 0.35; return v; },
+      text: function (s) {
+        var r = s.robot || {};
+        return r.grip ? "case held &middot; <b>" + (r.vac || 0).toFixed(0) + " kPa</b>"
+                      : "gripper open";
+      },
+      bad: function (s) { return (s.faults || {}).VacuumLow; } },
+    { id: "lbl-st1", anchor: function () { return new THREE.Vector3(M.st1.x, 1.55, M.st1.z); },
+      text: function (s) { var p = (s.pallets || [])[0] || {};
+        return "Station 1 &middot; <b>" + (p.cases | 0) + "</b>/" + M.perPallet + " &middot; layer <b>" + ((p.layer | 0) + (p.cases ? 1 : 0)) + "</b>"; } },
+    { id: "lbl-st2", anchor: function () { return new THREE.Vector3(M.st2.x, 1.55, M.st2.z); },
+      text: function (s) { var p = (s.pallets || [])[1] || {};
+        return "Station 2 &middot; <b>" + (p.cases | 0) + "</b>/" + M.perPallet + " &middot; layer <b>" + ((p.layer | 0) + (p.cases ? 1 : 0)) + "</b>"; } },
+    { id: "lbl-conv", anchor: function () {
+        return infeed.localToWorld(new THREE.Vector3(convX0 + 1.0, M.convY + 0.75, 0)); },
+      text: function (s) { var c = s.conv || {};
+        return "Infeed &middot; <b>" + (c.barcode || "—") + "</b>"; },
+      bad: function (s) { return (s.faults || {}).ConveyorJam; } }
+  ];
+  labelDefs.forEach(function (d) {
+    var n = document.createElement("div");
+    n.className = "tag3d"; n.id = d.id;
+    document.body.appendChild(n);
+    d.node = n;
+  });
+
+  var proj = new THREE.Vector3();
+  // The HUD cards and the two top-centre pills. An anchored label whose point
+  // projects under one of them is hidden rather than left peeking out from
+  // behind a card - the camera decides where the labels fall, and on the
+  // pallet close-up the gripper label was reading "er open" from under the
+  // state card (seen 03/09/2026).
+  var coverEls = Array.prototype.slice.call(document.querySelectorAll(".hud.card, #wm, #geo, #faultbanner, #qualitybanner"));
+  // The label's OWN rectangle against each card, not its anchor point: a label
+  // is centred on its anchor and is up to 240px wide, so an anchor that is
+  // clear of a card is no guarantee at all - measured on the Pallet 1 camera,
+  // where the station 2 and infeed labels still ran under a card with their
+  // anchors 100px clear of it.
+  function coveredRect(q) {
+    for (var i = 0; i < coverEls.length; i++) {
+      var el = coverEls[i];
+      var st = getComputedStyle(el);
+      if (st.display === "none" || st.visibility === "hidden") continue;
+      var r = el.getBoundingClientRect();
+      if (!r.width) continue;
+      if (q.left < r.right + 4 && q.right > r.left - 4 &&
+          q.top < r.bottom + 4 && q.bottom > r.top - 4) return true;
+    }
+    return false;
+  }
+  function updateLabels(s) {
+    for (var i = 0; i < labelDefs.length; i++) {
+      var d = labelDefs[i];
+      proj.copy(d.anchor()).project(camera);
+      var behind = proj.z > 1;
+      var px = (proj.x * 0.5 + 0.5) * window.innerWidth;
+      var py = (-proj.y * 0.5 + 0.5) * window.innerHeight;
+      if (behind) { d.node.style.display = "none"; continue; }
+      // Written, positioned, THEN measured - the text decides the width, and
+      // the width is most of what decides whether it clears a card.
+      d.node.style.display = "block";
+      d.node.style.left = px + "px";
+      d.node.style.top = py + "px";
+      d.node.innerHTML = d.text(s);
+      d.node.className = "tag3d" + (d.bad && d.bad(s) ? " bad" : "");
+      if (coveredRect(d.node.getBoundingClientRect())) d.node.style.display = "none";
+    }
+  }
+
+  // ----------------------------------------------------------------------
+  // Main loop
+  // ----------------------------------------------------------------------
+  var last = performance.now();
+  var hudAccum = 0;
+  boot.style.display = "none";
+
+  function frame(now) {
+    var dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+
+    // camera easing
+    sph.r = damp(sph.r, want.r, dt, 6);
+    sph.theta = damp(sph.theta, want.theta, dt, 6);
+    sph.phi = damp(sph.phi, want.phi, dt, 6);
+    target.lerp(want.target, 1 - Math.exp(-6 * dt));
+    camera.position.set(
+      target.x + sph.r * Math.sin(sph.phi) * Math.cos(sph.theta),
+      target.y + sph.r * Math.cos(sph.phi),
+      target.z + sph.r * Math.sin(sph.phi) * Math.sin(sph.theta)
+    );
+    camera.lookAt(target);
+
+    var s = (linkOK && live) ? live : fallbackState(dt);
+    applyState(s, dt);
+    updateLabels(s);
+
+    hudAccum += dt;
+    if (hudAccum > 0.12) { updateHUD(s); hudAccum = 0; }
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // The scene graph, reachable from outside. This page IS the geometry - the
+  // cell is built procedurally here and exists nowhere else, no CAD file and
+  // no model on disk - so anything that wants to export it has to read it from
+  // the running page.
+  //
+  // Diagnostic only, and the same shape as document.body.dataset.infeed above:
+  // nothing in the page reads it, and removing it changes no behaviour.
+  window.__cellScene = scene;
+
+  window.addEventListener("resize", function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+  } // end main()
+
+  // ----------------------------------------------------------------------
+  // Bootstrap: one fetch for the geometry (and, if it lands, the first frame
+  // of live data), then build the scene, then main() starts its own 250 ms
+  // poll. A failed fetch is not fatal - main() runs on the built-in defaults
+  // and the existing fallback-motion behaviour takes it from there.
+  // ----------------------------------------------------------------------
+  // With ?scene=document there is a second fetch: the parts list out of the
+  // Machine/Scene view. It is deliberately NOT fatal - if it fails, the page
+  // builds the cell it has always built and says why in the console.
+  function fetchScene() {
+    if (!SCENE_DOC) return Promise.resolve(null);
+    return fetch("admin?cmd=scene", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        if (!j || !j.ok) throw new Error((j && j.error) || "admin?cmd=scene did not answer ok");
+        return j.scene;
+      })
+      .catch(function (err) {
+        console.error("cell3d: ?scene=document was asked for but the document " +
+                      "could not be read - building the built-in geometry", err);
+        SCENE_DOC = false;
+        return null;
+      });
+  }
+
+  Promise.all([
+    fetch("admin?cmd=state", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        if (!j || j.ok === false) throw new Error("bad payload");
+        return j;
+      })
+      .catch(function (err) {
+        console.warn("cell3d: initial ?cmd=state fetch failed, building with default geometry", err);
+        return null;
+      }),
+    fetchScene()
+  ]).then(function (both) {
+    var j = both[0];
+    SCENE_DOCUMENT = both[1];
+    main(j ? j.config : null, j);
+  });
+})();
+</script>
+</body>
+</html>

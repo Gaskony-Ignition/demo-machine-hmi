@@ -1,0 +1,196 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {},
+  "props": {
+    "defaultSize": {
+      "width": 1366,
+      "height": 768
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "Page"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "height": "100%",
+        "overflow": "hidden",
+        "minHeight": "0",
+        "backgroundColor": "var(--md-bg, #171b20)"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "HeaderSlot"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "direction": "column"
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Header"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "backgroundColor": "var(--md-panel, #1d232a)",
+                "borderBottom": "1px solid var(--md-line, #2c343d)",
+                "padding": "9px 16px",
+                "gap": "14px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Title"
+                },
+                "position": {
+                  "grow": 1
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "1px"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "t1"
+                    },
+                    "props": {
+                      "text": "Zone 2 \u00b7 Robot Cell 2 \u2014 CAD model",
+                      "style": {
+                        "fontSize": "16px",
+                        "color": "var(--md-ink-max, #f2f6f8)",
+                        "fontWeight": "bold"
+                      }
+                    },
+                    "position": {
+                      "shrink": 0
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "t2"
+                    },
+                    "props": {
+                      "text": "Any STL dropped in the project's cad resource folder - the customer's own geometry, not ours",
+                      "style": {
+                        "fontSize": "11.5px",
+                        "color": "var(--md-ink-quiet, #8b98a3)",
+                        "fontWeight": "normal"
+                      }
+                    },
+                    "position": {
+                      "shrink": 0
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "BackToOverview"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "text": "Overview",
+                  "style": {
+                    "backgroundColor": "var(--md-well, #262e36)",
+                    "color": "var(--md-ink-mid, #cdd6dd)",
+                    "border": "1px solid var(--md-line-soft, #38424c)",
+                    "borderRadius": "7px",
+                    "fontWeight": "bold",
+                    "fontSize": "12.5px",
+                    "minHeight": "38px",
+                    "padding": "0 16px",
+                    "alignItems": "center"
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tsystem.perspective.navigate(page='/')\n"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Body"
+        },
+        "position": {
+          "grow": 1,
+          "shrink": 1,
+          "basis": "0px"
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "minHeight": "0px"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.display.iframe",
+            "meta": {
+              "name": "CadModel"
+            },
+            "position": {
+              "grow": 1,
+              "basis": "0px"
+            },
+            "props": {
+              "src": "",
+              "style": {
+                "height": "100%",
+                "width": "100%",
+                "border": "none",
+                "minHeight": "0"
+              }
+            },
+            "propConfig": {
+              "props.src": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "\"/system/webdev/\" + runScript(\"system.project.getProjectName()\") + \"/cadview\""
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
