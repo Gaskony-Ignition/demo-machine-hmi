@@ -128,7 +128,7 @@ to "programmed in Perspective", and the tag/route contract it depends on, are
 | Path | What it is |
 | --- | --- |
 | `project/` | The Ignition project, as the gateway holds it. Source of truth. |
-| `tools/package.sh` | Builds the importable zip; stamps the version into Title and Description. |
+| `tools/package.sh` | Builds the importable zip; stamps Title/Description. README-gated (`--skip-readme-check` bypasses). |
 | `docs/CONTRACT.md` | Tag contract, WebDev routes, the frozen `?cmd=state` shape, the robot's kinematic convention. |
 | `docs/CHANGING-THE-3D-CELL.md` | The three levels at which the modelled machine can change. |
 | `docs/REAL-DATA.md` | What changes when tags come from a PLC instead of the simulator. |
