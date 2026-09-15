@@ -1,0 +1,45 @@
+# A throwaway STANDARD Ignition gateway for this demo, and nothing else.
+#
+# The Edge rig alongside proves the Edge build. This one proves the OTHER one:
+# the project ships two zips from one source, and a change to a shared view
+# verified on only one of them is not verified.
+#
+# Explicit project name -- without it Compose uses the DIRECTORY name (`standard`),
+# which is generic enough to collide with another stack's container.
+name: machinehmi-standard
+
+services:
+  standard:
+    image: inductiveautomation/ignition:8.3.8
+    container_name: machinehmi-standard
+    ports:
+      - "8488:8088"
+      - "8489:8043"
+    volumes:
+      - standard-data:/usr/local/bin/ignition/data
+    environment:
+      - ACCEPT_IGNITION_EULA=Y
+      - GATEWAY_ADMIN_USERNAME=admin
+      - GATEWAY_ADMIN_PASSWORD=password
+      # See modules/dockers/ignition/docker-compose.yml: glibc hands a process up
+      # to 8 x cores malloc arenas and Ignition spreads ~220 threads across all of
+      # them, so RSS runs far above the heap. Capping arenas is the saving.
+      - MALLOC_ARENA_MAX=2
+    command: >
+      -n machinehmi-standard
+      -m 1024
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/StatusPing"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    mem_limit: 2g
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    restart: unless-stopped
+
+volumes:
+  standard-data:

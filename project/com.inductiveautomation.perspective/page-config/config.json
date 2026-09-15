@@ -1,0 +1,33 @@
+{
+  "pages": {
+    "/": {
+      "title": "Line Overview",
+      "viewPath": "Machine/Overview"
+    },
+    "/alarms": {
+      "title": "Alarms",
+      "viewPath": "Machine/Alarms"
+    },
+    "/cad": {
+      "title": "CAD Model",
+      "viewPath": "Machine/CadModel"
+    },
+    "/cell2d": {
+      "title": "Cell (stock components)",
+      "viewPath": "Machine/Cell2D"
+    },
+    "/cell3d": {
+      "title": "3D Cell",
+      "viewPath": "Machine/Cell3D"
+    },
+    "/manual": {
+      "title": "Manual Control",
+      "viewPath": "Machine/Manual"
+    },
+    "/setup": {
+      "title": "Setup",
+      "viewPath": "Machine/Setup"
+    }
+  },
+  "sharedDocks": {}
+}
