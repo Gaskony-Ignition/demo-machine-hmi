@@ -108,9 +108,9 @@ it is the Designer's Script Console:
 
 ```python
 MachineDemo.api.setFault("ConveyorJam", True)   # also WrapperFilmFeed VacuumLow GuardOpen RobotAxisFault
-MachineDemo.api.reset()                         # back to steady state
+MachineDemo.api.reset()                         # steady state
 MachineDemo.api.setSpeed(2)                     # simulation speed
-MachineDemo.api.setMode("Auto")                 # hand the cell back to the auto cycle
+MachineDemo.api.setMode("Auto")                 # back to auto
 ```
 
 ## How the 3D page works
@@ -168,16 +168,13 @@ DEMO on the Setup page first — a stopped line has no rollers turning.
 - An open guard circuit disables the jog button independently of the screen.
 - Colour is spent only on the abnormal: a running line reads grey, a fault is
   the only saturated thing on screen.
-- It survives a gateway restart unattended, with no step to re-run.
+- It survives a gateway restart unattended, no step to re-run.
 - The 3D and CAD pages resolve their own project name at runtime, so they
   work under any project name, including every Edge.
 - `tools/package.sh` gates the release zip on archive integrity, file count
   and a resource-manifest pass — a resource the gateway silently never scans
   still "imports successfully" without them.
-- The screens meet WCAG 2.1 AA except for limits in Perspective itself: no
-  page language setting, table/alarm-table internals, and the 3D/CAD inline
-  frame (no `title` attribute, no focus ring on the frame itself) — gated on
-  every release by `tools/package.sh` (`a11y.json`).
+- Meets WCAG 2.1 AA except Perspective's own limits, gated per release.
 
 ## Licensing
 
