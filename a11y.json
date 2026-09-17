@@ -7,21 +7,5 @@
       "pageConfig": "project/com.inductiveautomation.perspective/page-config/config.json"
     }
   ],
-  "exceptions": [
-    {
-      "rule": "frame-title",
-      "match": "<iframe",
-      "reason": "ia.display.iframe (Cell3D, CadModel) has no title prop - its render only destructures style/src/srcDoc/sandbox/allowFullScreen/referrerPolicy (checked in PerspectiveComponents.ef18de03636b4c239a48.js, Perspective 3.3.8) - so there is nothing in the component's own props to set it from."
-    },
-    {
-      "rule": "no-focus-ring",
-      "component": "ia.display.iframe",
-      "reason": "Chromium never paints outline on a focused <iframe>, project stylesheet or not - confirmed by forcing `iframe:focus{outline:5px solid red !important}` on a blank page and reading computed outlineStyle back as 'none'. The Cell3D/CadModel iframe still gets a tabIndex and takes its place in the tab order; there is just no ring to draw around it."
-    },
-    {
-      "rule": "no-focus-ring",
-      "component": "ia.display.alarmstatustable",
-      "reason": "The status table's own root (meta.tabIndex: 0, same fix as the header's User block) rings fine when focused directly - confirmed live, 2px solid. A real Tab walk still lands on an internal, unlabelled target with no outline of its own: the component manages its row/toolbar focus internally (accessibility.md: alarm tables draw their own headers and filter chips) and that internal target is not the node the project can style."
-    }
-  ]
+  "exceptions": []
 }

@@ -29,6 +29,19 @@
 //                  is the honest measurement; --light is the historical one.
 const { chromium } = require('playwright');
 
+// A fixed 3.2s after `networkidle` was long enough for one session on this
+// gateway and not for several - measured 18/09/2026 with other agents'
+// sessions competing for the same connect/sync step: `networkidle` itself
+// resolved in under 2s every time, but the component tree took 4-12s longer
+// to actually land. Poll instead of guessing a bigger constant.
+async function waitForComponents(p, capMs = 20000) {
+  const start = Date.now();
+  while (Date.now() - start < capMs) {
+    if (await p.evaluate(() => document.querySelectorAll('[data-component]').length) > 0) return;
+    await p.waitForTimeout(500);
+  }
+}
+
 // The project name differs between the two builds: the standard zip imports as
 // Machine_HMI_Demo, the Edge one lands in Edge's own single project. Override
 // with MHD_PROJECT so this gate can be run against either.
@@ -125,7 +138,8 @@ async function mustBeTheProject(p, pg) {
   for (const pg of PAGES) {
     await p.goto(`${BASE}/data/perspective/client/${PROJECT}/${pg}`,
                  { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
-    await p.waitForTimeout(3200);
+    await waitForComponents(p);
+    await p.waitForTimeout(800);
     await mustBeTheProject(p, pg);
     if (THEME) {
       await p.evaluate(t => {

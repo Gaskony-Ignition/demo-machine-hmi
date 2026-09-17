@@ -200,6 +200,18 @@
 	outline-offset: -2px;
 }
 
+/* The alarm table's own filter input turns its outline off internally
+   (measured `outline-style: none`, same class of gap as the dropdown search
+   box and the Grid above) - `!important` is what beats that, as it does for
+   the Grid. Same fix as toolbox/alarms v3.2.0; this was the real target of
+   the Tab walk's empty-label "no-focus-ring" stop on the alarm table, not
+   the table's own root - a missing ring here was this project's to fix, not
+   a platform exception. */
+.psc-alm-table .ia_alarmTableComponent__toolbar__activeFilterInput:focus-visible {
+	outline: 2px solid var(--a11y-focus-ring, var(--neutral-100)) !important;
+	outline-offset: 1px;
+}
+
 /* Header at panel widths.
 
    The top bar carries identity, three status chips, six nav tabs and the user
