@@ -53,6 +53,28 @@ INACTIVE = {"backgroundColor": "transparent",
             "color": "var(--md-ink-quiet, #8b98a3)"}
 
 
+def keyboard_nav(component, page):
+    """WCAG 2.1 AA 2.1.1: make a nav-onClick component reachable by Tab and
+    fired by Enter/Space. `onClick` stays a plain `nav` action (it has no key
+    filter of its own), so the onKeyDown script calls
+    system.perspective.navigate itself, gated to the two activation keys.
+
+    scope MUST be "G" - a script-type dom action registered with "C" never
+    reaches the client at all (silent console warning, "Client Action
+    'script' not registered"), which is how T_dark's onClick two tabs over
+    already does it."""
+    component.setdefault("meta", {})["tabIndex"] = 0
+    dom = component.setdefault("events", {}).setdefault("dom", {})
+    dom["onKeyDown"] = {
+        "type": "script", "scope": "G",
+        "config": {"script": (
+            "\tif event.key in ('Enter', ' '):\n"
+            "\t\tsystem.perspective.navigate(page='%s')" % page
+        )},
+    }
+    return component
+
+
 def find(node, name):
     if node.get("meta", {}).get("name") == name:
         return node
@@ -104,6 +126,7 @@ for name in sorted(os.listdir(VIEWS)):
         tab["props"]["text"] = text
         tab["events"]["dom"]["onClick"]["config"]["page"] = page
         tab["props"]["style"].update(ACTIVE if tab_name == active else INACTIVE)
+        keyboard_nav(tab, page)
         kids.append(tab)
     nav["children"] = kids
 

@@ -199,12 +199,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_OVERVIEW"
+                  "name": "N_OVERVIEW",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "OVERVIEW",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -231,6 +232,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/')"
+                      }
                     }
                   }
                 }
@@ -238,12 +246,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_3DCELL"
+                  "name": "N_3DCELL",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "3D CELL",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -270,6 +279,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/cell3d')"
+                      }
                     }
                   }
                 }
@@ -277,12 +293,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_CELL2D"
+                  "name": "N_CELL2D",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "2D CELL",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -309,6 +326,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/cell2d')"
+                      }
                     }
                   }
                 }
@@ -316,12 +340,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_CAD"
+                  "name": "N_CAD",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "CAD",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -348,6 +373,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/cad')"
+                      }
                     }
                   }
                 }
@@ -355,12 +387,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_MANUAL"
+                  "name": "N_MANUAL",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "MANUAL",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -387,6 +420,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                      }
                     }
                   }
                 }
@@ -394,12 +434,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_ALARMS"
+                  "name": "N_ALARMS",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "ALARMS",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -426,6 +467,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/alarms')"
+                      }
                     }
                   }
                 }
@@ -433,12 +481,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_SETUP"
+                  "name": "N_SETUP",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "SETUP",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -465,6 +514,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/setup')"
+                      }
                     }
                   }
                 }
@@ -530,7 +586,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "User"
+              "name": "User",
+              "tabIndex": 0
             },
             "props": {
               "direction": "column",
@@ -543,7 +600,7 @@
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "auto"
+              "basis": "34px"
             },
             "children": [
               {
@@ -564,7 +621,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "17px"
+                  "basis": "18px"
                 },
                 "propConfig": {
                   "props.text": {
@@ -634,7 +691,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "Left"
+              "name": "Left",
+              "tabIndex": 0
             },
             "props": {
               "direction": "column",
@@ -2105,7 +2163,7 @@
                         "props": {
                           "text": "RAW REPLY \u2014 scrolls",
                           "style": {
-                            "fontSize": "9.5px",
+                            "fontSize": "11px",
                             "color": "var(--neutral-60, #74808a)",
                             "letterSpacing": "1px",
                             "paddingTop": "6px"
@@ -2120,7 +2178,8 @@
                       {
                         "type": "ia.container.flex",
                         "meta": {
-                          "name": "RawBox"
+                          "name": "RawBox",
+                          "tabIndex": 0
                         },
                         "props": {
                           "direction": "column",
@@ -2149,7 +2208,7 @@
                               "text": "",
                               "style": {
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                "fontSize": "10.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "whiteSpace": "pre-wrap",
                                 "lineHeight": "14px"
@@ -2275,7 +2334,8 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "Body"
+                      "name": "Body",
+                      "tabIndex": 0
                     },
                     "props": {
                       "direction": "column",
@@ -2933,7 +2993,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "Right"
+              "name": "Right",
+              "tabIndex": 0
             },
             "props": {
               "direction": "column",
@@ -5072,7 +5133,7 @@
                             "props": {
                               "text": "Theme \u2014 Perspective and the 3D cell together",
                               "style": {
-                                "fontSize": "10px",
+                                "fontSize": "11px",
                                 "color": "var(--md-ink-dim, #74808a)",
                                 "letterSpacing": "0.6px",
                                 "whiteSpace": "nowrap",

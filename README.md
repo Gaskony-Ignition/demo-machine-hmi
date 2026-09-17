@@ -174,6 +174,10 @@ DEMO on the Setup page first — a stopped line has no rollers turning.
 - `tools/package.sh` gates the release zip on archive integrity, file count
   and a resource-manifest pass — a resource the gateway silently never scans
   still "imports successfully" without them.
+- The screens meet WCAG 2.1 AA except for limits in Perspective itself: no
+  page language setting, table/alarm-table internals, and the 3D/CAD inline
+  frame (no `title` attribute, no focus ring on the frame itself) — gated on
+  every release by `tools/package.sh` (`a11y.json`).
 
 ## Licensing
 

@@ -310,12 +310,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_OVERVIEW"
+                  "name": "N_OVERVIEW",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "OVERVIEW",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -342,6 +343,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/')"
+                      }
                     }
                   }
                 }
@@ -349,12 +357,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_3DCELL"
+                  "name": "N_3DCELL",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "3D CELL",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -381,6 +390,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/cell3d')"
+                      }
                     }
                   }
                 }
@@ -388,12 +404,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_CELL2D"
+                  "name": "N_CELL2D",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "2D CELL",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -420,6 +437,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/cell2d')"
+                      }
                     }
                   }
                 }
@@ -427,12 +451,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_CAD"
+                  "name": "N_CAD",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "CAD",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -459,6 +484,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/cad')"
+                      }
                     }
                   }
                 }
@@ -466,12 +498,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_MANUAL"
+                  "name": "N_MANUAL",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "MANUAL",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -498,6 +531,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                      }
                     }
                   }
                 }
@@ -505,12 +545,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_ALARMS"
+                  "name": "N_ALARMS",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "ALARMS",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -537,6 +578,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/alarms')"
+                      }
                     }
                   }
                 }
@@ -544,12 +592,13 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_SETUP"
+                  "name": "N_SETUP",
+                  "tabIndex": 0
                 },
                 "props": {
                   "text": "SETUP",
                   "style": {
-                    "fontSize": "10.5px",
+                    "fontSize": "11px",
                     "fontWeight": 700,
                     "letterSpacing": "0.6px",
                     "padding": "0 8px",
@@ -576,6 +625,13 @@
                       },
                       "scope": "C",
                       "type": "nav"
+                    },
+                    "onKeyDown": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/setup')"
+                      }
                     }
                   }
                 }
@@ -641,7 +697,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "User"
+              "name": "User",
+              "tabIndex": 0
             },
             "props": {
               "direction": "column",
@@ -654,7 +711,7 @@
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "auto"
+              "basis": "34px"
             },
             "children": [
               {
@@ -675,7 +732,7 @@
                 "position": {
                   "grow": 0,
                   "shrink": 0,
-                  "basis": "17px"
+                  "basis": "18px"
                 },
                 "propConfig": {
                   "props.text": {
@@ -786,7 +843,8 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "Head"
+                      "name": "Head",
+                      "tabIndex": 0
                     },
                     "props": {
                       "direction": "row",
@@ -905,7 +963,7 @@
                             "props": {
                               "text": "ZONE 8 \u2014 TRAY CONVEYORS",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "letterSpacing": "0.9px",
                                 "whiteSpace": "nowrap",
@@ -922,7 +980,8 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "B8"
+                              "name": "B8",
+                              "tabIndex": 0
                             },
                             "props": {
                               "direction": "row",
@@ -986,7 +1045,8 @@
                           {
                             "type": "ia.container.coord",
                             "meta": {
-                              "name": "CellZ1"
+                              "name": "CellZ1",
+                              "tabIndex": 0
                             },
                             "props": {
                               "mode": "percent",
@@ -1050,7 +1110,7 @@
                                 "props": {
                                   "text": "",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "fontWeight": 700,
                                     "letterSpacing": "0.7px",
                                     "whiteSpace": "nowrap",
@@ -1256,7 +1316,7 @@
                                 "props": {
                                   "text": "LAYERS 1-5",
                                   "style": {
-                                    "fontSize": "8px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #74808a)",
                                     "letterSpacing": "0.9px",
                                     "whiteSpace": "nowrap"
@@ -1312,7 +1372,7 @@
                                 "props": {
                                   "text": "",
                                   "style": {
-                                    "fontSize": "9.5px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "textAlign": "right",
                                     "whiteSpace": "nowrap"
@@ -1362,6 +1422,13 @@
                                   },
                                   "scope": "C",
                                   "type": "nav"
+                                },
+                                "onKeyDown": {
+                                  "type": "script",
+                                  "scope": "G",
+                                  "config": {
+                                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                                  }
                                 }
                               }
                             }
@@ -1369,7 +1436,8 @@
                           {
                             "type": "ia.container.coord",
                             "meta": {
-                              "name": "CellZ2"
+                              "name": "CellZ2",
+                              "tabIndex": 0
                             },
                             "props": {
                               "mode": "percent",
@@ -1433,7 +1501,7 @@
                                 "props": {
                                   "text": "",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "fontWeight": 700,
                                     "letterSpacing": "0.7px",
                                     "whiteSpace": "nowrap",
@@ -1639,7 +1707,7 @@
                                 "props": {
                                   "text": "LAYERS 1-5",
                                   "style": {
-                                    "fontSize": "8px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #74808a)",
                                     "letterSpacing": "0.9px",
                                     "whiteSpace": "nowrap"
@@ -1695,7 +1763,7 @@
                                 "props": {
                                   "text": "",
                                   "style": {
-                                    "fontSize": "9.5px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "textAlign": "right",
                                     "whiteSpace": "nowrap"
@@ -1745,6 +1813,13 @@
                                   },
                                   "scope": "C",
                                   "type": "nav"
+                                },
+                                "onKeyDown": {
+                                  "type": "script",
+                                  "scope": "G",
+                                  "config": {
+                                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                                  }
                                 }
                               }
                             }
@@ -1752,7 +1827,8 @@
                           {
                             "type": "ia.container.coord",
                             "meta": {
-                              "name": "CellZ3"
+                              "name": "CellZ3",
+                              "tabIndex": 0
                             },
                             "props": {
                               "mode": "percent",
@@ -1816,7 +1892,7 @@
                                 "props": {
                                   "text": "",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "fontWeight": 700,
                                     "letterSpacing": "0.7px",
                                     "whiteSpace": "nowrap",
@@ -1891,7 +1967,7 @@
                                 "props": {
                                   "text": "seconds per cycle",
                                   "style": {
-                                    "fontSize": "9.5px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap"
                                   }
@@ -1964,6 +2040,13 @@
                                   },
                                   "scope": "C",
                                   "type": "nav"
+                                },
+                                "onKeyDown": {
+                                  "type": "script",
+                                  "scope": "G",
+                                  "config": {
+                                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                                  }
                                 }
                               }
                             }
@@ -1971,7 +2054,8 @@
                           {
                             "type": "ia.container.coord",
                             "meta": {
-                              "name": "CellZ4"
+                              "name": "CellZ4",
+                              "tabIndex": 0
                             },
                             "props": {
                               "mode": "percent",
@@ -2035,7 +2119,7 @@
                                 "props": {
                                   "text": "",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "fontWeight": 700,
                                     "letterSpacing": "0.7px",
                                     "whiteSpace": "nowrap",
@@ -2110,7 +2194,7 @@
                                 "props": {
                                   "text": "seconds per cycle",
                                   "style": {
-                                    "fontSize": "9.5px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap"
                                   }
@@ -2183,6 +2267,13 @@
                                   },
                                   "scope": "C",
                                   "type": "nav"
+                                },
+                                "onKeyDown": {
+                                  "type": "script",
+                                  "scope": "G",
+                                  "config": {
+                                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                                  }
                                 }
                               }
                             }
@@ -2195,7 +2286,7 @@
                             "props": {
                               "text": "ZONE 6 \u2014 SHUTTLE",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "letterSpacing": "0.9px",
                                 "whiteSpace": "nowrap",
@@ -2267,7 +2358,7 @@
                                 "props": {
                                   "text": "CAR 1",
                                   "style": {
-                                    "fontSize": "9px",
+                                    "fontSize": "11px",
                                     "color": "var(--md-info, #6cc4e8)",
                                     "letterSpacing": "0.6px"
                                   }
@@ -2283,7 +2374,8 @@
                           {
                             "type": "ia.container.coord",
                             "meta": {
-                              "name": "Z5"
+                              "name": "Z5",
+                              "tabIndex": 0
                             },
                             "props": {
                               "mode": "percent",
@@ -2346,7 +2438,7 @@
                                 "props": {
                                   "text": "",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "fontWeight": 700,
                                     "letterSpacing": "0.7px",
                                     "whiteSpace": "nowrap",
@@ -2422,7 +2514,7 @@
                                 "props": {
                                   "text": "",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "whiteSpace": "nowrap"
                                   }
                                 },
@@ -2493,7 +2585,7 @@
                                 "props": {
                                   "text": "",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-80, #b7c2ca)",
                                     "whiteSpace": "nowrap"
                                   }
@@ -2542,6 +2634,13 @@
                                   },
                                   "scope": "C",
                                   "type": "nav"
+                                },
+                                "onKeyDown": {
+                                  "type": "script",
+                                  "scope": "G",
+                                  "config": {
+                                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/alarms')"
+                                  }
                                 }
                               }
                             }
@@ -2554,7 +2653,7 @@
                             "props": {
                               "text": "ZONE 7 \u2014 PALLET OUTFEED",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "letterSpacing": "0.9px",
                                 "whiteSpace": "nowrap",
@@ -2571,7 +2670,8 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "B7"
+                              "name": "B7",
+                              "tabIndex": 0
                             },
                             "props": {
                               "direction": "row",
@@ -2706,7 +2806,7 @@
                             "props": {
                               "text": "SAFETY",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "letterSpacing": "1px",
                                 "lineHeight": "14px"
@@ -2761,7 +2861,7 @@
                             "props": {
                               "text": "E-stops",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-80, #b7c2ca)",
                                 "lineHeight": "14px",
                                 "whiteSpace": "nowrap"
@@ -2816,7 +2916,7 @@
                             "props": {
                               "text": "Guards",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-80, #b7c2ca)",
                                 "lineHeight": "14px",
                                 "whiteSpace": "nowrap"
@@ -2871,7 +2971,7 @@
                             "props": {
                               "text": "Air supply",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-80, #b7c2ca)",
                                 "lineHeight": "14px",
                                 "whiteSpace": "nowrap"
@@ -2926,7 +3026,7 @@
                             "props": {
                               "text": "Interfaces",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-80, #b7c2ca)",
                                 "lineHeight": "14px",
                                 "whiteSpace": "nowrap"
@@ -2947,7 +3047,7 @@
                             "props": {
                               "text": "",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
                                 "lineHeight": "14px",
@@ -3002,7 +3102,8 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "Head"
+                      "name": "Head",
+                      "tabIndex": 0
                     },
                     "props": {
                       "direction": "row",
@@ -3096,7 +3197,8 @@
                       {
                         "type": "ia.container.coord",
                         "meta": {
-                          "name": "Sensors"
+                          "name": "Sensors",
+                          "tabIndex": 0
                         },
                         "props": {
                           "mode": "percent",
@@ -3175,7 +3277,7 @@
                                 "props": {
                                   "text": "Conveyor 1 \u2014 infeed",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-80, #b7c2ca)",
                                     "letterSpacing": "0.5px",
                                     "whiteSpace": "nowrap",
@@ -3197,7 +3299,7 @@
                                   "text": "",
                                   "style": {
                                     "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                    "fontSize": "10.5px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap"
                                   }
@@ -3306,7 +3408,7 @@
                                 "props": {
                                   "text": "Conveyor 2 \u2014 accumulation",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-80, #b7c2ca)",
                                     "letterSpacing": "0.5px",
                                     "whiteSpace": "nowrap",
@@ -3328,7 +3430,7 @@
                                   "text": "",
                                   "style": {
                                     "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                    "fontSize": "10.5px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap"
                                   }
@@ -3437,7 +3539,7 @@
                                 "props": {
                                   "text": "Conveyor 3 \u2014 robot tray station",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-80, #b7c2ca)",
                                     "letterSpacing": "0.5px",
                                     "whiteSpace": "nowrap",
@@ -3459,7 +3561,7 @@
                                   "text": "",
                                   "style": {
                                     "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                    "fontSize": "10.5px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap"
                                   }
@@ -3543,7 +3645,10 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "Beam_PE_Infeed"
+                              "name": "Beam_PE_Infeed",
+                              "tooltip": {
+                                "text": ""
+                              }
                             },
                             "props": {
                               "direction": "row",
@@ -3568,6 +3673,14 @@
                                     "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Infeed}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
+                              },
+                              "meta.tooltip.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "\"Infeed beam: \" + if(coalesce({[MachineDemo]Conveyor/PE_Infeed}, false), \"clear\", \"blocked\")"
+                                  }
+                                }
                               }
                             }
                           },
@@ -3579,7 +3692,7 @@
                             "props": {
                               "text": "Infeed",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "textAlign": "center",
                                 "whiteSpace": "nowrap",
@@ -3630,7 +3743,10 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "Beam_PE_Carton"
+                              "name": "Beam_PE_Carton",
+                              "tooltip": {
+                                "text": ""
+                              }
                             },
                             "props": {
                               "direction": "row",
@@ -3655,6 +3771,14 @@
                                     "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Carton}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
+                              },
+                              "meta.tooltip.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "\"Carton beam: \" + if(coalesce({[MachineDemo]Conveyor/PE_Carton}, false), \"clear\", \"blocked\")"
+                                  }
+                                }
                               }
                             }
                           },
@@ -3666,7 +3790,7 @@
                             "props": {
                               "text": "Carton",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "textAlign": "center",
                                 "whiteSpace": "nowrap",
@@ -3717,7 +3841,10 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "Beam_PE_Length1"
+                              "name": "Beam_PE_Length1",
+                              "tooltip": {
+                                "text": ""
+                              }
                             },
                             "props": {
                               "direction": "row",
@@ -3742,6 +3869,14 @@
                                     "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Length1}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
+                              },
+                              "meta.tooltip.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "\"Length 1 beam: \" + if(coalesce({[MachineDemo]Conveyor/PE_Length1}, false), \"clear\", \"blocked\")"
+                                  }
+                                }
                               }
                             }
                           },
@@ -3753,7 +3888,7 @@
                             "props": {
                               "text": "Length 1",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "textAlign": "center",
                                 "whiteSpace": "nowrap",
@@ -3804,7 +3939,10 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "Beam_PE_Length2"
+                              "name": "Beam_PE_Length2",
+                              "tooltip": {
+                                "text": ""
+                              }
                             },
                             "props": {
                               "direction": "row",
@@ -3829,6 +3967,14 @@
                                     "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Length2}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
+                              },
+                              "meta.tooltip.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "\"Length 2 beam: \" + if(coalesce({[MachineDemo]Conveyor/PE_Length2}, false), \"clear\", \"blocked\")"
+                                  }
+                                }
                               }
                             }
                           },
@@ -3840,7 +3986,7 @@
                             "props": {
                               "text": "Length 2",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "textAlign": "center",
                                 "whiteSpace": "nowrap",
@@ -3891,7 +4037,10 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "Beam_PE_InPos1"
+                              "name": "Beam_PE_InPos1",
+                              "tooltip": {
+                                "text": ""
+                              }
                             },
                             "props": {
                               "direction": "row",
@@ -3916,6 +4065,14 @@
                                     "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos1}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
+                              },
+                              "meta.tooltip.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "\"In pos 1 beam: \" + if(coalesce({[MachineDemo]Conveyor/PE_InPos1}, false), \"clear\", \"blocked\")"
+                                  }
+                                }
                               }
                             }
                           },
@@ -3927,7 +4084,7 @@
                             "props": {
                               "text": "In pos 1",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "textAlign": "center",
                                 "whiteSpace": "nowrap",
@@ -3978,7 +4135,10 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "Beam_PE_InPos2"
+                              "name": "Beam_PE_InPos2",
+                              "tooltip": {
+                                "text": ""
+                              }
                             },
                             "props": {
                               "direction": "row",
@@ -4003,6 +4163,14 @@
                                     "expression": "if(coalesce({[MachineDemo]Conveyor/PE_InPos2}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
+                              },
+                              "meta.tooltip.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "\"In pos 2 beam: \" + if(coalesce({[MachineDemo]Conveyor/PE_InPos2}, false), \"clear\", \"blocked\")"
+                                  }
+                                }
                               }
                             }
                           },
@@ -4014,7 +4182,7 @@
                             "props": {
                               "text": "In pos 2",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "textAlign": "center",
                                 "whiteSpace": "nowrap",
@@ -4065,7 +4233,10 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "Beam_PE_Clear"
+                              "name": "Beam_PE_Clear",
+                              "tooltip": {
+                                "text": ""
+                              }
                             },
                             "props": {
                               "direction": "row",
@@ -4090,6 +4261,14 @@
                                     "expression": "if(coalesce({[MachineDemo]Conveyor/PE_Clear}, false), \"var(--md-run, #46d07c)\", \"var(--md-edge, #39434c)\")"
                                   }
                                 }
+                              },
+                              "meta.tooltip.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "\"Clear beam: \" + if(coalesce({[MachineDemo]Conveyor/PE_Clear}, false), \"clear\", \"blocked\")"
+                                  }
+                                }
                               }
                             }
                           },
@@ -4101,7 +4280,7 @@
                             "props": {
                               "text": "Clear",
                               "style": {
-                                "fontSize": "9.5px",
+                                "fontSize": "11px",
                                 "color": "var(--neutral-60, #8b98a3)",
                                 "textAlign": "center",
                                 "whiteSpace": "nowrap",
@@ -4155,7 +4334,7 @@
                             "props": {
                               "text": "",
                               "style": {
-                                "fontSize": "9px",
+                                "fontSize": "11px",
                                 "letterSpacing": "0.6px",
                                 "textAlign": "center",
                                 "whiteSpace": "nowrap"
@@ -4226,7 +4405,7 @@
                             "props": {
                               "text": "",
                               "style": {
-                                "fontSize": "9px",
+                                "fontSize": "11px",
                                 "letterSpacing": "0.6px",
                                 "textAlign": "center",
                                 "whiteSpace": "nowrap"
@@ -4329,7 +4508,7 @@
                             "props": {
                               "text": "",
                               "style": {
-                                "fontSize": "9px",
+                                "fontSize": "11px",
                                 "letterSpacing": "0.6px",
                                 "whiteSpace": "nowrap"
                               }
@@ -4362,7 +4541,8 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "Bar"
+                              "name": "Bar",
+                              "tabIndex": 0
                             },
                             "props": {
                               "direction": "row",
@@ -4421,7 +4601,7 @@
                                 "props": {
                                   "text": "BARCODE",
                                   "style": {
-                                    "fontSize": "9.5px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "letterSpacing": "1px",
                                     "whiteSpace": "nowrap"
@@ -4496,7 +4676,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "Rail"
+              "name": "Rail",
+              "tabIndex": 0
             },
             "props": {
               "direction": "column",
@@ -4542,7 +4723,8 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "A"
+                      "name": "A",
+                      "tabIndex": 0
                     },
                     "props": {
                       "direction": "column",
@@ -4566,7 +4748,7 @@
                         "props": {
                           "text": "CASES / MIN",
                           "style": {
-                            "fontSize": "9px",
+                            "fontSize": "11px",
                             "color": "var(--neutral-60, #74808a)",
                             "letterSpacing": "1px"
                           }
@@ -4614,7 +4796,8 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "B"
+                      "name": "B",
+                      "tabIndex": 0
                     },
                     "props": {
                       "direction": "column",
@@ -4638,7 +4821,7 @@
                         "props": {
                           "text": "SHIFT",
                           "style": {
-                            "fontSize": "9px",
+                            "fontSize": "11px",
                             "color": "var(--neutral-60, #74808a)",
                             "letterSpacing": "1px",
                             "textAlign": "right"
@@ -4868,7 +5051,8 @@
                       {
                         "type": "ia.display.label",
                         "meta": {
-                          "name": "N"
+                          "name": "N",
+                          "tabIndex": 0
                         },
                         "props": {
                           "text": "",
@@ -4906,6 +5090,13 @@
                               },
                               "scope": "C",
                               "type": "nav"
+                            },
+                            "onKeyDown": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                              }
                             }
                           }
                         }
@@ -4918,7 +5109,7 @@
                         "props": {
                           "text": "",
                           "style": {
-                            "fontSize": "10px",
+                            "fontSize": "11px",
                             "fontWeight": 700,
                             "letterSpacing": "0.6px",
                             "whiteSpace": "nowrap"
@@ -5150,7 +5341,8 @@
                       {
                         "type": "ia.display.label",
                         "meta": {
-                          "name": "N"
+                          "name": "N",
+                          "tabIndex": 0
                         },
                         "props": {
                           "text": "",
@@ -5188,6 +5380,13 @@
                               },
                               "scope": "C",
                               "type": "nav"
+                            },
+                            "onKeyDown": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                              }
                             }
                           }
                         }
@@ -5200,7 +5399,7 @@
                         "props": {
                           "text": "",
                           "style": {
-                            "fontSize": "10px",
+                            "fontSize": "11px",
                             "fontWeight": 700,
                             "letterSpacing": "0.6px",
                             "whiteSpace": "nowrap"
@@ -5432,7 +5631,8 @@
                       {
                         "type": "ia.display.label",
                         "meta": {
-                          "name": "N"
+                          "name": "N",
+                          "tabIndex": 0
                         },
                         "props": {
                           "text": "",
@@ -5470,6 +5670,13 @@
                               },
                               "scope": "C",
                               "type": "nav"
+                            },
+                            "onKeyDown": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                              }
                             }
                           }
                         }
@@ -5482,7 +5689,7 @@
                         "props": {
                           "text": "",
                           "style": {
-                            "fontSize": "10px",
+                            "fontSize": "11px",
                             "fontWeight": 700,
                             "letterSpacing": "0.6px",
                             "whiteSpace": "nowrap"
@@ -5714,7 +5921,8 @@
                       {
                         "type": "ia.display.label",
                         "meta": {
-                          "name": "N"
+                          "name": "N",
+                          "tabIndex": 0
                         },
                         "props": {
                           "text": "",
@@ -5752,6 +5960,13 @@
                               },
                               "scope": "C",
                               "type": "nav"
+                            },
+                            "onKeyDown": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                              }
                             }
                           }
                         }
@@ -5764,7 +5979,7 @@
                         "props": {
                           "text": "",
                           "style": {
-                            "fontSize": "10px",
+                            "fontSize": "11px",
                             "fontWeight": 700,
                             "letterSpacing": "0.6px",
                             "whiteSpace": "nowrap"
@@ -5996,7 +6211,8 @@
                       {
                         "type": "ia.display.label",
                         "meta": {
-                          "name": "N"
+                          "name": "N",
+                          "tabIndex": 0
                         },
                         "props": {
                           "text": "",
@@ -6034,6 +6250,13 @@
                               },
                               "scope": "C",
                               "type": "nav"
+                            },
+                            "onKeyDown": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                              }
                             }
                           }
                         }
@@ -6046,7 +6269,7 @@
                         "props": {
                           "text": "",
                           "style": {
-                            "fontSize": "10px",
+                            "fontSize": "11px",
                             "fontWeight": 700,
                             "letterSpacing": "0.6px",
                             "whiteSpace": "nowrap"
@@ -6278,7 +6501,8 @@
                       {
                         "type": "ia.display.label",
                         "meta": {
-                          "name": "N"
+                          "name": "N",
+                          "tabIndex": 0
                         },
                         "props": {
                           "text": "",
@@ -6316,6 +6540,13 @@
                               },
                               "scope": "C",
                               "type": "nav"
+                            },
+                            "onKeyDown": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                              }
                             }
                           }
                         }
@@ -6328,7 +6559,7 @@
                         "props": {
                           "text": "",
                           "style": {
-                            "fontSize": "10px",
+                            "fontSize": "11px",
                             "fontWeight": 700,
                             "letterSpacing": "0.6px",
                             "whiteSpace": "nowrap"
@@ -6560,7 +6791,8 @@
                       {
                         "type": "ia.display.label",
                         "meta": {
-                          "name": "N"
+                          "name": "N",
+                          "tabIndex": 0
                         },
                         "props": {
                           "text": "",
@@ -6598,6 +6830,13 @@
                               },
                               "scope": "C",
                               "type": "nav"
+                            },
+                            "onKeyDown": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                              }
                             }
                           }
                         }
@@ -6610,7 +6849,7 @@
                         "props": {
                           "text": "",
                           "style": {
-                            "fontSize": "10px",
+                            "fontSize": "11px",
                             "fontWeight": 700,
                             "letterSpacing": "0.6px",
                             "whiteSpace": "nowrap"
@@ -6842,7 +7081,8 @@
                       {
                         "type": "ia.display.label",
                         "meta": {
-                          "name": "N"
+                          "name": "N",
+                          "tabIndex": 0
                         },
                         "props": {
                           "text": "",
@@ -6880,6 +7120,13 @@
                               },
                               "scope": "C",
                               "type": "nav"
+                            },
+                            "onKeyDown": {
+                              "type": "script",
+                              "scope": "G",
+                              "config": {
+                                "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/manual')"
+                              }
                             }
                           }
                         }
@@ -6892,7 +7139,7 @@
                         "props": {
                           "text": "",
                           "style": {
-                            "fontSize": "10px",
+                            "fontSize": "11px",
                             "fontWeight": 700,
                             "letterSpacing": "0.6px",
                             "whiteSpace": "nowrap"
@@ -7175,12 +7422,13 @@
           {
             "type": "ia.display.label",
             "meta": {
-              "name": "Go"
+              "name": "Go",
+              "tabIndex": 0
             },
             "props": {
               "text": "OPEN ALARMS",
               "style": {
-                "fontSize": "10.5px",
+                "fontSize": "11px",
                 "fontWeight": 700,
                 "letterSpacing": "1px",
                 "color": "var(--neutral-60, #8b98a3)",
@@ -7205,6 +7453,13 @@
                   },
                   "scope": "C",
                   "type": "nav"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/alarms')"
+                  }
                 }
               }
             }

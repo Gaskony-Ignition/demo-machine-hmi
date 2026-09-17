@@ -43,10 +43,39 @@ if [[ " $* " != *" --skip-readme-check "* ]]; then
         echo "readme-gate.sh not found above $_repo; gate skipped" >&2
     fi
 fi
-# Strip --skip-readme-check (already consumed by the gate above) so this
-# script's own argument parsing -- which rejects unrecognised args -- never
-# sees it.
-_pkgargs=(); for _a in "$@"; do [[ "$_a" == "--skip-readme-check" ]] || _pkgargs+=("$_a"); done
+# a11y gate (WCAG 2.1 AA plan, Stage 5). Blocking; bypass deliberately with
+# --skip-a11y-check. The gate checks what is DEPLOYED, so deploy the current
+# project to module-testing (this repo's own tools/env.local.sh + scan.sh)
+# before it runs.
+if [[ " $* " != *" --skip-a11y-check "* ]]; then
+    _here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    _repo=$(git -C "$_here" rev-parse --show-toplevel)
+    _gate=""; _d="$_repo"
+    while [ "$_d" != / ]; do
+        [ -x "$_d/modules/a11y-gate.sh" ] && { _gate="$_d/modules/a11y-gate.sh"; break; }
+        _d=$(dirname "$_d")
+    done
+    if [ -z "$_gate" ]; then
+        echo "a11y-gate.sh not found above $_repo; gate skipped" >&2
+    elif [ ! -f "$_here/env.local.sh" ]; then
+        echo "a11y gate skipped: no tools/env.local.sh - copy tools/env.example.sh and edit it to check against your own gateway" >&2
+    else
+        (
+            # shellcheck disable=SC1091
+            source "$_here/env.local.sh"
+            cd "$_repo/project" && tar cf - . | docker exec -i "$GW_CONTAINER" tar xf - -C "$GW_PROJECTS/Machine_HMI_Demo"
+            docker exec "$GW_CONTAINER" chown -R ignition:ignition "$GW_PROJECTS/Machine_HMI_Demo"
+        )
+        "$_here/scan.sh"
+        "$_gate" "$_repo" || { echo "a11y gate failed: fix the findings above, record a reasoned exception in a11y.json, or pass --skip-a11y-check" >&2; exit 1; }
+    fi
+fi
+# Strip --skip-readme-check/--skip-a11y-check (already consumed by the gates
+# above) so this script's own argument parsing -- which rejects unrecognised
+# args -- never sees them.
+_pkgargs=(); for _a in "$@"; do
+    [[ "$_a" == "--skip-readme-check" || "$_a" == "--skip-a11y-check" ]] || _pkgargs+=("$_a")
+done
 set -- "${_pkgargs[@]}"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

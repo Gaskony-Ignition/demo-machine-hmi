@@ -89,6 +89,14 @@ for column in ("Pos", "Tgt"):
     style["classes"] = " ".join(classes)
     touched.append(column)
 
+# WCAG 2.1 AA (axe scrollable-region-focusable): "Signed in as ..." at 11.5px
+# measures 1px taller than the Who row's 20px basis, which alone made it a
+# 21px-tall scroll container with nothing inside it to scroll to or focus.
+who = find(view["root"], "Who")
+if who is not None:
+    who["position"]["basis"] = "21px"
+    touched.append("Who")
+
 json.dump(view, open(view_file, "w"), indent=2)
 
 res_file = os.path.join(VIEW, "resource.json")
