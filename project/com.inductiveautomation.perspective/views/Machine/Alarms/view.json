@@ -951,8 +951,7 @@
                   {
                     "type": "ia.display.alarmstatustable",
                     "meta": {
-                      "name": "Status",
-                      "tabIndex": 0
+                      "name": "Status"
                     },
                     "props": {
                       "refreshRate": 3000,

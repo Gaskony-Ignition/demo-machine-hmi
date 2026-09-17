@@ -11,6 +11,18 @@
 //         MHD_PROJECT=Edge node tools/verify/nav_fit.js http://host:8388
 const { chromium } = require('playwright');
 
+// A fixed 3.2s after `networkidle` was long enough for one session on this
+// gateway and not for several - measured 18/09/2026 with other agents'
+// sessions competing for the same connect/sync step. Poll instead of
+// guessing a bigger constant.
+async function waitForComponents(p, capMs = 20000) {
+  const start = Date.now();
+  while (Date.now() - start < capMs) {
+    if (await p.evaluate(() => document.querySelectorAll('[data-component]').length) > 0) return;
+    await p.waitForTimeout(500);
+  }
+}
+
 const PROJECT = process.env.MHD_PROJECT || 'Machine_HMI_Demo';
 const BASE = process.argv[2] || process.env.GW_URL;
 if (!BASE) { console.error('give the gateway URL as the first argument, or set $GW_URL'); process.exit(2); }
@@ -58,7 +70,8 @@ const PROBE = `(() => {
     for (const pg of PAGES) {
       await p.goto(`${BASE}/data/perspective/client/${PROJECT}/${pg}`,
                    { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
-      await p.waitForTimeout(3200);
+      await waitForComponents(p);
+      await p.waitForTimeout(800);
       const r = await p.evaluate(PROBE);
 
       if (r.components === 0) {
