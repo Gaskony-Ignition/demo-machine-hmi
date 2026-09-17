@@ -57,9 +57,9 @@
 	--md-rule:              #3b4650;  /* divider on Overview */
 	--md-clamp-off:         #4a5560;  /* clamp lamp, retracted */
 	--md-joint:             #5a646f;  /* Cell2D arm joint */
-	--md-ink-dim:           #74808a;  /* dim text - captions, inactive counts */
+	--md-ink-dim:           #929ea8;  /* dim text - captions, inactive counts */
 	--md-steel:             #7d8894;  /* Cell2D structure */
-	--md-ink-quiet:         #8b98a3;  /* secondary text */
+	--md-ink-quiet:         #98a5b0;  /* secondary text */
 	--md-steel-hi:          #98a4b1;  /* Cell2D structure, lit face */
 	--md-arm-2:             #aab3bd;  /* Cell2D forearm */
 	--md-ink-soft:          #b7c2ca;  /* text on a tinted card */
@@ -133,9 +133,9 @@
 		--md-rule: rgb(from var(--neutral-40, #3b4650) calc(59 + clamp(0, (r - 110) / 46, 1) * (r - 59)) calc(70 + clamp(0, (r - 110) / 46, 1) * (g - 70)) calc(80 + clamp(0, (r - 110) / 46, 1) * (b - 80)));
 		--md-clamp-off: rgb(from var(--neutral-50, #4a5560) calc(74 + clamp(0, (r - 118) / 17, 1) * (r - 74)) calc(85 + clamp(0, (r - 118) / 17, 1) * (g - 85)) calc(96 + clamp(0, (r - 118) / 17, 1) * (b - 96)));
 		--md-joint: rgb(from var(--neutral-50, #5a646f) calc(90 + clamp(0, (r - 118) / 17, 1) * (r - 90)) calc(100 + clamp(0, (r - 118) / 17, 1) * (g - 100)) calc(111 + clamp(0, (r - 118) / 17, 1) * (b - 111)));
-		--md-ink-dim: rgb(from var(--neutral-60, #74808a) calc(116 + clamp(0, (135 - r) / 17, 1) * (r - 116)) calc(128 + clamp(0, (135 - r) / 17, 1) * (g - 128)) calc(138 + clamp(0, (135 - r) / 17, 1) * (b - 138)));
+		--md-ink-dim: rgb(from var(--neutral-60, #929ea8) calc(146 + clamp(0, (135 - r) / 17, 1) * (r - 146)) calc(158 + clamp(0, (135 - r) / 17, 1) * (g - 158)) calc(168 + clamp(0, (135 - r) / 17, 1) * (b - 168)));
 		--md-steel: rgb(from var(--neutral-60, #7d8894) calc(125 + clamp(0, (135 - r) / 17, 1) * (r - 125)) calc(136 + clamp(0, (135 - r) / 17, 1) * (g - 136)) calc(148 + clamp(0, (135 - r) / 17, 1) * (b - 148)));
-		--md-ink-quiet: rgb(from var(--neutral-60, #8b98a3) calc(139 + clamp(0, (135 - r) / 17, 1) * (r - 139)) calc(152 + clamp(0, (135 - r) / 17, 1) * (g - 152)) calc(163 + clamp(0, (135 - r) / 17, 1) * (b - 163)));
+		--md-ink-quiet: rgb(from var(--neutral-60, #98a5b0) calc(152 + clamp(0, (135 - r) / 17, 1) * (r - 152)) calc(165 + clamp(0, (135 - r) / 17, 1) * (g - 165)) calc(176 + clamp(0, (135 - r) / 17, 1) * (b - 176)));
 		--md-steel-hi: rgb(from var(--neutral-70, #98a4b1) calc(152 + clamp(0, (162 - r) / 52, 1) * (r - 152)) calc(164 + clamp(0, (162 - r) / 52, 1) * (g - 164)) calc(177 + clamp(0, (162 - r) / 52, 1) * (b - 177)));
 		--md-arm-2: rgb(from var(--neutral-70, #aab3bd) calc(170 + clamp(0, (162 - r) / 52, 1) * (r - 170)) calc(179 + clamp(0, (162 - r) / 52, 1) * (g - 179)) calc(189 + clamp(0, (162 - r) / 52, 1) * (b - 189)));
 		--md-ink-soft: rgb(from var(--neutral-80, #b7c2ca) calc(183 + clamp(0, (193 - r) / 100, 1) * (r - 183)) calc(194 + clamp(0, (193 - r) / 100, 1) * (g - 194)) calc(202 + clamp(0, (193 - r) / 100, 1) * (b - 202)));
@@ -177,6 +177,29 @@
 }
 /* === end of the md colour table === */
 
+/* Focus ring, WCAG 2.1 AA 2.4.7.
+
+   The stock theme's own ring is 1px of --callToAction--hover, which measured
+   2.47:1 on the alarm table's toolbar buttons here - under the 3:1 floor for
+   a UI outline. `--a11y-focus-ring` is `ignition-themes`' own measured ring
+   variable (undefined on a stock theme, where --neutral-100 stands in - it
+   is the brightest ink token in every dark theme and the darkest in every
+   light one, so it always clears 3:1 against a themed surface with no
+   project-specific tuning).
+
+   `.ia_dropdown__search` and the alarm/data table's `ReactVirtualized__Grid`
+   turn their own outline off, so each needs restating explicitly - the Grid
+   one `!important` and inset, because the stock rule it is overriding is
+   itself `!important`. */
+:focus-visible, .ia_dropdown.ia_dropdown--focused {
+	outline: 2px solid var(--a11y-focus-ring, var(--neutral-100));
+	outline-offset: 1px;
+}
+.ReactVirtualized__Grid:focus-visible {
+	outline: 2px solid var(--a11y-focus-ring, var(--neutral-100)) !important;
+	outline-offset: -2px;
+}
+
 /* Header at panel widths.
 
    The top bar carries identity, three status chips, six nav tabs and the user
@@ -199,7 +222,7 @@
 .psc-hdr-title.psc-hdr-title { font-size: 19px; }
 .psc-hdr-chip.psc-hdr-chip   { font-size: 11.5px; padding: 0 10px; letter-spacing: 0.7px; }
 .psc-hdr-user.psc-hdr-user   { font-size: 13px; }
-.psc-hdr-user-sub.psc-hdr-user-sub { font-size: 10.5px; }
+.psc-hdr-user-sub.psc-hdr-user-sub { font-size: 11px; }
 
 @media (max-width: 1319px) {
 	/* !important is genuinely required here, and only here. Perspective writes
@@ -209,10 +232,10 @@
 	   specificity alone. */
 	.psc-hdr-sub.psc-hdr-sub     { display: none !important; }
 	.psc-hdr-title.psc-hdr-title { font-size: 15px; line-height: 22px; }
-	.psc-hdr-chip.psc-hdr-chip   { font-size: 10.5px; padding: 0 6px; letter-spacing: 0.2px; }
+	.psc-hdr-chip.psc-hdr-chip   { font-size: 11px; padding: 0 6px; letter-spacing: 0.2px; }
 	.psc-hdr-user.psc-hdr-user   { font-size: 11.5px; }
-	.psc-hdr-user-sub.psc-hdr-user-sub { font-size: 9.5px; }
-	.psc-nav-tab.psc-nav-tab     { font-size: 10px; padding: 0 5px; letter-spacing: 0.3px; }
+	.psc-hdr-user-sub.psc-hdr-user-sub { font-size: 11px; }
+	.psc-nav-tab.psc-nav-tab     { font-size: 11px; padding: 0 5px; letter-spacing: 0.3px; }
 }
 
 /* Below 1120px - the 10" panel itself - the header gives up its spacing too.
@@ -253,14 +276,16 @@
 
 /* On the 1024x600 panel a zone card is 141px wide and its name and state need
    68px and 55px side by side with a 6px gap - one pixel more than there is.
-   One size step each buys 19px of slack. The conveyor names are simply longer
-   than a third of a 646px panel and are elided after "Conveyor 2 —", which is
-   the half that identifies them. */
+   These used to drop a size step below the WCAG 2.1 AA 11px floor to buy that
+   slack; they no longer do, so the ellipsis above is what actually saves the
+   layout now - the conveyor names are simply longer than a third of a 646px
+   panel and are elided after "Conveyor 2 —", which is the half that
+   identifies them. */
 @media (max-width: 1119px) {
-	.psc-zone-name  span { font-size: 10.5px; }
-	.psc-zone-state span { font-size: 9px; letter-spacing: 0.4px; }
-	.psc-conv-name  span { font-size: 9px; letter-spacing: 0.3px; }
-	.psc-pe-cap     span { font-size: 9px; }
+	.psc-zone-name  span { font-size: 11px; }
+	.psc-zone-state span { font-size: 11px; letter-spacing: 0.4px; }
+	.psc-conv-name  span { font-size: 11px; letter-spacing: 0.3px; }
+	.psc-pe-cap     span { font-size: 11px; }
 }
 
 /* The lift readouts on Manual.

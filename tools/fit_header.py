@@ -119,6 +119,18 @@ for name in sorted(os.listdir(VIEWS)):
             add_class(el, cls)
             el["props"]["style"].pop("fontSize", None)
 
+    # WCAG 2.1 AA (axe scrollable-region-focusable): Name+Role+gap sum to a
+    # 32px basis, but the labels' own rendered line height is 1px taller than
+    # that regardless of what basis either one is given (measured - raising
+    # Name's basis raises the sum by the same amount and the 1px gap simply
+    # moves with it). Giving the COLUMN itself a basis 2px over that sum,
+    # rather than shrinking the labels back to fit it, is what actually turns
+    # it back into a plain box with nothing to scroll to or focus.
+    user = find(view["root"], "User")
+    if user is not None:
+        user["position"]["basis"] = "34px"
+        user.setdefault("meta", {})["tabIndex"] = 0
+
     json.dump(view, open(view_file, "w"), indent=2)
     stamp(view_dir)
     touched.append(name)

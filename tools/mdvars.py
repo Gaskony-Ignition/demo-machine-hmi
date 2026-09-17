@@ -124,6 +124,12 @@ POLARITY = {
 # A hex is a SEMANTIC: the light end is that value, chosen for contrast on a
 # light ground and measured (see the sweep numbers in add_theme_picker.py).
 # None means the colour is the same in both - cardboard is cardboard.
+#
+# ink-dim and ink-quiet were #74808a and #8b98a3 (WCAG 2.1 AA sweep,
+# 17/09/2026): both under 4.5:1 as text on the brightest panel surface this
+# project's captions actually sit on (dark-cool's own #2e3437, not one of the
+# tokens above - a stock component surface). Raised to clear 4.5:1 there with
+# margin, keeping ink-quiet the brighter of the two.
 NEUTRAL = [
     ("#12171c", "bg-deep",     10, "the darkest ground, behind everything"),
     ("#171b20", "bg",          10, "page background"),
@@ -143,9 +149,9 @@ NEUTRAL = [
     ("#3b4650", "rule",        40, "divider on Overview"),
     ("#4a5560", "clamp-off",   50, "clamp lamp, retracted"),
     ("#5a646f", "joint",       50, "Cell2D arm joint"),
-    ("#74808a", "ink-dim",     60, "dim text - captions, inactive counts"),
+    ("#929ea8", "ink-dim",     60, "dim text - captions, inactive counts"),
     ("#7d8894", "steel",       60, "Cell2D structure"),
-    ("#8b98a3", "ink-quiet",   60, "secondary text"),
+    ("#98a5b0", "ink-quiet",   60, "secondary text"),
     ("#98a4b1", "steel-hi",    70, "Cell2D structure, lit face"),
     ("#aab3bd", "arm-2",       70, "Cell2D forearm"),
     ("#b7c2ca", "ink-soft",    80, "text on a tinted card"),

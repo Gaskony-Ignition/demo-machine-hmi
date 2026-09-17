@@ -287,6 +287,12 @@ cell_iframe = {
         # produces a working URL, and a plausible-looking literal here would
         # just be a second project name to get wrong.
         "src": "",
+        # WCAG 2.1 AA: ia.display.iframe has no `title` prop to set (checked
+        # against PerspectiveComponents' own IFrame render - it destructures
+        # only style/src/srcDoc/sandbox/allowFullScreen/referrerPolicy) and
+        # Chromium does not paint an `outline` on a focused <iframe> at all,
+        # even forced with an injected !important rule (a11y.json exceptions
+        # axe:frame-title and focus:no-focus-ring).
         "style": {
             "height": "100%",
             "width": "100%",
@@ -338,7 +344,7 @@ def field(tag, caption):
         "position": {"grow": 1, "shrink": 1, "basis": "0px"},
         "props": {"direction": "column", "style": {"gap": "2px", "minWidth": "0px"}},
         "children": [
-            label("K", caption, "10px", DIM, {"letterSpacing": "0.4px"}, "14px"),
+            label("K", caption, "11px", DIM, {"letterSpacing": "0.4px"}, "15px"),
             {
                 "type": "ia.input.numeric-entry-field", "version": 0,
                 "meta": {"name": "V"},
@@ -364,7 +370,7 @@ def group(title, fields):
         "position": {"grow": 0, "shrink": 0, "basis": "auto"},
         "props": {"direction": "column", "style": {"gap": "3px"}},
         "children": [
-            label("H", title, "10.5px", INK, {"fontWeight": "bold",
+            label("H", title, "11px", INK, {"fontWeight": "bold",
                   "letterSpacing": "0.6px", "textTransform": "uppercase"}, "16px"),
             {
                 "type": "ia.container.flex", "version": 0,
@@ -443,8 +449,8 @@ geom_body = {
     "children": [
         label("T", "Machine geometry", "13px", INK, {"fontWeight": "bold"}, "18px"),
         label("S", "[%s]Config \u2014 15 tags. Edit one and the cell, the "
-              "pattern and the arm follow." % PROVIDER, "10.5px", DIM,
-              {"whiteSpace": "normal", "lineHeight": "14px"}, "28px"),
+              "pattern and the arm follow." % PROVIDER, "11px", DIM,
+              {"whiteSpace": "normal", "lineHeight": "15px"}, "30px"),
         {
             "type": "ia.container.flex", "version": 0,
             "meta": {"name": "Presets"},

@@ -367,7 +367,8 @@
               {
                 "type": "ia.container.flex",
                 "meta": {
-                  "name": "GeomBody"
+                  "name": "GeomBody",
+                  "tabIndex": 0
                 },
                 "position": {
                   "grow": 1,
@@ -430,17 +431,17 @@
                     "position": {
                       "grow": 0,
                       "shrink": 0,
-                      "basis": "28px"
+                      "basis": "30px"
                     },
                     "props": {
                       "text": "[MachineDemo]Config \u2014 15 tags. Edit one and the cell, the pattern and the arm follow.",
                       "style": {
-                        "fontSize": "10.5px",
+                        "fontSize": "11px",
                         "color": "var(--neutral-60, #8b98a3)",
                         "whiteSpace": "normal",
                         "overflow": "hidden",
                         "textOverflow": "ellipsis",
-                        "lineHeight": "14px"
+                        "lineHeight": "15px"
                       }
                     }
                   },
@@ -616,7 +617,7 @@
                         "props": {
                           "text": "Case (mm)",
                           "style": {
-                            "fontSize": "10.5px",
+                            "fontSize": "11px",
                             "color": "var(--neutral-90, #dde4e9)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
@@ -673,12 +674,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "WIDTH",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -751,12 +752,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "DEPTH",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -829,12 +830,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "HEIGHT",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -915,7 +916,7 @@
                         "props": {
                           "text": "Pallet (mm)",
                           "style": {
-                            "fontSize": "10.5px",
+                            "fontSize": "11px",
                             "color": "var(--neutral-90, #dde4e9)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
@@ -972,12 +973,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "WIDTH",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -1050,12 +1051,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "DEPTH",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -1128,12 +1129,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "DECK",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -1214,7 +1215,7 @@
                         "props": {
                           "text": "Pattern",
                           "style": {
-                            "fontSize": "10.5px",
+                            "fontSize": "11px",
                             "color": "var(--neutral-90, #dde4e9)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
@@ -1271,12 +1272,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "CASES / LAYER",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -1349,12 +1350,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "LAYERS",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -1435,7 +1436,7 @@
                         "props": {
                           "text": "Infeed conveyor (mm)",
                           "style": {
-                            "fontSize": "10.5px",
+                            "fontSize": "11px",
                             "color": "var(--neutral-90, #dde4e9)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
@@ -1492,12 +1493,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "HEIGHT",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -1570,12 +1571,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "LENGTH",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -1648,12 +1649,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "WIDTH",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -1734,7 +1735,7 @@
                         "props": {
                           "text": "Stations (mm from robot)",
                           "style": {
-                            "fontSize": "10.5px",
+                            "fontSize": "11px",
                             "color": "var(--neutral-90, #dde4e9)",
                             "whiteSpace": "nowrap",
                             "overflow": "hidden",
@@ -1791,12 +1792,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "1 \u00b7 X",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -1869,12 +1870,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "1 \u00b7 Z",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -1947,12 +1948,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "2 \u00b7 X",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
@@ -2025,12 +2026,12 @@
                                 "position": {
                                   "grow": 0,
                                   "shrink": 0,
-                                  "basis": "14px"
+                                  "basis": "15px"
                                 },
                                 "props": {
                                   "text": "2 \u00b7 Z",
                                   "style": {
-                                    "fontSize": "10px",
+                                    "fontSize": "11px",
                                     "color": "var(--neutral-60, #8b98a3)",
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",

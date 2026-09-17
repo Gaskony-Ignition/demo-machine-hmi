@@ -85,6 +85,12 @@ cad_iframe = {
     "position": {"grow": 1, "basis": "0px"},
     "props": {
         "src": "",
+        # WCAG 2.1 AA: ia.display.iframe has no `title` prop to set (checked
+        # against PerspectiveComponents' own IFrame render - it destructures
+        # only style/src/srcDoc/sandbox/allowFullScreen/referrerPolicy) and
+        # Chromium does not paint an `outline` on a focused <iframe> at all,
+        # even forced with an injected !important rule (a11y.json exceptions
+        # axe:frame-title and focus:no-focus-ring).
         "style": {"height": "100%", "width": "100%",
                   "border": "none", "minHeight": "0"},
     },
