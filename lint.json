@@ -1,0 +1,16 @@
+{
+  "exceptions": [
+    {"file": "Machine/Manual/view.json", "rule": "PollingIntervalRule", "match": "now(250)",
+     "reason": "the hidden jog/seek driver steps the lift once per tick; at 1 s the jog is four times slower"},
+    {"file": "Machine/Scene/view.json", "rule": "UnusedCustomPropertiesRule", "match": "'units'",
+     "reason": "MachineDemo.scene.document() reads these props straight from view.json to serve admin?cmd=scene"},
+    {"file": "Machine/Scene/view.json", "rule": "UnusedCustomPropertiesRule", "match": "'consts'",
+     "reason": "read from view.json by MachineDemo.scene.document()"},
+    {"file": "Machine/Scene/view.json", "rule": "UnusedCustomPropertiesRule", "match": "'data'",
+     "reason": "read from view.json by MachineDemo.scene.document()"},
+    {"file": "Machine/Scene/view.json", "rule": "UnusedCustomPropertiesRule", "match": "'materials'",
+     "reason": "read from view.json by MachineDemo.scene.document()"},
+    {"file": "Machine/Scene/view.json", "rule": "UnusedCustomPropertiesRule", "match": "'parts'",
+     "reason": "read from view.json by MachineDemo.scene.document()"}
+  ]
+}
