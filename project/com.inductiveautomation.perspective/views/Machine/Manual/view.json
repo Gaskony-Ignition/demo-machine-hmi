@@ -9271,7 +9271,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "toStr(now(250))"
+                    "expression": "toStr(now(1000))"
                   },
                   "transforms": [
                     {
