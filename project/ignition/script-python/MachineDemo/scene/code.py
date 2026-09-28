@@ -88,7 +88,7 @@ def document():
 				view = system.util.jsonDecode(f.read())
 			finally:
 				f.close()
-		except Exception, exc:
+		except Exception as exc:
 			return {"ok": False, "error": "could not read %s: %s" % (path, exc),
 			        "tried": tried}
 		custom = view.get("custom") or {}

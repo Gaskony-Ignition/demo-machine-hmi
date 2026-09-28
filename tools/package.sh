@@ -70,11 +70,27 @@ if [[ " $* " != *" --skip-a11y-check "* ]]; then
         "$_gate" "$_repo" || { echo "a11y gate failed: fix the findings above, record a reasoned exception in a11y.json, or pass --skip-a11y-check" >&2; exit 1; }
     fi
 fi
-# Strip --skip-readme-check/--skip-a11y-check (already consumed by the gates
-# above) so this script's own argument parsing -- which rejects unrecognised
-# args -- never sees them.
+# Lint gate (ign-lint + pylint over Jython 2.7). Blocking; bypass deliberately
+# with --skip-lint-check.
+if [[ " $* " != *" --skip-lint-check "* ]]; then
+    _here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    _repo=$(git -C "$_here" rev-parse --show-toplevel)
+    _lint=""; _d="$_repo"
+    while [ "$_d" != / ]; do
+        [ -x "$_d/modules/lint-gate.sh" ] && { _lint="$_d/modules/lint-gate.sh"; break; }
+        _d=$(dirname "$_d")
+    done
+    if [ -n "$_lint" ]; then
+        "$_lint" "$_repo" || { echo "lint gate failed: fix the errors above or pass --skip-lint-check" >&2; exit 1; }
+    else
+        echo "lint-gate.sh not found above $_repo; gate skipped" >&2
+    fi
+fi
+# Strip --skip-readme-check/--skip-a11y-check/--skip-lint-check (already
+# consumed by the gates above) so this script's own argument parsing -- which
+# rejects unrecognised args -- never sees them.
 _pkgargs=(); for _a in "$@"; do
-    [[ "$_a" == "--skip-readme-check" || "$_a" == "--skip-a11y-check" ]] || _pkgargs+=("$_a")
+    [[ "$_a" == "--skip-readme-check" || "$_a" == "--skip-a11y-check" || "$_a" == "--skip-lint-check" ]] || _pkgargs+=("$_a")
 done
 set -- "${_pkgargs[@]}"
 
