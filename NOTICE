@@ -30,6 +30,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ================================================================================
+occt-import-js and Open CASCADE Technology  --
+  project/com.inductiveautomation.webdev/resources/lib/occt-import-js.js
+  project/com.inductiveautomation.webdev/resources/lib/occt-import-js.wasm
+================================================================================
+
+The CAD page reads STEP files with occt-import-js 0.0.23 by Viktor Kovacs
+<https://github.com/kovacsv/occt-import-js>, the emscripten build of the
+STEP/IGES/BREP import functions of Open CASCADE Technology (OCCT)
+<https://dev.opencascade.org>, (c) OPEN CASCADE SAS.
+
+Both files are the unmodified `dist/` files of the npm package
+occt-import-js@0.0.23. The .wasm statically includes OCCT at commit
+d2abb6d844231cb8f29be6894440874a4700e4a5 of
+https://git.dev.opencascade.org/repos/occt.git (the `occt` submodule of
+occt-import-js at tag 0.0.23).
+
+This product makes use of facilities provided by the Open CASCADE Technology
+software.
+
+occt-import-js is licensed under the GNU Lesser General Public License,
+version 2.1. OCCT is licensed under the GNU Lesser General Public License,
+version 2.1, with the Open CASCADE exception version 1.0. The licence texts
+are shipped beside the binaries, as published upstream:
+
+  project/com.inductiveautomation.webdev/resources/lib/license.occt-import-js.txt
+  project/com.inductiveautomation.webdev/resources/lib/license.occt.txt
+
+Corresponding source:
+  occt-import-js  https://github.com/kovacsv/occt-import-js/tree/0.0.23
+                  (also in the npm tarball occt-import-js-0.0.23.tgz)
+  OCCT            https://git.dev.opencascade.org/repos/occt.git
+                  commit d2abb6d844231cb8f29be6894440874a4700e4a5
+
+The library is loaded by the CAD page at runtime as a separate file. To use a
+modified build, replace those two files with your own build of
+occt-import-js; nothing else in this project depends on their contents.
+
+Open CASCADE exception (version 1.0) to GNU LGPL version 2.1.
+
+The object code (i.e. not a source) form of a "work that uses the Library"
+can incorporate material from a header file that is part of the Library.
+As a special exception to the GNU Lesser General Public License version 2.1,
+you may distribute such object code incorporating material from header files
+provided with the Open CASCADE Technology libraries (including code of CDL
+generic classes) under terms of your choice, provided that you give
+prominent notice in supporting documentation to this code that it makes use
+of or is based on facilities provided by the Open CASCADE Technology software.
+
+================================================================================
 UR5 sample meshes  --  project/com.inductiveautomation.webdev/resources/cad/*.stl
 ================================================================================
 

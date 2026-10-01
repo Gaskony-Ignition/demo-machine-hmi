@@ -22,8 +22,10 @@ source of truth in src/, and the resource is generated from it.
 
 USE
 
-    python3 tools/webdev_page.py build      src/cell3d/page.html -> the resource
-    python3 tools/webdev_page.py extract    the resource -> src/cell3d/page.html
+    python3 tools/webdev_page.py build [page]     src/<page>/page.html -> the resource
+    python3 tools/webdev_page.py extract [page]   the resource -> src/<page>/page.html
+
+<page> is cell3d (the 3D cell) or cadview (the CAD page); without it, both.
 
 Run `extract` after editing in the Designer, before committing - otherwise the
 next `build` overwrites what was typed there. That is the one rule this split
@@ -40,11 +42,14 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, os.pardir))
 
-SRC = os.path.join(ROOT, "src", "cell3d", "page.html")
-RES = os.path.join(ROOT, "project", "com.inductiveautomation.webdev",
-                   "resources", "cell3d")
-CONFIG = os.path.join(RES, "config.json")
-RESOURCE = os.path.join(RES, "resource.json")
+PAGES = ["cell3d", "cadview"]
+
+
+def paths(page):
+    res = os.path.join(ROOT, "project", "com.inductiveautomation.webdev",
+                       "resources", page)
+    return (os.path.join(ROOT, "src", page, "page.html"), res,
+            os.path.join(res, "config.json"), os.path.join(res, "resource.json"))
 
 
 def now():
@@ -56,7 +61,8 @@ def digest(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
-def build():
+def build(page):
+    SRC, RES, CONFIG, RESOURCE = paths(page)
     with open(SRC, encoding="utf-8") as f:
         html = f.read()
 
@@ -85,7 +91,8 @@ def build():
           % (os.path.relpath(CONFIG, ROOT), len(html), digest(html)))
 
 
-def extract():
+def extract(page):
+    SRC, RES, CONFIG, RESOURCE = paths(page)
     with open(CONFIG, encoding="utf-8") as f:
         cfg = json.load(f)
     if cfg.get("resource-type") != "text-resource":
@@ -110,9 +117,11 @@ def extract():
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
-    if cmd == "build":
-        build()
-    elif cmd == "extract":
-        extract()
+    pages = sys.argv[2:] or PAGES
+    if any(p not in PAGES for p in pages):
+        raise SystemExit("pages are: %s" % ", ".join(PAGES))
+    if cmd in ("build", "extract"):
+        for p in pages:
+            (build if cmd == "build" else extract)(p)
     else:
         raise SystemExit(__doc__.strip().split("USE")[1].strip())

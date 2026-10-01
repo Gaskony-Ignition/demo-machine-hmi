@@ -92,6 +92,10 @@ _types_/RobotArm   the UDT definition — the nineteen Robot/ members above
 
 Alarms are configured on the `Faults/*` tags, the `Safety/*` booleans
 (alarm when false) and `Robot/Fault`, with real display paths and notes.
+Three carry associated data `CadPart` naming a part of the UR5 sample model —
+Robot Fault `base`, Robot Axis Following Error `upperarm`, Gripper Vacuum Low
+`wrist3` — which the CAD page's alarm panel matches against the model on
+screen (docs/CAD-VIEWER.md). The `alarms` setup row checks the links.
 `Robot/Fault`’s is defined once on the **type** and inherited by the instance;
 it reads back at `[MachineDemo]Robot/Fault` and raises on the same alarm source
 it always did, `prov:MachineDemo:/tag:Robot/Fault:/alm:Robot Fault`.
@@ -357,6 +361,26 @@ of the difference. The HISTORICAL tab reading empty was two defects of ours:
 Verified on a real Edge: inject a fault and the events appear with their state
 transitions.
 
+### The CAD page on Edge — not tested on Edge
+
+1.19.0 (CAD upload, model selector, part alarms) was verified on a STANDARD
+8.3.8 gateway only. What it relies on, and what is known about each on Edge:
+
+- Uploads are written by gateway-scope Jython to
+  `<data dir>/machine-demo-cad/`, the directory from
+  `IgnitionGateway.get().getSystemManager().getDataDir()`. Nothing about that
+  is edition-specific, but it has not been run on Edge.
+- `ia.input.fileupload` is a stock Perspective component. Not tried on Edge.
+- The part alarm panel uses `system.alarm.queryStatus` with
+  `prov:<provider>:/tag:*`, the same call `MachineDemo.plant.liveAlarms`
+  makes for the screens' alarm counts. The `CadPart` associated data is
+  written with the rest of the tag configuration by Setup. Neither has been
+  read back on Edge.
+- The STEP reader is a 7.6 MB `.wasm` in the project. Loading it in a panel's
+  own browser is untested; STL models do not need it.
+
+Until it is run on Edge, do not claim the CAD upload or STEP for Edge.
+
 ## WebDev routes — the project name is NOT fixed
 
 Base: `<gateway>/system/webdev/<project>/<name>` (`$GW_URL` from
@@ -388,10 +412,13 @@ pages leave Perspective. Inside a page, every asset URL is RELATIVE
 | `admin` | POST | anything | **405** — refused; the write path is gone |
 | `cell3d` | GET | (no query) | the 3D palletising cell, built from `Machine/Scene`'s parts list |
 | `cell3d` | GET | `?scene=code` | the same cell, built from the page's own JavaScript |
-| `cadview` | GET | (no query) | the CAD viewer — every STL in the `cad` folder |
-| `cad` | GET | (no query) | the STL file list, as JSON |
-| `cad` | GET | `?f=<name>.stl` | one STL, as bytes |
+| `cadview` | GET | (no query) | the CAD viewer — the built-in model (every STL in the `cad` folder) |
+| `cadview` | GET | `?model=<name>` | the CAD viewer — one uploaded model |
+| `cad` | GET | `?f=list[&model=<name>]` | the model's kind (`stl`/`step`) and part files, as JSON |
+| `cad` | GET | `?f=<part>[&model=<name>]` | one part file (STL or STEP), as bytes |
+| `cad` | GET | `?f=alarms` | standing alarms on the provider that carry `CadPart`, as JSON |
 | `lib` | GET | `?f=three` | vendored three.js (proves it works with no internet) |
+| `lib` | GET | `?f=occt` / `?f=occt-wasm` | vendored occt-import-js, the STEP reader (LGPL-2.1, see NOTICE) |
 
 ### HTTP is read-only. Writes go through the session or the console.
 
@@ -405,6 +432,8 @@ credential, because the write path was removed rather than guarded:
   over HTTP; use the Setup screen or the Designer Script Console"}`.
 - `config.json` keeps `require-auth: false` on every method and an empty
   `user-source`, so the project ships with nothing gateway-specific in it.
+- CAD model upload and delete are the same: the CAD models popup calls
+  `MachineDemo.cad.save` / `.delete` in the session. `cad` has no POST.
 
 The two ways to drive the demo:
 
@@ -562,7 +591,8 @@ next run:
 | --- | --- |
 | `com.inductiveautomation.webdev/resources/cell3d` | `tools/webdev_page.py build` (source: `src/cell3d/page.html`) |
 | `perspective/views/Machine/Cell3D` | `tools/build_cell3d_view.py` |
-| `perspective/views/Machine/CadModel` | `tools/build_cad_view.py` (reads Cell3D) |
+| `com.inductiveautomation.webdev/resources/cadview` | `tools/webdev_page.py build cadview` (source: `src/cadview/page.html`) |
+| `perspective/views/Machine/CadModel`, `Machine/CadModels` | `tools/build_cad_view.py` (reads Cell3D) |
 | the nav bar in every view that has one | `tools/add_nav_tab.py` |
 | `project.json` title and description | `tools/package.sh` |
 

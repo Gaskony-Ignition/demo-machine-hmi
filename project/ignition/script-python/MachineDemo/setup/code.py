@@ -743,7 +743,37 @@ def _alarmsCheck():
 	if missing:
 		return False, u"no alarm definition on: %s" % u", ".join(missing)
 	total = sum(len(_alarmsOn(p)) for p in ALARM_TAGS)
-	return True, u"%d alarm definitions on %d tags" % (total, len(ALARM_TAGS))
+	# A gateway set up before 1.19.0 has every alarm and no part links; the CAD
+	# page's alarm panel then stays empty with nothing to say why.
+	want = MachineDemo.tagdata.CAD_PARTS
+	linked = _cadLinks()
+	unlinked = [n for n in sorted(want) if linked.get(n) != want[n]]
+	if unlinked:
+		return False, (u"not linked to a CAD part (%s): %s"
+		               % (MachineDemo.tagdata.CAD_PART, u", ".join(unlinked)))
+	return True, (u"%d alarm definitions on %d tags, %d linked to CAD parts"
+	              % (total, len(ALARM_TAGS), len(linked)))
+
+
+def _cadLinks():
+	"""alarm name -> CadPart, for every alarm on ALARM_TAGS that carries one."""
+	from java.lang import Throwable as JThrowable
+	key = MachineDemo.tagdata.CAD_PART
+	out = {}
+	for path in ALARM_TAGS:
+		try:
+			cfg = system.tag.getConfiguration(P.tag(path), False)
+		except (JThrowable, Exception):
+			continue
+		for node in cfg:
+			for a in (node.get("alarms") or []):
+				try:
+					part = a.get(key)
+					if part:
+						out[unicode(a.get("name"))] = unicode(part)
+				except:
+					pass
+	return out
 
 
 # ---------------------------------------------------------------------------

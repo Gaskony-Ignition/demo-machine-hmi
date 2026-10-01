@@ -11,6 +11,10 @@ def doGet(request, session):
 
 	FILES = {
 		'three': ('three.min.js', 'application/javascript'),
+		# occt-import-js: OpenCASCADE's STEP reader compiled to WASM (LGPL-2.1,
+		# see NOTICE). The CAD page loads it only when a STEP model is shown.
+		'occt': ('occt-import-js.js', 'application/javascript'),
+		'occt-wasm': ('occt-import-js.wasm', 'application/wasm'),
 	}
 
 	def candidates(resource, filename):
@@ -52,6 +56,18 @@ def doGet(request, session):
 	filename, contentType = FILES[name]
 	for path in candidates('lib', filename):
 		if os.path.exists(path):
+			if filename.endswith('.wasm'):
+				# Binary goes to the servlet stream; returned as 'response' it
+				# is re-encoded as text and arrives corrupt (docs/CAD-VIEWER.md).
+				# application/wasm is what instantiateStreaming insists on.
+				data = system.file.readFileAsBytes(path)
+				resp = request['servletResponse']
+				resp.setContentType(contentType)
+				resp.setContentLength(len(data))
+				out = resp.getOutputStream()
+				out.write(data)
+				out.flush()
+				return None
 			body = system.file.readFileAsString(path, 'UTF-8')
 			return {'contentType': contentType, 'response': body}
 
