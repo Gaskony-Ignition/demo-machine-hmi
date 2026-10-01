@@ -13,12 +13,8 @@ control with permissives and hold-to-run jog, an alarm page, and a 3D view
 driven by the same tags as everything else.
 
 Every screen runs on **Ignition Edge Panel** as well as the standard
-platform. On a gateway that can have a database, the demo brings its own — a
-SQLite file beside the gateway, made by one button, no server, no credential,
-no config scan. Edge Panel has no database connectivity at all, so there the
-same button configures Edge's own internal alarm journal instead: alarms are
-still journalled, and removing the demo still deletes nothing but its own
-resources.
+platform (CAD upload and STEP are untested on Edge), and one button
+installs what the demo needs on either.
 
 ## What it looks like
 
@@ -41,6 +37,13 @@ Photo-eye beams along the infeed glow green while clear.*
 banner names it in plain words, and the cell status flips to FAULT — so a
 fitter knows where to walk before reading anything.*
 
+![The CAD tab with a robot fault standing](docs/img/final-cad-alarms.jpg)
+
+*The CAD tab with a robot axis fault injected. The two alarms that carry a
+part number are listed beside the model and their parts pulse red until
+acknowledged; picking a row frames its part. Models are uploaded from the
+screen as STL, a zip of STLs, or STEP.*
+
 ## What it does
 
 | | |
@@ -48,14 +51,14 @@ fitter knows where to walk before reading anything.*
 | **3D model rendering** | Robot, infeed, two pallet stations, guarding — animated from live tags, with camera presets, orbit, pinch-zoom and faults highlighted on the geometry. The shape is a parts list edited in the Designer, not code. |
 | **Access control by security zone** | The Manual screen is live for maintenance and read-only for an operator, with the reason stated on screen. |
 | **Alarming** | Status and journal on the demo's own tag provider, connection and journal profile — acknowledge and shelve included. |
-| **Your own CAD on a screen** | The **CAD** tab loads plain STL files off the gateway and lets an operator orbit, zoom, pan and click a part to identify it — no module, no licence, no internet. See [docs/CAD-VIEWER.md](docs/CAD-VIEWER.md). |
+| **Your own CAD on a screen** | The **CAD** tab shows the built-in model or one uploaded from the screen — binary STL, a zip of STLs, or STEP read in the browser — with orbit, zoom, pan and pick. Alarms carrying a `CadPart` part number are listed beside the model and tint their part. No module, no internet. See [docs/CAD-VIEWER.md](docs/CAD-VIEWER.md). |
 | **Operator control** | Hold-to-run jog, a permissive list that answers "why won't it move?", service routines, per-zone start/stop. |
 
 | Tab | What it is |
 | --- | --- |
 | **OVERVIEW** | The line: eight zones, the mimic, per-zone start/stop and the alarm strip. |
 | **3D CELL** | The cell in WebGL, animated from live tags, with the Geometry panel. |
-| **CAD** | The customer's own STL, orbit/zoom/pan/pick. |
+| **CAD** | Built-in or uploaded STL/STEP, orbit/zoom/pan/pick, alarms by part number. |
 | **MANUAL** | Jog, permissives, service routines, access by security zone. |
 | **ALARMS** | Status and journal, this machine only. |
 | **SETUP** | One-button install, health checks, and the presenter console. |
@@ -75,8 +78,7 @@ about a database depends on the gateway:
   are still journalled, with no datasource anywhere.
 
 It all goes through `system.config` and `system.tag.configure`: no config
-scan, no restart, no credential. Re-running setup is safe — every step is an
-upsert.
+scan, no restart. Re-running setup is safe.
 
 ### Installing on Edge
 
@@ -151,17 +153,15 @@ cd project && tar cf - . | docker exec -i "$GW_CONTAINER" \
 Pull the gateway's copy back over `project/` before editing; the gateway is
 the source of truth.
 
-Two throwaway gateways, one per edition, live in `dockers/` — `docker compose
-up -d` from `dockers/edge/` (:8388) or `dockers/standard/` (:8488). The gates
-in `tools/verify/` take the gateway URL as their first argument and the
-project name in `$MHD_PROJECT`, since the Edge build lands in a differently
-named project. Edge Panel permits exactly one concurrent Perspective session,
-so run the Edge gates one at a time with a gap between them, and press RESET
-DEMO on the Setup page first — a stopped line has no rollers turning.
+Throwaway gateways per edition live in `dockers/edge/` (:8388) and
+`dockers/standard/` (:8488). The gates in `tools/verify/` take the gateway URL
+as their first argument and the project name in `$MHD_PROJECT`. Edge Panel
+allows one Perspective session, so run Edge gates one at a time, after RESET
+DEMO on the Setup page.
 
 ## What this demo proves
 
-- The 3D library is served from the project, not a CDN.
+- The 3D library and the STEP reader are served from the project, not a CDN.
 - The robot never solves an impossible pose — checked against the arm's reach.
 - Hold-to-run jog is a real momentary bit: release stops the axis dead.
 - An open guard circuit disables the jog button independently of the screen.
@@ -177,9 +177,10 @@ DEMO on the Setup page first — a stopped line has no rollers turning.
 
 ## Licensing
 
-Licensed **Apache-2.0** — see [LICENSE](LICENSE). Vendors two third-party
-works, licences reproduced in [NOTICE](NOTICE): `three.min.js` (MIT) and the
-sample UR5 meshes (BSD-3-Clause, from
+Licensed **Apache-2.0** — see [LICENSE](LICENSE). Vendors three third-party
+works, licences in [NOTICE](NOTICE): `three.min.js` (MIT), occt-import-js
+and the OpenCASCADE it is built from, for STEP (LGPL-2.1; OCCT adds the Open
+CASCADE exception), and the sample UR5 meshes (BSD-3-Clause, from
 [ros-industrial/universal_robot](https://github.com/ros-industrial/universal_robot)
 — delete them and drop your own in). That package's UR20/UR30/UR15/UR18
 meshes are **not** BSD.

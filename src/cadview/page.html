@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>CAD model viewer</title>
+<style>
+  :root { color-scheme: dark; --bg:#171b20; --panel:rgba(29,35,42,.94);
+          --line:#2c343d; --ink:#dde4e9; --dim:#8b98a3; --info:#6cc4e8;
+          --fault:#f0565e; --warn:#eebf5e;
+          --mono:"DejaVu Sans Mono","Liberation Mono",Consolas,monospace; }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; overflow:hidden; background:var(--bg); }
+  body { font-family:"Noto Sans","Segoe UI",system-ui,sans-serif; color:var(--ink); }
+  canvas { display:block; touch-action:none; cursor:grab; }
+  canvas.dragging { cursor:grabbing; }
+  #boot { position:absolute; inset:0; display:flex; flex-direction:column;
+          align-items:center; justify-content:center; gap:12px; color:var(--dim); }
+  #boot.err { color:#ff8d92; }
+  #boot code { font-family:var(--mono); font-size:12px; max-width:70ch;
+               text-align:center; color:var(--dim); }
+  .card { position:absolute; background:var(--panel); border:1px solid var(--line);
+          border-radius:6px; padding:10px 13px; font-size:12px; }
+  #info { top:14px; left:14px; }
+  #info h1 { margin:0 0 7px; font-size:12px; letter-spacing:1.2px;
+             text-transform:uppercase; color:var(--dim); font-weight:700; }
+  #info .row { display:flex; justify-content:space-between; gap:22px;
+               font-family:var(--mono); padding:1px 0; }
+  #info .row b { font-weight:400; color:var(--dim); }
+  #mName { max-width:24ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #help { bottom:14px; left:14px; color:var(--dim); line-height:1.7; }
+  #help kbd { font-family:var(--mono); color:var(--ink); background:#222a32;
+              border:1px solid var(--line); border-radius:3px; padding:1px 5px;
+              font-size:11px; }
+  #picked { bottom:58px; left:14px; color:var(--dim); }
+  #picked em { color:var(--info); font-style:normal; font-family:var(--mono); }
+  #buttons { position:absolute; top:14px; right:14px; display:flex; gap:8px; }
+  button { font:inherit; font-size:12px; color:var(--ink); background:var(--panel);
+           border:1px solid var(--line); border-radius:6px; padding:8px 13px;
+           cursor:pointer; }
+  button:hover { border-color:var(--info); color:var(--info); }
+  button:focus-visible { outline:2px solid var(--info); outline-offset:1px; }
+
+  /* Alarm panel: right column, between the buttons and the bottom edge. Rows
+     that do not fit are counted, never scrolled - no inner scroll bars. */
+  #alarms { top:58px; right:14px; width:480px; padding:0; display:flex;
+            flex-direction:column; max-height:calc(100% - 72px); }
+  #alarms header { display:flex; align-items:center; gap:8px; padding:9px 12px;
+                   border-bottom:1px solid var(--line); }
+  #alarms h2 { margin:0; font-size:12px; letter-spacing:1.2px; text-transform:uppercase;
+               color:var(--dim); font-weight:700; flex:1; }
+  #aCount { font-family:var(--mono); color:var(--dim); }
+  #aCount.hot { color:var(--fault); font-weight:700; }
+  #aFilter { display:none; padding:3px 8px; font-size:11px; }
+  #aFilter.on { display:inline-block; }
+  #aRows { overflow:hidden; }
+  .arow { display:grid; grid-template-columns:84px 1fr 56px 60px 58px; gap:8px;
+          width:100%; text-align:left; border:0; border-left:3px solid transparent;
+          border-bottom:1px solid var(--line); border-radius:0; padding:6px 10px 6px 9px;
+          background:transparent; align-items:center; }
+  .arow:hover { background:rgba(108,196,232,.08); color:var(--ink); }
+  .arow.sel { background:rgba(108,196,232,.16); border-left-color:var(--info); }
+  .arow span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .arow .part { font-family:var(--mono); color:var(--info); }
+  .arow .pri { font-size:11px; }
+  .arow .st { font-size:11px; color:var(--dim); }
+  .arow .st.un { color:var(--fault); font-weight:700; }
+  .arow .tm { font-family:var(--mono); color:var(--dim); text-align:right; }
+  .p-Critical { color:var(--fault); font-weight:700; }
+  .p-High { color:var(--fault); }
+  .p-Medium { color:var(--warn); }
+  .ahead { cursor:default; color:var(--dim); font-size:11px; text-transform:uppercase;
+           letter-spacing:.8px; }
+  .ahead:hover { background:transparent; color:var(--dim); }
+  #aNote { padding:10px 12px; color:var(--dim); line-height:1.5; }
+  #aNote code { font-family:var(--mono); color:var(--ink); }
+</style>
+</head>
+<body>
+<div id="boot">Loading model…</div>
+
+<div class="card" id="info" hidden>
+  <h1>Model</h1>
+  <div class="row"><b>name</b><span id="mName">—</span></div>
+  <div class="row"><b>parts</b><span id="mParts">—</span></div>
+  <div class="row"><b>triangles</b><span id="mTris">—</span></div>
+  <div class="row"><b>size</b><span id="mSize">—</span></div>
+</div>
+
+<div id="buttons">
+  <button id="bFit">Fit</button>
+  <button id="bWire">Wireframe</button>
+  <button id="bSpin">Turntable</button>
+</div>
+
+<div class="card" id="alarms" hidden>
+  <header>
+    <h2>Part alarms</h2>
+    <button id="aFilter" title="Show alarms on every part"></button>
+    <span id="aCount">0</span>
+  </header>
+  <div id="aRows"></div>
+  <div id="aNote"></div>
+</div>
+
+<div class="card" id="help" hidden>
+  <kbd>drag</kbd> rotate &nbsp; <kbd>wheel</kbd> zoom &nbsp;
+  <kbd>right-drag</kbd> pan &nbsp; <kbd>click</kbd> a part to filter its alarms
+</div>
+<div class="card" id="picked" hidden>no part selected</div>
+
+<script src="lib?f=three"></script>
+<script>
+(function () {
+  "use strict";
+  var boot = document.getElementById("boot");
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  function die(msg, detail) {
+    boot.className = "err";
+    boot.style.display = "";
+    boot.innerHTML = "<div>" + esc(msg) + "</div><code>" + esc(detail || "") + "</code>";
+  }
+  if (!window.THREE) { die("three.js did not load.", "lib?f=three"); return; }
+  window.addEventListener("error", function (e) {
+    if (boot.style.display === "none") { return; }
+    die("The model could not be shown.", (e && e.message) || "unknown");
+  });
+  try {
+    var c0 = document.createElement("canvas");
+    if (!(c0.getContext("webgl") || c0.getContext("experimental-webgl"))) {
+      throw new Error("no WebGL context");
+    }
+  } catch (err) {
+    die("This browser has no WebGL, so the model cannot draw.",
+        "Turn on hardware acceleration - chrome://flags/#ignore-gpu-blocklist.");
+    return;
+  }
+
+  // ?model=<name> is an uploaded model (gateway data dir); none is the
+  // built-in one in the project's cad resource.
+  var MODEL = new URLSearchParams(window.location.search).get("model") || "";
+  var Q = MODEL ? "&model=" + encodeURIComponent(MODEL) : "";
+  var COL_FAULT = 0xf0565e, COL_SEL = 0x6cc4e8, COL_BASE = 0xd0d5da;
+
+  // Binary STL -> BufferGeometry. Written out because three r150+ removed the
+  // non-module examples/js loaders, and this page must stay dependency free:
+  // it has to render on a panel with no internet.
+  function parseBinarySTL(buf) {
+    var dv = new DataView(buf), n = dv.getUint32(80, true);
+    if (84 + n * 50 !== buf.byteLength) {
+      throw new Error("not a binary STL, or truncated");
+    }
+    var pos = new Float32Array(n * 9);
+    for (var i = 0; i < n; i++) {
+      var o = 84 + i * 50, p = i * 9;
+      for (var v = 0; v < 3; v++) {
+        var q = o + 12 + v * 12, k = p + v * 3;
+        pos[k]     = dv.getFloat32(q, true);
+        pos[k + 1] = dv.getFloat32(q + 4, true);
+        pos[k + 2] = dv.getFloat32(q + 8, true);
+      }
+    }
+    var g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    // The file's own face normals are ignored on purpose: exporters write them
+    // inconsistently and an inverted set renders as a solid black silhouette,
+    // which reads as a lighting bug and is not one.
+    g.computeVertexNormals();
+    return { geometry: g, triangles: n };
+  }
+
+  function fetchBytes(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) { throw new Error(url + " -> HTTP " + r.status); }
+      return r.arrayBuffer();
+    });
+  }
+
+  // -> [{name, geometries:[{geometry, triangles, color}]}], one per pickable part
+  function loadSTL(names) {
+    return Promise.all(names.map(function (name) {
+      return fetchBytes("cad?f=" + encodeURIComponent(name) + Q)
+        .then(parseBinarySTL).then(function (p) {
+          return { name: name, geometries: [p] };
+        });
+    }));
+  }
+
+  function loadScript(src) {
+    return new Promise(function (ok, fail) {
+      var s = document.createElement("script");
+      s.src = src; s.onload = ok;
+      s.onerror = function () { fail(new Error(src + " did not load")); };
+      document.head.appendChild(s);
+    });
+  }
+
+  // STEP keeps product names. occt-import-js hangs a sub-assembly's leaf
+  // solids on the sub-assembly node as meshes, each carrying its own product
+  // name, so the part name comes from the MESH and only falls back to the
+  // node. Solids of one product (six identical bolts) share a name and light
+  // up together, which is what a part NUMBER means.
+  function loadSTEP(stem) {
+    boot.textContent = "Reading STEP… (the reader is 7.6 MB, fetched once)";
+    return Promise.all([
+      loadScript("lib?f=occt").then(function () {
+        return window.occtimportjs({
+          // the .wasm sits behind the lib route, not beside the script
+          locateFile: function () { return "lib?f=occt-wasm"; }
+        });
+      }),
+      fetchBytes("cad?f=" + encodeURIComponent(stem) + Q)
+    ]).then(function (r) {
+      var res = r[0].ReadStepFile(new Uint8Array(r[1]), { linearUnit: "meter" });
+      if (!res || !res.success) { throw new Error("the STEP file could not be read"); }
+      var parts = [], byName = {};
+      (function walk(node) {
+        if (node.meshes && node.meshes.length) {
+          node.meshes.forEach(function (mi) {
+            var m = res.meshes[mi], g = new THREE.BufferGeometry();
+            var name = (m.name || "").trim() || (node.name || "").trim() ||
+                       ("part " + (parts.length + 1));
+            var part = byName[name];
+            if (!part) { part = byName[name] = { name: name, geometries: [] }; parts.push(part); }
+            g.setAttribute("position", new THREE.Float32BufferAttribute(m.attributes.position.array, 3));
+            if (m.attributes.normal) {
+              g.setAttribute("normal", new THREE.Float32BufferAttribute(m.attributes.normal.array, 3));
+            }
+            g.setIndex(new THREE.Uint32BufferAttribute(m.index.array, 1));
+            if (!m.attributes.normal) { g.computeVertexNormals(); }
+            part.geometries.push({ geometry: g, triangles: m.index.array.length / 3,
+              color: m.color ? new THREE.Color(m.color[0], m.color[1], m.color[2]).getHex() : null });
+          });
+        }
+        (node.children || []).forEach(walk);
+      })(res.root);
+      if (!parts.length) { throw new Error("the STEP file has no solid geometry"); }
+      return parts;
+    });
+  }
+
+  var KIND = "stl";
+  fetch("cad?f=list" + Q).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j.ok) {
+      throw new Error(MODEL ? "model '" + MODEL + "': " + (j.error || "not found")
+                            : (j.error || "could not list the cad folder"));
+    }
+    KIND = j.kind || "stl";
+    if (!(j.parts || []).length) {
+      throw new Error("no .stl files in the project's webdev cad folder");
+    }
+    return KIND === "step" ? loadSTEP(j.parts[0]) : loadSTL(j.parts);
+  }).then(build).catch(function (e) {
+    die("Could not load the model.", e.message || String(e));
+  });
+
+  function build(parts) {
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    var cv = renderer.domElement;
+
+    var scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x171b20);
+    // The only handle anything outside this page gets. The 3D cell page
+    // exposes __cellScene for the same reason: without it a headless gate can
+    // only screenshot the canvas, and a canvas that renders nothing looks
+    // exactly like a canvas that renders a dark model.
+    window.__cadScene = scene;
+    var camera = new THREE.PerspectiveCamera(45, 1, 0.01, 200);
+
+    scene.add(new THREE.HemisphereLight(0xbfd4e6, 0x20262c, 2.0));
+    var key = new THREE.DirectionalLight(0xffffff, 2.0);
+    key.position.set(2, 3, 2); scene.add(key);
+    var fill = new THREE.DirectionalLight(0xffffff, 0.7);
+    fill.position.set(-2, 1, -2); scene.add(fill);
+
+    // CAD is Z-up; three.js is Y-up. Rotate only the MODEL, never the scene -
+    // scene.rotation turns the lights with it and lights the model from below.
+    var root = new THREE.Group();
+    root.rotation.x = -Math.PI / 2;
+    scene.add(root);
+
+    // Every mesh has its own material: alarm tint and selection are per part,
+    // and a shared material would tint every part that uses it.
+    var tris = 0, meshes = [], PART = {};
+    parts.forEach(function (p) {
+      var entry = { name: p.name, meshes: [], alarm: null };
+      p.geometries.forEach(function (g) {
+        var base = g.color != null ? g.color : COL_BASE;
+        var mesh = new THREE.Mesh(g.geometry, new THREE.MeshStandardMaterial(
+          { color: base, metalness: 0.0, roughness: 0.55, side: THREE.DoubleSide }));
+        mesh.name = p.name;
+        mesh.userData.base = base;
+        root.add(mesh);
+        meshes.push(mesh);
+        entry.meshes.push(mesh);
+        tris += g.triangles;
+      });
+      PART[p.name.toLowerCase()] = entry;
+    });
+
+    // STL carries no units. A model under 20 units across is read as metres
+    // (the UR5 sample is), anything bigger as millimetres - the usual export.
+    var box = new THREE.Box3().setFromObject(root);
+    var size = new THREE.Vector3(); box.getSize(size);
+    var mm = KIND === "stl" && Math.max(size.x, size.y, size.z) > 20;
+    if (mm) { root.scale.setScalar(0.001); box.setFromObject(root); box.getSize(size); }
+    var target = new THREE.Vector3(); box.getCenter(target);
+    var span = Math.max(size.x, size.y, size.z) || 1;
+    var grid = new THREE.GridHelper(span * 2, 20, 0x2c343d, 0x232a31);
+    grid.position.y = box.min.y;
+    scene.add(grid);
+
+    document.getElementById("mName").textContent =
+      (MODEL || "built-in") + " · " + KIND.toUpperCase();
+    document.getElementById("mName").title = MODEL || "built-in";
+    document.getElementById("mParts").textContent = parts.length;
+    document.getElementById("mTris").textContent = tris.toLocaleString();
+    document.getElementById("mSize").textContent =
+      (size.x * 1000).toFixed(0) + " x " + (size.y * 1000).toFixed(0) +
+      " x " + (size.z * 1000).toFixed(0) + " mm";
+    ["info", "help", "picked", "alarms"].forEach(function (id) {
+      document.getElementById(id).hidden = false;
+    });
+    boot.style.display = "none";
+
+    // The alarm panel covers the right of the canvas, so the camera frames the
+    // model in the area left of it: a wider virtual frame, rendered offset.
+    var panelEl = document.getElementById("alarms");
+    var freeAspect = 1;
+    function layoutCamera() {
+      var W = window.innerWidth, H = window.innerHeight;
+      var pw = panelEl.offsetWidth + 28;
+      if (W - pw < 360) { pw = 0; }
+      freeAspect = (W - pw) / H;
+      camera.aspect = (W + pw) / H;
+      if (pw) { camera.setViewOffset(W + pw, H, pw, 0, W, H); }
+      else { camera.clearViewOffset(); }
+      camera.updateProjectionMatrix();
+    }
+    layoutCamera();
+
+    // ------------------------------------------------------------------
+    // Orbit / pan / zoom. r160's UMD build ships no OrbitControls (it is an
+    // ES module now), so this is the whole thing: spherical camera around a
+    // target, right-drag moves the target in the camera's own plane.
+    // ------------------------------------------------------------------
+    var sph = { r: 0, theta: Math.PI * 0.25, phi: Math.PI * 0.35 };
+    var spin = false;
+
+    // margin 1.15 clears the overlay cards; a single part gets more, so the
+    // operator still sees where on the machine it is.
+    function frameBox(b, keepAngle, margin) {
+      b.getCenter(target);
+      if (!keepAngle) { sph.theta = Math.PI * 0.25; sph.phi = Math.PI * 0.35; }
+      // Frame against BOTH axes, measured in the CAMERA's frame rather than
+      // the world's. max(size.x, size.z) is the extent along the world axes,
+      // and a long model seen from 45 degrees is wider than either of them -
+      // which is how a 930 mm arm ran off the side of a frame sized to hold
+      // 930 mm. Projecting the eight corners of the bounding box onto the
+      // camera's own right/up axes gives the extent that actually has to fit.
+      var dir = new THREE.Vector3(
+        Math.sin(sph.phi) * Math.sin(sph.theta),
+        Math.cos(sph.phi),
+        Math.sin(sph.phi) * Math.cos(sph.theta));
+      var right = new THREE.Vector3()
+        .crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
+      var camUp = new THREE.Vector3().crossVectors(right, dir).normalize();
+      var vFov = camera.fov * Math.PI / 180;
+      var tanV = Math.tan(vFov / 2), tanH = tanV * freeAspect;
+      // Solve per corner rather than framing the whole extent at the centre
+      // distance. The camera is a perspective one, so a corner nearer the lens
+      // than the centre projects LARGER than its half-extent suggests: the
+      // distance that has to hold corner i is |w|/tan + (how far it leans
+      // towards the camera), and the answer is the largest of the eight.
+      var need = 0, corner = new THREE.Vector3();
+      for (var i = 0; i < 8; i++) {
+        corner.set(i & 1 ? b.max.x : b.min.x,
+                   i & 2 ? b.max.y : b.min.y,
+                   i & 4 ? b.max.z : b.min.z).sub(target);
+        var towards = corner.dot(dir);
+        need = Math.max(need,
+                        Math.abs(corner.dot(right)) / tanH + towards,
+                        Math.abs(corner.dot(camUp)) / tanV + towards);
+      }
+      sph.r = need * (margin || 1.15);
+    }
+    function fit() { box.setFromObject(root); frameBox(box, false); }
+    fit();
+
+    function apply() {
+      sph.phi = Math.max(0.05, Math.min(Math.PI - 0.05, sph.phi));
+      // Clip planes follow the zoom, so a 20 mm part and a 20 m line both draw.
+      camera.near = sph.r / 1000; camera.far = sph.r * 100 + span * 10;
+      camera.updateProjectionMatrix();
+      camera.position.set(
+        target.x + sph.r * Math.sin(sph.phi) * Math.sin(sph.theta),
+        target.y + sph.r * Math.cos(sph.phi),
+        target.z + sph.r * Math.sin(sph.phi) * Math.cos(sph.theta));
+      camera.lookAt(target);
+    }
+
+    var drag = null;
+    cv.addEventListener("pointerdown", function (e) {
+      // Capture is a convenience, not a requirement: it throws for a pointer
+      // the browser is not tracking, and an exception here would leave the
+      // whole viewer unresponsive to that gesture.
+      try { cv.setPointerCapture(e.pointerId); } catch (ignored) {}
+      drag = { x: e.clientX, y: e.clientY, btn: e.button, moved: 0 };
+      cv.classList.add("dragging");
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (!drag) { return; }
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      drag.x = e.clientX; drag.y = e.clientY;
+      drag.moved += Math.abs(dx) + Math.abs(dy);
+      if (drag.btn === 2) {
+        var k = sph.r * 0.0015;
+        var right = new THREE.Vector3(), up = new THREE.Vector3();
+        camera.matrixWorld.extractBasis(right, up, new THREE.Vector3());
+        target.addScaledVector(right, -dx * k);
+        target.addScaledVector(up, dy * k);
+      } else {
+        sph.theta -= dx * 0.006;
+        sph.phi   -= dy * 0.006;
+      }
+      spin = false;
+    });
+    function endDrag(e) {
+      if (drag && drag.btn === 0 && drag.moved < 5) { pick(e); }
+      drag = null; cv.classList.remove("dragging");
+    }
+    cv.addEventListener("pointerup", endDrag);
+    cv.addEventListener("pointercancel", function () { drag = null; });
+    cv.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    cv.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      sph.r *= (e.deltaY > 0) ? 1.12 : 0.89;
+      sph.r = Math.max(span * 0.01, Math.min(span * 50, sph.r));
+    }, { passive: false });
+
+    // pinch to zoom, for a panel
+    var pinch = null;
+    cv.addEventListener("touchmove", function (e) {
+      if (e.touches.length !== 2) { pinch = null; return; }
+      var d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                         e.touches[0].clientY - e.touches[1].clientY);
+      if (pinch) { sph.r *= pinch / d; }
+      pinch = d;
+    }, { passive: true });
+    cv.addEventListener("touchend", function () { pinch = null; });
+
+    // ------------------------------------------------------------------
+    // Selection. A part picked in the model filters the alarm panel; a row
+    // picked in the panel selects and frames its part.
+    // ------------------------------------------------------------------
+    var selected = null, filter = null, selRow = null;
+    var pickedEl = document.getElementById("picked");
+    // The outline, not the colour, marks the selection: a selected part in
+    // alarm is already tinted red, and blue over red reads as neither.
+    var selBox = new THREE.Box3Helper(new THREE.Box3(), COL_SEL);
+    selBox.visible = false;
+    scene.add(selBox);
+    function select(name, frame) {
+      var p = name ? PART[name.toLowerCase()] : null;
+      selected = p ? p.name : null;
+      selBox.visible = !!p;
+      if (p) {
+        selBox.box.makeEmpty();
+        p.meshes.forEach(function (m) { selBox.box.expandByObject(m); });
+        var n = p.meshes.length;
+        pickedEl.innerHTML = "part <em>" + esc(p.name) + "</em>" +
+          (n > 1 && KIND === "step" ? " &middot; " + n + " solids" : "") +
+          (p.alarm ? " &middot; <span style='color:var(--fault)'>in alarm</span>" : "");
+        if (frame) {
+          frameBox(selBox.box.clone(), true, 2.2);
+        }
+      } else {
+        pickedEl.textContent = "no part selected";
+      }
+    }
+
+    var ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+    function pick(e) {
+      var r = cv.getBoundingClientRect();
+      ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+      ray.setFromCamera(ndc, camera);
+      var hit = ray.intersectObjects(meshes, false)[0];
+      select(hit ? hit.object.name : null, false);
+      filter = selected;
+      selRow = null;
+      renderAlarms();
+    }
+
+    document.getElementById("bFit").onclick = function () { fit(); };
+    document.getElementById("bWire").onclick = function () {
+      var w = !meshes[0].material.wireframe;
+      meshes.forEach(function (m) { m.material.wireframe = w; });
+    };
+    document.getElementById("bSpin").onclick = function () { spin = !spin; };
+
+    // ------------------------------------------------------------------
+    // Alarms linked by part number. cad?f=alarms lists every standing alarm
+    // on the demo's provider that carries the CadPart associated data; the
+    // ones whose part is in THIS model are shown and tinted. Matching ignores
+    // case - a part number typed into an alarm is not worth failing on.
+    // ------------------------------------------------------------------
+    var rowsEl = document.getElementById("aRows"), noteEl = document.getElementById("aNote");
+    var countEl = document.getElementById("aCount"), filterBtn = document.getElementById("aFilter");
+    var ALARMS = [], KEY = "CadPart", alarmErr = null;
+    filterBtn.onclick = function () { filter = null; selRow = null; select(null); renderAlarms(); };
+
+    function poll() {
+      fetch("cad?f=alarms", { cache: "no-store" }).then(function (r) { return r.json(); })
+        .then(function (j) {
+          alarmErr = j.ok ? null : (j.error || "alarm query failed");
+          KEY = j.key || KEY;
+          ALARMS = (j.alarms || []).filter(function (a) {
+            return a.active && PART[String(a.part).toLowerCase()];
+          });
+        }).catch(function (e) { alarmErr = e.message || String(e); })
+        .then(function () {
+          Object.keys(PART).forEach(function (k) { PART[k].alarm = null; });
+          ALARMS.forEach(function (a) {
+            var p = PART[String(a.part).toLowerCase()];
+            // an unacknowledged alarm outranks an acknowledged one on the same part
+            if (!p.alarm || (p.alarm.acked && !a.acked)) { p.alarm = a; }
+          });
+          renderAlarms();
+          setTimeout(poll, 2000);
+        });
+    }
+
+    // The panel's clock, not the gateway's: the same time zone as the rest of
+    // the browser the operator is looking at.
+    function hms(ts) {
+      if (!ts) { return ""; }
+      var d = new Date(ts), z = function (n) { return (n < 10 ? "0" : "") + n; };
+      return z(d.getHours()) + ":" + z(d.getMinutes()) + ":" + z(d.getSeconds());
+    }
+
+    function renderAlarms() {
+      var shown = ALARMS.filter(function (a) {
+        return !filter || String(a.part).toLowerCase() === filter.toLowerCase();
+      });
+      countEl.textContent = ALARMS.length;
+      countEl.className = ALARMS.some(function (a) { return !a.acked; }) ? "hot" : "";
+      filterBtn.className = filter ? "on" : "";
+      filterBtn.textContent = filter ? "part: " + filter + "  ✕" : "";
+      var html = shown.length ? "<div class='arow ahead'><span>Part</span><span>Alarm</span>" +
+        "<span>Priority</span><span>State</span><span>Time</span></div>" : "";
+      shown.forEach(function (a, i) {
+        var id = a.part + "|" + a.name;
+        html += "<button class='arow" + (id === selRow ? " sel" : "") + "' data-i='" + i +
+          "' title='" + esc(a.label || a.name) + "'>" +
+          "<span class='part'>" + esc(a.part) + "</span>" +
+          "<span>" + esc(a.name) + "</span>" +
+          "<span class='pri p-" + esc(a.priority) + "'>" + esc(a.priority) + "</span>" +
+          "<span class='st" + (a.acked ? "" : " un") + "'>" + (a.acked ? "Acked" : "Unacked") + "</span>" +
+          "<span class='tm'>" + esc(hms(a.ts) || a.time) + "</span></button>";
+      });
+      rowsEl.innerHTML = html;
+      Array.prototype.forEach.call(rowsEl.querySelectorAll("button.arow"), function (b) {
+        b.onclick = function () {
+          var a = shown[+b.getAttribute("data-i")];
+          selRow = a.part + "|" + a.name;
+          select(a.part, true);
+          renderAlarms();
+        };
+      });
+      var note = "";
+      if (alarmErr) { note = "Alarm query failed: " + esc(alarmErr); }
+      else if (!shown.length) {
+        note = filter ? "No active alarms on <code>" + esc(filter) + "</code>."
+          : "No active alarms on this model's parts. An alarm links to a part through " +
+            "its <code>" + esc(KEY) + "</code> associated data.";
+      }
+      noteEl.innerHTML = note;
+      noteEl.style.display = note ? "" : "none";
+      // Rows that do not fit are counted, not scrolled. The note line is put
+      // in first so the rows are measured against the room that is left.
+      var rows = rowsEl.querySelectorAll("button.arow"), hidden = 0;
+      if (rowsEl.scrollHeight > rowsEl.clientHeight + 1) {
+        noteEl.style.display = "";
+        noteEl.innerHTML = "+99 more";
+        for (var i = rows.length - 1; i >= 0 && rowsEl.scrollHeight > rowsEl.clientHeight + 1; i--) {
+          rows[i].remove(); hidden++;
+        }
+        noteEl.innerHTML = "+" + hidden + " more &mdash; click a part to see only its alarms.";
+      }
+    }
+    poll();
+
+    window.__cad = {
+      parts: function () { return Object.keys(PART).map(function (k) { return PART[k].name; }); },
+      alarms: function () { return ALARMS.slice(); },
+      selected: function () { return selected; },
+      filter: function () { return filter; },
+      kind: KIND,
+      // where a part sits on screen, for a headless click
+      screenPoint: function (name) {
+        var p = PART[name.toLowerCase()], b = new THREE.Box3(), c = new THREE.Vector3();
+        p.meshes.forEach(function (m) { b.expandByObject(m); });
+        b.getCenter(c).project(camera);
+        return { x: (c.x + 1) / 2 * window.innerWidth, y: (1 - c.y) / 2 * window.innerHeight };
+      }
+    };
+
+    var last = performance.now();
+    function frame(now) {
+      var dt = Math.min(0.1, (now - last) / 1000); last = now;
+      if (spin) { sph.theta += dt * 0.5; }
+      apply();
+      // Same fault look as the 3D cell: red emissive, pulsing while the alarm
+      // is unacknowledged, steady once it is acknowledged.
+      var pulse = 0.5 + 0.5 * Math.sin(now / 190);
+      Object.keys(PART).forEach(function (k) {
+        var p = PART[k], a = p.alarm;
+        var level = a ? (a.acked ? 0.6 : 0.25 + 0.55 * pulse) : 0;
+        p.meshes.forEach(function (m) {
+          m.material.emissive.setHex(a ? COL_FAULT : 0x000000);
+          m.material.emissiveIntensity = level;
+          m.material.color.setHex(p.name === selected && !a ? COL_SEL : m.userData.base);
+        });
+      });
+      renderer.render(scene, camera);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    window.addEventListener("resize", function () {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      layoutCamera();
+      renderAlarms();
+    });
+  }
+})();
+</script></body></html>

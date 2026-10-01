@@ -1,5 +1,8 @@
 {
-  "custom": {},
+  "custom": {
+    "model": "_builtin",
+    "rev": 0
+  },
   "params": {},
   "propConfig": {},
   "props": {
@@ -12,6 +15,19 @@
     "type": "ia.container.flex",
     "meta": {
       "name": "Page"
+    },
+    "scripts": {
+      "customMethods": [],
+      "extensionFunctions": null,
+      "messageHandlers": [
+        {
+          "messageType": "cadModelChanged",
+          "pageScope": true,
+          "sessionScope": false,
+          "viewScope": false,
+          "script": "\tv = self.view.custom\n\tv.rev = (v.rev or 0) + 1\n\tif payload.get('deleted') and v.model == payload['deleted']:\n\t\tv.model = '_builtin'\n\telif payload.get('model'):\n\t\tv.model = payload['model']\n"
+        }
+      ]
     },
     "props": {
       "direction": "column",
@@ -92,7 +108,7 @@
                       "name": "t2"
                     },
                     "props": {
-                      "text": "Any STL dropped in the project's cad resource folder - the customer's own geometry, not ours",
+                      "text": "Built-in or uploaded STL / STEP - alarms linked by part number",
                       "style": {
                         "fontSize": "11.5px",
                         "color": "var(--md-ink-quiet, #8b98a3)",
@@ -104,6 +120,81 @@
                     }
                   }
                 ]
+              },
+              {
+                "type": "ia.input.dropdown",
+                "meta": {
+                  "name": "ModelPick"
+                },
+                "position": {
+                  "shrink": 0,
+                  "basis": "300px"
+                },
+                "props": {
+                  "placeholder": "Model",
+                  "showClearIcon": false,
+                  "style": {
+                    "minHeight": "38px",
+                    "fontSize": "12.5px",
+                    "backgroundColor": "var(--md-well, #262e36)",
+                    "color": "var(--md-ink-mid, #cdd6dd)",
+                    "border": "1px solid var(--md-line-soft, #38424c)",
+                    "borderRadius": "7px"
+                  }
+                },
+                "propConfig": {
+                  "props.options": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "runScript(\"MachineDemo.cad.options\", 0, {view.custom.rev})"
+                      }
+                    }
+                  },
+                  "props.value": {
+                    "binding": {
+                      "type": "property",
+                      "config": {
+                        "path": "view.custom.model",
+                        "bidirectional": true
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "ManageModels"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "text": "Upload / delete",
+                  "style": {
+                    "backgroundColor": "var(--md-well, #262e36)",
+                    "color": "var(--md-ink-mid, #cdd6dd)",
+                    "border": "1px solid var(--md-line-soft, #38424c)",
+                    "borderRadius": "7px",
+                    "fontWeight": "bold",
+                    "fontSize": "12.5px",
+                    "minHeight": "38px",
+                    "padding": "0 16px",
+                    "alignItems": "center"
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tsystem.perspective.openPopup('cadModels', 'Machine/CadModels', title='CAD models', modal=True,\n\t\tshowCloseIcon=True, draggable=False, resizable=False,\n\t\tviewportBound=True, position={'width': 560, 'height': 500})\n"
+                      }
+                    }
+                  }
+                }
               },
               {
                 "type": "ia.input.button",
@@ -183,7 +274,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "\"/system/webdev/\" + runScript(\"system.project.getProjectName()\") + \"/cadview\""
+                    "expression": "\"/system/webdev/\" + runScript(\"system.project.getProjectName()\") + \"/cadview?v=\" + {view.custom.rev} + if({view.custom.model} = \"_builtin\" || {view.custom.model} = \"\", \"\", \"&model=\" + {view.custom.model})"
                   }
                 }
               }

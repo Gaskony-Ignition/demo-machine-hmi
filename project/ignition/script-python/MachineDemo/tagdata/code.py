@@ -97,6 +97,20 @@ def _float(name, value, unit=None, lo=0.0, hi=100.0, fmt="#,##0.0",
 	return _atomic(name, "Float8", float(value), extra)
 
 
+# Alarm associated data naming the CAD part an alarm belongs to. The CAD page
+# matches it against the part names of the model on screen. A plain key on the
+# alarm dict is how system.tag.configure takes associated data, and
+# event.get(CAD_PART) reads it back off queryStatus.
+CAD_PART = "CadPart"
+
+# alarm name -> UR5 sample part (the STL file names in the cad resource)
+CAD_PARTS = {
+	"Robot Fault": "base",
+	"Robot Axis Following Error": "upperarm",
+	"Gripper Vacuum Low": "wrist3",
+}
+
+
 def _digital(name, display, priority, notes, setpoint=True):
 	"""An alarm that fires when a boolean equals `setpoint`.
 
@@ -104,9 +118,12 @@ def _digital(name, display, priority, notes, setpoint=True):
 	the instant the PLC says so, and an operator who has to wait for it stops
 	trusting the screen.
 	"""
-	return {"name": name, "mode": "Equality", "priority": priority,
-	        "displayPath": display, "ackMode": "Manual", "notes": notes,
-	        "setpointA": bool(setpoint)}
+	a = {"name": name, "mode": "Equality", "priority": priority,
+	     "displayPath": display, "ackMode": "Manual", "notes": notes,
+	     "setpointA": bool(setpoint)}
+	if name in CAD_PARTS:
+		a[CAD_PART] = CAD_PARTS[name]
+	return a
 
 
 def _below(name, display, priority, notes, setpoint, deadband, onDelay=2):

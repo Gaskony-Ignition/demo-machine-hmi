@@ -6,12 +6,16 @@
   "files": [
     "config.json",
     "doGet.py",
+    "license.occt-import-js.txt",
+    "license.occt.txt",
+    "occt-import-js.js",
+    "occt-import-js.wasm",
     "three.min.js"
   ],
   "attributes": {
     "lastModification": {
       "actor": "external",
-      "timestamp": "2026-09-01T23:32:30Z"
+      "timestamp": "2026-10-01T02:46:12Z"
     }
   }
 }

@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Build Machine/CadModel - the customer's own CAD on a Perspective screen.
+"""Build Machine/CadModel and Machine/CadModels - the customer's own CAD.
 
-The page itself is the WebDev resource `cadview`, which draws every STL in the
-project's `cad` resource folder with orbit/zoom/pan/pick. This view is only the
-Perspective wrapper: the project's standard header, and an iframe.
+The page itself is the WebDev resource `cadview` (source src/cadview/page.html):
+the model, orbit/zoom/pan/pick and the part alarm panel. Machine/CadModel is
+the Perspective wrapper: the project's standard header carrying a model
+selector and a Models button, and an iframe. Machine/CadModels is the popup
+that uploads and deletes models - through the session, because HTTP stays
+read-only (docs/CONTRACT.md).
 
 The header is DEEP-COPIED from Machine/Cell3D rather than rebuilt, so the three
 full-bleed model screens cannot drift apart - same heights, same fonts, same
@@ -35,7 +38,12 @@ WEBDEV_PROJECT = 'runScript("system.project.getProjectName()")'
 WEBDEV_RES = "cadview"
 
 TITLE = "Zone 2 · Robot Cell 2 — CAD model"
-SUBTITLE = "Any STL dropped in the project's cad resource folder - the customer's own geometry, not ours"
+SUBTITLE = "Built-in or uploaded STL / STEP - alarms linked by part number"
+
+POPUP_VIEW = "Machine/CadModels"
+POPUP_ID = "cadModels"
+MSG = "cadModelChanged"
+BUILTIN = "_builtin"
 
 
 def find(node, name):
@@ -95,24 +103,88 @@ cad_iframe = {
                   "border": "none", "minHeight": "0"},
     },
     "propConfig": {
+        # rev changes after every upload/delete, so a re-uploaded model of the
+        # same name reloads instead of showing the old one.
         "props.src": {
             "binding": {
                 "type": "expr",
                 "config": {"expression": '"/system/webdev/" + ' + WEBDEV_PROJECT
-                                         + ' + "/' + WEBDEV_RES + '"'},
+                                         + ' + "/' + WEBDEV_RES + '?v=" + {view.custom.rev}'
+                                         + ' + if({view.custom.model} = "' + BUILTIN + '" ||'
+                                         + ' {view.custom.model} = "", "",'
+                                         + ' "&model=" + {view.custom.model})'},
             }
         }
     },
 }
 
+# Header controls, between the title and the Overview button. Same well, line
+# and height as the Overview button so the header reads as one row.
+BTN_STYLE = copy.deepcopy(find(header_slot, "BackToOverview")["props"]["style"])
+header = find(header_slot, "Header")
+back = find(header_slot, "BackToOverview")
+model_pick = {
+    "type": "ia.input.dropdown",
+    "meta": {"name": "ModelPick"},
+    "position": {"shrink": 0, "basis": "300px"},
+    "props": {
+        "placeholder": "Model",
+        "showClearIcon": False,
+        "style": {"minHeight": "38px", "fontSize": "12.5px",
+                  "backgroundColor": BTN_STYLE["backgroundColor"],
+                  "color": BTN_STYLE["color"], "border": BTN_STYLE["border"],
+                  "borderRadius": BTN_STYLE["borderRadius"]},
+    },
+    "propConfig": {
+        "props.options": {"binding": {"type": "expr", "config": {
+            # 0 = no polling; {view.custom.rev} re-runs it after an upload/delete
+            "expression": 'runScript("MachineDemo.cad.options", 0, {view.custom.rev})'}}},
+        "props.value": {"binding": {"type": "property", "config": {
+            "path": "view.custom.model", "bidirectional": True}}},
+    },
+}
+models_btn = {
+    "type": "ia.input.button",
+    "meta": {"name": "ManageModels"},
+    "position": {"shrink": 0},
+    "props": {"text": "Upload / delete", "style": copy.deepcopy(BTN_STYLE)},
+    "events": {"component": {"onActionPerformed": {
+        "type": "script", "scope": "G",
+        "config": {"script": (
+            "\tsystem.perspective.openPopup(%r, %r, title=%r, modal=True,\n"
+            "\t\tshowCloseIcon=True, draggable=False, resizable=False,\n"
+            "\t\tviewportBound=True, position={'width': 560, 'height': 500})\n"
+            % (POPUP_ID, POPUP_VIEW, "CAD models"))}}}},
+}
+kids = header["children"]
+kids.insert(kids.index(back), model_pick)
+kids.insert(kids.index(back), models_btn)
+
 view = {
-    "custom": {},
+    "custom": {"model": BUILTIN, "rev": 0},
     "params": {},
     "propConfig": {},
     "props": {"defaultSize": {"width": 1366, "height": 768}},
     "root": {
         "type": "ia.container.flex",
         "meta": {"name": "Page"},
+        "scripts": {
+            "customMethods": [],
+            "extensionFunctions": None,
+            "messageHandlers": [{
+                "messageType": MSG,
+                "pageScope": True,
+                "sessionScope": False,
+                "viewScope": False,
+                "script": (
+                    "\tv = self.view.custom\n"
+                    "\tv.rev = (v.rev or 0) + 1\n"
+                    "\tif payload.get('deleted') and v.model == payload['deleted']:\n"
+                    "\t\tv.model = %r\n"
+                    "\telif payload.get('model'):\n"
+                    "\t\tv.model = payload['model']\n" % BUILTIN),
+            }],
+        },
         "props": {
             "direction": "column",
             "style": {"height": "100%", "overflow": "hidden",
@@ -152,3 +224,150 @@ os.makedirs(OUT, exist_ok=True)
 json.dump(view, open(os.path.join(OUT, "view.json"), "w"), indent=2)
 json.dump(resource, open(os.path.join(OUT, "resource.json"), "w"), indent=2)
 print("wrote %s" % OUT)
+
+
+# ---------------------------------------------------------------------------
+# Machine/CadModels - the upload / delete popup
+# ---------------------------------------------------------------------------
+
+INK = "var(--md-ink-mid, #cdd6dd)"
+QUIET = "var(--md-ink-quiet, #8b98a3)"
+
+
+def label(name, text, **style):
+    st = {"fontSize": "12.5px", "color": INK}
+    st.update(style)
+    return {"type": "ia.display.label", "meta": {"name": name},
+            "position": {"shrink": 0}, "props": {"text": text, "style": st}}
+
+
+def heading(name, text):
+    return label(name, text, fontSize="12px", fontWeight="bold",
+                 letterSpacing="1.2px", textTransform="uppercase", color=QUIET)
+
+
+UPLOAD_SCRIPT = """\tfrom java.lang import Throwable
+\tname = self.view.custom.name
+\ttry:
+\t\tr = MachineDemo.cad.save(event.file.name, event.file.getBytes(), name)
+\texcept (Throwable, Exception) as e:
+\t\tself.view.custom.status = u"Not stored: %s" % e
+\t\tself.view.custom.ok = False
+\t\treturn
+\tself.view.custom.status = u"%s %s - %s, %d part file(s). It is showing now." % (
+\t\tr["name"], "replaced" if r["replaced"] else "stored", r["kind"].upper(), r["parts"])
+\tself.view.custom.ok = True
+\tself.view.custom.rev = (self.view.custom.rev or 0) + 1
+\tself.view.custom.name = ""
+\tsystem.perspective.sendMessage("@MSG@", payload={"model": r["name"]}, scope="page")
+""".replace("@MSG@", MSG)
+
+# Two presses: the first arms the button for that model, the second deletes.
+# A confirm popup over a popup is one more thing to dismiss on a touch panel.
+DELETE_SCRIPT = """\tfrom java.lang import Throwable
+\tv = self.view.custom
+\tname = v.delModel
+\tif not name:
+\t\tv.status = u"Choose an uploaded model to delete."
+\t\tv.ok = False
+\t\treturn
+\tif v.armed != name:
+\t\tv.armed = name
+\t\treturn
+\ttry:
+\t\tMachineDemo.cad.delete(name)
+\texcept (Throwable, Exception) as e:
+\t\tv.status = u"Not deleted: %s" % e
+\t\tv.ok = False
+\t\treturn
+\tv.armed = ""
+\tv.status = u"%s deleted." % name
+\tv.ok = True
+\tv.rev = (v.rev or 0) + 1
+\tv.delModel = None
+\tsystem.perspective.sendMessage("@MSG@", payload={"deleted": name}, scope="page")
+""".replace("@MSG@", MSG)
+
+popup = {
+    "custom": {"status": "", "ok": True, "armed": "", "rev": 0,
+               "name": "", "delModel": None},
+    "params": {},
+    "propConfig": {},
+    "props": {"defaultSize": {"width": 560, "height": 460}},
+    "root": {
+        "type": "ia.container.flex",
+        "meta": {"name": "root"},
+        "props": {"direction": "column", "style": {
+            "padding": "14px 18px", "gap": "9px", "overflow": "hidden",
+            "backgroundColor": "var(--md-panel, #1d232a)"}},
+        "children": [
+            heading("UploadHead", "Upload a model"),
+            label("UploadHelp",
+                  "A binary STL (one part), a zip of STLs (one part per file, "
+                  "named from the file) or a STEP file (.step/.stp - parts from "
+                  "its assembly). Up to 50 MB. A model of the same name is "
+                  "replaced.", color=QUIET, whiteSpace="normal",
+                  lineHeight="1.45"),
+            {"type": "ia.input.text-field", "meta": {"name": "Name"},
+             "position": {"shrink": 0},
+             # deferUpdates off: the upload fires while the field still has
+             # focus, before a deferred value would be committed.
+             "props": {"placeholder": "Model name - leave empty to use the file name",
+                       "deferUpdates": False,
+                       "style": {"minHeight": "36px", "fontSize": "12.5px"}},
+             "propConfig": {"props.text": {"binding": {"type": "property", "config": {
+                 "path": "view.custom.name", "bidirectional": True}}}}},
+            {"type": "ia.input.fileupload", "meta": {"name": "Upload"},
+             "position": {"shrink": 0, "basis": "150px"},
+             "props": {"supportedFileTypes": ["stl", "zip", "step", "stp"],
+                       "fileSizeLimit": 50, "maxUploads": 1},
+             "events": {"component": {"onFileReceived": {
+                 "type": "script", "scope": "G",
+                 "config": {"script": UPLOAD_SCRIPT}}}}},
+            heading("DeleteHead", "Delete an uploaded model"),
+            {"type": "ia.container.flex", "meta": {"name": "DeleteRow"},
+             "position": {"shrink": 0},
+             "props": {"direction": "row", "alignItems": "center",
+                       "style": {"gap": "10px"}},
+             "children": [
+                 {"type": "ia.input.dropdown", "meta": {"name": "DelModel"},
+                  "position": {"grow": 1, "basis": "0px"},
+                  "props": {"placeholder": "Uploaded models",
+                            "style": {"minHeight": "38px", "fontSize": "12.5px"}},
+                  "propConfig": {
+                      "props.options": {"binding": {"type": "expr", "config": {"expression":
+                          'runScript("MachineDemo.cad.uploadedOptions", 0, {view.custom.rev})'}}},
+                      "props.value": {"binding": {"type": "property", "config": {
+                          "path": "view.custom.delModel", "bidirectional": True}}}}},
+                 {"type": "ia.input.button", "meta": {"name": "Delete"},
+                  "position": {"shrink": 0, "basis": "190px"},
+                  "props": {"style": copy.deepcopy(BTN_STYLE)},
+                  "propConfig": {"props.text": {"binding": {
+                      "type": "expr", "config": {"expression":
+                          'if({view.custom.armed} != "" && {view.custom.armed} = '
+                          '{view.custom.delModel}, "Press again to delete", "Delete")'}}}},
+                  "events": {"component": {"onActionPerformed": {
+                      "type": "script", "scope": "G",
+                      "config": {"script": DELETE_SCRIPT}}}}},
+             ]},
+            {"type": "ia.display.label", "meta": {"name": "Status"},
+             "position": {"shrink": 0},
+             "props": {"style": {"fontSize": "12.5px", "whiteSpace": "normal",
+                                 "lineHeight": "1.45"}},
+             "propConfig": {
+                 "props.text": {"binding": {"type": "property",
+                                            "config": {"path": "view.custom.status"}}},
+                 "props.style.color": {"binding": {"type": "expr", "config": {
+                     "expression": 'if({view.custom.ok}, "' + INK + '", '
+                                   '"var(--md-fault-ink, #ff8d92)")'}}}}},
+            label("Where", "Uploads are kept on the gateway in data/machine-demo-cad, "
+                  "outside the project.", color=QUIET, fontSize="11.5px"),
+        ],
+    },
+}
+
+POP_OUT = os.path.join(VIEWS, "CadModels")
+os.makedirs(POP_OUT, exist_ok=True)
+json.dump(popup, open(os.path.join(POP_OUT, "view.json"), "w"), indent=2)
+json.dump(resource, open(os.path.join(POP_OUT, "resource.json"), "w"), indent=2)
+print("wrote %s" % POP_OUT)
