@@ -196,7 +196,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if(coalesce({view.custom.counts.active}, 0) > 0, \"var(--md-fault, #f0565e)\", \"var(--md-ink-dim, #74808a)\")"
+                        "expression": "if(coalesce({view.custom.counts.active}, 0) > 0, \"var(--md-fault-ink, #ff8d92)\", \"var(--md-ink-dim, #74808a)\")"
                       }
                     }
                   }
