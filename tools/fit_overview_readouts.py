@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-"""WCAG 2.1 AA (axe scrollable-region-focusable): a handful of Overview's
-single-line caption/readout rows (the "Line mimic" strap, the conveyor
-direction arrows, a zone header, the BARCODE/CASES-MIN/SHIFT readouts) are
-plain `ia.container.flex` wrapping one label each with no explicit overflow
-- Perspective still writes `overflow: auto` on them by default, and the
-label's own rendered line height is 1-3px taller than the row's basis,
-making each a "scrollable" box with nothing inside to scroll to or focus.
-Not a real scrollable region (confirmed live - none of them show a
-scrollbar or ever clip text); give each an explicit tabIndex, the same
-answer as the header's User block and Manual's Who row.
+"""Stop a handful of Overview's single-line caption/readout rows (the "Line
+mimic" strap, the conveyor direction arrows, a zone header, the
+BARCODE/CASES-MIN/SHIFT readouts) drawing scroll bars.
+
+They are plain `ia.container.flex` wrapping one label each with no explicit
+overflow, so Perspective writes `overflow: auto` on them, and the label's own
+line box is 1-3px taller than the row's basis. That is leading, not text, but
+it is enough for Windows to draw a scroll bar in the row, and for axe to call
+it a scrollable region (scrollable-region-focusable).
+
+Until 1.19.2 this gave each row a tabIndex, on the belief that no bar showed.
+It does on Windows; headless Chromium hides scroll bars, which is why it was
+missed. The row never scrolls, so it now gets `overflow: hidden` and loses the
+tab stop it no longer needs. tools/verify/scrollbar_sweep.js checks it.
 
 Matched by the leaf label's own text, since these rows are not generated
 and the pattern repeats identically per zone without being one component
@@ -46,9 +50,12 @@ def is_marker(text):
 
 def fix(node, parent, changed):
     if node.get("type") == "ia.display.label" and is_marker(node.get("props", {}).get("text", "")):
-        if parent is not None and "tabIndex" not in parent.get("meta", {}):
-            parent.setdefault("meta", {})["tabIndex"] = 0
-            changed[0] += 1
+        if parent is not None:
+            style = parent.setdefault("props", {}).setdefault("style", {})
+            if style.get("overflow") != "hidden" or "tabIndex" in parent.get("meta", {}):
+                style["overflow"] = "hidden"
+                parent.get("meta", {}).pop("tabIndex", None)
+                changed[0] += 1
     for child in node.get("children", []):
         fix(child, node, changed)
 
@@ -72,7 +79,7 @@ def main():
     if changed[0]:
         json.dump(view, open(VIEW_FILE, "w"), indent=2)
         stamp()
-        print("%d readout row(s) made reachable" % changed[0])
+        print("%d readout row(s) set to overflow hidden" % changed[0])
     else:
         print("already done")
 

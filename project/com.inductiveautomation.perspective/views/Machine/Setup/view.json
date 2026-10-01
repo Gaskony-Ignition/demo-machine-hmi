@@ -539,21 +539,21 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "User",
-              "tabIndex": 0
+              "name": "User"
             },
             "props": {
               "direction": "column",
               "style": {
                 "gap": "1px",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "overflow": "hidden"
               }
             },
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "34px"
+              "basis": "auto"
             },
             "children": [
               {
@@ -644,8 +644,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "Left",
-              "tabIndex": 0
+              "name": "Left"
             },
             "props": {
               "direction": "column",
@@ -653,7 +652,7 @@
                 "gap": "10px",
                 "minWidth": "0px",
                 "minHeight": "0px",
-                "overflowY": "auto"
+                "overflow": "hidden"
               }
             },
             "position": {
@@ -695,7 +694,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -979,9 +979,9 @@
                   }
                 },
                 "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "404px"
+                  "grow": 1,
+                  "shrink": 1,
+                  "basis": "0px"
                 },
                 "children": [
                   {
@@ -995,7 +995,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -2147,9 +2148,9 @@
                           }
                         },
                         "position": {
-                          "grow": 0,
-                          "shrink": 0,
-                          "basis": "104px"
+                          "grow": 1,
+                          "shrink": 1,
+                          "basis": "60px"
                         },
                         "children": [
                           {
@@ -2188,6 +2189,802 @@
                     ]
                   }
                 ]
+              }
+            ]
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Side"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "gap": "10px",
+                "minWidth": "0px",
+                "minHeight": "0px",
+                "overflow": "hidden"
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "320px"
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Speed"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "backgroundColor": "var(--neutral-20, #1d232a)",
+                    "border": "1px solid var(--md-line, #2c343d)",
+                    "borderRadius": "8px",
+                    "overflow": "hidden",
+                    "minWidth": "0px",
+                    "minHeight": "0px"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "296px"
+                },
+                "children": [
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Head"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "style": {
+                        "borderBottom": "1px solid var(--md-line, #2c343d)",
+                        "backgroundColor": "var(--neutral-20, #20262d)",
+                        "minWidth": "0px",
+                        "minHeight": "0px",
+                        "overflow": "hidden"
+                      },
+                      "alignItems": "center"
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "31px"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "H"
+                        },
+                        "props": {
+                          "text": "Simulation speed",
+                          "style": {
+                            "fontSize": "11px",
+                            "fontWeight": 700,
+                            "letterSpacing": "1.3px",
+                            "textTransform": "uppercase",
+                            "color": "var(--neutral-60, #8b98a3)",
+                            "padding": "0 12px",
+                            "lineHeight": "30px",
+                            "borderBottom": "1px solid var(--md-line, #2c343d)",
+                            "whiteSpace": "nowrap",
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "flexShrink": 0,
+                            "display": "block"
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1,
+                          "basis": "auto"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Body"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "padding": "10px",
+                        "gap": "8px",
+                        "minHeight": "0px",
+                        "minWidth": "0px",
+                        "overflow": "hidden"
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1,
+                      "basis": "0px"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Speeds"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "8px",
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "38px"
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "S1"
+                            },
+                            "props": {
+                              "text": "1x",
+                              "style": {
+                                "fontSize": "14px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.5px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
+                                "padding": "0 10px",
+                                "whiteSpace": "normal",
+                                "lineHeight": "1.2",
+                                "textAlign": "center",
+                                "height": "38px",
+                                "borderColor": "var(--md-info-line, #1e546c)"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tMachineDemo.api.setSpeed(1)\n\texcept Throwable:\n\t\tpass\n\texcept:\n\t\tpass\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimSpeed\"], [1.0])\n\texcept Throwable:\n\t\tpass\n"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "S5"
+                            },
+                            "props": {
+                              "text": "5x",
+                              "style": {
+                                "fontSize": "14px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.5px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
+                                "padding": "0 10px",
+                                "whiteSpace": "normal",
+                                "lineHeight": "1.2",
+                                "textAlign": "center",
+                                "height": "38px",
+                                "borderColor": "var(--md-info-line, #1e546c)"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tMachineDemo.api.setSpeed(5)\n\texcept Throwable:\n\t\tpass\n\texcept:\n\t\tpass\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimSpeed\"], [5.0])\n\texcept Throwable:\n\t\tpass\n"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "S20"
+                            },
+                            "props": {
+                              "text": "20x",
+                              "style": {
+                                "fontSize": "14px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.5px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
+                                "padding": "0 10px",
+                                "whiteSpace": "normal",
+                                "lineHeight": "1.2",
+                                "textAlign": "center",
+                                "height": "38px",
+                                "borderColor": "var(--md-info-line, #1e546c)"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tMachineDemo.api.setSpeed(20)\n\texcept Throwable:\n\t\tpass\n\texcept:\n\t\tpass\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimSpeed\"], [20.0])\n\texcept Throwable:\n\t\tpass\n"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "S60"
+                            },
+                            "props": {
+                              "text": "60x",
+                              "style": {
+                                "fontSize": "14px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.5px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-info-bg, #152f3b)",
+                                "color": "var(--md-info-ink-2, #cfeafa)",
+                                "padding": "0 10px",
+                                "whiteSpace": "normal",
+                                "lineHeight": "1.2",
+                                "textAlign": "center",
+                                "height": "38px",
+                                "borderColor": "var(--md-info-line, #1e546c)"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tMachineDemo.api.setSpeed(60)\n\texcept Throwable:\n\t\tpass\n\texcept:\n\t\tpass\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimSpeed\"], [60.0])\n\texcept Throwable:\n\t\tpass\n"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Sim"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "8px",
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "34px"
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "SimOn"
+                            },
+                            "props": {
+                              "text": "SIMULATION ON",
+                              "style": {
+                                "fontSize": "12px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.5px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-run-bg, #1c3b2a)",
+                                "color": "var(--md-run-ink, #bff0d2)",
+                                "padding": "0 10px",
+                                "whiteSpace": "normal",
+                                "lineHeight": "1.2",
+                                "textAlign": "center",
+                                "height": "34px",
+                                "borderColor": "var(--md-run-line, #2c7a4a)"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimEnabled\"], [True])\n\texcept Throwable:\n\t\tpass\n"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "SimOff"
+                            },
+                            "props": {
+                              "text": "SIMULATION OFF",
+                              "style": {
+                                "fontSize": "12px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.5px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-fault-bg, #3a1d21)",
+                                "color": "var(--md-fault-ink-3, #ffb3b6)",
+                                "padding": "0 10px",
+                                "whiteSpace": "normal",
+                                "lineHeight": "1.2",
+                                "textAlign": "center",
+                                "height": "34px",
+                                "borderColor": "var(--md-fault-edge, #7a2a2f)"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimEnabled\"], [False])\n\texcept Throwable:\n\t\tpass\n"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Live"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "9px",
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          },
+                          "alignItems": "center"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "20px"
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "K"
+                            },
+                            "props": {
+                              "text": "Simulation",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "color": "var(--neutral-60, #8b98a3)"
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "V"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
+                                "fontSize": "12.5px",
+                                "color": "var(--neutral-80, #b7c2ca)"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if(coalesce({[MachineDemo]Line/SimEnabled}, false), \"running\", \"stopped\") + \" at \" + numberFormat(coalesce({[MachineDemo]Line/SimSpeed}, 1), \"0.#\") + \"x\""
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "ThemeK"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "22px"
+                        },
+                        "props": {
+                          "style": {
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "version": 0,
+                            "meta": {
+                              "name": "K"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "auto"
+                            },
+                            "props": {
+                              "text": "Theme \u2014 Perspective and the 3D cell together",
+                              "style": {
+                                "fontSize": "11px",
+                                "color": "var(--md-ink-dim, #74808a)",
+                                "letterSpacing": "0.6px",
+                                "whiteSpace": "nowrap",
+                                "overflow": "hidden",
+                                "textOverflow": "ellipsis"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "Themes"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "34px"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "6px",
+                            "padding": "0 10px 6px",
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_dark"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Dark",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'dark'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_dark_cool"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Dark cool",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'dark-cool'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_dark_warm"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Dark warm",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'dark-warm'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "version": 0,
+                        "meta": {
+                          "name": "Themes2"
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "34px"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "style": {
+                            "gap": "6px",
+                            "padding": "0 10px 6px",
+                            "minWidth": "0px",
+                            "minHeight": "0px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_light"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Light",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'light'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_light_cool"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Light cool",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'light-cool'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "version": 0,
+                            "meta": {
+                              "name": "T_light_warm"
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1,
+                              "basis": "0px"
+                            },
+                            "props": {
+                              "text": "Light warm",
+                              "style": {
+                                "fontSize": "11.5px",
+                                "fontWeight": 700,
+                                "letterSpacing": "0.4px",
+                                "borderRadius": "6px",
+                                "border": "1px solid var(--md-line, #2c343d)",
+                                "backgroundColor": "var(--md-face, #252c34)",
+                                "color": "var(--md-ink-body, #cfd8df)",
+                                "padding": "0px",
+                                "minWidth": "0px",
+                                "alignItems": "center",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "events": {
+                              "dom": {
+                                "onClick": {
+                                  "type": "script",
+                                  "config": {
+                                    "script": "\tself.session.props.theme = 'light-warm'\n"
+                                  },
+                                  "scope": "G"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
               },
               {
                 "type": "ia.container.flex",
@@ -2206,9 +3003,9 @@
                   }
                 },
                 "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "330px"
+                  "grow": 1,
+                  "shrink": 1,
+                  "basis": "0px"
                 },
                 "children": [
                   {
@@ -2222,7 +3019,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -2321,9 +3119,9 @@
                           }
                         },
                         "position": {
-                          "grow": 1,
+                          "grow": 0,
                           "shrink": 0,
-                          "basis": "48px"
+                          "basis": "auto"
                         },
                         "children": [
                           {
@@ -2426,9 +3224,9 @@
                           }
                         },
                         "position": {
-                          "grow": 1,
+                          "grow": 0,
                           "shrink": 0,
-                          "basis": "48px"
+                          "basis": "auto"
                         },
                         "children": [
                           {
@@ -2531,9 +3329,9 @@
                           }
                         },
                         "position": {
-                          "grow": 1,
+                          "grow": 0,
                           "shrink": 0,
-                          "basis": "48px"
+                          "basis": "auto"
                         },
                         "children": [
                           {
@@ -2636,9 +3434,9 @@
                           }
                         },
                         "position": {
-                          "grow": 1,
+                          "grow": 0,
                           "shrink": 0,
-                          "basis": "48px"
+                          "basis": "auto"
                         },
                         "children": [
                           {
@@ -2741,9 +3539,9 @@
                           }
                         },
                         "position": {
-                          "grow": 1,
+                          "grow": 0,
                           "shrink": 0,
-                          "basis": "48px"
+                          "basis": "auto"
                         },
                         "children": [
                           {
@@ -2846,9 +3644,9 @@
                           }
                         },
                         "position": {
-                          "grow": 1,
+                          "grow": 0,
                           "shrink": 0,
-                          "basis": "48px"
+                          "basis": "auto"
                         },
                         "children": [
                           {
@@ -2946,8 +3744,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "Right",
-              "tabIndex": 0
+              "name": "Right"
             },
             "props": {
               "direction": "column",
@@ -2955,7 +3752,7 @@
                 "gap": "10px",
                 "minWidth": "0px",
                 "minHeight": "0px",
-                "overflowY": "auto"
+                "overflow": "hidden"
               }
             },
             "position": {
@@ -2981,7 +3778,7 @@
                   }
                 },
                 "position": {
-                  "grow": 0,
+                  "grow": 1,
                   "shrink": 0,
                   "basis": "410px"
                 },
@@ -2997,7 +3794,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -4607,779 +5405,6 @@
                     ]
                   }
                 ]
-              },
-              {
-                "type": "ia.container.flex",
-                "meta": {
-                  "name": "Speed"
-                },
-                "props": {
-                  "direction": "column",
-                  "style": {
-                    "backgroundColor": "var(--neutral-20, #1d232a)",
-                    "border": "1px solid var(--md-line, #2c343d)",
-                    "borderRadius": "8px",
-                    "overflow": "hidden",
-                    "minWidth": "0px",
-                    "minHeight": "0px"
-                  }
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "296px"
-                },
-                "children": [
-                  {
-                    "type": "ia.container.flex",
-                    "meta": {
-                      "name": "Head"
-                    },
-                    "props": {
-                      "direction": "row",
-                      "style": {
-                        "borderBottom": "1px solid var(--md-line, #2c343d)",
-                        "backgroundColor": "var(--neutral-20, #20262d)",
-                        "minWidth": "0px",
-                        "minHeight": "0px"
-                      },
-                      "alignItems": "center"
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "31px"
-                    },
-                    "children": [
-                      {
-                        "type": "ia.display.label",
-                        "meta": {
-                          "name": "H"
-                        },
-                        "props": {
-                          "text": "Simulation speed",
-                          "style": {
-                            "fontSize": "11px",
-                            "fontWeight": 700,
-                            "letterSpacing": "1.3px",
-                            "textTransform": "uppercase",
-                            "color": "var(--neutral-60, #8b98a3)",
-                            "padding": "0 12px",
-                            "lineHeight": "30px",
-                            "borderBottom": "1px solid var(--md-line, #2c343d)",
-                            "whiteSpace": "nowrap",
-                            "overflow": "hidden",
-                            "textOverflow": "ellipsis",
-                            "flexShrink": 0,
-                            "display": "block"
-                          }
-                        },
-                        "position": {
-                          "grow": 1,
-                          "shrink": 1,
-                          "basis": "auto"
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "type": "ia.container.flex",
-                    "meta": {
-                      "name": "Body"
-                    },
-                    "props": {
-                      "direction": "column",
-                      "style": {
-                        "padding": "10px",
-                        "gap": "8px",
-                        "minHeight": "0px",
-                        "minWidth": "0px",
-                        "overflow": "hidden"
-                      }
-                    },
-                    "position": {
-                      "grow": 1,
-                      "shrink": 1,
-                      "basis": "0px"
-                    },
-                    "children": [
-                      {
-                        "type": "ia.container.flex",
-                        "meta": {
-                          "name": "Speeds"
-                        },
-                        "props": {
-                          "direction": "row",
-                          "style": {
-                            "gap": "8px",
-                            "minWidth": "0px",
-                            "minHeight": "0px"
-                          }
-                        },
-                        "position": {
-                          "grow": 0,
-                          "shrink": 0,
-                          "basis": "38px"
-                        },
-                        "children": [
-                          {
-                            "type": "ia.input.button",
-                            "meta": {
-                              "name": "S1"
-                            },
-                            "props": {
-                              "text": "1x",
-                              "style": {
-                                "fontSize": "14px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.5px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-info-bg, #152f3b)",
-                                "color": "var(--md-info-ink-2, #cfeafa)",
-                                "padding": "0 10px",
-                                "whiteSpace": "normal",
-                                "lineHeight": "1.2",
-                                "textAlign": "center",
-                                "height": "38px",
-                                "borderColor": "var(--md-info-line, #1e546c)"
-                              }
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "events": {
-                              "component": {
-                                "onActionPerformed": {
-                                  "config": {
-                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tMachineDemo.api.setSpeed(1)\n\texcept Throwable:\n\t\tpass\n\texcept:\n\t\tpass\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimSpeed\"], [1.0])\n\texcept Throwable:\n\t\tpass\n"
-                                  },
-                                  "scope": "G",
-                                  "type": "script"
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.button",
-                            "meta": {
-                              "name": "S5"
-                            },
-                            "props": {
-                              "text": "5x",
-                              "style": {
-                                "fontSize": "14px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.5px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-info-bg, #152f3b)",
-                                "color": "var(--md-info-ink-2, #cfeafa)",
-                                "padding": "0 10px",
-                                "whiteSpace": "normal",
-                                "lineHeight": "1.2",
-                                "textAlign": "center",
-                                "height": "38px",
-                                "borderColor": "var(--md-info-line, #1e546c)"
-                              }
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "events": {
-                              "component": {
-                                "onActionPerformed": {
-                                  "config": {
-                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tMachineDemo.api.setSpeed(5)\n\texcept Throwable:\n\t\tpass\n\texcept:\n\t\tpass\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimSpeed\"], [5.0])\n\texcept Throwable:\n\t\tpass\n"
-                                  },
-                                  "scope": "G",
-                                  "type": "script"
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.button",
-                            "meta": {
-                              "name": "S20"
-                            },
-                            "props": {
-                              "text": "20x",
-                              "style": {
-                                "fontSize": "14px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.5px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-info-bg, #152f3b)",
-                                "color": "var(--md-info-ink-2, #cfeafa)",
-                                "padding": "0 10px",
-                                "whiteSpace": "normal",
-                                "lineHeight": "1.2",
-                                "textAlign": "center",
-                                "height": "38px",
-                                "borderColor": "var(--md-info-line, #1e546c)"
-                              }
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "events": {
-                              "component": {
-                                "onActionPerformed": {
-                                  "config": {
-                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tMachineDemo.api.setSpeed(20)\n\texcept Throwable:\n\t\tpass\n\texcept:\n\t\tpass\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimSpeed\"], [20.0])\n\texcept Throwable:\n\t\tpass\n"
-                                  },
-                                  "scope": "G",
-                                  "type": "script"
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.button",
-                            "meta": {
-                              "name": "S60"
-                            },
-                            "props": {
-                              "text": "60x",
-                              "style": {
-                                "fontSize": "14px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.5px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-info-bg, #152f3b)",
-                                "color": "var(--md-info-ink-2, #cfeafa)",
-                                "padding": "0 10px",
-                                "whiteSpace": "normal",
-                                "lineHeight": "1.2",
-                                "textAlign": "center",
-                                "height": "38px",
-                                "borderColor": "var(--md-info-line, #1e546c)"
-                              }
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "events": {
-                              "component": {
-                                "onActionPerformed": {
-                                  "config": {
-                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tMachineDemo.api.setSpeed(60)\n\texcept Throwable:\n\t\tpass\n\texcept:\n\t\tpass\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimSpeed\"], [60.0])\n\texcept Throwable:\n\t\tpass\n"
-                                  },
-                                  "scope": "G",
-                                  "type": "script"
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "meta": {
-                          "name": "Sim"
-                        },
-                        "props": {
-                          "direction": "row",
-                          "style": {
-                            "gap": "8px",
-                            "minWidth": "0px",
-                            "minHeight": "0px"
-                          }
-                        },
-                        "position": {
-                          "grow": 0,
-                          "shrink": 0,
-                          "basis": "34px"
-                        },
-                        "children": [
-                          {
-                            "type": "ia.input.button",
-                            "meta": {
-                              "name": "SimOn"
-                            },
-                            "props": {
-                              "text": "SIMULATION ON",
-                              "style": {
-                                "fontSize": "12px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.5px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-run-bg, #1c3b2a)",
-                                "color": "var(--md-run-ink, #bff0d2)",
-                                "padding": "0 10px",
-                                "whiteSpace": "normal",
-                                "lineHeight": "1.2",
-                                "textAlign": "center",
-                                "height": "34px",
-                                "borderColor": "var(--md-run-line, #2c7a4a)"
-                              }
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "events": {
-                              "component": {
-                                "onActionPerformed": {
-                                  "config": {
-                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimEnabled\"], [True])\n\texcept Throwable:\n\t\tpass\n"
-                                  },
-                                  "scope": "G",
-                                  "type": "script"
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.button",
-                            "meta": {
-                              "name": "SimOff"
-                            },
-                            "props": {
-                              "text": "SIMULATION OFF",
-                              "style": {
-                                "fontSize": "12px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.5px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-fault-bg, #3a1d21)",
-                                "color": "var(--md-fault-ink-3, #ffb3b6)",
-                                "padding": "0 10px",
-                                "whiteSpace": "normal",
-                                "lineHeight": "1.2",
-                                "textAlign": "center",
-                                "height": "34px",
-                                "borderColor": "var(--md-fault-edge, #7a2a2f)"
-                              }
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "events": {
-                              "component": {
-                                "onActionPerformed": {
-                                  "config": {
-                                    "script": "\tfrom java.lang import Throwable\n\ttry:\n\t\tsystem.tag.writeBlocking([\"[MachineDemo]Line/SimEnabled\"], [False])\n\texcept Throwable:\n\t\tpass\n"
-                                  },
-                                  "scope": "G",
-                                  "type": "script"
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "meta": {
-                          "name": "Live"
-                        },
-                        "props": {
-                          "direction": "row",
-                          "style": {
-                            "gap": "9px",
-                            "minWidth": "0px",
-                            "minHeight": "0px"
-                          },
-                          "alignItems": "center"
-                        },
-                        "position": {
-                          "grow": 0,
-                          "shrink": 0,
-                          "basis": "20px"
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "meta": {
-                              "name": "K"
-                            },
-                            "props": {
-                              "text": "Simulation",
-                              "style": {
-                                "fontSize": "11.5px",
-                                "color": "var(--neutral-60, #8b98a3)"
-                              }
-                            },
-                            "position": {
-                              "grow": 0,
-                              "shrink": 0,
-                              "basis": "76px"
-                            }
-                          },
-                          {
-                            "type": "ia.display.label",
-                            "meta": {
-                              "name": "V"
-                            },
-                            "props": {
-                              "text": "",
-                              "style": {
-                                "fontFamily": "\"DejaVu Sans Mono\",\"Noto Sans Mono\",\"Liberation Mono\",monospace",
-                                "fontSize": "12.5px",
-                                "color": "var(--neutral-80, #b7c2ca)"
-                              }
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "propConfig": {
-                              "props.text": {
-                                "binding": {
-                                  "type": "expr",
-                                  "config": {
-                                    "expression": "if(coalesce({[MachineDemo]Line/SimEnabled}, false), \"running\", \"stopped\") + \" at \" + numberFormat(coalesce({[MachineDemo]Line/SimSpeed}, 1), \"0.#\") + \"x\""
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "ThemeK"
-                        },
-                        "position": {
-                          "grow": 0,
-                          "shrink": 0,
-                          "basis": "22px"
-                        },
-                        "props": {
-                          "style": {
-                            "minWidth": "0px",
-                            "minHeight": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.display.label",
-                            "version": 0,
-                            "meta": {
-                              "name": "K"
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "auto"
-                            },
-                            "props": {
-                              "text": "Theme \u2014 Perspective and the 3D cell together",
-                              "style": {
-                                "fontSize": "11px",
-                                "color": "var(--md-ink-dim, #74808a)",
-                                "letterSpacing": "0.6px",
-                                "whiteSpace": "nowrap",
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis"
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "Themes"
-                        },
-                        "position": {
-                          "grow": 0,
-                          "shrink": 0,
-                          "basis": "34px"
-                        },
-                        "props": {
-                          "direction": "row",
-                          "style": {
-                            "gap": "6px",
-                            "padding": "0 10px 6px",
-                            "minWidth": "0px",
-                            "minHeight": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.input.button",
-                            "version": 0,
-                            "meta": {
-                              "name": "T_dark"
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "props": {
-                              "text": "Dark",
-                              "style": {
-                                "fontSize": "11.5px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.4px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-face, #252c34)",
-                                "color": "var(--md-ink-body, #cfd8df)",
-                                "padding": "0px",
-                                "minWidth": "0px",
-                                "alignItems": "center",
-                                "whiteSpace": "nowrap"
-                              }
-                            },
-                            "events": {
-                              "dom": {
-                                "onClick": {
-                                  "type": "script",
-                                  "config": {
-                                    "script": "\tself.session.props.theme = 'dark'\n"
-                                  },
-                                  "scope": "G"
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.button",
-                            "version": 0,
-                            "meta": {
-                              "name": "T_dark_cool"
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "props": {
-                              "text": "Dark cool",
-                              "style": {
-                                "fontSize": "11.5px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.4px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-face, #252c34)",
-                                "color": "var(--md-ink-body, #cfd8df)",
-                                "padding": "0px",
-                                "minWidth": "0px",
-                                "alignItems": "center",
-                                "whiteSpace": "nowrap"
-                              }
-                            },
-                            "events": {
-                              "dom": {
-                                "onClick": {
-                                  "type": "script",
-                                  "config": {
-                                    "script": "\tself.session.props.theme = 'dark-cool'\n"
-                                  },
-                                  "scope": "G"
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.button",
-                            "version": 0,
-                            "meta": {
-                              "name": "T_dark_warm"
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "props": {
-                              "text": "Dark warm",
-                              "style": {
-                                "fontSize": "11.5px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.4px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-face, #252c34)",
-                                "color": "var(--md-ink-body, #cfd8df)",
-                                "padding": "0px",
-                                "minWidth": "0px",
-                                "alignItems": "center",
-                                "whiteSpace": "nowrap"
-                              }
-                            },
-                            "events": {
-                              "dom": {
-                                "onClick": {
-                                  "type": "script",
-                                  "config": {
-                                    "script": "\tself.session.props.theme = 'dark-warm'\n"
-                                  },
-                                  "scope": "G"
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "ia.container.flex",
-                        "version": 0,
-                        "meta": {
-                          "name": "Themes2"
-                        },
-                        "position": {
-                          "grow": 0,
-                          "shrink": 0,
-                          "basis": "34px"
-                        },
-                        "props": {
-                          "direction": "row",
-                          "style": {
-                            "gap": "6px",
-                            "padding": "0 10px 6px",
-                            "minWidth": "0px",
-                            "minHeight": "0px"
-                          }
-                        },
-                        "children": [
-                          {
-                            "type": "ia.input.button",
-                            "version": 0,
-                            "meta": {
-                              "name": "T_light"
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "props": {
-                              "text": "Light",
-                              "style": {
-                                "fontSize": "11.5px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.4px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-face, #252c34)",
-                                "color": "var(--md-ink-body, #cfd8df)",
-                                "padding": "0px",
-                                "minWidth": "0px",
-                                "alignItems": "center",
-                                "whiteSpace": "nowrap"
-                              }
-                            },
-                            "events": {
-                              "dom": {
-                                "onClick": {
-                                  "type": "script",
-                                  "config": {
-                                    "script": "\tself.session.props.theme = 'light'\n"
-                                  },
-                                  "scope": "G"
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.button",
-                            "version": 0,
-                            "meta": {
-                              "name": "T_light_cool"
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "props": {
-                              "text": "Light cool",
-                              "style": {
-                                "fontSize": "11.5px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.4px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-face, #252c34)",
-                                "color": "var(--md-ink-body, #cfd8df)",
-                                "padding": "0px",
-                                "minWidth": "0px",
-                                "alignItems": "center",
-                                "whiteSpace": "nowrap"
-                              }
-                            },
-                            "events": {
-                              "dom": {
-                                "onClick": {
-                                  "type": "script",
-                                  "config": {
-                                    "script": "\tself.session.props.theme = 'light-cool'\n"
-                                  },
-                                  "scope": "G"
-                                }
-                              }
-                            }
-                          },
-                          {
-                            "type": "ia.input.button",
-                            "version": 0,
-                            "meta": {
-                              "name": "T_light_warm"
-                            },
-                            "position": {
-                              "grow": 1,
-                              "shrink": 1,
-                              "basis": "0px"
-                            },
-                            "props": {
-                              "text": "Light warm",
-                              "style": {
-                                "fontSize": "11.5px",
-                                "fontWeight": 700,
-                                "letterSpacing": "0.4px",
-                                "borderRadius": "6px",
-                                "border": "1px solid var(--md-line, #2c343d)",
-                                "backgroundColor": "var(--md-face, #252c34)",
-                                "color": "var(--md-ink-body, #cfd8df)",
-                                "padding": "0px",
-                                "minWidth": "0px",
-                                "alignItems": "center",
-                                "whiteSpace": "nowrap"
-                              }
-                            },
-                            "events": {
-                              "dom": {
-                                "onClick": {
-                                  "type": "script",
-                                  "config": {
-                                    "script": "\tself.session.props.theme = 'light-warm'\n"
-                                  },
-                                  "scope": "G"
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
               }
             ]
           }
@@ -5390,7 +5415,7 @@
       "system": {
         "onStartup": {
           "config": {
-            "script": "\tfrom java.lang import Throwable\n\n\tdef isdict(v):\n\t\ttry:\n\t\t\tv.keys()\n\t\t\treturn True\n\t\texcept Throwable:\n\t\t\treturn False\n\t\texcept:\n\t\t\treturn False\n\n\tdef islist(v):\n\t\tif isdict(v) or isinstance(v, basestring):\n\t\t\treturn False\n\t\ttry:\n\t\t\tlen(v)\n\t\t\titer(v)\n\t\t\treturn True\n\t\texcept:\n\t\t\treturn False\n\n\tdef led(ok):\n\t\tif ok is None:\n\t\t\treturn \"na\"\n\t\tif ok:\n\t\t\treturn \"ok\"\n\t\treturn \"bad\"\n\n\tdef pick(it, keys):\n\t\tfor k in keys:\n\t\t\tv = it.get(k)\n\t\t\tif v is not None and str(v) != \"\":\n\t\t\t\treturn v\n\t\treturn None\n\n\tdef one(it):\n\t\tif isdict(it):\n\t\t\tnm = pick(it, (\"title\", \"name\", \"item\", \"step\", \"label\", \"key\"))\n\t\t\tok = pick(it, (\"ok\", \"present\", \"done\", \"installed\", \"healthy\"))\n\t\t\tst = pick(it, (\"detail\", \"state\", \"status\", \"message\", \"value\"))\n\t\t\tif st is None:\n\t\t\t\tif ok is None:\n\t\t\t\t\tst = \"\"\n\t\t\t\telif ok:\n\t\t\t\t\tst = \"OK\"\n\t\t\t\telse:\n\t\t\t\t\tst = \"MISSING\"\n\t\t\tif nm is None:\n\t\t\t\tnm = \"\"\n\t\t\treturn {\"name\": str(nm), \"state\": str(st), \"led\": led(ok)}\n\t\treturn {\"name\": str(it), \"state\": \"\", \"led\": \"na\"}\n\n\tdef findlist(d, depth):\n\t\tif depth > 4:\n\t\t\treturn None\n\t\tif islist(d):\n\t\t\treturn d\n\t\tif not isdict(d):\n\t\t\treturn None\n\t\tfor k in (\"items\", \"checks\", \"rows\", \"results\", \"steps\"):\n\t\t\tif islist(d.get(k)):\n\t\t\t\treturn d.get(k)\n\t\tfor k in d.keys():\n\t\t\tr = findlist(d.get(k), depth + 1)\n\t\t\tif r is not None:\n\t\t\t\treturn r\n\t\treturn None\n\n\tdef flatten(d):\n\t\trows = []\n\t\tif not isdict(d):\n\t\t\treturn rows\n\t\tkeys = [str(k) for k in d.keys()]\n\t\tkeys.sort()\n\t\tfor k in keys:\n\t\t\tv = d.get(k)\n\t\t\tif isdict(v):\n\t\t\t\trows.extend(flatten(v))\n\t\t\telif islist(v):\n\t\t\t\trows.append({\"name\": k, \"state\": \"%d entries\" % len(v), \"led\": \"na\"})\n\t\t\telse:\n\t\t\t\ttxt = str(v)\n\t\t\t\tok = None\n\t\t\t\tif v is True or txt.lower() in (\"ok\", \"true\", \"yes\", \"ready\", \"installed\"):\n\t\t\t\t\tok = True\n\t\t\t\telif v is False or txt.lower() in (\"false\", \"no\", \"missing\", \"error\", \"failed\"):\n\t\t\t\t\tok = False\n\t\t\t\trows.append({\"name\": k, \"state\": txt, \"led\": led(ok)})\n\t\treturn rows\n\n\tdef rowify(d):\n\t\tlst = findlist(d, 0)\n\t\tif lst:\n\t\t\treturn [one(it) for it in lst]\n\t\treturn flatten(d)\n\n\tout = {\"msg\": \"\", \"raw\": \"\", \"rows\": []}\n\ttry:\n\t\t# In-process, as the logged-in Perspective session: no HTTP hop\n\t\t# back to an open route, so this works with the write route shut.\n\t\t# The encode/decode round trip is deliberate - it hands rowify()\n\t\t# exactly the object the HTTP response used to.\n\t\tdata = system.util.jsonDecode(system.util.jsonEncode({\"ok\": True, \"check\": MachineDemo.setup.check()}))\n\t\tout[\"msg\"] = \"check -> OK\"\n\t\tif data is None:\n\t\t\tout[\"raw\"] = \"\"\n\t\telse:\n\t\t\ttry:\n\t\t\t\tout[\"raw\"] = system.util.jsonEncode(data, 1)[:1400]\n\t\t\texcept:\n\t\t\t\tout[\"raw\"] = str(data)[:1400]\n\t\t\tout[\"rows\"] = rowify(data)\n\texcept Throwable as e:\n\t\tout[\"msg\"] = \"check -> FAILED\"\n\t\tout[\"raw\"] = str(e)[:1400]\n\texcept Exception as e:\n\t\tout[\"msg\"] = \"check -> FAILED\"\n\t\tout[\"raw\"] = str(e)[:1400]\n\trows = out[\"rows\"]\n\twhile len(rows) < 6:\n\t\trows.append({\"name\": \"\", \"state\": \"\", \"led\": \"blank\"})\n\tout[\"rows\"] = rows[:6]\n\tself.view.custom.check = out\n"
+            "script": "\tfrom java.lang import Throwable\n\n\tdef isdict(v):\n\t\ttry:\n\t\t\tv.keys()\n\t\t\treturn True\n\t\texcept Throwable:\n\t\t\treturn False\n\t\texcept:\n\t\t\treturn False\n\n\tdef islist(v):\n\t\tif isdict(v) or isinstance(v, basestring):\n\t\t\treturn False\n\t\ttry:\n\t\t\tlen(v)\n\t\t\titer(v)\n\t\t\treturn True\n\t\texcept:\n\t\t\treturn False\n\n\tdef led(ok):\n\t\tif ok is None:\n\t\t\treturn \"na\"\n\t\tif ok:\n\t\t\treturn \"ok\"\n\t\treturn \"bad\"\n\n\tdef pick(it, keys):\n\t\tfor k in keys:\n\t\t\tv = it.get(k)\n\t\t\tif v is not None and str(v) != \"\":\n\t\t\t\treturn v\n\t\treturn None\n\n\tdef one(it):\n\t\tif isdict(it):\n\t\t\tnm = pick(it, (\"title\", \"name\", \"item\", \"step\", \"label\", \"key\"))\n\t\t\tok = pick(it, (\"ok\", \"present\", \"done\", \"installed\", \"healthy\"))\n\t\t\tst = pick(it, (\"detail\", \"state\", \"status\", \"message\", \"value\"))\n\t\t\tif st is None:\n\t\t\t\tif ok is None:\n\t\t\t\t\tst = \"\"\n\t\t\t\telif ok:\n\t\t\t\t\tst = \"OK\"\n\t\t\t\telse:\n\t\t\t\t\tst = \"MISSING\"\n\t\t\tif nm is None:\n\t\t\t\tnm = \"\"\n\t\t\treturn {\"name\": str(nm), \"state\": str(st), \"led\": led(ok)}\n\t\treturn {\"name\": str(it), \"state\": \"\", \"led\": \"na\"}\n\n\tdef findlist(d, depth):\n\t\tif depth > 4:\n\t\t\treturn None\n\t\tif islist(d):\n\t\t\treturn d\n\t\tif not isdict(d):\n\t\t\treturn None\n\t\tfor k in (\"items\", \"checks\", \"rows\", \"results\", \"steps\"):\n\t\t\tif islist(d.get(k)):\n\t\t\t\treturn d.get(k)\n\t\tfor k in d.keys():\n\t\t\tr = findlist(d.get(k), depth + 1)\n\t\t\tif r is not None:\n\t\t\t\treturn r\n\t\treturn None\n\n\tdef flatten(d):\n\t\trows = []\n\t\tif not isdict(d):\n\t\t\treturn rows\n\t\tkeys = [str(k) for k in d.keys()]\n\t\tkeys.sort()\n\t\tfor k in keys:\n\t\t\tv = d.get(k)\n\t\t\tif isdict(v):\n\t\t\t\trows.extend(flatten(v))\n\t\t\telif islist(v):\n\t\t\t\trows.append({\"name\": k, \"state\": \"%d entries\" % len(v), \"led\": \"na\"})\n\t\t\telse:\n\t\t\t\ttxt = str(v)\n\t\t\t\tok = None\n\t\t\t\tif v is True or txt.lower() in (\"ok\", \"true\", \"yes\", \"ready\", \"installed\"):\n\t\t\t\t\tok = True\n\t\t\t\telif v is False or txt.lower() in (\"false\", \"no\", \"missing\", \"error\", \"failed\"):\n\t\t\t\t\tok = False\n\t\t\t\trows.append({\"name\": k, \"state\": txt, \"led\": led(ok)})\n\t\treturn rows\n\n\tdef rowify(d):\n\t\tlst = findlist(d, 0)\n\t\tif lst:\n\t\t\treturn [one(it) for it in lst]\n\t\treturn flatten(d)\n\n\tout = {\"msg\": \"\", \"raw\": \"\", \"rows\": []}\n\ttry:\n\t\t# In-process, as the logged-in Perspective session: no HTTP hop\n\t\t# back to an open route, so this works with the write route shut.\n\t\t# The encode/decode round trip is deliberate - it hands rowify()\n\t\t# exactly the object the HTTP response used to.\n\t\tdata = system.util.jsonDecode(system.util.jsonEncode({\"ok\": True, \"check\": MachineDemo.setup.check()}))\n\t\tout[\"msg\"] = \"check -> OK\"\n\t\tif data is None:\n\t\t\tout[\"raw\"] = \"\"\n\t\telse:\n\t\t\ttry:\n\t\t\t\tout[\"raw\"] = system.util.jsonEncode(data, 1)[:1400]\n\t\t\texcept:\n\t\t\t\tout[\"raw\"] = str(data)[:1400]\n\t\t\tout[\"rows\"] = rowify(data)\n\texcept Throwable as e:\n\t\tout[\"msg\"] = \"check -> FAILED\"\n\t\tout[\"raw\"] = str(e)[:1400]\n\texcept Exception as e:\n\t\tout[\"msg\"] = \"check -> FAILED\"\n\t\tout[\"raw\"] = str(e)[:1400]\n\t# The view carries 8 fixed rows, as the CHECK button knows: a row bound\n\t# past the end of the list renders as a \"null\" error box.\n\tROWS = 8\n\trows = out[\"rows\"]\n\textra = len(rows) - ROWS\n\twhile len(rows) < ROWS:\n\t\trows.append({\"name\": \"\", \"state\": \"\", \"led\": \"blank\"})\n\tif extra > 0:\n\t\tout[\"msg\"] = \"%s (+%d not shown)\" % (out[\"msg\"], extra)\n\tout[\"rows\"] = rows[:ROWS]\n\tself.view.custom.check = out\n"
           },
           "scope": "G",
           "type": "script"

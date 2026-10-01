@@ -355,3 +355,17 @@
 .psc-alm-table .ia_alarmTableComponent__toolbar__tab:not(.ia_alarmTableComponent__toolbar__tab--active) * {
 	color: var(--md-tab-quiet, #b7c2ca);
 }
+
+/* Short window (1366x640, 1366x768). Manual's eight panels need ~1700px of
+   column height and three columns hold ~1400 there, so THIS USER MAY and
+   MESSAGES leave the page below 820px and a footer button stands in for each
+   (a popup, and the Alarms page, which shows the same live list). Scrolling
+   the columns instead is what drew the stray scroll bars. tools/fit_scrollbars.py
+   sets the classes. !important for the same reason as the header rule above:
+   Perspective writes display as an inline style. */
+@media (max-height: 819px) {
+	.psc-md-tall-only.psc-md-tall-only { display: none !important; }
+}
+@media (min-height: 820px) {
+	.psc-md-short-only.psc-md-short-only { display: none !important; }
+}
