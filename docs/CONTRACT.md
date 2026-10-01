@@ -562,7 +562,6 @@ next run:
 | --- | --- |
 | `com.inductiveautomation.webdev/resources/cell3d` | `tools/webdev_page.py build` (source: `src/cell3d/page.html`) |
 | `perspective/views/Machine/Cell3D` | `tools/build_cell3d_view.py` |
-| `perspective/views/Machine/Cell2D` | `tools/build_cell2d_view.py` |
 | `perspective/views/Machine/CadModel` | `tools/build_cad_view.py` (reads Cell3D) |
 | the nav bar in every view that has one | `tools/add_nav_tab.py` |
 | `project.json` title and description | `tools/package.sh` |

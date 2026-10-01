@@ -28,11 +28,11 @@ const BASE = process.argv[2] || process.env.GW_URL;
 if (!BASE) { console.error('give the gateway URL as the first argument, or set $GW_URL'); process.exit(2); }
 
 // 1280 is the narrowest panel this demo targets; 1366 is the view's own
-// defaultSize. Cell3D, Cell2D and CadModel are full-bleed model
-// screens with a Back button instead of the bar, so they are not listed.
+// defaultSize. Cell3D and CadModel are full-bleed model screens with a Back
+// button instead of the bar, so they are not listed.
 const WIDTHS = [1280, 1366, 1600, 1920];
 const PAGES = ['', 'manual', 'alarms', 'setup'];
-const EXPECTED = ['OVERVIEW', '3D CELL', '2D CELL', 'CAD', 'MANUAL', 'ALARMS', 'SETUP'];
+const EXPECTED = ['OVERVIEW', '3D CELL', 'CAD', 'MANUAL', 'ALARMS', 'SETUP'];
 
 // Perspective prefixes a project style class with psc-, so the class in the DOM
 // is psc-nav-tab, not nav-tab. Matching on the bare name finds nothing and the

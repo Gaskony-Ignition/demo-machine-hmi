@@ -55,7 +55,6 @@ fitter knows where to walk before reading anything.*
 | --- | --- |
 | **OVERVIEW** | The line: eight zones, the mimic, per-zone start/stop and the alarm strip. |
 | **3D CELL** | The cell in WebGL, animated from live tags, with the Geometry panel. |
-| **2D CELL** | The same cell, drawn with stock Perspective components only. |
 | **CAD** | The customer's own STL, orbit/zoom/pan/pick. |
 | **MANUAL** | Jog, permissives, service routines, access by security zone. |
 | **ALARMS** | Status and journal, this machine only. |

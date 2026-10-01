@@ -12,10 +12,6 @@
       "title": "CAD Model",
       "viewPath": "Machine/CadModel"
     },
-    "/cell2d": {
-      "title": "Cell (stock components)",
-      "viewPath": "Machine/Cell2D"
-    },
     "/cell3d": {
       "title": "3D Cell",
       "viewPath": "Machine/Cell3D"

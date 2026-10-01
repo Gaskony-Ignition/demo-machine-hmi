@@ -143,13 +143,14 @@ add another. The existing page is the specification.
 with the page as it stands as the proof that the model, the tags and the
 simulator already agree.
 
-## Option C — stock components only (already on the Cell2D page)
+## Option C — stock components only (tried, then removed)
 
-The `Cell2D` view is the same robot built from stock Perspective containers
-whose CSS transforms nest — a two-link arm with no JavaScript at all. It is
-genuinely Perspective and genuinely tag-driven, and it is two-dimensional.
-It answers "how far can you get with nothing but the palette" honestly:
-this far, and no further. It stays as the counterpoint to the 3D page.
+A `Cell2D` view built the same robot from stock Perspective containers whose
+CSS transforms nest — a two-link arm with no JavaScript at all. It was
+genuinely Perspective and genuinely tag-driven, and it was two-dimensional.
+It answered "how far can you get with nothing but the palette" honestly:
+this far, and no further — of no value as a page in the demo, so it was
+removed (01/10/2026).
 
 ## Recommendation
 

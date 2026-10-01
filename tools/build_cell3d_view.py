@@ -27,13 +27,12 @@ string, so an embed with nothing overridden follows the Perspective session's
 own theme; passing a literal string in an Embedded View's param override still
 wins, same as camera/hud/header.
 
-Cell2D's builder (tools/build_cell2d_view.py) finds this view's "Header" node
-by name and deep-copies it wholesale, including whatever propConfig sits on
-it - Cell2D declares no view params of its own, so a binding on the "Header"
-node itself would carry over an expression referencing a param that view has
-never heard of. To keep that copy working unmodified, the header#-visibility
-switch lives on a WRAPPER ("HeaderSlot") that Cell2D's find()/copy never
-reaches - the "Header" node it grabs stays exactly as innocent as before.
+The header-visibility switch lives on a WRAPPER ("HeaderSlot") around the
+plain "Header" node, not on "Header" itself, so a copy of "Header" never
+drags a param binding into a view that has not declared the param.
+tools/build_cad_view.py is the current consumer: it takes "HeaderSlot"
+wholesale for Machine/CadModel's header and strips the propConfig itself,
+since that view is always its own page and never needs to hide it.
 
 Binding a view param into an expression is a KNOWN silent-failure mode (see
 knowledge/perspective-bindings.md and the "view params can fail silently"
@@ -93,10 +92,10 @@ def bind(node, prop_path, expression):
     return node
 
 
-# --- header (kept byte-for-byte identical to what Cell2D expects to find) ---
+# --- header (kept byte-for-byte identical to what CadModel expects to find) -
 # t1/t2 text, the RobotState badge and the Overview button are unchanged from
-# before params existed - Cell2D's set_text() calls still land on the same
-# two names, and the copied node still carries the Overview button's own
+# before params existed - tools/build_cad_view.py's find() calls still land on
+# the same names, and the copied node still carries the Overview button's own
 # event config (the one place a missing "scope" key would 500 the project).
 header = {
     "type": "ia.container.flex",
@@ -178,7 +177,7 @@ header = {
             },
         },
         {
-            # Opens the geometry panel beside the 3D view. Cell2D's builder
+            # Opens the geometry panel beside the 3D view. CadModel's builder
             # copies this header and strips THIS node by name - a toggle for a
             # panel that view does not have would be an inert button.
             "type": "ia.input.button",
