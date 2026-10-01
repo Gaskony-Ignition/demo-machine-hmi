@@ -128,7 +128,7 @@
                 },
                 "position": {
                   "shrink": 0,
-                  "basis": "300px"
+                  "basis": "260px"
                 },
                 "props": {
                   "placeholder": "Model",
@@ -191,6 +191,40 @@
                       "scope": "G",
                       "config": {
                         "script": "\tsystem.perspective.openPopup('cadModels', 'Machine/CadModels', title='CAD models', modal=True,\n\t\tshowCloseIcon=True, draggable=False, resizable=False,\n\t\tviewportBound=True, position={'width': 560, 'height': 500})\n"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "SimulateAlarm"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "text": "Simulate alarm",
+                  "style": {
+                    "backgroundColor": "var(--md-well, #262e36)",
+                    "color": "var(--md-ink-mid, #cdd6dd)",
+                    "border": "1px solid var(--md-line-soft, #38424c)",
+                    "borderRadius": "7px",
+                    "fontWeight": "bold",
+                    "fontSize": "12.5px",
+                    "minHeight": "38px",
+                    "padding": "0 16px",
+                    "alignItems": "center"
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "type": "script",
+                      "scope": "G",
+                      "config": {
+                        "script": "\tsystem.perspective.openPopup('cadSim', 'Machine/CadSim', title='Simulate a part alarm', modal=True,\n\t\tparams={'model': self.view.custom.model},\n\t\tshowCloseIcon=True, draggable=False, resizable=False,\n\t\tviewportBound=True, position={'width': 600, 'height': 420})\n"
                       }
                     }
                   }

@@ -9,7 +9,7 @@
   "user-source": ""
  },
  "doPost": {
-  "enabled": false,
+  "enabled": true,
   "max-retry-attempts": 3,
   "require-auth": false,
   "require-https": false,

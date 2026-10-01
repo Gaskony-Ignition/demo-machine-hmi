@@ -440,6 +440,8 @@ def reset():
 	mapping["Robot/FaultText"] = ""
 	mapping["Safety/EStopOK"] = True
 	mapping["Safety/GuardsClosed"] = True
+	for i in range(1, MachineDemo.tagdata.CAD_SIM_SLOTS + 1):
+		mapping["CadSim/Sim%d/Active" % i] = False
 	P.write(mapping)
 	MachineDemo.sim.clearInternals()
 	LOG.info("reset to steady state")

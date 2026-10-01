@@ -2,28 +2,10 @@ def doGet(request, session):
 	# `def doGet` must be the first byte of this file - anything above it makes
 	# the route return an empty 200 with nothing in the log.
 	import os
-	from java.lang import System
 
 	params = request.get('params', {}) or {}
 	want = params.get('f', '')
 	model = params.get('model', '') or ''
-
-	def folder():
-		project = system.util.getProjectName()
-		rel = os.path.join('data', 'projects', project,
-		                   'com.inductiveautomation.webdev', 'resources', 'cad')
-		roots = []
-		for prop in ('user.dir', 'ignition.installdir', 'catalina.base'):
-			v = System.getProperty(prop)
-			if v:
-				roots.append(v)
-				roots.append(os.path.join(v, '..'))
-		roots.append('/usr/local/bin/ignition')
-		for r in roots:
-			p = os.path.normpath(os.path.join(r, rel))
-			if os.path.isdir(p):
-				return p
-		return None
 
 	def send(path, contentType):
 		# Returning the byte[] as 'response' does NOT work - WebDev encodes it
@@ -57,7 +39,7 @@ def doGet(request, session):
 			                 'available': names + ['list']}}
 		return send(path, 'application/octet-stream')
 
-	d = folder()
+	d = MachineDemo.cad.builtinDir()
 	if d is None:
 		return {'json': {'ok': False, 'error': 'cad folder not found'}}
 

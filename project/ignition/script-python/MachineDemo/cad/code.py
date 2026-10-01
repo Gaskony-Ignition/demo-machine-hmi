@@ -36,6 +36,7 @@ NAME_MAX = 48
 
 STEP_FILE = "model.step"
 META = "meta.json"
+PARTS_FILE = "parts.json"
 
 
 def root():
@@ -124,6 +125,74 @@ def options(rev=None):
 
 def uploadedOptions(rev=None):
 	return [o for o in options(rev) if o["value"] != BUILTIN]
+
+
+def builtinDir():
+	"""The project's own `cad` WebDev resource folder, or None."""
+	from java.lang import System
+	rel = os.path.join("data", "projects", system.util.getProjectName(),
+	                   "com.inductiveautomation.webdev", "resources", "cad")
+	roots = []
+	for prop in ("user.dir", "ignition.installdir", "catalina.base"):
+		v = System.getProperty(prop)
+		if v:
+			roots.append(v)
+			roots.append(os.path.join(v, ".."))
+	roots.append("/usr/local/bin/ignition")
+	for r in roots:
+		p = os.path.normpath(os.path.join(r, rel))
+		if os.path.isdir(p):
+			return p
+	return None
+
+
+def parts(name):
+	"""Part names of a model, as the CAD page names them.
+
+	STEP part names exist only after the page has parsed the file, so for a
+	STEP model this is what the page last reported (PARTS_FILE); empty until
+	the model has been shown once.
+	"""
+	if not name or name == BUILTIN:
+		d = builtinDir()
+		return sorted([f[:-4] for f in os.listdir(d) if f.lower().endswith(".stl")]) if d else []
+	kind, stems = files(name)
+	if kind == "stl":
+		return stems
+	try:
+		return list(system.util.jsonDecode(system.file.readFileAsString(
+			os.path.join(_modelDir(name), PARTS_FILE), "UTF-8")) or [])
+	except:
+		return []
+
+
+def partOptions(name, rev=None):
+	return [{"value": p, "label": p} for p in parts(name)]
+
+
+def saveParts(name, names):
+	"""Record the part names the page parsed out of a STEP model.
+
+	The one thing the CAD page writes over HTTP: a list of names into a fixed
+	file of a model that already exists. Never a tag, never a path.
+	"""
+	kind, _stems = files(name)
+	if kind != "step":
+		raise ValueError("part names are only recorded for STEP models")
+	if not isinstance(names, (list, tuple)) or len(names) > MAX_PARTS * 4:
+		raise ValueError("expected a list of at most %d names" % (MAX_PARTS * 4))
+	clean, seen = [], set()
+	for n in names:
+		n = re.sub(u"[\x00-\x1f\x7f]", u"", unicode(n or u"")).strip()[:128]
+		if n and n.lower() not in seen:
+			seen.add(n.lower())
+			clean.append(n)
+	path = os.path.join(_modelDir(name), PARTS_FILE)
+	text = system.util.jsonEncode(clean)
+	if os.path.isfile(path) and system.file.readFileAsString(path, "UTF-8") == text:
+		return len(clean)
+	system.file.writeFile(path, text)
+	return len(clean)
 
 
 def files(name):
@@ -346,3 +415,98 @@ def alarms():
 		})
 	out.sort(key=lambda a: (not a["active"], a["acked"], -a["ts"]))
 	return out
+
+
+# ---------------------------------------------------------------------------
+# simulated part alarms - the CadSim slot pool (MachineDemo.tagdata._cadSim)
+# ---------------------------------------------------------------------------
+
+
+def _slot(i, leaf):
+	return "CadSim/Sim%d/%s" % (i, leaf)
+
+
+def _slotRange():
+	return range(1, MachineDemo.tagdata.CAD_SIM_SLOTS + 1)
+
+
+def simSlots(rev=None):
+	"""Each slot: what it is set to and where its alarm stands."""
+	P = MachineDemo.plant
+	vals = P.read([_slot(i, leaf) for i in _slotRange()
+	               for leaf in ("Part", "Priority", "Active")])
+	acked = {}
+	try:
+		for e in system.alarm.queryStatus(
+				source=["prov:%s:/tag:CadSim/*" % P.PROVIDER],
+				state=["ActiveUnacked", "ActiveAcked"]):
+			m = re.search(r"CadSim/Sim(\d+)/", unicode(e.getSource()))
+			if m:
+				acked[int(m.group(1))] = bool(e.isAcked())
+	except (JThrowable, Exception):
+		pass
+	names = MachineDemo.tagdata.PRIORITIES
+	out = []
+	for k, i in enumerate(_slotRange()):
+		part, pri, active = vals[k * 3], vals[k * 3 + 1], bool(vals[k * 3 + 2])
+		pri = names[pri] if isinstance(pri, int) and 0 <= pri < len(names) else u""
+		if active:
+			text = u"Slot %d  -  %s  -  %s  -  %s" % (
+				i, part, pri, u"acknowledged" if acked.get(i) else u"unacknowledged")
+		else:
+			text = u"Slot %d  -  free" % i
+		out.append({"slot": i, "part": part or u"", "priority": pri,
+		            "active": active, "acked": bool(acked.get(i)), "text": text})
+	return out
+
+
+def simRaise(part, priority="High"):
+	"""Raise a simulated alarm on a part. Returns the slot used.
+
+	The same part again re-raises its own slot (with the new priority). With
+	every slot holding a different part, it refuses rather than take one over.
+	"""
+	from java.lang import Thread as JThread
+	P = MachineDemo.plant
+	part = unicode(part or u"").strip()[:128]
+	if not part:
+		raise ValueError("choose a part")
+	names = MachineDemo.tagdata.PRIORITIES
+	if priority not in names:
+		raise ValueError("priority must be one of %s" % ", ".join(names))
+	slots = simSlots()
+	slot = None
+	for s in slots:
+		if s["active"] and s["part"].lower() == part.lower():
+			slot = s["slot"]
+	if slot is None:
+		free = [s["slot"] for s in slots if not s["active"]]
+		if not free:
+			raise ValueError("all %d simulation slots are in use - clear one first"
+			                 % len(slots))
+		slot = free[0]
+	P.write({_slot(slot, "Active"): False})
+	# Part and Priority have to be in place before Active goes true: the alarm
+	# reads its bound properties once, at activation.
+	P.write({_slot(slot, "Part"): part, _slot(slot, "Priority"): names.index(priority)})
+	JThread.sleep(300)
+	P.write({_slot(slot, "Active"): True})
+	LOG.info("simulated %s alarm on part %s (slot %d)" % (priority, part, slot))
+	return slot
+
+
+def simClear(slot=None):
+	"""Clear one slot's alarm, or every slot's."""
+	MachineDemo.plant.write(dict((_slot(i, "Active"), False) for i in _slotRange()
+	                             if slot is None or i == int(slot)))
+
+
+def simAck(slot=None, user="CAD screen"):
+	"""Acknowledge one slot's standing alarm, or every slot's."""
+	P = MachineDemo.plant
+	src = "prov:%s:/tag:CadSim/%s*" % (P.PROVIDER, "Sim%d/" % int(slot) if slot else "")
+	ids = [str(e.getId()) for e in system.alarm.queryStatus(
+		source=[src], state=["ActiveUnacked", "ClearUnacked"])]
+	if ids:
+		system.alarm.acknowledge(ids, "acknowledged on the CAD screen", user)
+	return len(ids)

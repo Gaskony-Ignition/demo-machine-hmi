@@ -7,6 +7,7 @@
     "base.stl",
     "config.json",
     "doGet.py",
+    "doPost.py",
     "forearm.stl",
     "shoulder.stl",
     "upperarm.stl",
@@ -17,7 +18,7 @@
   "attributes": {
     "lastModification": {
       "actor": "external",
-      "timestamp": "2026-09-09T02:45:00Z"
+      "timestamp": "2026-10-01T03:18:26Z"
     }
   }
 }

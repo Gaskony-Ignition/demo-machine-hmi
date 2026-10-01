@@ -36,7 +36,7 @@ ending `· v<version>` (or `(dev)` and `· dev` for a development build).
 ## Tag contract — provider `MachineDemo` (STANDARD, created by setup)
 
 All paths below are relative to `[MachineDemo]`. Types are Ignition dataTypes.
-112 tags in eight top-level nodes: seven folders and one UDT instance.
+126 tags in nine top-level nodes: eight folders and one UDT instance.
 
 ```
 Config/        CaseW_mm 300 | CaseD_mm 250 | CaseH_mm 220                (Int4, mm)
@@ -86,6 +86,10 @@ Zones/Z1..Z8/  Name String | State String | Running Bool | Fault Bool
 
 Faults/        WrapperFilmFeed Bool | ConveyorJam Bool | VacuumLow Bool
                GuardOpen Bool | RobotAxisFault Bool
+
+CadSim/Sim1..Sim4/  Part String | Priority Int4 (0..4) | Active Bool
+               (simulated part alarms for the CAD screen; the alarm on Active
+                binds CadPart and priority to Part and Priority)
 
 _types_/RobotArm   the UDT definition — the nineteen Robot/ members above
 ```
@@ -417,6 +421,7 @@ pages leave Perspective. Inside a page, every asset URL is RELATIVE
 | `cad` | GET | `?f=list[&model=<name>]` | the model's kind (`stl`/`step`) and part files, as JSON |
 | `cad` | GET | `?f=<part>[&model=<name>]` | one part file (STL or STEP), as bytes |
 | `cad` | GET | `?f=alarms` | standing alarms on the provider that carry `CadPart`, as JSON |
+| `cad` | POST | `?f=parts&model=<name>` | the CAD page reports a STEP model's part names (JSON list) into `parts.json` - the one HTTP write: names only, existing STEP models only, never a tag |
 | `lib` | GET | `?f=three` | vendored three.js (proves it works with no internet) |
 | `lib` | GET | `?f=occt` / `?f=occt-wasm` | vendored occt-import-js, the STEP reader (LGPL-2.1, see NOTICE) |
 
@@ -432,8 +437,9 @@ credential, because the write path was removed rather than guarded:
   over HTTP; use the Setup screen or the Designer Script Console"}`.
 - `config.json` keeps `require-auth: false` on every method and an empty
   `user-source`, so the project ships with nothing gateway-specific in it.
-- CAD model upload and delete are the same: the CAD models popup calls
-  `MachineDemo.cad.save` / `.delete` in the session. `cad` has no POST.
+- CAD model upload and delete, and simulated part alarms, are the same: the
+  popups call `MachineDemo.cad.*` in the session. `cad` accepts one POST,
+  `?f=parts`, which writes a STEP model's part-name list and nothing else.
 
 The two ways to drive the demo:
 

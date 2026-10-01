@@ -457,15 +457,42 @@ def _faults():
 	])
 
 
+# Simulated part alarms for the CAD screen: a pool of slots, each a real alarm
+# whose CadPart and priority are BOUND to sibling tags. A bound alarm property
+# is read when the alarm goes active and the standing event keeps that value,
+# so a raise writes Part and Priority first and Active last (MachineDemo.cad).
+CAD_SIM_SLOTS = 4
+PRIORITIES = ["Diagnostic", "Low", "Medium", "High", "Critical"]
+
+
+def _cadSim():
+	slots = []
+	for i in range(1, CAD_SIM_SLOTS + 1):
+		alarm = {"name": "Simulated Part Alarm", "mode": "Equality",
+		         "setpointA": True, "ackMode": "Manual",
+		         "displayPath": "Palletiser / CAD / Simulated Part Alarm",
+		         "notes": "Raised from the CAD screen to show an alarm on a "
+		                  "part of the model. Not a machine fault.",
+		         CAD_PART: {"bindType": "Tag", "value": "[.]Part"},
+		         "priority": {"bindType": "Tag", "value": "[.]Priority"}}
+		slots.append(_folder("Sim%d" % i, [
+			_str("Part", ""),
+			_atomic("Priority", "Int4", 3),
+			_bool("Active", False, [alarm]),
+		]))
+	return _folder("CadSim", slots,
+	               "Simulated part alarms, raised and cleared from the CAD screen.")
+
+
 def tags():
 	"""The demo's top-level nodes, as system.tag.configure() expects them.
 
-	Seven folders and one UDT instance. `types()` must be written into
+	Eight folders and one UDT instance. `types()` must be written into
 	[<provider>]_types_ BEFORE this list goes into the provider root, or the
 	Robot instance has no definition to resolve.
 	"""
 	return [_config(), _line(), _safety(), _robot(), _pallet(), _conveyor(),
-	        _zones(), _faults()]
+	        _zones(), _faults(), _cadSim()]
 
 
 # ---------------------------------------------------------------------------

@@ -41,6 +41,8 @@ TITLE = "Zone 2 · Robot Cell 2 — CAD model"
 SUBTITLE = "Built-in or uploaded STL / STEP - alarms linked by part number"
 
 POPUP_VIEW = "Machine/CadModels"
+SIM_VIEW = "Machine/CadSim"
+SIM_ID = "cadSim"
 POPUP_ID = "cadModels"
 MSG = "cadModelChanged"
 BUILTIN = "_builtin"
@@ -126,7 +128,7 @@ back = find(header_slot, "BackToOverview")
 model_pick = {
     "type": "ia.input.dropdown",
     "meta": {"name": "ModelPick"},
-    "position": {"shrink": 0, "basis": "300px"},
+    "position": {"shrink": 0, "basis": "260px"},
     "props": {
         "placeholder": "Model",
         "showClearIcon": False,
@@ -156,9 +158,24 @@ models_btn = {
             "\t\tviewportBound=True, position={'width': 560, 'height': 500})\n"
             % (POPUP_ID, POPUP_VIEW, "CAD models"))}}}},
 }
+sim_btn = {
+    "type": "ia.input.button",
+    "meta": {"name": "SimulateAlarm"},
+    "position": {"shrink": 0},
+    "props": {"text": "Simulate alarm", "style": copy.deepcopy(BTN_STYLE)},
+    "events": {"component": {"onActionPerformed": {
+        "type": "script", "scope": "G",
+        "config": {"script": (
+            "\tsystem.perspective.openPopup(%r, %r, title=%r, modal=True,\n"
+            "\t\tparams={'model': self.view.custom.model},\n"
+            "\t\tshowCloseIcon=True, draggable=False, resizable=False,\n"
+            "\t\tviewportBound=True, position={'width': 600, 'height': 420})\n"
+            % (SIM_ID, SIM_VIEW, "Simulate a part alarm"))}}}},
+}
 kids = header["children"]
 kids.insert(kids.index(back), model_pick)
 kids.insert(kids.index(back), models_btn)
+kids.insert(kids.index(back), sim_btn)
 
 view = {
     "custom": {"model": BUILTIN, "rev": 0},
@@ -371,3 +388,145 @@ os.makedirs(POP_OUT, exist_ok=True)
 json.dump(popup, open(os.path.join(POP_OUT, "view.json"), "w"), indent=2)
 json.dump(resource, open(os.path.join(POP_OUT, "resource.json"), "w"), indent=2)
 print("wrote %s" % POP_OUT)
+
+
+# ---------------------------------------------------------------------------
+# Machine/CadSim - simulate an alarm on any part of the model on screen
+# ---------------------------------------------------------------------------
+
+SLOTS = 4  # MachineDemo.tagdata.CAD_SIM_SLOTS
+
+RAISE_SCRIPT = """\tfrom java.lang import Throwable
+\tv = self.view.custom
+\ttry:
+\t\tslot = MachineDemo.cad.simRaise(v.part, v.priority)
+\texcept (Throwable, Exception) as e:
+\t\tv.status = u"Not raised: %s" % e
+\t\tv.ok = False
+\t\treturn
+\tv.status = u"%s alarm raised on %s (slot %d)." % (v.priority, v.part, slot)
+\tv.ok = True
+\tv.rev = (v.rev or 0) + 1
+"""
+
+
+def action(script):
+    return ("\tfrom java.lang import Throwable\n\tv = self.view.custom\n\ttry:\n"
+            "\t\t" + script + "\n"
+            "\texcept (Throwable, Exception) as e:\n"
+            "\t\tv.status = u\"Failed: %s\" % e\n\t\tv.ok = False\n\t\treturn\n"
+            "\tv.status = u\"\"\n\tv.ok = True\n\tv.rev = (v.rev or 0) + 1\n")
+
+
+def small_btn(name, text, script, enabled_path=None):
+    b = {"type": "ia.input.button", "meta": {"name": name},
+         "position": {"shrink": 0, "basis": "96px"},
+         "props": {"text": text, "style": dict(copy.deepcopy(BTN_STYLE),
+                                               minHeight="32px")},
+         "events": {"component": {"onActionPerformed": {
+             "type": "script", "scope": "G", "config": {"script": action(script)}}}}}
+    if enabled_path:
+        b["propConfig"] = {"props.enabled": {"binding": {
+            "type": "property", "config": {"path": enabled_path}}}}
+    return b
+
+
+def slot_row(i):
+    return {"type": "ia.container.flex", "meta": {"name": "Slot%d" % i},
+            "position": {"shrink": 0},
+            "props": {"direction": "row", "alignItems": "center",
+                      "style": {"gap": "8px"}},
+            "children": [
+                {"type": "ia.display.label", "meta": {"name": "Text"},
+                 "position": {"grow": 1, "basis": "0px"},
+                 "props": {"style": {"fontSize": "12.5px", "color": INK,
+                                     "fontFamily": "monospace"}},
+                 "propConfig": {"props.text": {"binding": {"type": "property",
+                     "config": {"path": "view.custom.slots[%d].text" % (i - 1)}}}}},
+                small_btn("Ack", "Ack", "MachineDemo.cad.simAck(%d)" % i,
+                          "view.custom.slots[%d].active" % (i - 1)),
+                small_btn("Clear", "Clear", "MachineDemo.cad.simClear(%d)" % i,
+                          "view.custom.slots[%d].active" % (i - 1)),
+            ]}
+
+
+sim = {
+    "custom": {"part": None, "priority": "High", "status": "", "ok": True, "rev": 0},
+    "params": {"model": BUILTIN},
+    "propConfig": {
+        "params.model": {"paramDirection": "input", "persistent": True},
+        "custom.slots": {"binding": {"type": "expr", "config": {
+            "expression": 'runScript("MachineDemo.cad.simSlots", 0, {view.custom.rev})'}}},
+    },
+    "props": {"defaultSize": {"width": 600, "height": 430}},
+    "root": {
+        "type": "ia.container.flex",
+        "meta": {"name": "root"},
+        "props": {"direction": "column", "style": {
+            "padding": "14px 18px", "gap": "9px", "overflow": "hidden",
+            "backgroundColor": "var(--md-panel, #1d232a)"}},
+        "children": [
+            heading("RaiseHead", "Raise an alarm on a part"),
+            label("RaiseHelp",
+                  "A real alarm on the demo's own tags, linked to the part by "
+                  "its CadPart: it shows in the part alarm panel, tints the "
+                  "part and is acknowledged like any other. %d at once." % SLOTS,
+                  color=QUIET, whiteSpace="normal", lineHeight="1.45"),
+            {"type": "ia.container.flex", "meta": {"name": "RaiseRow"},
+             "position": {"shrink": 0},
+             "props": {"direction": "row", "alignItems": "center",
+                       "style": {"gap": "10px"}},
+             "children": [
+                 {"type": "ia.input.dropdown", "meta": {"name": "Part"},
+                  "position": {"grow": 1, "basis": "0px"},
+                  "props": {"placeholder": "Part of the model on screen",
+                            "search": {"enabled": True},
+                            "style": {"minHeight": "38px", "fontSize": "12.5px"}},
+                  "propConfig": {
+                      "props.options": {"binding": {"type": "expr", "config": {"expression":
+                          'runScript("MachineDemo.cad.partOptions", 0, {view.params.model}, {view.custom.rev})'}}},
+                      "props.value": {"binding": {"type": "property", "config": {
+                          "path": "view.custom.part", "bidirectional": True}}}}},
+                 {"type": "ia.input.dropdown", "meta": {"name": "Priority"},
+                  "position": {"shrink": 0, "basis": "130px"},
+                  "props": {"options": [{"value": n, "label": n} for n in
+                                        ["Diagnostic", "Low", "Medium", "High", "Critical"]],
+                            "showClearIcon": False,
+                            "style": {"minHeight": "38px", "fontSize": "12.5px"}},
+                  "propConfig": {"props.value": {"binding": {"type": "property", "config": {
+                      "path": "view.custom.priority", "bidirectional": True}}}}},
+                 {"type": "ia.input.button", "meta": {"name": "Raise"},
+                  "position": {"shrink": 0, "basis": "100px"},
+                  "props": {"text": "Raise", "style": copy.deepcopy(BTN_STYLE)},
+                  "events": {"component": {"onActionPerformed": {
+                      "type": "script", "scope": "G",
+                      "config": {"script": RAISE_SCRIPT}}}}},
+             ]},
+            heading("SlotsHead", "Simulated alarms"),
+        ] + [slot_row(i) for i in range(1, SLOTS + 1)] + [
+            {"type": "ia.container.flex", "meta": {"name": "AllRow"},
+             "position": {"shrink": 0},
+             "props": {"direction": "row", "alignItems": "center",
+                       "style": {"gap": "8px"}},
+             "children": [
+                 {"type": "ia.display.label", "meta": {"name": "Status"},
+                  "position": {"grow": 1, "basis": "0px"},
+                  "props": {"style": {"fontSize": "12.5px", "whiteSpace": "normal"}},
+                  "propConfig": {
+                      "props.text": {"binding": {"type": "property",
+                                                 "config": {"path": "view.custom.status"}}},
+                      "props.style.color": {"binding": {"type": "expr", "config": {
+                          "expression": 'if({view.custom.ok}, "' + INK + '", '
+                                        '"var(--md-fault-ink, #ff8d92)")'}}}}},
+                 small_btn("AckAll", "Ack all", "MachineDemo.cad.simAck()"),
+                 small_btn("ClearAll", "Clear all", "MachineDemo.cad.simClear()"),
+             ]},
+        ],
+    },
+}
+
+SIM_OUT = os.path.join(VIEWS, "CadSim")
+os.makedirs(SIM_OUT, exist_ok=True)
+json.dump(sim, open(os.path.join(SIM_OUT, "view.json"), "w"), indent=2)
+json.dump(resource, open(os.path.join(SIM_OUT, "resource.json"), "w"), indent=2)
+print("wrote %s" % SIM_OUT)
