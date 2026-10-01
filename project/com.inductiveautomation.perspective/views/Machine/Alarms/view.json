@@ -651,21 +651,21 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "User",
-              "tabIndex": 0
+              "name": "User"
             },
             "props": {
               "direction": "column",
               "style": {
                 "gap": "1px",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "overflow": "hidden"
               }
             },
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "34px"
+              "basis": "auto"
             },
             "children": [
               {
@@ -818,7 +818,8 @@
                     "borderBottom": "1px solid var(--md-line, #2c343d)",
                     "backgroundColor": "var(--neutral-20, #20262d)",
                     "minWidth": "0px",
-                    "minHeight": "0px"
+                    "minHeight": "0px",
+                    "overflow": "hidden"
                   },
                   "alignItems": "center"
                 },
@@ -1337,7 +1338,8 @@
                     "borderBottom": "1px solid var(--md-line, #2c343d)",
                     "backgroundColor": "var(--neutral-20, #20262d)",
                     "minWidth": "0px",
-                    "minHeight": "0px"
+                    "minHeight": "0px",
+                    "overflow": "hidden"
                   },
                   "alignItems": "center"
                 },

@@ -710,21 +710,21 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "User",
-              "tabIndex": 0
+              "name": "User"
             },
             "props": {
               "direction": "column",
               "style": {
                 "gap": "1px",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "overflow": "hidden"
               }
             },
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "34px"
+              "basis": "auto"
             },
             "children": [
               {
@@ -1057,16 +1057,15 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "Left",
-              "tabIndex": 0
+              "name": "Left"
             },
             "props": {
               "direction": "column",
               "style": {
                 "gap": "10px",
-                "overflowY": "auto",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "overflow": "hidden"
               }
             },
             "position": {
@@ -1108,7 +1107,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -2082,7 +2082,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -2597,7 +2598,8 @@
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
-                    "minHeight": "0px"
+                    "minHeight": "0px",
+                    "classes": "md-tall-only"
                   }
                 },
                 "position": {
@@ -2617,7 +2619,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -3244,16 +3247,15 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "Mid",
-              "tabIndex": 0
+              "name": "Mid"
             },
             "props": {
               "direction": "column",
               "style": {
                 "gap": "10px",
-                "overflowY": "auto",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "overflow": "hidden"
               }
             },
             "position": {
@@ -3295,7 +3297,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -4055,7 +4058,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -4570,7 +4574,8 @@
                     "borderRadius": "8px",
                     "overflow": "hidden",
                     "minWidth": "0px",
-                    "minHeight": "0px"
+                    "minHeight": "0px",
+                    "classes": "md-tall-only"
                   }
                 },
                 "position": {
@@ -4590,7 +4595,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -7123,16 +7129,15 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "Right",
-              "tabIndex": 0
+              "name": "Right"
             },
             "props": {
               "direction": "column",
               "style": {
                 "gap": "10px",
-                "overflowY": "auto",
                 "minWidth": "0px",
-                "minHeight": "0px"
+                "minHeight": "0px",
+                "overflow": "hidden"
               }
             },
             "position": {
@@ -7174,7 +7179,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -7900,8 +7906,8 @@
                 },
                 "position": {
                   "grow": 1,
-                  "shrink": 0,
-                  "basis": "320px"
+                  "shrink": 1,
+                  "basis": "0px"
                 },
                 "children": [
                   {
@@ -7915,7 +7921,8 @@
                         "borderBottom": "1px solid var(--md-line, #2c343d)",
                         "backgroundColor": "var(--neutral-20, #20262d)",
                         "minWidth": "0px",
-                        "minHeight": "0px"
+                        "minHeight": "0px",
+                        "overflow": "hidden"
                       },
                       "alignItems": "center"
                     },
@@ -9158,6 +9165,82 @@
                   "type": "expr",
                   "config": {
                     "expression": "if({view.custom.canMove}, \"var(--md-ink-soft, #b7c2ca)\", \"var(--md-warn, #eebf5e)\")"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.input.button",
+            "meta": {
+              "name": "Messages"
+            },
+            "props": {
+              "text": "OPEN ALARMS",
+              "style": {
+                "fontSize": "11px",
+                "fontWeight": 700,
+                "letterSpacing": "0.5px",
+                "borderRadius": "6px",
+                "border": "1px solid var(--md-line, #2c343d)",
+                "backgroundColor": "transparent",
+                "color": "var(--neutral-80, #b7c2ca)",
+                "padding": "0 12px",
+                "whiteSpace": "nowrap",
+                "height": "28px",
+                "classes": "md-short-only"
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            },
+            "events": {
+              "component": {
+                "onActionPerformed": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tsystem.perspective.navigate(page='/alarms')\n"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.input.button",
+            "meta": {
+              "name": "Access"
+            },
+            "props": {
+              "text": "THIS USER MAY",
+              "style": {
+                "fontSize": "11px",
+                "fontWeight": 700,
+                "letterSpacing": "0.5px",
+                "borderRadius": "6px",
+                "border": "1px solid var(--md-line, #2c343d)",
+                "backgroundColor": "transparent",
+                "color": "var(--neutral-80, #b7c2ca)",
+                "padding": "0 12px",
+                "whiteSpace": "nowrap",
+                "height": "28px",
+                "classes": "md-short-only"
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            },
+            "events": {
+              "component": {
+                "onActionPerformed": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tsystem.perspective.openPopup('manualAccess', 'Machine/ManualAccess', title='This user may', modal=True,\n\t\tparams={'mayOperate': self.view.custom.mayOperate},\n\t\tshowCloseIcon=True, draggable=False, resizable=False,\n\t\tviewportBound=True, position={'width': 360, 'height': 230})\n"
                   }
                 }
               }

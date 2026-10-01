@@ -43,6 +43,21 @@ if [[ " $* " != *" --skip-readme-check "* ]]; then
         echo "readme-gate.sh not found above $_repo; gate skipped" >&2
     fi
 fi
+# Deploy the working tree to the test gateway once, for the gates that check
+# what is deployed (a11y, scroll bars).
+_deployed=0
+_deploy() {
+    [ "$_deployed" = 1 ] && return 0
+    local _h; _h="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    (
+        # shellcheck disable=SC1091
+        source "$_h/env.local.sh"
+        cd "$(git -C "$_h" rev-parse --show-toplevel)/project" && tar cf - . | docker exec -i "$GW_CONTAINER" tar xf - -C "$GW_PROJECTS/Machine_HMI_Demo"
+        docker exec "$GW_CONTAINER" chown -R ignition:ignition "$GW_PROJECTS/Machine_HMI_Demo"
+    )
+    "$_h/scan.sh"
+    _deployed=1
+}
 # a11y gate (WCAG 2.1 AA plan, Stage 5). Blocking; bypass deliberately with
 # --skip-a11y-check. The gate checks what is DEPLOYED, so deploy the current
 # project to module-testing (this repo's own tools/env.local.sh + scan.sh)
@@ -60,14 +75,31 @@ if [[ " $* " != *" --skip-a11y-check "* ]]; then
     elif [ ! -f "$_here/env.local.sh" ]; then
         echo "a11y gate skipped: no tools/env.local.sh - copy tools/env.example.sh and edit it to check against your own gateway" >&2
     else
-        (
-            # shellcheck disable=SC1091
-            source "$_here/env.local.sh"
-            cd "$_repo/project" && tar cf - . | docker exec -i "$GW_CONTAINER" tar xf - -C "$GW_PROJECTS/Machine_HMI_Demo"
-            docker exec "$GW_CONTAINER" chown -R ignition:ignition "$GW_PROJECTS/Machine_HMI_Demo"
-        )
-        "$_here/scan.sh"
+        _deploy
         "$_gate" "$_repo" || { echo "a11y gate failed: fix the findings above, record a reasoned exception in a11y.json, or pass --skip-a11y-check" >&2; exit 1; }
+    fi
+fi
+# Scroll-bar gate. Blocking; bypass deliberately with --skip-scrollbar-check.
+# Only an intentional list, table or text pane may scroll: Perspective's
+# default overflow:auto draws a bar on Windows over 1px of overflow, and
+# headless Chromium hides bars, so nothing else catches it. Checks what is
+# DEPLOYED, at 1366x640 up to 1920x1080, popups included.
+if [[ " $* " != *" --skip-scrollbar-check "* ]]; then
+    _here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    _pw=""
+    for _m in "${NODE_PATH:-/nonexistent}" /Home-Claude/ignition-claude-toolkit/plugins/ignition/skills/verify-view/tool/node_modules \
+              "$_here/../../water-suite/node_modules"; do
+        [ -d "$_m/playwright" ] && { _pw="$_m"; break; }
+    done
+    if [ ! -f "$_here/env.local.sh" ]; then
+        echo "scroll-bar gate skipped: no tools/env.local.sh" >&2
+    elif [ -z "$_pw" ]; then
+        echo "scroll-bar gate skipped: playwright not found" >&2
+    else
+        _deploy
+        # shellcheck disable=SC1091
+        ( source "$_here/env.local.sh"; NODE_PATH="$_pw" node "$_here/verify/scrollbar_sweep.js" "$GW_URL" ) \
+            || { echo "scroll-bar gate failed: fix the bars above, allowlist a genuine list in scrollbar_sweep.js with its reason, or pass --skip-scrollbar-check" >&2; exit 1; }
     fi
 fi
 # Lint gate (ign-lint + pylint over Jython 2.7). Blocking; bypass deliberately
@@ -86,11 +118,11 @@ if [[ " $* " != *" --skip-lint-check "* ]]; then
         echo "lint-gate.sh not found above $_repo; gate skipped" >&2
     fi
 fi
-# Strip --skip-readme-check/--skip-a11y-check/--skip-lint-check (already
+# Strip --skip-readme-check/--skip-a11y-check/--skip-lint-check/--skip-scrollbar-check (already
 # consumed by the gates above) so this script's own argument parsing -- which
 # rejects unrecognised args -- never sees them.
 _pkgargs=(); for _a in "$@"; do
-    [[ "$_a" == "--skip-readme-check" || "$_a" == "--skip-a11y-check" || "$_a" == "--skip-lint-check" ]] || _pkgargs+=("$_a")
+    [[ "$_a" == "--skip-readme-check" || "$_a" == "--skip-a11y-check" || "$_a" == "--skip-lint-check" || "$_a" == "--skip-scrollbar-check" ]] || _pkgargs+=("$_a")
 done
 set -- "${_pkgargs[@]}"
 

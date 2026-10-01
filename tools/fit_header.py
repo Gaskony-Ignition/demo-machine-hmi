@@ -119,17 +119,16 @@ for name in sorted(os.listdir(VIEWS)):
             add_class(el, cls)
             el["props"]["style"].pop("fontSize", None)
 
-    # WCAG 2.1 AA (axe scrollable-region-focusable): Name+Role+gap sum to a
-    # 32px basis, but the labels' own rendered line height is 1px taller than
-    # that regardless of what basis either one is given (measured - raising
-    # Name's basis raises the sum by the same amount and the 1px gap simply
-    # moves with it). Giving the COLUMN itself a basis 2px over that sum,
-    # rather than shrinking the labels back to fit it, is what actually turns
-    # it back into a plain box with nothing to scroll to or focus.
+    # The User block sits in the header ROW, so its basis is a width: the
+    # 34px set here until 1.19.2 squeezed "Not signed in" into 34px and drew
+    # scroll bars on Windows. Width follows the text; overflow is hidden
+    # because the labels' line boxes run 1px past the column's height, which
+    # is leading, not text. Nothing in it scrolls, so it takes no tab stop.
     user = find(view["root"], "User")
     if user is not None:
-        user["position"]["basis"] = "34px"
-        user.setdefault("meta", {})["tabIndex"] = 0
+        user["position"]["basis"] = "auto"
+        user["props"]["style"]["overflow"] = "hidden"
+        user.get("meta", {}).pop("tabIndex", None)
 
     json.dump(view, open(view_file, "w"), indent=2)
     stamp(view_dir)

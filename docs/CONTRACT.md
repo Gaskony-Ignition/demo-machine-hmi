@@ -600,6 +600,7 @@ next run:
 | `com.inductiveautomation.webdev/resources/cadview` | `tools/webdev_page.py build cadview` (source: `src/cadview/page.html`) |
 | `perspective/views/Machine/CadModel`, `Machine/CadModels` | `tools/build_cad_view.py` (reads Cell3D) |
 | the nav bar in every view that has one | `tools/add_nav_tab.py` |
+| `perspective/views/Machine/ManualAccess`, and which containers may scroll in Overview, Manual and Setup | `tools/fit_scrollbars.py` (checked by `tools/verify/scrollbar_sweep.js`, a `package.sh` gate) |
 | `project.json` title and description | `tools/package.sh` |
 
 `tools/webdev_page.py extract` brings a Designer edit of the 3D page back into
