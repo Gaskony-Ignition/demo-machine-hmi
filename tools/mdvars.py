@@ -148,19 +148,13 @@ NEUTRAL = [
     ("#3a434b", "beam-off",    40, "photo-eye beam, clear"),
     ("#3b4650", "rule",        40, "divider on Overview"),
     ("#4a5560", "clamp-off",   50, "clamp lamp, retracted"),
-    ("#5a646f", "joint",       50, "Cell2D arm joint"),
     ("#929ea8", "ink-dim",     60, "dim text - captions, inactive counts"),
-    ("#7d8894", "steel",       60, "Cell2D structure"),
     ("#98a5b0", "ink-quiet",   60, "secondary text"),
-    ("#98a4b1", "steel-hi",    70, "Cell2D structure, lit face"),
-    ("#aab3bd", "arm-2",       70, "Cell2D forearm"),
     ("#b7c2ca", "ink-soft",    80, "text on a tinted card"),
-    ("#c8ced5", "arm",         80, "Cell2D upper arm"),
     ("#cdd6dd", "ink-mid",     80, "readout text"),
     ("#cfd8df", "ink-body",    80, "body text"),
     ("#d5dde3", "ink-strong",  90, "emphasised text"),
     ("#dde4e9", "ink",         90, "primary text"),
-    ("#e6ebf0", "ink-cool",    90, "Cell2D primary text"),
     ("#e6eef4", "ink-bright",  90, "primary text, brightest"),
     ("#f2f6f8", "ink-max",    100, "maximum contrast text"),
 ]
@@ -168,7 +162,6 @@ NEUTRAL = [
 SEMANTIC = [
     # running / OK green
     ("#46d07c", "run",          "#0e7038", "running, OK, beam made"),
-    ("#5fd08a", "run-soft",     "#0d7d3e", "running, Cell2D readout"),
     ("#7ee2d2", "teal",         "#0a6b62", "throughput readout"),
     ("#bff0d2", "run-ink",      "#10502c", "text on a green button"),
     ("#2c7a4a", "run-line",     None,      "green button border"),

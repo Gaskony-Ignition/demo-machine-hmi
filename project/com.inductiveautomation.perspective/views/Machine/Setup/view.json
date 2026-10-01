@@ -293,53 +293,6 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "N_CELL2D",
-                  "tabIndex": 0
-                },
-                "props": {
-                  "text": "2D CELL",
-                  "style": {
-                    "fontSize": "11px",
-                    "fontWeight": 700,
-                    "letterSpacing": "0.6px",
-                    "padding": "0 8px",
-                    "lineHeight": "26px",
-                    "borderRadius": "5px",
-                    "whiteSpace": "nowrap",
-                    "cursor": "pointer",
-                    "border": "1px solid var(--md-line, #2c343d)",
-                    "color": "var(--md-ink-quiet, #8b98a3)",
-                    "backgroundColor": "transparent",
-                    "classes": "nav-tab"
-                  }
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "auto"
-                },
-                "events": {
-                  "dom": {
-                    "onClick": {
-                      "config": {
-                        "page": "/cell2d"
-                      },
-                      "scope": "C",
-                      "type": "nav"
-                    },
-                    "onKeyDown": {
-                      "type": "script",
-                      "scope": "G",
-                      "config": {
-                        "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate(page='/cell2d')"
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "type": "ia.display.label",
-                "meta": {
                   "name": "N_CAD",
                   "tabIndex": 0
                 },

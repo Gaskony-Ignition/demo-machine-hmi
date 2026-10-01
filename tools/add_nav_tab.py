@@ -7,10 +7,10 @@ styling and - more importantly - the exact event shape. A nav action with a
 missing "scope" key returns HTTP 500 on EVERY page of the project while the scan
 still reports success, so the safe move is never to hand-author one.
 
-Cell3D, Cell2D and CadModel deliberately have NO nav bar: they are
-full-bleed model screens with a Back button in their header instead. They are
-skipped here, and they are the reason the list below has more entries than the
-bar has room to lose.
+Cell3D and CadModel deliberately have NO nav bar: they are full-bleed model
+screens with a Back button in their header instead. They are skipped here,
+and they are the reason the list below has more entries than the bar has
+room to lose.
 
 Run:  python3 tools/add_nav_tab.py
 """
@@ -30,7 +30,6 @@ VIEWS = os.path.join(HERE, os.pardir, "project",
 TABS = [
     ("N_OVERVIEW", "OVERVIEW", "/"),
     ("N_3DCELL",   "3D CELL",  "/cell3d"),
-    ("N_CELL2D",   "2D CELL",  "/cell2d"),
     ("N_CAD",      "CAD",      "/cad"),
     ("N_MANUAL",   "MANUAL",   "/manual"),
     ("N_ALARMS",   "ALARMS",   "/alarms"),
