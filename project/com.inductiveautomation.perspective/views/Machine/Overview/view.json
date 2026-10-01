@@ -278,7 +278,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if(coalesce({view.custom.alm.active}, 0) > 0, \"var(--md-fault, #f0565e)\", if(coalesce({view.custom.alm.n}, 0) > 0, \"var(--md-warn, #eebf5e)\", \"var(--md-ink-quiet, #8b98a3)\"))"
+                        "expression": "if(coalesce({view.custom.alm.active}, 0) > 0, \"var(--md-fault-ink, #ff8d92)\", if(coalesce({view.custom.alm.n}, 0) > 0, \"var(--md-warn, #eebf5e)\", \"var(--md-ink-quiet, #8b98a3)\"))"
                       }
                     }
                   }
