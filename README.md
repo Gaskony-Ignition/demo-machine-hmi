@@ -13,8 +13,8 @@ control with permissives and hold-to-run jog, an alarm page, and a 3D view
 driven by the same tags as everything else.
 
 Every screen runs on **Ignition Edge Panel** as well as the standard
-platform (CAD upload and STEP are untested on Edge), and one button
-installs what the demo needs on either.
+platform (CAD upload and STEP untested on Edge); one button installs
+what the demo needs.
 
 ## What it looks like
 
@@ -51,7 +51,7 @@ screen as STL, a zip of STLs, or STEP.*
 | **3D model rendering** | Robot, infeed, two pallet stations, guarding — animated from live tags, with camera presets, orbit, pinch-zoom and faults highlighted on the geometry. The shape is a parts list edited in the Designer, not code. |
 | **Access control by security zone** | The Manual screen is live for maintenance and read-only for an operator, with the reason stated on screen. |
 | **Alarming** | Status and journal on the demo's own tag provider, connection and journal profile — acknowledge and shelve included. |
-| **Your own CAD on a screen** | The **CAD** tab shows the built-in model or one uploaded from the screen — binary STL, a zip of STLs, or STEP read in the browser — with orbit, zoom, pan and pick. Alarms carrying a `CadPart` part number are listed beside the model and tint their part. No module, no internet. See [docs/CAD-VIEWER.md](docs/CAD-VIEWER.md). |
+| **Your own CAD on a screen** | The **CAD** tab shows the built-in model or one uploaded from the screen — binary STL, a zip of STLs, or STEP read in the browser — with orbit, zoom, pan and pick. Alarms carrying a `CadPart` part number are listed beside the model and tint their part; any part can take a simulated alarm. No module, no internet. See [docs/CAD-VIEWER.md](docs/CAD-VIEWER.md). |
 | **Operator control** | Hold-to-run jog, a permissive list that answers "why won't it move?", service routines, per-zone start/stop. |
 
 | Tab | What it is |
@@ -66,7 +66,7 @@ screen as STL, a zip of STLs, or STEP.*
 ## How to use it
 
 Import `build/Machine_HMI_Demo-<version>.zip` in the Designer, then open the
-**Setup** page and press the one button. Setup writes 112 tags and 11 alarms
+**Setup** page and press the one button. Setup writes 126 tags and 15 alarms
 into its own `MachineDemo` tag provider and starts the simulator. What it does
 about a database depends on the gateway:
 

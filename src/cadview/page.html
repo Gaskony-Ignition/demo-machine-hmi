@@ -43,7 +43,7 @@
 
   /* Alarm panel: right column, between the buttons and the bottom edge. Rows
      that do not fit are counted, never scrolled - no inner scroll bars. */
-  #alarms { top:58px; right:14px; width:480px; padding:0; display:flex;
+  #alarms { top:58px; right:14px; width:min(480px, calc(100% - 28px)); padding:0; display:flex;
             flex-direction:column; max-height:calc(100% - 72px); }
   #alarms header { display:flex; align-items:center; gap:8px; padding:9px 12px;
                    border-bottom:1px solid var(--line); }
@@ -239,6 +239,10 @@
         (node.children || []).forEach(walk);
       })(res.root);
       if (!parts.length) { throw new Error("the STEP file has no solid geometry"); }
+      // The gateway never parses STEP, so it learns the part names from here,
+      // for the simulate-alarm part list. Names only; a failure costs nothing.
+      fetch("cad?f=parts" + Q, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(parts.map(function (p) { return p.name; })) }).catch(function () {});
       return parts;
     });
   }
@@ -310,11 +314,19 @@
     var box = new THREE.Box3().setFromObject(root);
     var size = new THREE.Vector3(); box.getSize(size);
     var mm = KIND === "stl" && Math.max(size.x, size.y, size.z) > 20;
-    if (mm) { root.scale.setScalar(0.001); box.setFromObject(root); box.getSize(size); }
+    if (mm) { root.scale.setScalar(0.001); box.setFromObject(root); }
+    // Stand the whole model on the grid: centred in plan, lowest point on the
+    // floor. One move of the root, so the parts keep their places relative to
+    // each other. CAD origins are wherever the designer left them, which put
+    // a zip of three wrist parts well away from a grid drawn at the origin.
+    var c0 = new THREE.Vector3(); box.getCenter(c0);
+    root.position.set(-c0.x, -box.min.y, -c0.z);
+    box.setFromObject(root); box.getSize(size);
     var target = new THREE.Vector3(); box.getCenter(target);
     var span = Math.max(size.x, size.y, size.z) || 1;
-    var grid = new THREE.GridHelper(span * 2, 20, 0x2c343d, 0x232a31);
-    grid.position.y = box.min.y;
+    // the grid is sized to the footprint, with a margin round it
+    var foot = Math.max(size.x, size.z) * 1.6 || span;
+    var grid = new THREE.GridHelper(foot, 16, 0x2c343d, 0x232a31);
     scene.add(grid);
 
     document.getElementById("mName").textContent =

@@ -66,6 +66,39 @@ a STEP file without an `ISO-10303-21` header, and anything else by extension.
 Zip entries are named from their base name only, so no entry path can write
 outside the model's folder.
 
+## Simulating an alarm on a part
+
+**Simulate alarm** (header) opens a popup that raises a real alarm on any part
+of the model on screen — built-in, zip, single STL or STEP:
+
+1. Choose the part (the list is the shown model's parts) and a priority.
+2. **Raise.** The alarm appears in the part alarm panel within 2 s and the
+   part pulses red, exactly like a machine alarm — it *is* one.
+3. **Ack** / **Clear** per slot, or **Ack all** / **Clear all**. RESET DEMO
+   on Setup clears them too. They also show, and can be acknowledged, on the
+   Alarms screen.
+
+Behind it is a pool of four slots, `[MachineDemo]CadSim/Sim1..Sim4`, each a
+`Part` string, a `Priority` integer (0 Diagnostic … 4 Critical) and an
+`Active` boolean carrying the alarm *Simulated Part Alarm*. The alarm's
+`CadPart` and priority are **bound** to the two sibling tags
+(`{"bindType": "Tag", "value": "[.]Part"}`). A bound alarm property is read
+when the alarm goes active and the standing event keeps it, so a raise
+writes `Part` and `Priority` first and `Active` last (`MachineDemo.cad
+.simRaise`).
+
+- Raising the same part again re-uses its slot with the new priority.
+- With all four slots holding other parts, Raise refuses — *all 4 simulation
+  slots are in use - clear one first* — rather than take one over.
+- Writes go through the Perspective session only.
+
+**STEP part names are known only to the page**, which parses the file. After
+parsing it POSTs the list of names to `cad?f=parts&model=<name>`, stored as
+`parts.json` beside the model; that is where the popup's part list comes from
+for a STEP model. It is the one HTTP write in the project: names only, into a
+fixed file of an existing STEP model. So show a STEP model once before
+simulating on it.
+
 ## Linking alarms to parts
 
 An alarm names its part in **associated data** called **`CadPart`**. The CAD
@@ -146,6 +179,14 @@ keeps working when the project is called something else:
 
 A literal project name in that `src` is the one mistake that turns this page
 into `HTTP ERROR 404 Project "..." not found` on somebody else's gateway.
+
+## Where the model sits
+
+On load the whole model is moved once — centred on the grid in plan, its
+lowest point on the grid — and the grid is sized to its footprint. Parts keep
+their places relative to each other. CAD origins are wherever the designer
+left them; three UR5 wrist parts arrived well off a grid drawn at the origin
+before this.
 
 ## What STL costs you
 
