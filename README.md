@@ -4,6 +4,8 @@
 model of the cell — for machine builders evaluating Ignition as an HMI
 replacement.**
 
+> **Not an Inductive Automation product, and not supported by Inductive Automation.** Personal work, largely built with AI tools and tested for one purpose on one gateway. Take the ideas; fork and review it before it goes near production. [NOTICE.md](NOTICE.md) says more.
+
 ## Why this exists
 
 Most Ignition demonstrations look like a dashboard, not the screen an
