@@ -544,5 +544,5 @@ const describe = `(root, skip, skipChildren) => {
 })();
 
 // Run:
-//   NODE_PATH=/Home-Claude/ignition-claude-toolkit/plugins/ignition/skills/verify-view/tool/node_modules \
+//   NODE_PATH=$IGNITION_TOOLKIT/plugins/ignition/skills/verify-view/tool/node_modules \
 //     node tools/verify/scene_parity.js

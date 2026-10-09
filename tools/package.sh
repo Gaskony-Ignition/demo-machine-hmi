@@ -87,8 +87,7 @@ fi
 if [[ " $* " != *" --skip-scrollbar-check "* ]]; then
     _here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     _pw=""
-    for _m in "${NODE_PATH:-/nonexistent}" /Home-Claude/ignition-claude-toolkit/plugins/ignition/skills/verify-view/tool/node_modules \
-              "$_here/../../water-suite/node_modules"; do
+    for _m in "${NODE_PATH:-/nonexistent}" "${IGNITION_TOOLKIT:-/nonexistent}/plugins/ignition/skills/verify-view/tool/node_modules"; do
         [ -d "$_m/playwright" ] && { _pw="$_m"; break; }
     done
     if [ ! -f "$_here/env.local.sh" ]; then
